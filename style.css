@@ -1,0 +1,143 @@
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header {
+  background-color: #4caf50;
+  color: white;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin: 0 1rem;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+nav ul li a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding: 1rem;
+}
+
+section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #333;
+}
+
+h3 {
+  color: #555;
+}
+
+p {
+  color: #666;
+}
+
+/* Footer styles */
+footer {
+  text-align: center;
+  padding: 1rem 0;
+  background-color: #333;
+  color: white;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  nav ul li {
+    display: block;
+    margin: 0.5rem 0;
+  }
+
+  nav ul li a {
+    display: block;
+    padding: 0.5rem;
+    background-color: #4caf50;
+    color: white;
+  }
+
+  nav ul li a:hover {
+    background-color: #45a049;
+  }
+}
+
+/* ESTILOS BOTON WHATSAPP */
+
+.whatsapp-button {
+  bottom: 90px;
+  right: 10px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* Estilo para el botón de WhatsApp */
+/* Estilo para el botón de WhatsApp */
+.whatsapp-button {
+  position: fixed;
+  bottom: -70px;
+  right: -6%;
+  /*Ajustalaposiciónparaqueestéenlaesquinainferiorderecha*/
+  padding: 95px;
+  /*Tamañodepaddingmáspequeñoparadispositivosmóviles*/
+  border-radius: 50%;
+  font-size: 16px;
+  /*Tamañodefuentereducidoparamóviles*/
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+/* Tamaño del icono de WhatsApp */
+.whatsapp-button img {
+  width: 80px; /* Tamaño del icono reducido para dispositivos móviles */
+  height: auto;
+  vertical-align: middle;
+}
+
+/* Media query para pantallas pequeñas */
+@media (max-width: 767px) {
+  .whatsapp-button {
+    padding: 10px; /* Ajusta el padding para pantallas más pequeñas */
+    font-size: 2px; /* Ajusta el tamaño de la fuente para pantallas más pequeñas */
+    bottom: 10px; /* Ajusta la posición inferior en pantallas más pequeñas */
+    right: -10px; /* Ajusta la posición derecha en pantallas más pequeñas */
+  }
+
+  .whatsapp-button img {
+    width: 80px; /* Tamaño aún más pequeño para el icono en pantallas pequeñas */
+  }
+}

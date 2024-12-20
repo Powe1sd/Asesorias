@@ -1,0 +1,216 @@
+/* Fondo con nieve */
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(to bottom, #001f3f, #011826);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.snow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: url("https://i.imgur.com/6C2tSMp.png") repeat top center;
+  animation: snowfall 10s linear infinite;
+}
+
+@keyframes snowfall {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+/* Contenedor del árbol */
+.tree-container {
+  position: relative;
+  width: 300px;
+  perspective: 800px;
+  animation: spin 10s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Estrella animada */
+.star {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, gold, orange, red);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  animation: twinkle 1.5s infinite alternate;
+  z-index: 10;
+  box-shadow: 0 0 20px gold, 0 0 30px orange, 0 0 40px red;
+}
+
+@keyframes twinkle {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 30px gold, 0 0 40px orange, 0 0 50px red;
+  }
+  100% {
+    transform: scale(1.2);
+    box-shadow: 0 0 50px gold, 0 0 60px orange, 0 0 80px red;
+  }
+}
+
+/* Árbol */
+.tree {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.layer {
+  width: 0;
+  height: 0;
+  border-left: 150px solid transparent;
+  border-right: 150px solid transparent;
+  margin-top: -20px;
+}
+
+.layer1 {
+  border-bottom: 180px solid #0a5c24;
+}
+
+.layer2 {
+  border-bottom: 210px solid #0c752e;
+  margin-top: -50px;
+}
+
+.layer3 {
+  border-bottom: 240px solid #0f9038;
+  margin-top: -50px;
+}
+
+/* Tronco */
+.trunk {
+  width: 60px;
+  height: 80px;
+  background: #8b4513;
+  margin-top: -10px;
+  border-radius: 10px;
+}
+
+/* Luces parpadeantes */
+.lights {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.light {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin: 10px;
+  box-shadow: 0 0 15px yellow;
+  animation: blink 1.5s infinite alternate;
+}
+
+.light:nth-child(2) {
+  background-color: red;
+  box-shadow: 0 0 15px red;
+  animation-delay: 0.3s;
+}
+
+.light:nth-child(3) {
+  background-color: blue;
+  box-shadow: 0 0 15px blue;
+  animation-delay: 0.6s;
+}
+
+.light:nth-child(4) {
+  background-color: green;
+  box-shadow: 0 0 15px green;
+  animation-delay: 0.9s;
+}
+
+.light:nth-child(5) {
+  background-color: purple;
+  box-shadow: 0 0 15px purple;
+  animation-delay: 1.2s;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Decoraciones */
+.decorations .ball {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  box-shadow: 0 0 15px;
+}
+
+.red {
+  background: red;
+  top: 35%;
+  left: 30%;
+}
+
+.blue {
+  background: blue;
+  top: 45%;
+  right: 25%;
+}
+
+.yellow {
+  background: yellow;
+  top: 55%;
+  left: 50%;
+}
+
+.green {
+  background: green;
+  top: 65%;
+  right: 15%;
+}
+
+.purple {
+  background: purple;
+  top: 30%;
+  left: 65%;
+}

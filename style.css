@@ -11,6 +11,7 @@ header {
   color: white;
   padding: 1rem 0;
   text-align: center;
+  font-family: "Times New Roman", Times, serif;
 }
 
 header h1 {
@@ -46,7 +47,9 @@ section {
   padding: 1rem;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: "Times New Roman", Times, serif;
+  text-align: justify;
+  color: black;
 }
 
 h2 {
@@ -58,7 +61,7 @@ h3 {
 }
 
 p {
-  color: #666;
+  color: black;
 }
 
 /* Footer styles */
@@ -67,6 +70,8 @@ footer {
   padding: 1rem 0;
   background-color: #333;
   color: white;
+  font-family: "Times New Roman", Times, serif;
+  padding: 12px;
 }
 
 /* Responsive styles */
@@ -79,12 +84,12 @@ footer {
   nav ul li a {
     display: block;
     padding: 0.5rem;
-    background-color: #4caf50;
-    color: white;
+    background-color: yellow;
+    color: black;
   }
 
   nav ul li a:hover {
-    background-color: #45a049;
+    background-color: red;
   }
 }
 

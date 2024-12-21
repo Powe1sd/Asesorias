@@ -120,12 +120,6 @@ footer {
   vertical-align: middle;
 }
 
-/* Efecto solo al pasar el cursor */
-.whatsapp-button:hover {
-  background-color: green;
-  box-shadow: 0 0 20px 10px blue; /* Sombra verde */
-  transform: scale(1.1); /* Efecto de zoom */
-}
 
 /* Media query para pantallas pequeñas */
 @media (max-width: 767px) {
@@ -248,5 +242,33 @@ footer {
   }
   100% {
     transform: rotateY(360deg);
+  }
+}
+
+/* Estilos para el texto en movimiento */
+.scrolling-text {
+  font-size: 20px;
+  font-family: Arial, sans-serif;
+  color: black;
+  background-color: white;
+  padding: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 70%;
+  box-sizing: border-box;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  animation: scroll-text 15s linear infinite;
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* Animación de desplazamiento */
+@keyframes scroll-text {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }

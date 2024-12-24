@@ -258,5 +258,19 @@ footer {
   }
   100% {
     transform: translateX(-100%);
-  }
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+}
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 520px; /* Ajusta la distancia desde la parte inferior */
+  right: 20px; /* Ajusta la distancia desde la parte derecha */
+  font-size: 34px; /* Tamaño del texto */
+  font-family: "Times New Roman", Times, serif; /* Fuente del texto */
+  font-weight: bold; /* Hace el texto más grueso */
+  color: red;
 }

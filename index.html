@@ -13,13 +13,25 @@
         <h1>Asesorías Profesionales</h1>
         <nav>
           <ul>
-            <li><a href="#plataformas-web">Plataformas web</a></li>
-            <li><a href="#sistemas-web">Sitios web</a></li>
-            <li><a href="#catalogo-venta">Catálogo de venta</a></li>
-            <li><a href="#bases-datos">Bases de datos</a></li>
-            <li><a href="#proyectos">Proyectos</a></li>
-            <li><a href="#soluciones">Soluciones</a></li>
-            <li><a href="#contacto">Contacto</a></li>
+            <li>
+              <a href="#plataformas-web" class="vibrate-button"
+                >Plataformas web</a
+              >
+            </li>
+            <li>
+              <a href="#sistemas-web" class="vibrate-button">Sitios web</a>
+            </li>
+            <li>
+              <a href="#catalogo-venta" class="vibrate-button"
+                >Catálogo de venta</a
+              >
+            </li>
+            <li>
+              <a href="#bases-datos" class="vibrate-button">Bases de datos</a>
+            </li>
+            <li><a href="#proyectos" class="vibrate-button">Proyectos</a></li>
+            <li><a href="#soluciones" class="vibrate-button">Soluciones</a></li>
+            <li><a href="#contacto" class="vibrate-button">Contacto</a></li>
           </ul>
         </nav>
       </div>
@@ -91,9 +103,24 @@
         </a>
       </div>
     </footer>
-
-
-
-    
   </body>
+
+  <script>
+    // Verifica si la API de vibración está disponible
+    const supportsVibration = "vibrate" in navigator;
+
+    // Selecciona todos los botones que vibrarán
+    const vibrateButtons = document.querySelectorAll(".vibrate-button");
+
+    vibrateButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        // Activa la vibración si está disponible
+        if (supportsVibration) {
+          navigator.vibrate(100); // Vibrar durante 100ms
+        }
+      });
+    });
+  </script>
+
+  
 </html>

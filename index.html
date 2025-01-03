@@ -119,17 +119,8 @@
       });
 
       // Vibración al desplazarse
-      let lastScrollY = window.scrollY;
-      window.addEventListener("scroll", () => {
-        if (supportsVibration) {
-          const currentScrollY = window.scrollY;
-          if (Math.abs(currentScrollY - lastScrollY) > 50) {
-            // Vibrar al desplazarse más de 50px
-            navigator.vibrate(50);
-            lastScrollY = currentScrollY;
-          }
-        }
-      });
-    </script>
+     
+   
+   </script>
   </body>
 </html>

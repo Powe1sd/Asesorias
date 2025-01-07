@@ -97,6 +97,18 @@
       </section>
     </main>
 
+    <div class="splash-screen">
+      <h1>
+        Transforma tu visión en un sitio web excepcional<br />Que esperas.
+      </h1>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="content">
+      <h2>Tu contenido comienza aquí...</h2>
+      <p>Gracias por visitar nuestra página.</p>
+    </div>
+
     <footer>
       <div class="footer-container">
         <p>&copy; 2025 Asesorías Profesionales</p>
@@ -128,6 +140,14 @@
       });
 
       // Vibración al desplazarse
+    </script>
+
+    <script>
+      // Ocultar el splash después de 3 segundos
+      setTimeout(() => {
+        document.querySelector(".splash-screen").style.display = "none";
+        document.querySelector(".content").style.display = "block";
+      }, 3000);
     </script>
   </body>
 </html>

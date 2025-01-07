@@ -276,17 +276,23 @@ footer {
 }
 
 .welcome-message {
-  background-color: rgba(0, 0, 0, 0.5);
-  /*Rojointenso*/color: #000;
-  /*Textonegro*/text-align: center;
+  background-color: whitesmoke;
+  /*Rojointenso*/
+  color: #000;
+  /*Textonegro*/
+  text-align: center;
   padding: 15px;
   font-size: 1.2em;
   border: 1px solid #8b0000;
-  /*Rojooscuroparaelborde*/margin: 10px 20px;
+  /*Rojooscuroparaelborde*/
+  margin: 10px 20px;
   border-radius: 5px;
   box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
-  /*Efectodeiluminaciónrojo*/animation: splashEffect 2s infinite alternate;
+  /*Efectodeiluminaciónrojo*/
+  animation: splashEffect 2s infinite alternate;
   -webkit-animation: splashEffect 2s infinite alternate;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 22px;
 }
 
 /* Animación para el efecto splash */

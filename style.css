@@ -276,7 +276,7 @@ footer {
 }
 
 .welcome-message {
-  background-color: #ff0000; /* Rojo intenso */
+  background-color: rgba(0, 0, 0, 0.5); /* Rojo intenso */
   color: #000; /* Texto negro */
   text-align: center;
   padding: 15px;

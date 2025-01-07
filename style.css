@@ -262,7 +262,7 @@ footer {
     -moz-transform: translateX(-100%);
     -ms-transform: translateX(-100%);
     -o-transform: translateX(-100%);
-}
+  }
 }
 
 .bottom-right {
@@ -273,4 +273,29 @@ footer {
   font-family: "Times New Roman", Times, serif; /* Fuente del texto */
   font-weight: bold; /* Hace el texto más grueso */
   color: red;
+}
+
+.welcome-message {
+  background-color: #ff0000; /* Rojo intenso */
+  color: #000; /* Texto negro */
+  text-align: center;
+  padding: 15px;
+  font-size: 1.2em;
+  border: 1px solid #8b0000; /* Rojo oscuro para el borde */
+  margin: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); /* Efecto de iluminación rojo */
+  animation: splashEffect 2s infinite alternate; /* Animación splash */
+}
+
+/* Animación para el efecto splash */
+@keyframes splashEffect {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 10px rgba(0, 0, 0, 0.5); /* Brillo rojo con toque negro */
+    transform: scale(1.05);
+  }
 }

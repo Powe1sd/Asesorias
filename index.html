@@ -151,7 +151,10 @@
     </script>
 
     <script>
-      // Ocultar el splash después de 3 segundos
+      // Reproducir audio al mostrar el splash
+      const welcomeAudio = document.getElementById("welcome-audio");
+      // Mostrar el splash y reproducir el audio
+      // Ocultar el splash después de 3 segundo
       setTimeout(() => {
         document.querySelector(".splash-screen").style.display = "none";
         document.querySelector(".content").style.display = "block";

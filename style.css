@@ -265,6 +265,10 @@ footer {
   }
 }
 
+
+
+
+
 .bottom-right {
   position: fixed;
   bottom: 520px; /* Ajusta la distancia desde la parte inferior */
@@ -274,6 +278,11 @@ footer {
   font-weight: bold; /* Hace el texto más grueso */
   color: red;
 }
+
+
+
+
+
 
 .welcome-message {
   background-color: red;

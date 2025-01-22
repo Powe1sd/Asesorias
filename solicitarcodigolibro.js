@@ -13,7 +13,7 @@ function solicitarCodigo6(event) {
       swal("Operación cancelada", {
         icon: "warning",
       });
-    } else if (value === "8020w") {
+    } else if (value === "10021399") {
       // Si se introduce el código correcto
       swal("¡Código correcto!", {
         icon: "success",

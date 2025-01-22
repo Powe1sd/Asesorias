@@ -3,7 +3,7 @@ function solicitarCodigo6(event) {
 
   // Muestra el cuadro de diálogo SweetAlert
   swal({
-    text: "Introduce el código:",
+    text: "Precio del libro 110.000",
     content: "input",
     buttons: ["Cancelar", "Aceptar"], // Array de botones con "Cancelar" y "Aceptar"
     closeOnClickOutside: false, // Evita que se cierre al hacer clic fuera del cuadro de diálogo
@@ -35,7 +35,7 @@ function solicitarCodigo7(event) {
 
   // Muestra el cuadro de diálogo SweetAlert
   swal({
-    text: "Introduce el código:",
+    text: "Precio del libro 110.000",
     content: "input",
     buttons: ["Cancelar", "Aceptar"], // Array de botones con "Cancelar" y "Aceptar"
     closeOnClickOutside: false, // Evita que se cierre al hacer clic fuera del cuadro de diálogo

@@ -1,355 +1,152 @@
 /* General styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
+  background: linear-gradient(135deg, #1a1a1d, #4e4e50);
+  color: #f5f5f5;
+  overflow-x: hidden;
 }
 
 header {
-  background-color: black;
+  background: linear-gradient(90deg, black, white);
   color: white;
-  padding: 1rem 0;
+  padding: 1.5rem 0;
   text-align: center;
-  font-family: "Times New Roman", Times, serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
   margin: 0;
+  font-size: 2.5rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
 }
 
 nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-nav ul li {
-  display: inline;
-  margin: 0 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
 }
 
 nav ul li a {
   color: white;
   text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-nav ul li a:hover {
-  text-decoration: underline;
+nav ul li a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: width 0.3s ease;
+}
+
+nav ul li a:hover::after {
+  width: 100%;
 }
 
 main {
-  padding: 1rem;
+  padding: 2rem;
 }
 
 section {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 8px;
-  font-family: "Times New Roman", Times, serif;
-  text-align: justify;
-  color: black;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
 }
 
-h2 {
-  color: #333;
+section:hover {
+  transform: translateY(-10px);
 }
 
-h3 {
-  color: #555;
+section h2 {
+  color: #ff6f61;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  border-bottom: 2px solid #ff6f61;
+  display: inline-block;
+  padding-bottom: 0.3rem;
 }
 
-p {
-  color: black;
+section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 /* Footer styles */
 footer {
-  text-align: center;
-  padding: 1rem 0;
-  background-color: #333;
+  background: linear-gradient(90deg, #f5f5f5, #4e4e50);
   color: white;
-  font-family: "Times New Roman", Times, serif;
-  padding: 12px;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 1rem;
+}
+
+footer p {
+  margin: 0;
+}
+
+/* Splash screen */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, red 0%, black 60%, white 80%, black 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeOut 8s forwards;
+  -webkit-animation: fadeOut 11s forwards;
+}
+
+.splash-screen h1 {
+  color: white;
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  nav ul li {
-    display: block;
-    margin: 0.5rem 0;
-  }
-}
-
-/* ESTILOS BOTON WHATSAPP */
-
-/* Estilo para el botón de WhatsApp */
-/* Estilo para el botón de WhatsApp */
-.whatsapp-button {
-  position: fixed;
-  bottom: -70px;
-  right: -6%;
-  padding: 95px;
-  border-radius: 50%;
-  font-size: 16px;
-  text-align: center;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transición suave */
-}
-
-/* Tamaño del icono de WhatsApp */
-.whatsapp-button img {
-  width: 80px;
-  height: auto;
-  vertical-align: middle;
-}
-
-/* Media query para pantallas pequeñas */
-@media (max-width: 767px) {
-  .whatsapp-button {
-    padding: 10px;
-    font-size: 12px;
-    bottom: 10px;
-    right: 10px;
+  nav ul {
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .whatsapp-button img {
-    width: 50px;
+  section {
+    padding: 1.5rem;
   }
-}
 
-/* Estilo para el contenedor del árbol */
-.tree-container {
-  position: relative;
-  width: 300px; /* Ajusta el tamaño del árbol */
-  height: 400px; /* Ajusta el tamaño del árbol */
-  margin: 0 auto; /* Centra el árbol en la página */
-  margin-top: 20px; /* Separación desde el inicio de la página */
-}
-
-.tree-container .tree {
-  position: absolute;
-  width: 100%;
-  height: 60%;
-  background: green;
-  border-radius: 10px;
-}
-
-.tree-container .layer {
-  position: absolute;
-  width: 100%;
-  height: 20%;
-  background: darkgreen;
-  top: 0;
-  left: 0;
-  border-radius: 5px;
-}
-
-.tree-container .trunk {
-  position: absolute;
-  bottom: 0;
-  width: 40px;
-  height: 50px;
-  background: brown;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.tree-container .ornaments {
-  position: absolute;
-  top: 10%;
-  left: 10%;
-  right: 10%;
-}
-
-.tree-container .ornament {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: red;
-  border-radius: 50%;
-}
-
-.tree-container .gifts {
-  position: absolute;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.tree-container .gift {
-  width: 30px;
-  height: 30px;
-  background-color: gold;
-  position: absolute;
-}
-
-.tree-container .gift.big {
-  width: 50px;
-  height: 50px;
-  background-color: red;
-  bottom: 0;
-}
-
-/* ARBOLLLL */
-
-.snow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: url("https://i.imgur.com/6C2tSMp.png") repeat top center;
-  animation: snowfall 10s linear infinite;
-}
-
-@keyframes snowfall {
-  0% {
-    background-position: 0 0;
+  header h1 {
+    font-size: 2rem;
   }
-  100% {
-    background-position: 0 100%;
-  }
-}
-
-/* Contenedor del árbol */
-.tree-container {
-  position: relative;
-  width: 300px;
-  perspective: 800px;
-  animation: spin 10s infinite linear;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotateY(0);
-  }
-  100% {
-    transform: rotateY(360deg);
-  }
-}
-
-/* Estilos para el texto en movimiento */
-.scrolling-text {
-  font-size: 20px;
-  font-family: Arial, sans-serif;
-  color: black;
-  background-color: white;
-  padding: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  width: 70%;
-  box-sizing: border-box;
-  position: absolute;
-  top: 20px;
-  left: 0;
-  animation: scroll-text 15s linear infinite;
-  font-family: "Times New Roman", Times, serif;
-}
-
-/* Animación de desplazamiento */
-@keyframes scroll-text {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-    -webkit-transform: translateX(-100%);
-    -moz-transform: translateX(-100%);
-    -ms-transform: translateX(-100%);
-    -o-transform: translateX(-100%);
-  }
-}
-
-
-
-
-
-.bottom-right {
-  position: fixed;
-  bottom: 520px; /* Ajusta la distancia desde la parte inferior */
-  right: 20px; /* Ajusta la distancia desde la parte derecha */
-  font-size: 34px; /* Tamaño del texto */
-  font-family: "Times New Roman", Times, serif; /* Fuente del texto */
-  font-weight: bold; /* Hace el texto más grueso */
-  color: red;
-}
-
-
-
-
-
-
-.welcome-message {
-  background-color: red;
-  /*Rojointenso*/
-  color: #000;
-  /*Textonegro*/
-  text-align: center;
-  padding: 15px;
-  font-size: 1.2em;
-  border: 1px solid #8b0000;
-  /*Rojooscuroparaelborde*/
-  margin: 10px 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
-  /*Efectodeiluminaciónrojo*/
-  animation: splashEffect 2s infinite alternate;
-  -webkit-animation: splashEffect 2s infinite alternate;
-  font-family: "Times New Roman", Times, serif;
-  font-size: 22px;
-}
-
-/* Animación para el efecto splash */
-@keyframes splashEffect {
-  0% {
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    transform: scale(1);
-  }
-  100% {
-    box-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 10px rgba(0, 0, 0, 0.5); /* Brillo rojo con toque negro */
-    transform: scale(1.05);
-  }
-}
-/* mensaje splash */
-.splash-screen {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #000, #f4f4f4);
-  color: white;
-  text-align: center;
-  font-size: 1.8rem;
-  z-index: 1000;
-}
-
-.splash-screen h1 {
-  margin: 0;
-  animation: fadeIn 2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.content {
-  display: none;
-  text-align: center;
-  padding: 20px;
 }

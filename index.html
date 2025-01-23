@@ -149,5 +149,21 @@
         document.querySelector(".content").style.display = "block";
       }, 3000);
     </script>
+
+    <!-- Audio que se reproduce al cargar la página -->
+    <audio id="page-audio" src="audio.mp3" preload="auto"></audio>
+
+    <script>
+      // Reproducir el audio cuando se carga la página
+      window.addEventListener("load", () => {
+        const audio = document.getElementById("page-audio");
+        audio.play().catch((error) => {
+          console.log(
+            "El usuario debe interactuar con la página primero:",
+            error
+          );
+        });
+      });
+    </script>
   </body>
 </html>

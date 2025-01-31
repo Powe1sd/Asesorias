@@ -8,6 +8,31 @@ body {
   overflow-x: hidden;
 }
 
+/* Contenedor del video */
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  width: 90%;
+}
+
+/* Estilos para el video */
+video {
+  max-width: 330px; /* Define un ancho máximo */
+  height: auto; /* Mantiene la proporción */
+  border: 2px solid #ccc; /* Borde opcional */
+  border-radius: 10px; /* Esquinas redondeadas */
+}
+
+/* Ajustes específicos para pantallas pequeñas */
+@media (max-width: 480px) {
+  video {
+    width: 80%; /* Ocupa todo el ancho en pantallas pequeñas */
+    max-width: 170px; /* Reduce el tamaño máximo en móviles */
+  }
+}
+
 header {
   background: linear-gradient(90deg, black, white);
   color: white;

@@ -4,10 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Lista de programas con título, descripción y ruta del archivo
   const programs = [
     {
-      title: "Programa 1",
+      title: "Programa para empezar aprender ingles ",
       description:
-        "Este es un programa muy útil para realizar tareas específicas.",
-      path: "archivos/textogenerate.exe",
+        "Este es un programa en el cual se puede empezar aprender inglés es una manera práctica, para incentivar el idioma inglés.",
+
+      path: "https://drive.google.com/drive/folders/1ap-OCK2qykdQp4L2uLkLGW_M-2lrUAHw?usp=sharing",
     },
     {
       title: "Programa 2",

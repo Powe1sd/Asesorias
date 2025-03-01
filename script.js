@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
       path: "https://drive.google.com/drive/folders/1zAlAHp_rkQ-J83lZvbXzsIGHiJ27I45n?usp=drive_link",
     },
     {
-      title: "Programa 3",
+      title: "Programa de gestor de documentos",
       description:
-        "Un tercer programa para completar tu colección de herramientas.",
-      path: "archivos/programa3.exe",
+        "Es un programa para guardar los documentos de manera segura ",
+      path: "https://drive.google.com/drive/folders/1fzK7bQzUySHIiGzF4J8hHt4ON0inbbf1?usp=drive_link",
     },
   ];
 

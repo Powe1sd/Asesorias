@@ -11,9 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
       path: "https://drive.google.com/file/d/1ZaUL2DLziA-2LwFFjqrnQcGce7v4bYqz/view?usp=sharing",
     },
     {
-      title: "Programa 2",
-      description: "Otro programa interesante con funcionalidades avanzadas.",
-      path: "archivos/programa2.exe",
+      title: "Generador de código de barras",
+      description:
+        "Esta es una aplicación para generar código de barras en el cual se pueden generar, los códigos de barras ",
+      path: "https://drive.google.com/drive/folders/1zAlAHp_rkQ-J83lZvbXzsIGHiJ27I45n?usp=drive_link",
     },
     {
       title: "Programa 3",

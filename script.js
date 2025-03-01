@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
       description:
         "Este es un programa en el cual se puede empezar aprender inglés es una manera práctica, para incentivar el idioma inglés.",
 
-      path: "",
+      path: "https://drive.google.com/file/d/1ZaUL2DLziA-2LwFFjqrnQcGce7v4bYqz/view?usp=sharing",
     },
     {
       title: "Programa 2",

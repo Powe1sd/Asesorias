@@ -16,11 +16,25 @@ document.addEventListener("DOMContentLoaded", () => {
         "Esta es una aplicación para generar código de barras en el cual se pueden generar, los códigos de barras ",
       path: "https://drive.google.com/drive/folders/1zAlAHp_rkQ-J83lZvbXzsIGHiJ27I45n?usp=drive_link",
     },
+
     {
       title: "Programa de gestor de documentos",
       description:
         "Es un programa para guardar los documentos de manera segura ",
       path: "https://drive.google.com/drive/folders/1fzK7bQzUySHIiGzF4J8hHt4ON0inbbf1?usp=drive_link",
+    },
+
+    {
+      title: "Sistema de grabación de pantalla",
+      description:
+        "Es una aplicación donde se puede grabar la pantalla sin marca de agua y manera gratuita.",
+      path: "https://drive.google.com/drive/folders/1SZGnyDCroXvL24_LBNGMFndohKH45NjG?usp=sharing",
+    },
+    {
+      title: "Sistema de grabación de pantalla 2",
+      description:
+        "Es una aplicación donde se puede grabar la pantalla y también el rostro de la cámara del pc. Proxiamente",
+      path: "",
     },
   ];
 

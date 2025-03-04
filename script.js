@@ -36,6 +36,66 @@ document.addEventListener("DOMContentLoaded", () => {
         "Es una aplicación donde se puede grabar la pantalla y también el rostro de la cámara del pc. Proxiamente",
       path: "",
     },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
+
+    {
+      title: "Otra",
+      description: "Aplicación ",
+      path: "",
+    },
   ];
 
   // Generar elementos de la interfaz para cada programa

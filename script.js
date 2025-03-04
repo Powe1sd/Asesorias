@@ -31,69 +31,69 @@ document.addEventListener("DOMContentLoaded", () => {
       path: "https://drive.google.com/drive/folders/1SZGnyDCroXvL24_LBNGMFndohKH45NjG?usp=sharing",
     },
     {
-      title: "Sistema de grabación de pantalla 2",
+      title: "Sistema de grabación de pantalla Con cara",
       description:
-        "Es una aplicación donde se puede grabar la pantalla y también el rostro de la cámara del pc. Proxiamente",
+        "Es una aplicación donde se puede grabar la pantalla y también el rostro de la cámara del pc.",
+      path: "https://drive.google.com/drive/folders/1lub7UCdg_DHnRV_xePHzuHG7yzzk7-dV?usp=sharing",
+    },
+
+    {
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo  ",
+      path: "",
+    },
+
+    {
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo  ",
+      path: "",
+    },
+
+    {
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo ",
+      path: "",
+    },
+
+    {
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo  ",
+      path: "",
+    },
+
+    {
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo  ",
       path: "",
     },
 
     {
       title: "Otra",
-      description: "Aplicación ",
+      description: "Aplicación en proceso de desarrollo  ",
       path: "",
     },
 
     {
-      title: "Otra",
-      description: "Aplicación ",
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo ",
       path: "",
     },
 
     {
-      title: "Otra",
-      description: "Aplicación ",
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo ",
       path: "",
     },
 
     {
-      title: "Otra",
-      description: "Aplicación ",
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo  ",
       path: "",
     },
 
     {
-      title: "Otra",
-      description: "Aplicación ",
-      path: "",
-    },
-
-    {
-      title: "Otra",
-      description: "Aplicación ",
-      path: "",
-    },
-
-    {
-      title: "Otra",
-      description: "Aplicación ",
-      path: "",
-    },
-
-    {
-      title: "Otra",
-      description: "Aplicación ",
-      path: "",
-    },
-
-    {
-      title: "Otra",
-      description: "Aplicación ",
-      path: "",
-    },
-
-    {
-      title: "Otra",
-      description: "Aplicación ",
+      title: "Aplicación",
+      description: "Aplicación en proceso de desarrollo ",
       path: "",
     },
   ];

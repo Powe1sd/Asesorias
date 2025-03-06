@@ -38,15 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
-      title: "Aplicación",
-      description: "Aplicación en proceso de desarrollo  ",
-      path: "",
+      title: "Convertidor de imágenes jpg a .ico",
+      description:
+        "Es un programa para convertir imágenes jpg png a .ico permitiendo la conversión de este formato. ",
+      path: "https://drive.google.com/drive/folders/1b3qogp7blT9IR3-_c3HdmFv3Navi_0-Y?usp=sharing",
     },
 
     {
-      title: "Aplicación",
-      description: "Aplicación en proceso de desarrollo  ",
-      path: "",
+      title: "Eliminar fondo de una imagen  ",
+      description: "Programa para eliminar fondo de una imagen",
+      path: "https://drive.google.com/drive/folders/1tpKbud-uGRCZpJEUkzTN9Z7A0jUs5kEu?usp=sharing",
     },
 
     {

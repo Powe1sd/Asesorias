@@ -51,9 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
-      title: "Aplicación",
-      description: "Aplicación en proceso de desarrollo ",
-      path: "",
+      title: "Generador de pdf a Word",
+      description: "Convertir los archivos de pdf a word",
+      path: "https://drive.google.com/drive/folders/1ZoBNSyA_jasvlLmDEKVfpqgKuobdZX7f?usp=sharing",
     },
 
     {

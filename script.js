@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
-      title: "Aplicación",
+      title: "",
       description: "Aplicación en proceso de desarrollo  ",
       path: "",
     },

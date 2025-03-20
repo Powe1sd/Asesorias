@@ -3,6 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Lista de programas con título, descripción y ruta del archivo
   const programs = [
+
+    {
+      title: "Unir pdfs",
+      description: "Programa en el cual se unen varios pdfs, permitiendo así la creación de un solo archivo  ",
+      path: "https://drive.google.com/drive/folders/1o722_C0s6ABtAwgljkmkMEZjnDyAe3k-?usp=sharing",
+    },
+
+
+    
     {
       title: "Programa para empezar aprender ingles ",
       description:
@@ -56,11 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       path: "https://drive.google.com/drive/folders/1ZoBNSyA_jasvlLmDEKVfpqgKuobdZX7f?usp=sharing",
     },
 
-    {
-      title: "",
-      description: "Aplicación en proceso de desarrollo  ",
-      path: "",
-    },
+   
 
     {
       title: "Aplicación",

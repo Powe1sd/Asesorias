@@ -137,3 +137,48 @@ h1 {
     padding: 1rem;
   }
 }
+
+/* Informacion del layaut */
+/* Estilos para el letrero de información */
+/* Estilos para el letrero de información estático */
+.info-banner {
+  position: fixed; /* Hace que el elemento quede fijo en la pantalla */
+  top: 0; /* Lo posiciona en la parte superior */
+  left: 0; /* Alinea al borde izquierdo */
+  width: 100%; /* Ocupa todo el ancho */
+  background: #2c3e50;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+.info-banner p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Ajusta el contenedor principal para que no se superponga al banner */
+.download-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  max-width: 700px;
+  width: 100%;
+  margin: 80px auto 20px; /* Aumenta el margen superior para dejar espacio al banner */
+  backdrop-filter: blur(4px);
+}
+
+/* Ajuste responsivo */
+@media (max-width: 600px) {
+  .info-banner p {
+    font-size: 1rem;
+  }
+
+  .download-container {
+    margin-top: 60px; /* Menor espacio en móviles */
+  }
+}

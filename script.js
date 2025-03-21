@@ -3,15 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Lista de programas con título, descripción y ruta del archivo
   const programs = [
-
     {
       title: "Unir pdfs",
-      description: "Programa en el cual se unen varios pdfs, permitiendo así la creación de un solo archivo  ",
+      description:
+        "Programa en el cual se unen varios pdfs, permitiendo así la creación de un solo archivo",
       path: "https://drive.google.com/drive/folders/1o722_C0s6ABtAwgljkmkMEZjnDyAe3k-?usp=sharing",
     },
 
-
-    
     {
       title: "Programa para empezar aprender ingles ",
       description:
@@ -54,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     {
-      title: "Eliminar fondo de una imagen  ",
+      title: "Eliminar fondo de una imagen",
       description: "Programa para eliminar fondo de una imagen",
       path: "https://drive.google.com/drive/folders/1tpKbud-uGRCZpJEUkzTN9Z7A0jUs5kEu?usp=sharing",
     },
@@ -65,17 +63,21 @@ document.addEventListener("DOMContentLoaded", () => {
       path: "https://drive.google.com/drive/folders/1ZoBNSyA_jasvlLmDEKVfpqgKuobdZX7f?usp=sharing",
     },
 
-   
-
     {
-      title: "Aplicación",
-      description: "Aplicación en proceso de desarrollo  ",
+      title: "Chat GPT Local",
+      description:
+        "Aplicación de chat GPT local sin necesidad de internet, fácil de ejecutar. ¡Pruébala ahora!",
       path: "",
+      precio: {
+        valor: "20.000",
+        moneda: "COP",
+        etiqueta: "Precio de oferta",
+      },
     },
 
     {
       title: "Otra",
-      description: "Aplicación en proceso de desarrollo  ",
+      description: "Aplicación en proceso de desarrollo",
       path: "",
     },
 
@@ -93,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     {
       title: "Aplicación",
-      description: "Aplicación en proceso de desarrollo  ",
+      description: "Aplicación en proceso de desarrollo",
       path: "",
     },
 
@@ -116,6 +118,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = document.createElement("p");
     description.classList.add("program-description");
     description.textContent = program.description;
+
+    // Agregar precio si está presente
+    if (program.precio) {
+      const precioDiv = document.createElement("div");
+      precioDiv.classList.add("program-price");
+      precioDiv.textContent = `${program.precio.etiqueta}: ${program.precio.valor} ${program.precio.moneda}`;
+      programItem.appendChild(precioDiv);
+    }
 
     const downloadLink = document.createElement("a");
     downloadLink.classList.add("download-link");

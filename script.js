@@ -4,6 +4,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Lista de programas con título, descripción y ruta del archivo
   const programs = [
     {
+      title: "Chat GPT Local",
+      description:
+        "Aplicación de chat GPT local sin necesidad de internet, fácil de ejecutar. ¡Pruébala ahora!",
+      path: "",
+      precio: {
+        valor: "20.000",
+        moneda: "COP",
+        etiqueta: "Precio de oferta",
+      },
+    },
+
+    {
       title: "Unir pdfs",
       description:
         "Programa en el cual se unen varios pdfs, permitiendo así la creación de un solo archivo",
@@ -61,18 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Generador de pdf a Word",
       description: "Convertir los archivos de pdf a word",
       path: "https://drive.google.com/drive/folders/1ZoBNSyA_jasvlLmDEKVfpqgKuobdZX7f?usp=sharing",
-    },
-
-    {
-      title: "Chat GPT Local",
-      description:
-        "Aplicación de chat GPT local sin necesidad de internet, fácil de ejecutar. ¡Pruébala ahora!",
-      path: "",
-      precio: {
-        valor: "20.000",
-        moneda: "COP",
-        etiqueta: "Precio de oferta",
-      },
     },
 
     {

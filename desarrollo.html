@@ -12,263 +12,353 @@
     <style>
       body {
         background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+        line-height: 1.6; /* Mejora la legibilidad del texto */
       }
 
       .header {
-        background-color: red; /* Rojo más suave */
+        background-color: red; /* Un azul oscuro más profesional */
         color: white;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Sombra de texto */
+        text-align: center;
+        padding: 4rem 0; /* Más espacio vertical */
+        margin-bottom: 2rem;
+        border-bottom: 5px solid #3498db; /* Línea de acento */
       }
-      .container-custom {
-        background: white;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Sombra de texto más pronunciada */
       }
+
+      .header p {
+        font-size: 1.1rem;
+        color: #ecf0f1; /* Color de texto ligeramente más claro */
+      }
+
+      .profile-container {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
       .profile-img {
         border-radius: 50%;
-        border: 5px solid #e0e0e0;
-        width: 200px;
-        height: 200px;
+        border: 5px solid #e74c3c; /* Un rojo diferente para el borde */
+        width: 150px; /* Reducido para un aspecto más moderno */
+        height: 150px;
         object-fit: cover;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
         transition: transform 0.3s ease-in-out;
+        cursor: pointer; /* Indica que es interactivo */
+        margin-bottom: 1rem;
       }
+
       .profile-img:hover {
-        transform: scale(1.05);
+        transform: scale(1.1);
       }
+
+      .container-custom {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .accent-color {
+        color: #3498db; /* Azul de acento */
+        font-weight: bold; /* Resaltar el título */
+        margin-bottom: 1.5rem;
+        display: block; /* Asegura que ocupe toda la línea */
+        text-align: center; /* Centrar los títulos de las secciones */
+      }
+
+      .table {
+        margin-top: 1rem;
+        border-collapse: collapse; /* Mejora el aspecto de los bordes */
+        width: 100%;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid #dee2e6;
+      }
+
       .table th {
         background-color: #343a40 !important;
         color: white;
       }
-      .accent-color {
-        color: #3498db; /* Azul de acento */
+
+      .list-group {
+        list-style: none;
+        padding: 0;
       }
+
+      .list-group-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Sutil sombra para cada item */
+      }
+
+      .list-group-item:last-child {
+        margin-bottom: 0;
+      }
+
       footer {
         background-color: #343a40;
         color: white;
-        padding: 20px 0;
+        padding: 1.5rem 0;
         text-align: center;
-      }
-      h2 {
-        margin-bottom: 20px;
+        margin-top: 3rem;
+        border-top: 3px solid #e74c3c; /* Línea de acento superior */
+        font-size: 0.9rem;
       }
 
+      footer p {
+        margin-bottom: 0.2rem;
+      }
+
+      /* Ocultar la imagen de presentación duplicada */
       .presentacion {
-        width: 200px; /* Ajusta el tamaño según necesites */
-        height: auto;
-        border-radius: 10px; /* Bordes redondeados opcional */
-        display: block;
-        margin: 20px auto; /* Centrar la imagen */
+        display: none;
+      }
+
+      /* Estilos adicionales para mejorar la sección "Sobre Mí" */
+      .about-me-section p {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        color: #555;
       }
     </style>
   </head>
   <body>
-    <header class="header text-white text-center py-5">
+    <header class="header">
       <h1>Brayhan Estiven Coy Rubio</h1>
       <p>Desarrollador de aplicaciones web</p>
     </header>
 
-    <img src="img-13.jpg" alt="Foto de presentación" class="presentacion" />
+    <div class="container mt-4">
+      <div class="profile-container">
+        <img
+          src="img-13.jpg"
+          alt="Foto de presentación de Brayhan Estiven Coy Rubio"
+          class="profile-img"
+        />
+      </div>
 
-    <div class="container mt-5">
+      <div class="container-custom about-me-section">
+        <h2 class="accent-color">Sobre Mí</h2>
+        <p>
+          Soy un desarrollador especializado en la creación de aplicaciones web
+          escalables y eficientes. Me apasiona la tecnología, la innovación y la
+          mejora continua para ofrecer productos digitales de alta calidad.
+        </p>
+        <p>
+          Me enfoco en el desarrollo Fullstack, y me especializo en Python,
+          Django y Javascript. Mi objetivo es construir soluciones web robustas
+          y fáciles de usar que satisfagan las necesidades de los usuarios.
+        </p>
+      </div>
+
       <div class="container-custom">
-        <div class="row align-items-center">
-          <div class="col-md-8">
-            <h2 class="accent-color">Sobre Mí</h2>
-            <p>
-              Soy un desarrollador especializado en la creación de aplicaciones
-              web escalables y eficientes. Me apasiona la tecnología, la
-              innovación y la mejora continua para ofrecer productos digitales
-              de alta calidad.
-            </p>
-            <p>
-              Me enfoco en el desarrollo Fullstack, y me especializo en Python,
-              Django y Javascript.
-            </p>
-          </div>
+        <h2 class="accent-color">Diplomas y Certificados</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered mt-3">
+            <thead>
+              <tr>
+                <th class="text-center">Certificados</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center">
+                  Administrador de empresas
+                  <span class="badge bg-secondary">(en progreso)</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Administrador de Bases de datos</td>
+              </tr>
+              <tr>
+                <td class="text-center">Python para ciencia de datos</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Tipos Avanzados y funciones de typescript
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Fundamentos de typescript</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Programación orientada a objetos y asincronismo
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">JavaScript</td>
+              </tr>
+              <tr>
+                <td class="text-center">Mysql y mariadb</td>
+              </tr>
+              <tr>
+                <td class="text-center">Kotlin desde cero</td>
+              </tr>
+              <tr>
+                <td class="text-center">Introducción a laravel</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Tecnólogo en análisis y diseño de información
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Estructura de datos lineales con Python
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Patrones de diseño y solid en Python
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Complejidad y algorítmica con Python
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Estadística inferencial para data science e inteligencia
+                  artificial
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Análisis de negocios para ciencia de datos
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Excel avanzado con macros</td>
+              </tr>
+              <tr>
+                <td class="text-center">Modelo 3d para videojuegos</td>
+              </tr>
+              <tr>
+                <td class="text-center">Manejo de herramientas Photoshop</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Diseñar páginas web con HTML y JavaScript
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Ciberseguridad y privacidad para empresas
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Pensamiento estratégico</td>
+              </tr>
+              <tr>
+                <td class="text-center">Avanzado de liderazgo</td>
+              </tr>
+              <tr>
+                <td class="text-center">Técnico en programación de software</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Primeros auxilios psicológicos para líderes
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Business Idiomatic expressions</td>
+              </tr>
+              <tr>
+                <td class="text-center">Presentations and oral expression</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Basic English course a1 for beginners
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">English dot Works beginner</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Estrategia y liderazgo de proyectos empresariales de gen ai
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Modelos de negocio</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  React .js navegación con React router
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">React testing library</td>
+              </tr>
+              <tr>
+                <td class="text-center">
+                  Estadistica computacional con Python
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center">Python entornos virtuales pip</td>
+              </tr>
+              <tr>
+                <td class="text-center">Marca personal</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div class="container-custom">
-        <h2 class="text-center accent-color">Diplomas</h2>
-        <table class="table table-bordered mt-3">
-          <thead>
-            <tr>
-              <th class="text-center">Certificados</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-center">
-                Administrador de empresas
-                <span style="font-size: 4px">(in progress)</span>
-              </td>
-            </tr>
-
-            <tr>
-              <td class="text-center">
-                Administrador de Bases de datos <small></small>
-              </td>
-            </tr>
-
-            <tr>
-              <td class="text-center">Python para ciencia de datos</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Tipos Avanzados y funciones de typescript
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Fundamentos de typescript</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Programación orientada a objetos y asincronismo
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">JavaScript</td>
-            </tr>
-            <tr>
-              <td class="text-center">Mysql y mariadb</td>
-            </tr>
-            <tr>
-              <td class="text-center">Kotlin desde cero</td>
-            </tr>
-            <tr>
-              <td class="text-center">Introducción a laravel</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Tecnólogo en análisis y diseño de información
-              </td>
-            </tr>
-
-            <tr>
-              <td class="text-center">
-                Estructura de datos lineales con Python
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Patrones de diseño y solid en Python</td>
-            </tr>
-            <tr>
-              <td class="text-center">Complejidad y algorítmica con Python</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Estadística inferencial para data science e inteligencia
-                artificial
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Análisis de negocios para ciencia de datos
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Excel avanzado con macros</td>
-            </tr>
-            <tr>
-              <td class="text-center">Modelo 3d para videojuegos</td>
-            </tr>
-            <tr>
-              <td class="text-center">Manejo de herramientas Photoshop</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Diseñar páginas web con HTML y JavaScript
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Ciberseguridad y privacidad para empresas
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Pensamiento estratégico</td>
-            </tr>
-            <tr>
-              <td class="text-center">Avanzado de liderazgo</td>
-            </tr>
-            <tr>
-              <td class="text-center">Técnico en programación de software</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Primeros auxilios psicológicos para líderes
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Business Idiomatic expressions</td>
-            </tr>
-            <tr>
-              <td class="text-center">Presentations and oral expression</td>
-            </tr>
-            <tr>
-              <td class="text-center">Basic English course a1 for beginners</td>
-            </tr>
-            <tr>
-              <td class="text-center">English dot Works beginner</td>
-            </tr>
-            <tr>
-              <td class="text-center">
-                Estrategia y liderazgo de proyectos empresariales de gen ai
-              </td>
-            </tr>
-            <tr>
-              <td class="text-center">Modelos de negocio</td>
-            </tr>
-            <tr>
-              <td class="text-center">React .js navegación con React router</td>
-            </tr>
-            <tr>
-              <td class="text-center">React testing library</td>
-            </tr>
-            <tr>
-              <td class="text-center">Estadistica computacional con Python</td>
-            </tr>
-            <tr>
-              <td class="text-center">Python entornos virtuales pip</td>
-            </tr>
-            <tr>
-              <td class="text-center">Marca personal</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="container-custom">
-        <h2 class="text-center accent-color">Habilidades</h2>
+        <h2 class="accent-color">Habilidades</h2>
         <ul class="list-group">
           <li class="list-group-item">
-            Desarrollo Web Full Stack (React.js, JavaScript, HTML/CSS, Laravel)
+            <strong>Desarrollo Web Full Stack:</strong> React.js, JavaScript,
+            HTML/CSS, Laravel
           </li>
           <li class="list-group-item">
-            Programación en Python (Ciencia de datos, Estructuras de datos,
-            Complejidad y algorítmica, Entornos virtuales)
-          </li>
-          <li class="list-group-item">Bases de Datos (MySQL, MariaDB)</li>
-          <li class="list-group-item">
-            TypeScript (Fundamentos, Tipos avanzados y funciones)
+            <strong>Programación en Python:</strong> Ciencia de datos,
+            Estructuras de datos, Complejidad y algorítmica, Entornos virtuales
           </li>
           <li class="list-group-item">
-            Desarrollo de Aplicaciones Móviles (Kotlin)
+            <strong>Bases de Datos:</strong> MySQL, MariaDB
           </li>
           <li class="list-group-item">
-            Ciencia de Datos e Inteligencia Artificial (Estadística, Análisis de
-            negocios)
+            <strong>TypeScript:</strong> Fundamentos, Tipos avanzados y
+            funciones
           </li>
-          <li class="list-group-item">Diseño (Photoshop, Modelo 3D)</li>
           <li class="list-group-item">
-            Habilidades Empresariales y de Liderazgo (Análisis, Estrategia,
-            Liderazgo)
+            <strong>Desarrollo de Aplicaciones Móviles:</strong> Kotlin
           </li>
-          <li class="list-group-item">(Excel)</li>
-          <li class="list-group-item">Ciberseguridad</li>
-          <li class="list-group-item">Inglés (Comunicación, Negocios)</li>
+          <li class="list-group-item">
+            <strong>Ciencia de Datos e Inteligencia Artificial:</strong>
+            Estadística, Análisis de negocios
+          </li>
+          <li class="list-group-item">
+            <strong>Diseño:</strong> Photoshop, Modelado 3D
+          </li>
+          <li class="list-group-item">
+            <strong>Habilidades Empresariales y de Liderazgo:</strong> Análisis,
+            Estrategia, Liderazgo
+          </li>
+          <li class="list-group-item"><strong>Excel</strong></li>
+          <li class="list-group-item"><strong>Ciberseguridad</strong></li>
+          <li class="list-group-item">
+            <strong>Inglés:</strong> Comunicación, Negocios
+          </li>
         </ul>
       </div>
     </div>
@@ -277,7 +367,7 @@
       <p>
         &copy; 2025 Brayhan Estiven Coy Rubio | Todos los derechos reservados
       </p>
-      <p>&copy; Tech -13</p>
+      <p>Desarrollado con &#128151; por Tech -13</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

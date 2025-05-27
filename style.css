@@ -4,6 +4,7 @@ body {
   padding: 0;
   background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
   color: #ffffff;
+  overflow-x: hidden;
 }
 
 header {
@@ -27,12 +28,23 @@ header {
   animation: marquee 15s linear infinite;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 nav ul {
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 2rem;
   margin-top: 1.5rem;
+  padding: 0;
 }
 
 nav ul li a {
@@ -91,7 +103,7 @@ footer p {
   font-weight: 300;
 }
 
-/* WhatsApp */
+/* WhatsApp Button */
 .whatsapp-float {
   position: fixed;
   bottom: 20px;
@@ -109,4 +121,24 @@ footer p {
 
 .whatsapp-float a img:hover {
   transform: scale(1.1);
+}
+
+/* Responsive WhatsApp Button */
+@media (max-width: 768px) {
+  .whatsapp-float a img {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whatsapp-float {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .whatsapp-float a img {
+    width: 45px;
+    height: 45px;
+  }
 }

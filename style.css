@@ -2,17 +2,17 @@ body {
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  background: #000000;
   color: #ffffff;
   overflow-x: hidden;
 }
 
 header {
-  background: linear-gradient(90deg, #1f1c2c, #928dab);
+  background: #111111;
   color: #ffffff;
   padding: 2rem 0;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .header-container h1 {
@@ -23,7 +23,7 @@ header {
 }
 
 .marquee h1 {
-  color: #00c6ff;
+  color: #ffffff;
   font-size: 1.5rem;
   animation: marquee 15s linear infinite;
 }
@@ -57,8 +57,8 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-  background: #00c6ff;
-  color: #0f2027;
+  background: #ffffff;
+  color: #000000;
 }
 
 section {
@@ -68,7 +68,7 @@ section {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   transition: transform 0.3s;
 }
@@ -78,21 +78,21 @@ section:hover {
 }
 
 section h2 {
-  color: #00c6ff;
+  color: #ffffff;
   font-size: 2rem;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #00c6ff;
+  border-bottom: 2px solid #ffffff;
   padding-bottom: 0.5rem;
 }
 
 section p,
 section a {
-  color: #e0e0e0;
+  color: #f4f4f4;
   font-size: 1.1rem;
 }
 
 footer {
-  background: #0f2027;
+  background: #111111;
   color: #ffffff;
   text-align: center;
   padding: 1.5rem 0;
@@ -115,7 +115,7 @@ footer p {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
   transition: transform 0.3s ease;
 }
 

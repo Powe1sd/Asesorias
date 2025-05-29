@@ -41,18 +41,19 @@
         margin-bottom: 2rem;
       }
 
-     .profile-img {
-  border-radius: 60%;
+ .profile-img {
+  border-radius: 50%;
   border: 5px solid #e74c3c;
-  width: 190px;
+  width: 150px;
   height: 150px;
-  object-fit: contain; /* ✅ cambio aquí */
+  object-fit: contain; /* 👈 ajusta sin recortar */
+  background-color: #fff; /* 👈 fondo blanco si la imagen no es cuadrada */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease-in-out;
   cursor: pointer;
   margin-bottom: 1rem;
-  background-color: #fff; /* opcional: rellena fondo si la imagen no es cuadrada */
 }
+
 
 
       .profile-img:hover {

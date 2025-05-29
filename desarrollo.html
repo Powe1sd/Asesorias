@@ -35,35 +35,70 @@
         font-size: 1.1rem;
         color: #ecf0f1; /* Color de texto ligeramente más claro */
       }
+  .profile-container {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
-      .profile-container {
-        text-align: center;
-        margin-bottom: 2rem;
-      }
+   .profile-container {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
- .profile-img {
-  border-radius: 50%;
-  border: 5px solid #e74c3c;
-  width: 150px;
-  height: 150px;
-  object-fit: contain; /* 👈 ajusta sin recortar */
-  background-color: #fff; /* 👈 fondo blanco si la imagen no es cuadrada */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
-  margin-bottom: 1rem;
-}
+  .profile-img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: contain;
+    background-color: #fff;
+    border: 5px solid #e74c3c;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
 
+  .profile-img:hover {
+    transform: scale(1.1);
+  }
 
+  /* Modal */
+  .modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 999;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+  }
 
-      .profile-img:hover {
-        transform: scale(1.1);
-      }
+  .modal-content {
+    margin: auto;
+    display: block;
+    max-width: 30%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 40px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+  }
 
       .container-custom {
         background: white;
         border-radius: 8px;
-        padding: 25px;
+        padding: 9px;
         box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
         margin-bottom: 2rem;
       }
@@ -151,9 +186,16 @@
       src="foto-blu.jpg"
       alt="Foto de presentación de Brayhan Estiven Coy Rubio"
       class="profile-img"
+      id="openModal"
     />
   </div>
 </div>
+
+<div id="imageModal" class="modal">
+  <span class="modal-close" id="closeModal">&times;</span>
+  <img class="modal-content" id="modalImage" src="foto-blu.jpg" alt="Foto ampliada de Brayhan">
+</div>
+
 
       <div class="container-custom about-me-section">
         <h2 class="accent-color">Sobre Mí</h2>
@@ -373,6 +415,32 @@
         <p>© 2025</p>
       </div>
     </footer>
+
+
+    <!-- JavaScript -->
+<script>
+  const modal = document.getElementById("imageModal");
+  const img = document.getElementById("openModal");
+  const modalImg = document.getElementById("modalImage");
+  const closeBtn = document.getElementById("closeModal");
+
+  img.onclick = function () {
+    modal.style.display = "block";
+  }
+
+  closeBtn.onclick = function () {
+    modal.style.display = "none";
+  }
+
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>

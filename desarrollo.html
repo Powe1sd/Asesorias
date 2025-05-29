@@ -41,17 +41,19 @@
         margin-bottom: 2rem;
       }
 
-      .profile-img {
-        border-radius: 50%;
-        border: 5px solid #e74c3c; /* Un rojo diferente para el borde */
-        width: 150px; /* Reducido para un aspecto más moderno */
-        height: 150px;
-        object-fit: cover;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease-in-out;
-        cursor: pointer; /* Indica que es interactivo */
-        margin-bottom: 1rem;
-      }
+     .profile-img {
+  border-radius: 60%;
+  border: 5px solid #e74c3c;
+  width: 190px;
+  height: 150px;
+  object-fit: contain; /* ✅ cambio aquí */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  background-color: #fff; /* opcional: rellena fondo si la imagen no es cuadrada */
+}
+
 
       .profile-img:hover {
         transform: scale(1.1);
@@ -142,14 +144,15 @@
       <p>Desarrollador de aplicaciones web</p>
     </header>
 
-    <div class="container mt-4">
-      <div class="profile-container">
-        <img
-          src="img-13.jpg"
-          alt="Foto de presentación de Brayhan Estiven Coy Rubio"
-          class="profile-img"
-        />
-      </div>
+<div class="container mt-4">
+  <div class="profile-container">
+    <img
+      src="foto-blu.jpg"
+      alt="Foto de presentación de Brayhan Estiven Coy Rubio"
+      class="profile-img"
+    />
+  </div>
+</div>
 
       <div class="container-custom about-me-section">
         <h2 class="accent-color">Sobre Mí</h2>

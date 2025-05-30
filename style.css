@@ -2,17 +2,62 @@ body {
   font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
-  background: #ffffff;
-  color: #111111;
+  background: #000;
+  color: #fff;
   overflow-x: hidden;
 }
 
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Splash screen */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #e60000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 1s ease;
+  animation: splashAnim 1.5s ease forwards;
+}
+
+.splash-screen h1 {
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+@keyframes splashAnim {
+  0% {
+    background: #e60000;
+  }
+  100% {
+    background: #ffffff;
+  }
+}
+
+.splash-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 header {
-  background: #f0f0f0;
-  color: #111111;
+  background: #111;
+  color: #fff;
   padding: 2rem 0;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
 }
 
 .header-container h1 {
@@ -20,11 +65,10 @@ header {
   font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 10px;
-  color: #111111;
 }
 
 .marquee h1 {
-  color: #555555;
+  color: #ff4d4d;
   font-size: 1.5rem;
   animation: marquee 15s linear infinite;
 }
@@ -49,7 +93,7 @@ nav ul {
 }
 
 nav ul li a {
-  color: #111111;
+  color: #fff;
   font-weight: 500;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -58,18 +102,18 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-  background: #111111;
-  color: #ffffff;
+  background: #fff;
+  color: #000;
 }
 
 section {
   margin: 2rem auto;
   padding: 2rem;
   max-width: 1000px;
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
+  background: #1a1a1a;
+  border: 1px solid #333;
   border-radius: 12px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 30px rgba(255, 255, 255, 0.05);
   transition: transform 0.3s;
 }
 
@@ -78,22 +122,22 @@ section:hover {
 }
 
 section h2 {
-  color: #111111;
+  color: #fff;
   font-size: 2rem;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #111111;
+  border-bottom: 2px solid #fff;
   padding-bottom: 0.5rem;
 }
 
 section p,
 section a {
-  color: #333333;
+  color: #ddd;
   font-size: 1.1rem;
 }
 
 footer {
-  background: #f0f0f0;
-  color: #111111;
+  background: #111;
+  color: #fff;
   text-align: center;
   padding: 1.5rem 0;
 }
@@ -115,7 +159,7 @@ footer p {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease;
 }
 
@@ -123,7 +167,7 @@ footer p {
   transform: scale(1.1);
 }
 
-/* Responsive WhatsApp Button */
+/* Responsive */
 @media (max-width: 768px) {
   .whatsapp-float a img {
     width: 50px;
@@ -142,5 +186,3 @@ footer p {
     height: 45px;
   }
 }
-
-

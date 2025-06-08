@@ -204,3 +204,22 @@ footer p {
     height: 45px;
   }
 }
+
+/* logo */
+.logo-bottom-left {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 1000;
+}
+
+.logo-bottom-left img {
+  width: 60px; /* Puedes ajustar el tamaño */
+  height: auto;
+  opacity: 0.85; /* Opcional: transparencia leve */
+  transition: transform 0.3s ease;
+}
+
+.logo-bottom-left img:hover {
+  transform: scale(1.1); /* Efecto al pasar el mouse */
+}

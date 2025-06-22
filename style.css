@@ -87,17 +87,6 @@ header {
 
 .marquee h1 {
   color: #ff4d4d;
-  font-size: 1.5rem;
-  animation: marquee 15s linear infinite;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
 }
 
 nav ul {

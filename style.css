@@ -16,10 +16,18 @@ a:hover {
   text-decoration: underline;
 }
 
-.splash-screen h1 {
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
+/* ---------------- SPLASH ---------------- */
+.splash-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: none; /* ❌ Sin fondo rojo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: splashAnim 2s ease-in-out;
 }
 
 .splash-screen.hidden {
@@ -27,25 +35,48 @@ a:hover {
   pointer-events: none;
 }
 
-@keyframes splashAnim {
-  0% {
-    background: #e60000;
-  }
-  100% {
-    background: #ffffff;
-  }
+/* Contenedor manzana + texto */
+.splash-logo {
+  position: relative;
+  display: inline-block;
 }
 
+/* Icono de la manzana */
 .apple-icon {
-  font-size: 4rem;
-  color: white;
-  margin-bottom: 1rem;
+  font-size: 150px;
+  color: red;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
   animation: bounce 1.5s infinite;
 }
 
-@keyframes bounce {
-  0%,
+/* Texto TECH dentro de la manzana */
+.tech-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+               0 0 25px rgba(255, 0, 0, 0.9);
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+@keyframes splashAnim {
+  0% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
   100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
     transform: translateY(0);
   }
   50% {
@@ -53,6 +84,7 @@ a:hover {
   }
 }
 
+/* ---------------- HEADER ---------------- */
 header {
   background: #111;
   color: #fff;
@@ -72,6 +104,7 @@ header {
   color: #ff4d4d;
 }
 
+/* ---------------- NAV ---------------- */
 nav ul {
   list-style: none;
   display: flex;
@@ -96,6 +129,7 @@ nav ul li a:hover {
   color: #000;
 }
 
+/* ---------------- SECTION ---------------- */
 section {
   margin: 2rem auto;
   padding: 2rem;
@@ -125,6 +159,7 @@ section a {
   font-size: 1.1rem;
 }
 
+/* ---------------- FOOTER ---------------- */
 footer {
   background: #111;
   color: #fff;
@@ -137,7 +172,7 @@ footer p {
   font-weight: 300;
 }
 
-/* WhatsApp Button */
+/* ---------------- WHATSAPP FLOAT ---------------- */
 .whatsapp-float {
   position: fixed;
   bottom: 20px;
@@ -157,7 +192,7 @@ footer p {
   transform: scale(1.1);
 }
 
-/* Responsive */
+/* ---------------- RESPONSIVE ---------------- */
 @media (max-width: 768px) {
   .whatsapp-float a img {
     width: 50px;
@@ -177,7 +212,7 @@ footer p {
   }
 }
 
-/* logo */
+/* ---------------- LOGO ABAJO IZQUIERDA ---------------- */
 .logo-bottom-left {
   position: fixed;
   bottom: 10px;
@@ -186,19 +221,12 @@ footer p {
 }
 
 .logo-bottom-left img {
-  width: 60px; /* Puedes ajustar el tamaño */
+  width: 60px;
   height: auto;
-  opacity: 0.85; /* Opcional: transparencia leve */
+  opacity: 0.85;
   transition: transform 0.3s ease;
 }
 
 .logo-bottom-left img:hover {
-  transform: scale(1.1); /* Efecto al pasar el mouse */
-}
-
-/* Estilo de la manzana */
-.apple-icon {
-  
-  font-size: 100px; /* Tamaño grande */
-  color: red; /* Color rojo */
+  transform: scale(1.1);
 }

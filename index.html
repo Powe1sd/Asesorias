@@ -24,7 +24,7 @@
 
     <div class="logo-bottom-left"></div>
 
-    <!-- Contenido principal -->
+    <!-- Contenido principal (queda oculto) -->
     <div class="content" style="display: none">
       <header>
         <div>
@@ -116,11 +116,12 @@
           <p>
             Desarrollo de aplicaciones con Python: automatización, análisis de
             datos, inteligencia artificial y más.
-          <a
+            <a
               href="programs-escritorio.html"
               target="_blank"
               style="color: black"
               >Clic aquí</a
+            >
           </p>
         </section>
 
@@ -130,11 +131,12 @@
           <p>
             Creación de sitios y plataformas web modernas, escalables y seguras
             para todo tipo de negocios.
-           <a
+            <a
               href="proyectos.html"
               target="_blank"
               style="color: black"
               >Clic aquí</a
+            >
           </p>
         </section>
 
@@ -182,17 +184,5 @@
         <p>Contacto 3052076713</p>
       </footer>
     </div>
-
-    <!-- JavaScript para el splash -->
-    <script>
-      window.addEventListener("load", () => {
-        const splash = document.querySelector(".splash-screen");
-        const content = document.querySelector(".content");
-        setTimeout(() => {
-          splash.classList.add("hidden");
-          content.style.display = "block";
-        }, 2000);
-      });
-    </script>
   </body>
 </html>

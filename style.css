@@ -22,8 +22,9 @@ a:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: none; /* ❌ Sin fondo rojo */
+  background: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 2000;
@@ -41,12 +42,12 @@ a:hover {
   display: inline-block;
 }
 
-/* Icono de la manzana */
+/* Icono de la manzana con efecto suave */
 .apple-icon {
   font-size: 150px;
   color: red;
   text-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
-  animation: bounce 1.5s infinite;
+  animation: glow 3s ease-in-out infinite;
 }
 
 /* Texto TECH dentro de la manzana */
@@ -64,6 +65,31 @@ a:hover {
   pointer-events: none;
 }
 
+/* Texto mantenimiento debajo */
+.maintenance {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.maintenance p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+/* Loader circular */
+.loader {
+  border: 6px solid #444;
+  border-top: 6px solid red;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
+}
+
+/* Animaciones */
 @keyframes splashAnim {
   0% {
     opacity: 0.3;
@@ -75,13 +101,15 @@ a:hover {
   }
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+@keyframes glow {
+  0% { text-shadow: 0 0 10px rgba(255,0,0,0.8); }
+  50% { text-shadow: 0 0 30px rgba(255,0,0,1); }
+  100% { text-shadow: 0 0 10px rgba(255,0,0,0.8); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* ---------------- HEADER ---------------- */

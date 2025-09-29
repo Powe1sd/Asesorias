@@ -15,29 +15,18 @@
   </head>
   <body>
     <!-- 🔴 Splash screen -->
-    <div class="splash-screen">
+    <div class="splash-screen" id="splash">
       <div class="splash-logo">
         <i class="fab fa-apple apple-icon"></i>
         <span class="tech-text">TECH</span>
       </div>
-
-      <!-- ✅ Texto en mantenimiento -->
-      <div class="maintenance">
-        <p>En mantenimiento</p>
-        <div class="loader"></div>
-      </div>
     </div>
 
-    <div class="logo-bottom-left"></div>
-
-    <!-- Contenido principal (queda oculto) -->
-    <div class="content" style="display: none">
+    <!-- Contenido principal -->
+    <div class="content" id="content" style="display: none">
       <header>
         <div>
           <h1 class="solu">Desarrollo de Software</h1>
-          <div>
-            <h1>TECH   "En mantenimiento"</h1>
-          </div>
 
           <section>
             <h2 class="perfil">
@@ -54,36 +43,14 @@
 
           <nav>
             <ul class="nav-list">
-              <li>
-                <a href="#plataformas-web" class="vibrate-button"
-                  >Plataformas web</a
-                >
-              </li>
-              <li>
-                <a href="#sistemas-web" class="vibrate-button">Sitios web</a>
-              </li>
-              <li>
-                <a href="#catalogo-venta" class="vibrate-button"
-                  >Catálogo de venta</a
-                >
-              </li>
-              <li>
-                <a href="#bases-datos" class="vibrate-button">Bases de datos</a>
-              </li>
+              <li><a href="#plataformas-web" class="vibrate-button">Plataformas web</a></li>
+              <li><a href="#sistemas-web" class="vibrate-button">Sitios web</a></li>
+              <li><a href="#catalogo-venta" class="vibrate-button">Catálogo de venta</a></li>
+              <li><a href="#bases-datos" class="vibrate-button">Bases de datos</a></li>
               <li><a href="#proyectos" class="vibrate-button">Proyectos</a></li>
-              <li>
-                <a href="#proyectos-python" class="vibrate-button"
-                  >Proyectos Python</a
-                >
-              </li>
-              <li>
-                <a href="#proyectos-web" class="vibrate-button"
-                  >Proyectos Web</a
-                >
-              </li>
-              <li>
-                <a href="#soluciones" class="vibrate-button">Soluciones</a>
-              </li>
+              <li><a href="#proyectos-python" class="vibrate-button">Proyectos Python</a></li>
+              <li><a href="#proyectos-web" class="vibrate-button">Proyectos Web</a></li>
+              <li><a href="#soluciones" class="vibrate-button">Soluciones</a></li>
               <li><a href="#contacto" class="vibrate-button">Contacto</a></li>
             </ul>
           </nav>
@@ -122,29 +89,12 @@
           <p>
             Desarrollo de aplicaciones con Python: automatización, análisis de
             datos, inteligencia artificial y más.
-            <a
-              href="programs-escritorio.html"
-              target="_blank"
-              style="color: black"
-              >Clic aquí</a
-            >
+            <a href="programs-escritorio.html" target="_blank" style="color: black">Clic aquí</a>
           </p>
         </section>
 
         <!-- ✅ Nuevo: Proyectos Web -->
-        <section id="proyectos-web">
-          <h2>Proyectos Web</h2>
-          <p>
-            Creación de sitios y plataformas web modernas, escalables y seguras
-            para todo tipo de negocios.
-            <a
-              href="proyectos.html"
-              target="_blank"
-              style="color: black"
-              >Clic aquí</a
-            >
-          </p>
-        </section>
+      
 
         <section id="soluciones">
           <h2>Soluciones</h2>
@@ -156,12 +106,7 @@
           <p>
             Aprende inglés de forma fácil y práctica. Accede al siguiente enlace
             y comienza hoy mismo:
-            <a
-              href="https://powe1sd.github.io/videos-blow-713/"
-              target="_blank"
-              style="color: black"
-              >Clic aquí</a
-            >.
+            <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank" style="color: black">Clic aquí</a>.
           </p>
         </section>
 
@@ -171,24 +116,21 @@
         </section>
       </main>
 
-      <div class="whatsapp-float">
-        <a
-          href="https://wa.me/3052076713"
-          target="_blank"
-          title="Contáctame por WhatsApp"
-        >
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/733/733585.png"
-            alt="WhatsApp"
-          />
-        </a>
-      </div>
-
+    
       <footer>
         <p>© 2025 Asesorías Profesionales</p>
-        <p>7-13-1999</p>
-        <p>Contacto 3052076713</p>
+    
       </footer>
     </div>
+
+    <!-- ✅ Script para mostrar contenido después del splash -->
+    <script>
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          document.getElementById("splash").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        }, 4000); // 4 segundos
+      });
+    </script>
   </body>
 </html>

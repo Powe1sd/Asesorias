@@ -30,6 +30,8 @@ body {
 .tech-text {
   font-weight: 700;
   color: red;
+  font-family: 'Times New Roman', Times, serif;
+
 }
 
 /* Header */
@@ -40,6 +42,8 @@ header {
 header h1 {
   color: #fff;
   font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
+
 }
 
 /* Menú de Íconos */
@@ -91,21 +95,29 @@ section {
   padding: 80px 20px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Times New Roman', Times, serif;
+
 }
 section h2 {
   color: red;
   margin-bottom: 10px;
+  font-family: 'Times New Roman', Times, serif;
+
 }
 section p {
   color: #ccc;
   max-width: 700px;
   margin: 0 auto;
   line-height: 1.6;
+  font-family: 'Times New Roman', Times, serif;
+
 }
 section a {
   color: red;
   font-weight: 600;
   text-decoration: none;
+  font-family: 'Times New Roman', Times, serif;
+
 }
 section a:hover {
   text-decoration: underline;
@@ -118,4 +130,12 @@ footer {
   background: #111;
   color: #fff;
   border-top: 1px solid rgba(255, 0, 0, 0.3);
+  font-family: 'Times New Roman', Times, serif;
+
+}
+
+
+.tech{
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif
 }

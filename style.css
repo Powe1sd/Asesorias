@@ -1,186 +1,83 @@
-/* ---------------- BASE ---------------- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
   font-family: "Poppins", sans-serif;
-  background: radial-gradient(circle at 20% 20%, #111 0%, #000 100%);
-  color: #fff;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #222;
   scroll-behavior: smooth;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #ff0000;
-}
-
-/* ---------------- SPLASH ---------------- */
+/* Splash */
 .splash-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  animation: fadeIn 1.2s ease forwards;
-}
-
-.splash-logo {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.apple-icon {
-  font-size: 160px;
-  color: #ff0000;
-  text-shadow: 0 0 25px rgba(255, 0, 0, 0.8);
-  animation: pulse 2s infinite;
-}
-
-.tech-text {
-  position: absolute;
-  font-size: 2.3rem;
-  font-weight: 800;
+  height: 100vh;
+  background: #111;
   color: #fff;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
-  letter-spacing: 3px;
-  pointer-events: none;
+  transition: opacity 0.6s ease;
 }
-
-/* ---------------- HEADER ---------------- */
-header {
-  background: linear-gradient(135deg, #111, #1a1a1a, #000);
-  text-align: center;
-  padding: 3rem 1rem 2rem;
-  box-shadow: 0 2px 20px rgba(255, 255, 255, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 500;
+.splash-logo {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
 }
-
-header h1 {
+.apple-icon {
   font-size: 2.5rem;
+  margin-right: 10px;
+  color: red;
+}
+.tech-text {
   font-weight: 700;
-  background: linear-gradient(90deg, #ff0000, #ff5555);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 10px;
 }
 
-nav ul {
+/* Menú de íconos */
+.icon-menu {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  list-style: none;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 25px;
+  margin: 40px auto;
+  max-width: 800px;
 }
-
-nav ul li a {
-  padding: 0.6rem 1.2rem;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(6px);
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #222;
   transition: all 0.3s ease;
 }
-
-nav ul li a:hover {
-  background: #ff0000;
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+.icon-item i {
+  font-size: 2rem;
+  color: red;
+  margin-bottom: 8px;
+  transition: transform 0.3s, color 0.3s;
+}
+.icon-item span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.icon-item:hover i {
+  transform: scale(1.2);
+  color: darkred;
 }
 
-/* ---------------- SECCIONES ---------------- */
+/* Secciones */
 section {
-  max-width: 900px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-  animation: fadeUp 1s ease both;
+  padding: 80px 20px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
 }
-
 section h2 {
-  font-size: 1.8rem;
-  border-bottom: 2px solid #ff0000;
-  display: inline-block;
-  margin-bottom: 1rem;
-  padding-bottom: 0.3rem;
+  color: red;
+  margin-bottom: 10px;
 }
 
-section p {
-  color: #ccc;
-  line-height: 1.7;
-  font-size: 1.1rem;
-}
-
-/* ---------------- FOOTER ---------------- */
+/* Footer */
 footer {
   text-align: center;
-  padding: 2rem 0;
-  background: #0a0a0a;
-  color: #aaa;
-  font-size: 0.95rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-footer p {
-  margin: 0;
-}
-
-/* ---------------- ANIMACIONES ---------------- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-/* ---------------- RESPONSIVE ---------------- */
-@media (max-width: 768px) {
-  header h1 {
-    font-size: 2rem;
-  }
-
-  section {
-    margin: 2rem 1rem;
-    padding: 1.5rem;
-  }
-
-  nav ul {
-    gap: 0.5rem;
-  }
-
-  nav ul li a {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
+  padding: 20px;
+  background: #111;
+  color: #fff;
 }

@@ -29,19 +29,19 @@
   <div id="content" style="display: none;">
     <header>
       <h1>Desarrollo de Software</h1>
-      <nav>
-        <ul>
-          <li><a href="#plataformas-web">Plataformas Web</a></li>
-          <li><a href="#sistemas-web">Sitios Web</a></li>
-          <li><a href="#catalogo-venta">Catálogo</a></li>
-          <li><a href="#bases-datos">Bases de Datos</a></li>
-          <li><a href="#proyectos-python">Proyectos Python</a></li>
-          <li><a href="#soluciones">Soluciones</a></li>
-          <li><a href="#aprende-ingles">Aprende Inglés</a></li>
-          <li><a href="#contacto">Contacto</a></li>
-        </ul>
-      </nav>
     </header>
+
+    <!-- Menú de Íconos -->
+    <div class="icon-menu">
+      <a href="#plataformas-web" class="icon-item"><i class="fa-solid fa-globe"></i><span>Plataformas</span></a>
+      <a href="#sistemas-web" class="icon-item"><i class="fa-solid fa-code"></i><span>Sitios</span></a>
+      <a href="#catalogo-venta" class="icon-item"><i class="fa-solid fa-cart-shopping"></i><span>Catálogo</span></a>
+      <a href="#bases-datos" class="icon-item"><i class="fa-solid fa-database"></i><span>Bases</span></a>
+      <a href="#proyectos-python" class="icon-item"><i class="fa-brands fa-python"></i><span>Python</span></a>
+      <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span></a>
+      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-language"></i><span>Inglés</span></a>
+      <a href="#contacto" class="icon-item"><i class="fa-solid fa-envelope"></i><span>Contacto</span></a>
+    </div>
 
     <main>
       <section id="plataformas-web">
@@ -66,7 +66,8 @@
 
       <section id="proyectos-python">
         <h2>Proyectos Python</h2>
-        <p>Automatización, IA y soluciones inteligentes. 
+        <p>
+          Automatización, IA y soluciones inteligentes. 
           <a href="programs-escritorio.html" target="_blank">Ver más</a>
         </p>
       </section>
@@ -79,7 +80,7 @@
       <section id="aprende-ingles">
         <h2>Aprende Inglés</h2>
         <p>
-          Aprende inglés de forma fácil y práctica. Accede al siguiente enlace y comienza hoy mismo:  
+          Aprende inglés de forma fácil y práctica.  
           <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank">Clic aquí</a>.
         </p>
       </section>
@@ -93,14 +94,6 @@
     <footer>
       <p>TECH</p>
     </footer>
-
-
-      <footer>
-      <p>TECH</p>
-    </footer>
-
-
-
   </div>
 
   <!-- Script de transición -->
@@ -113,6 +106,16 @@
           document.getElementById("content").style.display = "block";
         }, 600);
       }, 3000);
+    });
+
+    // Scroll suave
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute("href")).scrollIntoView({
+          behavior: "smooth"
+        });
+      });
     });
   </script>
 </body>

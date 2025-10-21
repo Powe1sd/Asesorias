@@ -17,21 +17,23 @@ body {
   color: #fff;
   transition: opacity 0.6s ease;
 }
+
 .splash-logo {
   display: flex;
   align-items: center;
   font-size: 2rem;
 }
+
 .apple-icon {
   font-size: 2.5rem;
   margin-right: 10px;
   color: red;
 }
+
 .tech-text {
   font-weight: 700;
   color: red;
   font-family: 'Times New Roman', Times, serif;
-
 }
 
 /* Header */
@@ -39,11 +41,11 @@ header {
   text-align: center;
   padding: 40px 20px 10px;
 }
+
 header h1 {
   color: #fff;
   font-weight: 600;
   font-family: 'Times New Roman', Times, serif;
-
 }
 
 /* Menú de Íconos */
@@ -55,6 +57,7 @@ header h1 {
   margin: 40px auto;
   max-width: 900px;
 }
+
 .icon-item {
   display: flex;
   flex-direction: column;
@@ -67,25 +70,30 @@ header h1 {
   border-radius: 15px;
   backdrop-filter: blur(4px);
 }
+
 .icon-item i {
   font-size: 2.2rem;
   color: red;
   margin-bottom: 8px;
   transition: transform 0.3s, color 0.3s;
 }
+
 .icon-item span {
   font-size: 0.9rem;
   font-weight: 600;
   color: #ddd;
 }
+
 .icon-item:hover {
   background: rgba(255, 0, 0, 0.1);
   transform: translateY(-5px);
 }
+
 .icon-item:hover i {
   transform: scale(1.2);
   color: #ff2a2a;
 }
+
 .icon-item:hover span {
   color: #fff;
 }
@@ -96,33 +104,56 @@ section {
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-family: 'Times New Roman', Times, serif;
-
 }
+
 section h2 {
   color: red;
   margin-bottom: 10px;
   font-family: 'Times New Roman', Times, serif;
-
 }
+
 section p {
   color: #ccc;
   max-width: 700px;
   margin: 0 auto;
   line-height: 1.6;
   font-family: 'Times New Roman', Times, serif;
-
 }
+
 section a {
   color: red;
   font-weight: 600;
   text-decoration: none;
   font-family: 'Times New Roman', Times, serif;
-
 }
+
 section a:hover {
   text-decoration: underline;
 }
-j
+
+/* Botón de descarga (Mi Libro) */
+.btn-descarga {
+  display: inline-block;
+  margin-top: 20px;
+  background: red;
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-descarga i {
+  margin-right: 8px;
+}
+
+.btn-descarga:hover {
+  background: #ff4d4d;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
 /* Footer */
 footer {
   text-align: center;
@@ -131,11 +162,29 @@ footer {
   color: #fff;
   border-top: 1px solid rgba(255, 0, 0, 0.3);
   font-family: 'Times New Roman', Times, serif;
-
 }
 
-
-.tech{
+.tech {
   text-align: center;
-  font-family: 'Times New Roman', Times, serif
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  .icon-item i {
+    font-size: 1.8rem;
+  }
+
+  .icon-item span {
+    font-size: 0.8rem;
+  }
+
+  .btn-descarga {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }

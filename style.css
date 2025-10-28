@@ -188,3 +188,34 @@ footer {
     font-size: 0.9rem;
   }
 }
+
+/* --- Nuevo Estilo y Animación para el Marquee (Suscribete) --- */
+header h2 {
+    color: red;
+    /* Mantengo el color original para el h2 dentro del marquee-content */
+}
+
+/* Contenedor que recorta y define la velocidad */
+.marquee-container {
+    width: 100%; /* Ocupa todo el ancho */
+    overflow: hidden; /* **Oculta el texto que se sale del contenedor** */
+    white-space: nowrap; /* Evita que el texto se salte de línea */
+    padding: 10px 0;
+}
+
+/* Contenido a animar */
+.marquee-content {
+    display: inline-block;
+    /*Permitequeelcontenidosedesplaceenunasolalínea*/animation: marquee 15s linear infinite;
+    -webkit-animation: marquee 6s linear infinite;
+}
+
+/* La animación: mueve el contenido de derecha a izquierda */
+@keyframes marquee {
+    0% {
+        transform: translateX(100%); /* Comienza totalmente fuera de la pantalla (derecha) */
+    }
+    100% {
+        transform: translateX(-100%); /* Termina totalmente fuera de la pantalla (izquierda) */
+    }
+}

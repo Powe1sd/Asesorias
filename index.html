@@ -4,19 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TECH</title>
+
   <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
-  <link
-    rel="stylesheet"            
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />        
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 
 <body>
+
   <!-- Splash Screen -->
   <div class="splash-screen" id="splash">
     <div class="splash-logo">
@@ -26,27 +23,30 @@
   </div>
 
   <!-- Contenido Principal -->
-  <div id="content" style="display : none;">
-   <header>
-<h1>Desarrollo de Software</h1>
-<div class="marquee-container">
-<div class="marquee-content">
-<h2>Innovación y tecnología W </h2>
- </div>
-</div>
- </header>         
-    <!-- Menú de Íconos -->
+  <div id="content" style="display: none;">
+
+    <header>
+      <h1>Desarrollo de Software</h1>
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <h2>Innovación y tecnología W</h2>
+        </div>
+      </div>
+    </header>
+
+    <!-- Menú -->
     <div class="icon-menu">
       <a href="#marca" class="icon-item"><i class="fa-solid fa-tag"></i><span>Una marca</span></a>
       <a href="#plataformas-web" class="icon-item"><i class="fa-solid fa-globe"></i><span>Plataformas</span></a>
       <a href="#bases-datos" class="icon-item"><i class="fa-solid fa-database"></i><span>Bases</span></a>
       <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>  
-      <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span>              
+      <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span></a>
       <a href="#mi-libro" class="icon-item"><i class="fa-solid fa-book"></i><span>Mi Libro</span></a>
-      </div>
+    </div>
 
     <main>
-        <section id="mi-libro">
+
+      <section id="mi-libro">
         <h2>Mi Libro</h2>
         <p>Descarga mi libro en formato PDF con un solo clic.</p>
         <a href="LUZ.pdf" download class="btn-descarga">
@@ -54,16 +54,9 @@
         </a>
       </section>
 
-         <section id="marca">
+      <section id="marca">
         <h2>La marca 666</h2>
-        <p>Una marca una solución </p>
-      </section>
-
-
-
-       <section id="plataformas-web">
-        <h2>Plataformas Web</h2>
-        <p>Diseño de sistemas escalables, seguros y modernos.</p>
+        <p>Una marca una solución.</p>
       </section>
 
       <section id="plataformas-web">
@@ -72,10 +65,9 @@
       </section>
 
       <section id="sistemas-web">
-        <h2>Sitios Web</h2>                                                                                     
+        <h2>Sitios Web</h2>
         <p>Desarrollo de páginas profesionales adaptadas a tu negocio.</p>
       </section>
-
 
       <section id="bases-datos">
         <h2>Bases de Datos</h2>
@@ -84,8 +76,7 @@
 
       <section id="proyectos-python">
         <h2>Proyectos Python</h2>
-        <p>
-          Automatización, IA y soluciones inteligentes. 
+        <p>Automatización, IA y soluciones inteligentes. 
           <a href="programs-escritorio.html" target="_blank">Ver más</a>
         </p>
       </section>
@@ -95,7 +86,6 @@
         <p>Soluciones tecnológicas a medida para empresas y emprendedores.</p>
       </section>
 
-      
       <section id="aprende-ingles">
         <h2>Aprende Inglés</h2>
         <p>
@@ -104,44 +94,22 @@
         </p>
       </section>
 
-
-        <section id="musica">
-        <h2>Música </h2>
-        <p>
-          Proximamente   
-        </p>
+      <section id="musica">
+        <h2>Música</h2>
+        <p>Próximamente</p>
       </section>
 
-    
-      <!-- NUEVO MÓDULO: MI LIBRO -->
-    
       <section id="contacto">
         <p>© 2025 Asesorías Profesionales — Todos los derechos reservados.</p>
       </section>
+      
     </main>
 
- j
-
-  <footer>
+    <footer>
       <p class="tech">Contacto: brayhanscoy@gmail.com</p>
     </footer>
+
   </div>
-
-
-
-    <footer>
-      <p class="tech">Business W</p>
-    </footer>
-  </div>
-
-
-
-    <footer>
-      <p class="tech">Sound</p>
-    </footer>
-  </div>
-
-
 
   <!-- Script de transición -->
   <script>
@@ -156,7 +124,7 @@
     });
 
     // Scroll suave
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
       anchor.addEventListener("click", function (e) {
         e.preventDefault();
         document.querySelector(this.getAttribute("href")).scrollIntoView({
@@ -165,5 +133,6 @@
       });
     });
   </script>
+
 </body>
 </html>

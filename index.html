@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,13 +9,14 @@
   <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </head>
 
 <body>
 
-  <!-- Splash Screen -->
+  <!-- Splash -->
   <div class="splash-screen" id="splash">
     <div class="splash-logo">
       <i class="fab fa-apple apple-icon"></i>
@@ -25,125 +27,89 @@
   <!-- Contenido Principal -->
   <div id="content" style="display: none;">
 
-    <header>
+    <header class="header-hero">
       <h1>Desarrollo de Software</h1>
-      <div class="marquee-container">
-        <div class="marquee-content">
-          <h2>Innovación y tecnología W</h2>
-        </div>
-      </div>
+      <p class="hero-sub">Innovación y tecnología al alcance de todos</p>
     </header>
 
     <!-- Menú -->
-    <div class="icon-menu">
-      <a href="#marca" class="icon-item"><i class="fa-solid fa-tag"></i><span>Una marca</span></a>
+    <nav class="icon-menu">
+      <a href="#marca" class="icon-item"><i class="fa-solid fa-tag"></i><span>Marca</span></a>
       <a href="#plataformas-web" class="icon-item"><i class="fa-solid fa-globe"></i><span>Plataformas</span></a>
-      <a href="#bases-datos" class="icon-item"><i class="fa-solid fa-database"></i><span>Bases</span></a>
-      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>  
+      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>
       <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span></a>
       <a href="#mi-libro" class="icon-item"><i class="fa-solid fa-book"></i><span>Mi Libro</span></a>
-    </div>
+    </nav>
 
     <main>
 
-      <section id="mi-libro">
+      <section id="mi-libro" class="section">
         <h2>Mi Libro</h2>
         <p>Descarga mi libro en formato PDF con un solo clic.</p>
-        <a href="LUZ.pdf" download class="btn-descarga">
+        <a href="LUZ.pdf" download class="btn-primary">
           <i class="fa-solid fa-download"></i> Descargar Libro
         </a>
       </section>
 
-      <section id="marca">
+      <section id="marca" class="section">
         <h2>La marca 666</h2>
         <p>Una marca una solución.</p>
       </section>
 
-      <section id="plataformas-web">
+      <section id="plataformas-web" class="section">
         <h2>Plataformas Web</h2>
         <p>Diseño de sistemas escalables, seguros y modernos.</p>
       </section>
 
-      <section id="sistemas-web">
+      <section id="sistemas-web" class="section">
         <h2>Sitios Web</h2>
         <p>Desarrollo de páginas profesionales adaptadas a tu negocio.</p>
       </section>
 
-      <section id="bases-datos">
+      <section id="bases-datos" class="section">
         <h2>Bases de Datos</h2>
         <p>Optimización, seguridad y eficiencia de datos.</p>
       </section>
 
-      <section id="proyectos-python">
+      <section id="proyectos-python" class="section">
         <h2>Proyectos Python</h2>
-        <p>Automatización, IA y soluciones inteligentes. 
-          <a href="programs-escritorio.html" target="_blank">Ver más</a>
+        <p>
+          Automatización, IA y soluciones inteligentes.  
+          <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a>
         </p>
       </section>
 
-      <section id="soluciones">
+      <section id="soluciones" class="section">
         <h2>Soluciones</h2>
         <p>Soluciones tecnológicas a medida para empresas y emprendedores.</p>
       </section>
 
-      <section id="aprende-ingles">
+      <section id="aprende-ingles" class="section">
         <h2>Aprende Inglés</h2>
         <p>
           Aprende inglés de forma fácil y práctica.  
-          <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank">Clic aquí</a>.
+          <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank" class="text-link">Clic aquí</a>.
         </p>
       </section>
 
-      <section id="musica">
+      <section id="musica" class="section">
         <h2>Música</h2>
         <p>Próximamente</p>
       </section>
 
-      <section id="contacto">
+      <section id="contacto" class="footer-contact">
         <p>© 2025 Asesorías Profesionales — Todos los derechos reservados.</p>
       </section>
-      
+
     </main>
 
-    <footer>
-      <p class="tech">business</p>
+    <footer class="footer-tech">
+      <p>TECH</p>
     </footer>
-
-
-       <footer>
-      <p class="tech">C</p>
-    </footer>
-
-
-
-
-
-
 
   </div>
 
-  <!-- Script de transición -->
-  <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("splash").style.opacity = "0";
-        setTimeout(() => {
-          document.getElementById("splash").style.display = "none";
-          document.getElementById("content").style.display = "block";
-        }, 600);
-      }, 3000);
-    });
-
-    // Scroll suave
-    document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
-      anchor.addEventListener("click", function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute("href")).scrollIntoView({
-          behavior: "smooth"
-        });
-      });
-    });
-  </script>
-
+  <script src="app.js"></script>
 </body>
+
 </html>

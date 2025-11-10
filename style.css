@@ -1,3 +1,4 @@
+/* === ESTILOS GENERALES === */
 body {
   font-family: "Poppins", sans-serif;
   margin: 0;
@@ -7,7 +8,7 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Splash */
+/* === SPLASH SCREEN === */
 .splash-screen {
   display: flex;
   justify-content: center;
@@ -33,22 +34,28 @@ body {
 .tech-text {
   font-weight: 700;
   color: red;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
-/* Header */
+/* === HEADER === */
 header {
   text-align: center;
   padding: 40px 20px 10px;
 }
 
 header h1 {
-  color: #fff;
+  color: red;
   font-weight: 600;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 2.2rem;
 }
 
-/* Marquee */
+header h2 {
+  color: red;
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* === MARQUEE === */
 .marquee-container {
   width: 100%;
   overflow: hidden;
@@ -58,15 +65,19 @@ header h1 {
 
 .marquee-content {
   display: inline-block;
-  animation: marquee 15s linear infinite;
+  animation: marquee 10s linear infinite;
 }
 
 @keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
-/* Menú de Íconos */
+/* === MENÚ DE ÍCONOS === */
 .icon-menu {
   display: flex;
   flex-wrap: wrap;
@@ -116,17 +127,18 @@ header h1 {
   color: #fff;
 }
 
-/* Secciones */
+/* === SECCIONES === */
 section {
   padding: 80px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center; 
-  font-family: 'Times New Roman', Times, serif;
+  text-align: center;
+  font-family: "Times New Roman", Times, serif;
 }
 
 section h2 {
   color: red;
   margin-bottom: 10px;
+  font-size: 2rem;
 }
 
 section p {
@@ -146,7 +158,7 @@ section a:hover {
   text-decoration: underline;
 }
 
-/* Botón de descarga */
+/* === BOTÓN DESCARGA === */
 .btn-descarga {
   display: inline-block;
   margin-top: 20px;
@@ -169,17 +181,21 @@ section a:hover {
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
 }
 
-/* Footer */
+/* === FOOTER === */
 footer {
   text-align: center;
   padding: 20px;
   background: #111;
   color: #fff;
   border-top: 1px solid rgba(255, 0, 0, 0.3);
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
 }
 
-/* Responsivo */
+.tech {
+  text-align: center;
+}
+
+/* === RESPONSIVO === */
 @media (max-width: 600px) {
   header h1 {
     font-size: 1.5rem;
@@ -197,4 +213,8 @@ footer {
     padding: 10px 20px;
     font-size: 0.9rem;
   }
+}
+
+.libro-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

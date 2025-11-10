@@ -29,21 +29,22 @@
 
     <header class="header-hero">
       <h1>Desarrollo de Software</h1>
-      <p class="hero-sub">Innovación y tecnología al alcance de todos</p>
+      <p class="hero-sub">Innovación y tecnología</p>
     </header>
 
     <!-- Menú -->
     <nav class="icon-menu">
+      <a href="#mi-libro" class="icon-item"><i class="fa-solid fa-book"></i><span>Mi Libro</span></a>
       <a href="#marca" class="icon-item"><i class="fa-solid fa-tag"></i><span>Marca</span></a>
       <a href="#plataformas-web" class="icon-item"><i class="fa-solid fa-globe"></i><span>Plataformas</span></a>
-      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>
       <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span></a>
-      <a href="#mi-libro" class="icon-item"><i class="fa-solid fa-book"></i><span>Mi Libro</span></a>
+      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>
     </nav>
 
     <main>
 
-      <section id="mi-libro" class="section">
+      <!-- ✅ Mi Libro con rayita arriba -->
+      <section id="mi-libro" class="section libro-section">
         <h2>Mi Libro</h2>
         <p>Descarga mi libro en formato PDF con un solo clic.</p>
         <a href="LUZ.pdf" download class="btn-primary">
@@ -104,12 +105,41 @@
     </main>
 
     <footer class="footer-tech">
-      <p>TECH</p>
+      <p>TECH — Business</p>
     </footer>
 
   </div>
 
-  <script src="app.js"></script>
+  <script >
+ window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("splash").style.opacity = "0";
+        setTimeout(() => {
+          document.getElementById("splash").style.display = "none";
+          document.getElementById("content").style.display = "block";
+        }, 200);
+      }, 1000);
+    });
+
+    // Scroll suave
+    document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute("href")).scrollIntoView({
+          behavior: "smooth"
+        });
+      });
+    });
+
+  </script>
+
+
+
+
+
+
+
+
 </body>
 
 </html>

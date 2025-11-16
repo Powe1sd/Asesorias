@@ -2,144 +2,120 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TECH</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TECH</title>
 
-  <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
-  <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
+ <link k rel="stylesheet" href="stylenew.css" />
 
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
 
-  <!-- Splash -->
-  <div class="splash-screen" id="splash">
-    <div class="splash-logo">
-      <i class="fab fa-apple apple-icon"></i>
-      <span class="tech-text">TECH</span>
+    <div class="splash-screen" id="splash">
+        <div class="splash-logo">
+            <i class="fas fa-microchip chip-icon"></i>
+            <span class="tech-text glitch" data-text="TECH">TECH</span>
+        </div>
+        <p class="loading-text">Cargando Módulo Principal...</p>
     </div>
-  </div>
 
-  <!-- Contenido Principal -->
-  <div id="content" style="display: none;">
+    <div id="content" style="display: none;">
 
-    <header class="header-hero">
-      <h1>Desarrollo de Software</h1>
-      <p class="hero-sub">Innovación y tecnología</p>
-    </header>
+        <header class="cyber-hero">
+            <h1 class="glitch" data-text="Desarrollo de Software">Desarrollo de Software</h1>
+            <p class="hero-sub">Innovación y tecnología</p>
+            <p class="hero-sub">Software libre</p>
+            
+        </header>
 
-    <!-- Menú -->
-    <nav class="icon-menu">
-      <a href="#mi-libro" class="icon-item"><i class="fa-solid fa-book"></i><span>Mi Libro</span></a>
-      <a href="#marca" class="icon-item"><i class="fa-solid fa-tag"></i><span>Marca</span></a>
-      <a href="#plataformas-web" class="icon-item"><i class="fa-solid fa-globe"></i><span>Plataformas</span></a>
-      <a href="#soluciones" class="icon-item"><i class="fa-solid fa-lightbulb"></i><span>Soluciones</span></a>
-      <a href="#aprende-ingles" class="icon-item"><i class="fa-solid fa-book-open"></i><span>Inglés</span></a>
-    </nav>
+        <nav class="quick-access-panel">
+            <a href="#soluciones" class="access-item">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span>Soluciones</span>
+            </a>
+         
+        </nav>
 
-    <main>
+        <main class="data-grid">
 
-      <!-- ✅ Mi Libro con rayita arriba -->
-      <section id="mi-libro" class="section libro-section">
-        <h2>Mi Libro</h2>
-        <p>Descarga mi libro en formato PDF con un solo clic.</p>
-        <a href="LUZ.pdf" download class="btn-primary">
-          <i class="fa-solid fa-download"></i> Descargar Libro
-        </a>
-      </section>
-
-      <section id="marca" class="section">
-        <h2>La marca 666</h2>
-        <p>Una marca una solución.</p>
-      </section>
-
-      <section id="plataformas-web" class="section">
-        <h2>Plataformas Web</h2>
-        <p>Diseño de sistemas escalables, seguros y modernos.</p>
-      </section>
-
-      <section id="sistemas-web" class="section">
-        <h2>Sitios Web</h2>
-        <p>Desarrollo de páginas profesionales adaptadas a tu negocio.</p>
-      </section>
-
-      <section id="bases-datos" class="section">
-        <h2>Bases de Datos</h2>
-        <p>Optimización, seguridad y eficiencia de datos.</p>
-      </section>
-
-      <section id="proyectos-python" class="section">
-        <h2>Proyectos Python</h2>
-        <p>
-          Automatización, IA y soluciones inteligentes.  
-          <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a>
-        </p>
-      </section>
-
-      <section id="soluciones" class="section">
-        <h2>Soluciones</h2>
-        <p>Soluciones tecnológicas a medida para empresas y emprendedores.</p>
-      </section>
-
-      <section id="aprende-ingles" class="section">
-        <h2>Aprende Inglés</h2>
-        <p>
-          Aprende inglés de forma fácil y práctica.  
-          <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank" class="text-link">Clic aquí</a>.
-        </p>
-      </section>
-
-      <section id="musica" class="section">
-        <h2>Música</h2>
-        <p>Próximamente</p>
-      </section>
-
-      <section id="contacto" class="footer-contact">
-        <p>© 2025 Asesorías Profesionales — Todos los derechos reservados.</p>
-      </section>
-
-    </main>
-
-    <footer class="footer-tech">
-      <p>TECH — Business</p>
-    </footer>
-
-  </div>
-
-  <script >
- window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("splash").style.opacity = "0";
-        setTimeout(() => {
-          document.getElementById("splash").style.display = "none";
-          document.getElementById("content").style.display = "block";
-        }, 200);
-      }, 1000);
-    });
-
-    // Scroll suave
-    document.querySelectorAll('a[href^=\"#\"]').forEach(anchor => {
-      anchor.addEventListener("click", function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute("href")).scrollIntoView({
-          behavior: "smooth"
-        });
-      });
-    });
-
-  </script>
+         <section id="mi-libro" class="data-card">
+    <h2>Mi Libro</h2>
+    <p>Descarga mi libro en formato PDF con un solo clic.</p>
+    <a href="LUZ.pdf" download class="btn-neoprimary">
+        <i class="fa-solid fa-download"></i> Descargar Libro
+    </a>
+    <p style="color:#FF4500; margin-top:10px;">¡Nuevo capítulo disponible!</p>
+</section>
 
 
+            <section id="marca" class="data-card">
+                <h2>La marca 666</h2>
+                <p>Una marca, una solución.</p>
+            </section>
 
+            <section id="plataformas-web" class="data-card">
+                <h2>Plataformas Web</h2>
+                <p>Diseño de sistemas escalables, seguros y modernos.</p>
+            </section>
 
+            <section id="sistemas-web" class="data-card">
+                <h2>Sitios Web</h2>
+                <p>Desarrollo de páginas profesionales adaptadas a tu negocio.</p>
+            </section>
 
+          
 
+            <section id="proyectos-python" class="data-card">
+                <h2>Proyectos Python</h2>
+                <p>
+                    Automatización, IA y soluciones inteligentes.
+                    <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a>
+                </p>
+            </section>
 
+            <section id="soluciones" class="data-card">
+                <h2>Soluciones</h2>
+                <p>Soluciones tecnológicas a medida para empresas y emprendedores.</p>
+            </section>
 
+            <section id="aprende-ingles" class="data-card">
+                <h2>Aprende Inglés</h2>
+                <p>
+                    Aprende inglés de forma fácil y práctica.
+                    <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank" class="text-link">Clic aquí</a>.
+                </p>
+            </section>
+
+            <section id="contacto" class="footer-contact">
+                <p>© 2025 Asesorías Profesionales — Todos los derechos reservados.</p>
+            </section>
+
+        </main>
+
+        <footer class="cyber-footer">
+            <p>TECH — Business</p>
+        </footer>
+
+        <footer class="cyber-footer">
+            <p>Software libre</p>
+        </footer>
+
+    </div>
+
+    <script src="app.js"></script>
 </body>
 
+<!-- Cambio de prueba para Git -->
+
+
 </html>
+
+<!-- Cambio de prueba -->

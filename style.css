@@ -1,0 +1,327 @@
+/* === VARIABLES NEÓN CORREGIDAS PARA CONTRASTE ROJO/AZUL === */
+:root {
+    --neon-main: #00FFFF; /* AZUL CIAN FUERTE como color principal para títulos y acentos de contraste */
+    --neon-main-shadow: 0 0 5px #00FFFF, 0 0 10px #00BFFF, 0 0 15px #1E90FF; /* Sombra AZUL */
+    
+    --neon-accent: #FF0000; /* ROJO FUERTE como acento para tarjetas, botones, logo TECH y fondo de rejilla */
+    --neon-accent-shadow: 0 0 5px #FF0000, 0 0 10px #FF4500, 0 0 15px #FF6347; /* Sombra ROJA */
+    
+    --dark-bg: #030a13; /* Fondo oscuro casi negro/azul */
+    --card-bg: rgba(255, 0, 0, 0.05); /* Fondo de tarjeta muy translúcido (rojo) */
+}
+
+/* === ESTILOS GENERALES Y FONDO DE REJILLA === */
+body {
+    font-family: 'Share Tech Mono', monospace;
+    margin: 0;
+    padding: 0;
+    background: var(--dark-bg); 
+    color: #fff; 
+    scroll-behavior: smooth;
+    
+    /* ... comentario ... */
+    background-image: radial-gradient(var(--neon-accent) 0.5px, transparent 0.5px); 
+    background-size: 40px 40px; 
+    opacity: 0.98; 
+}
+
+/* === SPLASH SCREEN: SYSTEM BOOT === */
+.splash-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: var(--dark-bg);
+    color: #fff;
+    transition: opacity 0.6s ease;
+}
+
+.splash-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 3rem;
+}
+
+.chip-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    color: var(--neon-main); /* Azul */
+    text-shadow: var(--neon-main-shadow);
+    animation: pulse 1.5s infinite alternate;
+}
+
+.tech-text {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    color: var(--neon-accent); /* Rojo */
+    text-shadow: var(--neon-accent-shadow); 
+    font-size: 3.5rem;
+}
+
+.loading-text {
+    color: var(--neon-main); /* Azul */
+    margin-top: 20px;
+    /* Efecto máquina de escribir */
+    animation: typing 2s steps(30, end) infinite, blink-caret .75s step-end infinite;
+    overflow: hidden; 
+    border-right: .15em solid var(--neon-main); 
+    white-space: nowrap;
+}
+
+@keyframes pulse {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+}
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--neon-main) }
+}
+
+/* === GLITCH EFFECT === */
+.glitch {
+    position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--neon-accent); /* Rojo */
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 var(--neon-main); /* Azul (Contraste) */
+    clip: rect(85px, 450px, 100px, 0);
+    animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(72px, 9999px, 83px, 0); }
+    10% { clip: rect(78px, 9999px, 98px, 0); }
+    20% { clip: rect(61px, 9999px, 82px, 0); }
+    30% { clip: rect(31px, 9999px, 39px, 0); }
+    40% { clip: rect(51px, 9999px, 80px, 0); }
+    50% { clip: rect(21px, 9999px, 60px, 0); }
+    60% { clip: rect(10px, 9999px, 100px, 0); }
+    70% { clip: rect(41px, 9999px, 59px, 0); }
+    80% { clip: rect(11px, 9999px, 78px, 0); }
+    90% { clip: rect(59px, 9999px, 99px, 0); }
+    100% { clip: rect(32px, 9999px, 49px, 0); }
+}
+
+/* === HEADER: CYBER-HERO (TODO AZUL) === */
+.cyber-hero {
+    text-align: center;
+    padding: 60px 20px 30px;
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.1) 0%, rgba(3, 10, 19, 0) 100%); /* Fondo azul tenue */
+ 
+}
+
+.cyber-hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    font-weight: 800;
+    font-size: 3rem;
+    margin-bottom: 5px;
+    text-shadow: var(--neon-main-shadow);
+}
+
+.hero-sub {
+    color: var(--neon-main); /* Subtítulos en AZUL */
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+/* === MENÚ: QUICK ACCESS PANEL (AZUL) === */
+.quick-access-panel {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 40px auto;
+    max-width: 900px;
+    padding: 10px;
+}
+
+.access-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--neon-main);
+    background: rgba(0, 255, 255, 0.1); /* Fondo azul tenue */
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--neon-main);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); /* Sombra azul */
+}
+
+.access-item i {
+    font-size: 1.8rem;
+    color: var(--neon-main);
+    margin-bottom: 5px;
+    text-shadow: var(--neon-main-shadow);
+}
+
+.access-item span {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: #ddd;
+}
+
+.access-item:hover {
+    background: rgba(0, 255, 255, 0.2); /* Hover azul */
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px var(--neon-main);
+}
+
+/* === SECCIONES: DATA CARDS (TODO ROJO) === */
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.data-card {
+    /* Estilos de tarjeta futurista */
+    padding: 25px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 0, 0, 0.5); /* Borde ROJO */
+    transition: all 0.4s ease;
+    text-align: left;
+    backdrop-filter: blur(2px);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.3); /* Sombra ROJA */
+}
+
+.data-card:hover {
+    /* Mantiene el efecto neón en el hover de la tarjeta */
+    box-shadow: var(--neon-accent-shadow);
+    transform: scale(1.02);
+    border-color: #FF4500;
+}
+
+.data-card h2 {
+    font-family: 'Orbitron', sans-serif;
+    /* Títulos de tarjeta en rojo suave */
+    color: #ff6347; 
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--neon-accent); /* Borde en ROJO */
+    padding-left: 10px;
+    text-shadow: none; 
+}
+
+.data-card p {
+    color: #ffb6c1; /* Rojo claro para el texto de párrafo */
+    margin-bottom: 15px;
+    line-height: 1.5;
+    max-width: none;
+    margin-left: 0;
+}
+
+.data-card a {
+    color: var(--neon-accent); /* Enlaces en ROJO neón */
+    font-weight: 400;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.data-card a:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-shadow: 0 0 5px var(--neon-accent);
+}
+
+/* === BOTÓN NEÓN PRINCIPAL (ROJO) === */
+.btn-neoprimary {
+    display: inline-block;
+    margin-top: 15px;
+    background: transparent;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid var(--neon-accent);
+    box-shadow: var(--neon-accent-shadow);
+}
+
+.btn-neoprimary i {
+    margin-right: 8px;
+    color: var(--neon-accent);
+}
+
+.btn-neoprimary:hover {
+    background: var(--neon-accent);
+    color: var(--dark-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px var(--neon-accent);
+    border-color: #fff;
+}
+
+/* === FOOTER DE CONTACTO === */
+.footer-contact {
+    grid-column: 1 / -1; 
+    text-align: center;
+    padding: 30px 20px;
+    border-top: 1px solid rgba(255, 0, 0, 0.3); /* Borde ROJO tenue */
+    margin-top: 20px;
+}
+
+.footer-contact p {
+    color: #fa8072; /* Salmón para el texto del footer */
+    font-size: 0.9rem;
+}
+
+/* === FOOTER CYBER (ROJO) === */
+.cyber-footer {
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--neon-accent);
+    border-top: 1px solid var(--neon-accent);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    text-shadow: 0 0 5px var(--neon-accent);
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 768px) {
+    .cyber-hero h1 {
+        font-size: 2rem;
+    }
+    .data-grid {
+        grid-template-columns: 1fr;
+    }
+    .access-item span {
+        display: none; 
+    }
+    .quick-access-panel {
+        gap: 10px;
+    }
+    .access-item {
+        padding: 10px;
+    }
+}

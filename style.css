@@ -325,3 +325,21 @@ body {
         padding: 10px;
     }
 }
+
+/* Código CSS para que el enlace no afecte la apariencia de la tarjeta */
+
+.full-card-link {
+    /* Elimina el subrayado y cambia el color del texto del enlace al color original */
+    text-decoration: none;
+    color: inherit; 
+    /* Opcional: Asegura que el enlace ocupe todo el espacio dentro de la sección */
+    display: block; 
+}
+
+.data-card:hover {
+    /* Opcional: Da un efecto visual cuando el mouse está sobre la tarjeta */
+    box-shadow: 0 0 15px #00FFFF; /* Un color neón para el efecto */
+    cursor: pointer; /* Cambia el cursor para indicar que es clicable */
+    transform: translateY(-3px); /* Pequeño levantamiento */
+    transition: all 0.3s ease;
+}

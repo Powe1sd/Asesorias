@@ -144,7 +144,7 @@ body {
 }
 
 .hero-sub {
-    color: var(--neon-main); /* Subtítulos en AZUL */
+    color:#FF0000; /* Subtítulos en AZUL */
     font-size: 1.1rem;
     margin-top: 10px;
 }

@@ -373,11 +373,38 @@ body {
     background: radial-gradient(circle, #ffff99 0%, #ffff33 45%, #ffea00 90%);
     border-radius: 50% 50% 30% 30%;
     transform-origin: bottom center;
+    transform: translateX(-50%) scaleX(1.4); /* 🔥 más ancha */
     animation: flame-flicker 1.6s infinite ease-in-out;
-
-    /* Sombra amarilla suave (no negra) */
     filter: drop-shadow(0 0 18px #ffff66);
 }
+
+.flame {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 40px;
+    height: 75px;
+
+    /* 🔥 Amarillo + rojo en la base */
+    background: radial-gradient(
+        circle at 50% 80%,
+        #ff4500 0%,     /* rojo/naranja intenso (base) */
+        #ff8c00 25%,    /* naranja */
+        #ffff66 50%,    /* amarillo */
+        #ffff33 70%,
+        #ffea00 90%
+    );
+
+    border-radius: 50% 50% 30% 30%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) scaleX(1.4);
+    animation: flame-flicker 1.6s infinite ease-in-out;
+
+    /* 🔥 brillo amarillo + rojo */
+    filter: drop-shadow(0 0 10px #ff4500)
+            drop-shadow(0 0 20px #ffff66);
+}
+
 
 /* Variación natural */
 .flame:nth-child(1) { transform: translateX(-50%) scale(1.3); }
@@ -404,3 +431,41 @@ body {
         filter: drop-shadow(0 0 15px #ffff66);
     }
 }
+
+
+/* === LEÑA === */
+.logs {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    gap: 10px;
+}
+
+.log {
+    width: 70px;
+    height: 18px;
+    background: linear-gradient(
+        90deg,
+        #3b1f0f,
+        #5a2d16,
+        #3b1f0f
+    );
+    border-radius: 20px;
+    box-shadow:
+        inset 0 0 5px #000,
+        0 0 8px #ff4500;
+    transform: rotate(-8deg);
+}
+
+/* Variación natural */
+.log:nth-child(2) {
+    transform: rotate(6deg);
+    margin-top: 6px;
+}
+
+.log:nth-child(3) {
+    transform: rotate(-3deg);
+    margin-top: 10px;
+}
+
+

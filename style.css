@@ -469,3 +469,141 @@ body {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| CHIMENEA CON LEÑA Y BRASAS
+|--------------------------------------------------------------------------
+| Asegura que esta sección se muestre sobre el fondo de rejilla (z-index: 0)
+*/
+
+.chimenea-blackfire {
+    width: 100%;
+    /* Altura ajustada para el efecto visual */
+    height: 300px; 
+    display: flex;
+    justify-content: center;
+    position: fixed; /* Fija la chimenea en el fondo de la página */
+    bottom: 0;
+    left: 0;
+    z-index: 0; /* Asegura que el contenido principal (data-grid) esté por encima */
+    pointer-events: none; /* Permite hacer clic en elementos que estén 'detrás' del fuego */
+}
+
+.fire {
+    position: absolute;
+    bottom: 50px; /* Eleva el fuego sobre los troncos */
+    width: 250px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+}
+
+/* === LLAMAS: FUEGO CÁLIDO === */
+.flame {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 40px;
+    height: 75px;
+    
+    /* Gradiente cálido de rojo, naranja a amarillo (base más roja para el efecto de brasas) */
+    background: radial-gradient(
+        circle at 50% 80%,
+        #ff4500 0%,      /* rojo/naranja intenso (base) */
+        #ff8c00 25%,     /* naranja */
+        #ffff66 50%,     /* amarillo */
+        #ffff33 70%,
+        #ffea00 90%
+    );
+
+    border-radius: 50% 50% 30% 30%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) scaleX(1.4);
+    animation: flame-flicker 1.6s infinite ease-in-out;
+
+    /* Brillo de fuego: amarillo y naranja */
+    filter: drop-shadow(0 0 10px #ff4500)
+            drop-shadow(0 0 20px #ffff66);
+}
+
+/* Variación natural */
+.flame:nth-child(1) { transform: translateX(-50%) scale(1.3); left: 40%; animation-duration: 1.8s; }
+.flame:nth-child(2) { transform: translateX(-50%) scale(1.15); left: 60%; animation-duration: 2.1s; }
+.flame:nth-child(3) { transform: translateX(-50%) scale(0.95); animation-duration: 1.5s; }
+.flame:nth-child(4) { transform: translateX(-50%) scale(1.25); left: 35%; animation-duration: 1.3s; }
+.flame:nth-child(5) { transform: translateX(-50%) scale(1.05); left: 65%; animation-duration: 1.7s; }
+
+/* Animación del fuego */
+@keyframes flame-flicker {
+    0% {
+        height: 65px;
+        opacity: 0.7;
+        transform: scaleY(1) translateY(0px);
+        filter: drop-shadow(0 0 15px #ffff66);
+    }
+    50% {
+        height: 120px;
+        opacity: 1;
+        transform: scaleY(1.1) translateY(-10px);
+        filter: drop-shadow(0 0 28px #ffff99);
+    }
+    100% {
+        height: 65px;
+        opacity: 0.7;
+        transform: scaleY(1) translateY(0px);
+        filter: drop-shadow(0 0 15px #ffff66);
+    }
+}
+
+
+/* === LEÑA CON EFECTO DE BRASAS === */
+.logs {
+    position: absolute;
+    bottom: 20px;
+    display: flex;
+    gap: 15px;
+    width: 250px;
+    justify-content: center;
+}
+
+.log {
+    width: 70px;
+    height: 18px;
+    /* Madera oscura */
+    background: linear-gradient(
+        90deg,
+        #3b1f0f,
+        #5a2d16,
+        #3b1f0f
+    );
+    border-radius: 20px;
+    
+    /* El truco de las BRASAS: Sombra interior negra y neón rojo-naranja */
+    box-shadow:
+        inset 0 0 8px #000,
+        0 0 10px #FF4500, /* Neón Naranja/Rojo (Brasas) */
+        0 0 20px rgba(255, 69, 0, 0.5); /* Resplandor más amplio */
+        
+    transform: rotate(-8deg);
+    transition: all 0.3s;
+}
+
+/* Variación natural */
+.log:nth-child(2) {
+    transform: rotate(6deg);
+    margin-top: 6px;
+    box-shadow:
+        inset 0 0 8px #000,
+        0 0 12px #FF8C00, /* Un poco más naranja */
+        0 0 25px rgba(255, 140, 0, 0.6);
+}
+
+.log:nth-child(3) {
+    transform: rotate(-3deg);
+    margin-top: 10px;
+    box-shadow:
+        inset 0 0 8px #000,
+        0 0 8px #FF0000, /* Un poco más rojo */
+        0 0 18px rgba(255, 0, 0, 0.4);
+}
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -7,38 +7,84 @@
     <title>TECH</title>
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
     <style>
-        /* Estilo para el nombre en la esquina inferior derecha */
+        /* Estilos generales y Splash */
+        body { margin: 0; background-color: #000; overflow-x: hidden; }
+
         .floating-name {
             position: fixed;
             bottom: 15px;
             right: 20px;
             font-family: 'Share Tech Mono', monospace;
-            color: white; /* Color neón que combina con tu estilo TECH */
+            color: white;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             z-index: 9999;
             pointer-events: none;
-            text-shadow: 0 0 8px;
+            text-shadow: 0 0 8px cyan;
+        }
+
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+
+        .loading-bar-container {
+            width: 250px;
+            height: 2px;
+            background: #1a1a1a;
+            margin-top: 25px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loading-bar-fill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: cyan;
+            left: -100%;
+            animation: progress 2.5s forwards;
+        }
+
+        @keyframes progress {
+            to { left: 0; }
+        }
+
+        .glitch {
+            color: white;
+            font-size: 2.5rem;
+            font-family: 'Orbitron';
+            position: relative;
         }
     </style>
 </head>
 
 <body>
 
+    <audio id="miAudio" src="paico1.mp3" preload="auto" autoplay></audio>
+
     <div class="splash-screen" id="splash">
         <div class="splash-logo">
-            <i class="fas fa-microchip chip-icon"></i>
+            <i class="fas fa-microchip chip-icon" style="color: cyan; font-size: 3.5rem; margin-bottom: 10px;"></i><br>
             <span class="tech-text glitch" data-text="TECH">TECH</span>
         </div>
-        <p class="loading-text">Innovación y tecnología</p>
+     
     </div>
 
     <div id="content" style="display: none;">
@@ -57,23 +103,15 @@
 
         <main class="data-grid">
 
-            <section id="marca" class="data-card">
-                <a href="desarrollo.html">
-                    <h2>Perfil</h2>
-                </a>
-                <p>
-                    <a href="desarrollo.html">Certificaciones </a>
-                </p>
+            <section id="perfil" class="data-card">
+                <a href="desarrollo.html"><h2>Perfil</h2></a>
+                <p><a href="desarrollo.html">Certificaciones </a></p>
             </section>
 
-            <section id="marca" class="data-card">
-                <a href="paz1.html">
-                    <h2>Paz</h2>
-                </a>
+            <section id="paz-seccion" class="data-card">
+                <a href="paz1.html"><h2>Paz</h2></a>
                 <br> 
-                <a href="paz.html">
-                    <h2>Camino hacia la paz</h2>
-                </a>
+                <a href="paz.html"><h2>Camino hacia la paz</h2></a>
             </section>
 
             <section id="mi-libro" class="data-card">
@@ -82,10 +120,9 @@
                 <a href="LUZ.pdf" download class="btn-neoprimary">
                     <i class="fa-solid fa-download"></i> Descargar Libro
                 </a>
-                <p style="color:#FF4500; margin-top:10px;">¡Nuevo capítulo disponible!</p>
             </section>
 
-            <section id="marca" class="data-card">
+            <section id="marca-666" class="data-card">
                 <h2>La marca 666</h2>
                 <p>Una marca, una solución.</p>
             </section>
@@ -95,30 +132,9 @@
                 <p>Diseño de sistemas escalables, seguros y modernos.</p>
             </section>
             
-            <section id="sistemas-web" class="data-card">
-                <h2>Sitios Web</h2>
-                <p>Desarrollo de páginas profesionales adaptadas a tu negocio.</p>
-            </section>
-
             <section id="proyectos-python" class="data-card">
                 <h2>Proyectos Python</h2>
-                <p>
-                    Automatización, IA y soluciones inteligentes.
-                    <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a>
-                </p>
-            </section>
-            
-            <section id="soluciones" class="data-card">
-                <h2>Soluciones</h2>
-                <p>Soluciones tecnológicas a medida para empresas y emprendedores.</p>
-            </section>
-            
-            <section id="aprende-ingles" class="data-card">
-                <h2>Aprende Inglés</h2>
-                <p>
-                    Aprende inglés de forma fácil y práctica.
-                    <a href="https://powe1sd.github.io/videos-blow-713/" target="_blank" class="text-link">Clic aquí</a>.
-                </p>
+                <p>Automatización e IA. <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a></p>
             </section>
 
             <section id="contacto" class="footer-contact">
@@ -128,13 +144,54 @@
         </main>
 
         <footer class="cyber-footer">
-            <p>TECH — Business</p>
-            <p>Horario de : 8 a 1 y de 2 a 6</p>
+            <p>TECH — Business | Horario: 8 a 1 y 2 a 6</p>
         </footer>
 
         <div class="floating-name">Brayhan Rubio 13</div>
-   
     </div>
+
+    <script>
+        const audio = document.getElementById('miAudio');
+        const splash = document.getElementById('splash');
+        const content = document.getElementById('content');
+
+        // Función para liberar el sistema
+        function deploySystem() {
+            // Intentar reproducir el audio
+            audio.play().catch(error => {
+                console.log("El navegador bloqueó el autoplay. Sonará al interactuar.");
+            });
+
+            // Transición de salida
+            splash.style.opacity = "0";
+            setTimeout(() => {
+                splash.style.visibility = "hidden";
+                splash.style.display = 'none';
+                content.style.display = 'block';
+            }, 800);
+        }
+
+        // 1. DISPARADOR AUTOMÁTICO (Tras cargar la página)
+        window.addEventListener('load', () => {
+            // Esperamos 2.5 segundos (lo que dura la barrita de carga)
+            setTimeout(() => {
+                deploySystem();
+            }, 2500);
+        });
+
+        // 2. DISPARADOR DE EMERGENCIA (Si el usuario hace clic antes de que cargue)
+        window.addEventListener('click', () => {
+            if (content.style.display === 'none') {
+                deploySystem();
+            }
+        }, { once: true });
+
+        // 3. DESBLOQUEO DE AUDIO (Por si el navegador es muy estricto)
+        // Esto asegura que el audio suene en cuanto el usuario toque cualquier tecla
+        document.body.addEventListener('keydown', () => {
+            if (audio.paused) audio.play();
+        }, { once: true });
+    </script>
 
     <script src="app.js"></script>
 </body>

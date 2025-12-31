@@ -77,8 +77,6 @@
 
 <body>
 
-    <audio id="miAudio" src="paico1.mp3" preload="auto" autoplay></audio>
-
     <div class="splash-screen" id="splash">
         <div class="splash-logo">
             <i class="fas fa-microchip chip-icon" style="color: cyan; font-size: 3.5rem; margin-bottom: 10px;"></i><br>
@@ -150,48 +148,7 @@
         <div class="floating-name">Brayhan Rubio 13</div>
     </div>
 
-    <script>
-        const audio = document.getElementById('miAudio');
-        const splash = document.getElementById('splash');
-        const content = document.getElementById('content');
 
-        // Función para liberar el sistema
-        function deploySystem() {
-            // Intentar reproducir el audio
-            audio.play().catch(error => {
-                console.log("El navegador bloqueó el autoplay. Sonará al interactuar.");
-            });
-
-            // Transición de salida
-            splash.style.opacity = "0";
-            setTimeout(() => {
-                splash.style.visibility = "hidden";
-                splash.style.display = 'none';
-                content.style.display = 'block';
-            }, 800);
-        }
-
-        // 1. DISPARADOR AUTOMÁTICO (Tras cargar la página)
-        window.addEventListener('load', () => {
-            // Esperamos 2.5 segundos (lo que dura la barrita de carga)
-            setTimeout(() => {
-                deploySystem();
-            }, 2500);
-        });
-
-        // 2. DISPARADOR DE EMERGENCIA (Si el usuario hace clic antes de que cargue)
-        window.addEventListener('click', () => {
-            if (content.style.display === 'none') {
-                deploySystem();
-            }
-        }, { once: true });
-
-        // 3. DESBLOQUEO DE AUDIO (Por si el navegador es muy estricto)
-        // Esto asegura que el audio suene en cuanto el usuario toque cualquier tecla
-        document.body.addEventListener('keydown', () => {
-            if (audio.paused) audio.play();
-        }, { once: true });
-    </script>
 
     <script src="app.js"></script>
 </body>

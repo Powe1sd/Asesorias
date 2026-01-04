@@ -130,7 +130,7 @@ body {
 .cyber-hero {
     text-align: center;
     padding: 60px 20px 30px;
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.1) 0%, rgba(3, 10, 19, 0) 100%); /* Fondo azul tenue */
+    background: linear-gradient(180deg, rgba(255, 0, 0, 0.1) 0%, rgba(3, 10, 19, 0) 100%); /* Fondo azul tenue */
  
 }
 
@@ -140,7 +140,7 @@ body {
     font-weight: 800;
     font-size: 3rem;
     margin-bottom: 5px;
-    text-shadow: var(--neon-main-shadow);
+    text-shadow: plum;
 }
 
 .hero-sub {

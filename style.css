@@ -338,7 +338,7 @@ body {
 
 .data-card:hover {
     /* Opcional: Da un efecto visual cuando el mouse está sobre la tarjeta */
-    box-shadow: 0 0 15px #00FFFF; /* Un color neón para el efecto */
+    box-shadow: 0 0 15px #fefffffb; /* Un color neón para el efecto */
     cursor: pointer; /* Cambia el cursor para indicar que es clicable */
     transform: translateY(-3px); /* Pequeño levantamiento */
     transition: all 0.3s ease;

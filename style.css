@@ -4,10 +4,10 @@
     --neon-main-shadow: 0 0 5px #00FFFF, 0 0 10px #00BFFF, 0 0 15px #1E90FF; /* Sombra AZUL */
     
     --neon-accent: #FF0000; /* ROJO FUERTE como acento para tarjetas, botones, logo TECH y fondo de rejilla */
-    --neon-accent-shadow: 0 0 5px #FF0000, 0 0 10px #FF4500, 0 0 15px #FF6347; /* Sombra ROJA */
+    --neon-accent-shadow: 0 0 5px #FF0000, 0 0 10px #ff0000, 0 0 15px #ff0202; /* Sombra ROJA */
     
     --dark-bg: #030a13; /* Fondo oscuro casi negro/azul */
-    --card-bg: rgba(255, 0, 0, 0.05); /* Fondo de tarjeta muy translúcido (rojo) */
+    --card-bg: rgb(255, 255, 255); /* Fondo de tarjeta muy translúcido (rojo) */
 }
 
 /* === ESTILOS GENERALES Y FONDO DE REJILLA === */
@@ -55,11 +55,16 @@ body {
 .tech-text {
     font-family: 'Orbitron', sans-serif;
     font-weight: 800;
-    color: var(--neon-accent); /* Rojo */
-    text-shadow: var(--neon-accent-shadow); 
+    color: #FF0000; /* Rojo puro */
+    text-shadow: 0 0 5px #FF0000, 0 0 10px #FF0000, 0 0 20px #8B0000; 
     font-size: 3.5rem;
+    text-transform: uppercase; /* Opcional: para que se vea más potente */
 }
 
+/* Si usas la clase glitch junto con tech-text, asegúrate de que sea así: */
+.tech-text.glitch {
+    color: #FF0000;
+}
 .loading-text {
     color: var(--neon-main); /* Azul */
     margin-top: 20px;
@@ -130,7 +135,7 @@ body {
 .cyber-hero {
     text-align: center;
     padding: 60px 20px 30px;
-    background: linear-gradient(180deg, rgba(255, 0, 0, 0.1) 0%, rgba(3, 10, 19, 0) 100%); /* Fondo azul tenue */
+    background: linear-gradient(180deg, rgb(255, 0, 0) 0%, rgba(3, 10, 19, 0) 100%); /* Fondo azul tenue */
  
 }
 
@@ -207,24 +212,24 @@ body {
     padding: 25px;
     border-radius: 10px;
     background: var(--card-bg);
-    border: 1px solid rgba(255, 0, 0, 0.5); /* Borde ROJO */
+    border: 1px solid rgb(255, 0, 0); /* Borde ROJO */
     transition: all 0.4s ease;
     text-align: left;
     backdrop-filter: blur(2px);
-    box-shadow: 0 0 8px rgba(255, 0, 0, 0.3); /* Sombra ROJA */
+    box-shadow: 0 0 8px rgb(255, 0, 0); /* Sombra ROJA */
 }
 
 .data-card:hover {
     /* Mantiene el efecto neón en el hover de la tarjeta */
     box-shadow: var(--neon-accent-shadow);
     transform: scale(1.02);
-    border-color: #FF4500;
+    border-color: #ff0202;
 }
 
 .data-card h2 {
     font-family: 'Orbitron', sans-serif;
     /* Títulos de tarjeta en rojo suave */
-    color: #ff6347; 
+    color: #ff0000e8; 
     font-size: 1.2rem;
     margin-bottom: 10px;
     border-left: 3px solid var(--neon-accent); /* Borde en ROJO */
@@ -233,7 +238,7 @@ body {
 }
 
 .data-card p {
-    color: #ffb6c1; /* Rojo claro para el texto de párrafo */
+    color: #000000; /* Rojo claro para el texto de párrafo */
     margin-bottom: 15px;
     line-height: 1.5;
     max-width: none;
@@ -286,12 +291,12 @@ body {
     grid-column: 1 / -1; 
     text-align: center;
     padding: 30px 20px;
-    border-top: 1px solid rgba(255, 0, 0, 0.3); /* Borde ROJO tenue */
+    border-top: 1px solid rgb(255, 0, 0); /* Borde ROJO tenue */
     margin-top: 20px;
 }
 
 .footer-contact p {
-    color: #fa8072; /* Salmón para el texto del footer */
+    color: #f8f8f8; /* Salmón para el texto del footer */
     font-size: 0.9rem;
 }
 
@@ -453,7 +458,7 @@ body {
     border-radius: 20px;
     box-shadow:
         inset 0 0 5px #000,
-        0 0 8px #ff4500;
+        0 0 8px #ff0000;
     transform: rotate(-8deg);
 }
 
@@ -581,7 +586,7 @@ body {
     /* El truco de las BRASAS: Sombra interior negra y neón rojo-naranja */
     box-shadow:
         inset 0 0 8px #000,
-        0 0 10px #FF4500, /* Neón Naranja/Rojo (Brasas) */
+        0 0 10px #ff0000, /* Neón Naranja/Rojo (Brasas) */
         0 0 20px rgba(255, 69, 0, 0.5); /* Resplandor más amplio */
         
     transform: rotate(-8deg);
@@ -604,6 +609,32 @@ body {
     box-shadow:
         inset 0 0 8px #000,
         0 0 8px #FF0000, /* Un poco más rojo */
-        0 0 18px rgba(255, 0, 0, 0.4);
+        0 0 18px #FF0000;
 }
 
+.facebook-fixed {
+    position: fixed;
+    bottom: 15px;
+    left: 20px; /* Lo ubica a la izquierda */
+    color: #0084FF; /* Azul oficial Facebook / Neón Azul */
+    font-size: 1.5rem;
+    z-index: 9999;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px #0084FF, 0 0 20px #0056b3; /* Resplandor Azul */
+    background: rgba(0, 132, 255, 0.1); /* Fondo tenue azul */
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 1px solid #0084FF; /* Borde Azul */
+}
+
+.facebook-fixed:hover {
+    background: #0084FF; /* Se llena de azul al pasar el mouse */
+    color: #fff; /* El icono se pone blanco para contraste */
+    box-shadow: 0 0 25px #0084FF; /* Brillo intenso azul */
+    transform: scale(1.1) rotate(5deg); /* Un pequeño giro para estilo cyber */
+}

@@ -638,3 +638,7 @@ body {
     box-shadow: 0 0 25px #0084FF; /* Brillo intenso azul */
     transform: scale(1.1) rotate(5deg); /* Un pequeño giro para estilo cyber */
 }
+
+.floating-name{
+    color: red;
+}

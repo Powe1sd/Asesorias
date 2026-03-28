@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-    
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,14 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <a href="https://facebook.com/TU_USUARIO" class="facebook-fixed" target="_blank">
-    <i class="fa-brands fa-facebook-f"></i>
-</a>
-
-
     <style>
-  /* Estilos generales y Splash */
-
+        /* Estilos generales y Splash */
         body { margin: 0; background-color: #000; overflow-x: hidden; }
 
         .floating-name {
@@ -79,6 +71,42 @@
             font-family: 'Orbitron';
             position: relative;
         }
+
+        /* --- ESTILOS DEL TRIÁNGULO ANIMADO --- */
+        .triangle-container {
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        .mini-triangle {
+            width: 0;
+            height: 0;
+            /* Triángulo apuntando a la derecha */
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid red; 
+            animation: multiColorShift 3s infinite linear;
+        }
+
+        @keyframes multiColorShift {
+            0%   { border-left-color: red; }
+            25%  { border-left-color: green; }
+            50%  { border-left-color: yellow; }
+            75%  { border-left-color: blue; }
+            100% { border-left-color: red; }
+            210% { border-left-color: white; }
+            
+        }
+
+        .facebook-fixed {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            z-index: 999;
+        }
     </style>
 </head>
 
@@ -86,17 +114,18 @@
     
     <div class="splash-screen" id="splash">
         <div class="splash-logo">
-      
             <span class="tech-text glitch" data-text="TECH">TECH</span>
+            <div class="loading-bar-container">
+                <div class="loading-bar-fill"></div>
+            </div>
         </div>     
     </div>
-    <div id="content" style="display: none;">
 
+    <div id="content" style="display: none;">
 
         <header class="cyber-hero">
             <h1 data-text="Desarrollo de Software">Desarrollo de software</h1>
         </header>
-
 
         <main class="data-grid">
 
@@ -105,11 +134,6 @@
                 <p><a href="desarrollo.html">Certificaciones </a></p>
             </section>
 
-            
-            
-            
-            
-            
             <section id="paz-seccion" class="data-card">
                 <a href="paz1.html"><h2>Paz</h2></a>
                 <br> 
@@ -122,82 +146,55 @@
                 <a href="LUZ.pdf" download class="btn-neoprimary">
                     <i class="fa-solid fa-download"></i> Descargar Libro
                 </a>
-                     <h2>Extraterrestres vida en otros planetas.</h2>
+                <h2>Extraterrestres vida en otros planetas.</h2>
             </section>
 
-
-
-
-
-
-
-            <section id="mi-libro" class="data-card">
+            <section id="ingles" class="data-card">
                 <h2>Ingles</h2>
-                <p>Ingles</p>
-                 <p><a href="https://videos-blow-713-p313nol75-tempsslls-projects.vercel.app/">Aprendiendo ingles</a></p>
+                <p><a href="https://videos-blow-713-p313nol75-tempsslls-projects.vercel.app/" target="_blank">Aprendiendo ingles</a></p>
             </section>
-
-
-
-
 
             <section id="marca-666" class="data-card">
                 <h2>La marca 666</h2>
                 <p>Una marca, una solución.</p>
             </section>
-                     
-            
             
             <section id="plataformas-web" class="data-card">
                 <h2>Plataformas web</h2>
                 <p>Diseño de sistemas escalables, seguros y modernos.</p>
-
             </section>
-            
-            
-            
-            
+                        
             <section id="proyectos-python" class="data-card">
                 <h2>Proyectos Python</h2>
                 <p>Automatización e IA. <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a></p>
             </section>
 
-         
-
             <section id="contacto" class="footer-contact">
-                <p>© 2025 Asesorías Profesionales.  Todos los derechos reservados.</p>
+                <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
             </section>
-
-
-
-
-
 
         </main>
 
         <footer class="cyber-footer">
             <p>TECH — Bussines | Horario : 9 a 1 y 2 a 6</p>
-               <p>TECH</p>
+            <p>TECH</p>
             <p>Versión 1.0</p> 
             <p>+</p> 
             <p>P</p> 
 
-
-
+            <div class="triangle-container">
+                <div class="mini-triangle"></div>
+            </div>
         </footer>
 
-            <div class="floating-name" style="color: #ff0808;">Brayhan 7 13</div>
+        <div class="floating-name" style="color: #ff0808;">Brayhan 7 13</div>
 
         <a href="https://www.facebook.com/brahyanstiven.coyrubio/" class="facebook-fixed" target="_blank">
             <i class="fa-brands fa-facebook-f"></i>
         </a>
     </div>
 
-    
     <script src="app.js"></script>
-
 
 </body>
 </html>
-
-

@@ -20,6 +20,24 @@ window.addEventListener("load", () => {
 
 
 
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        const splash = document.querySelector(".splash-screen");
+        const content = document.getElementById("content");
+
+        splash.style.opacity = "0";
+        splash.style.transition = "0.8s";
+
+        setTimeout(() => {
+            splash.style.display = "none";
+            content.style.display = "block";
+        }, 800);
+
+    }, 2500); // tiempo de carga (puedes cambiarlo)
+});
+
+
+
     document.addEventListener('DOMContentLoaded', () => {
     const splashScreen = document.getElementById('splash');
     const content = document.getElementById('content');

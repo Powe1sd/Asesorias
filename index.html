@@ -9,105 +9,241 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
+
+<div class="loading-bar-container">
+    <div class="loading-bar-fill"></div>
+</div>
+
+
+<div class="loader-arrow"></div>
+
+
+
+
+
     <style>
         /* Estilos generales y Splash */
-        body { margin: 0; background-color: #000; overflow-x: hidden; }
+       /* ===== FONDO CON PUNTOS DE COLORES ===== */
+body {
+    margin: 0;
+    background: #000;
+    overflow-x: hidden;
+    font-family: 'Orbitron', sans-serif;
+}
 
-        .floating-name {
-            position: fixed;
-            bottom: 15px;
-            right: 20px;
-            font-family: 'Share Tech Mono', monospace;
-            color: white;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 9999;
-            pointer-events: none;
-            text-shadow: 0 0 8px rgba(246, 252, 252, 0.904);
-        }
+/* partículas tipo puntos brillantes */
+body::before {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle, rgba(0,255,255,0.8) 1px, transparent 1px),
+                      radial-gradient(circle, rgba(255,0,255,0.8) 1px, transparent 1px),
+                      radial-gradient(circle, rgba(255,255,0,0.8) 1px, transparent 1px);
+    background-size: 40px 40px, 60px 60px, 80px 80px;
+    animation: moveDots 10s linear infinite;
+    z-index: -1;
+}
 
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
+@keyframes moveDots {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100px); }
+}
 
-        .loading-bar-container {
-            width: 250px;
-            height: 2px;
-            background: #1a1a1a;
-            margin-top: 25px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-        }
 
-        .loading-bar-fill {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: cyan;
-            left: -100%;
-            animation: progress 2.5s forwards;
-        }
+/* ===== GRID DE TARJETAS ===== */
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    padding: 40px;
+}
 
-        @keyframes progress {
-            to { left: 0; }
-        }
 
-        .glitch {
-            color: white;
-            font-size: 2.5rem;
-            font-family: 'Orbitron';
-            position: relative;
-        }
+/* ===== TARJETAS ===== */
+.data-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    color: white;
+    transition: 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
 
-        /* --- ESTILOS DEL TRIÁNGULO ANIMADO --- */
-        .triangle-container {
-            display: flex;
-            justify-content: center;
-            padding: 15px 0;
-        }
+/* efecto glow */
+.data-card::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, transparent, rgba(0,255,255,0.3), transparent);
+    transform: rotate(25deg);
+    top: -100%;
+    left: -100%;
+    transition: 0.5s;
+}
 
-        .mini-triangle {
-            width: 0;
-            height: 0;
-            /* Triángulo apuntando a la derecha */
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 12px solid red; 
-            animation: multiColorShift 3s infinite linear;
-        }
+.data-card:hover::before {
+    top: 100%;
+    left: 100%;
+}
 
-        @keyframes multiColorShift {
-            0%   { border-left-color: red; }
-            25%  { border-left-color: green; }
-            50%  { border-left-color: yellow; }
-            75%  { border-left-color: blue; }
-            100% { border-left-color: red; }
-            210% { border-left-color: white; }
-            
-        }
+.data-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 0 25px cyan;
+}
 
-        .facebook-fixed {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            color: white;
-            font-size: 24px;
-            z-index: 999;
-        }
-    </style>
+/* TITULOS */
+.data-card h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 8px cyan;
+}
+
+/* LINKS */
+.data-card a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.data-card a:hover {
+    text-shadow: 0 0 10px #00ffff;
+}
+
+/* BOTÓN */
+.btn-neoprimary {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: linear-gradient(45deg, cyan, magenta);
+    color: black;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-neoprimary:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px cyan;
+}
+
+
+/* ===== FOOTER ===== */
+.cyber-footer {
+    text-align: center;
+    padding: 20px;
+    color: white;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+       
+
+/* TRIÁNGULO NEÓN ELEGANTE */
+.triangle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 0;
+}
+
+/* TRIÁNGULO MULTICOLOR */
+.mini-triangle {
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 16px solid red;
+
+    animation: colorGlow 3s infinite linear;
+}
+
+/* animación multicolor neón */
+@keyframes colorGlow {
+    0% {
+        border-left-color: red;
+        filter: drop-shadow(0 0 8px red);
+    }
+    16% {
+        border-left-color: blue;
+        filter: drop-shadow(0 0 10px blue);
+    }
+    32% {
+        border-left-color: yellow;
+        filter: drop-shadow(0 0 10px yellow);
+    }
+    48% {
+        border-left-color: green;
+        filter: drop-shadow(0 0 10px lime);
+    }
+    64% {
+        border-left-color: purple;
+        filter: drop-shadow(0 0 10px purple);
+    }
+    80% {
+        border-left-color: white;
+        filter: drop-shadow(0 0 12px white);
+    }
+    100% {
+        border-left-color: red;
+        filter: drop-shadow(0 0 8px red);
+    }
+}
+
+.floating-name {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    color: white;
+    letter-spacing: 2px;
+    z-index: 9999;
+    pointer-events: none;
+
+    /* efecto neón */
+    text-shadow: 
+        0 0 5px red,
+        0 0 10px blue,
+        0 0 15px cyan,
+        0 0 20px white;
+}
+
+/* 🔵 FLECHA AZUL CARGANDO */
+.loader-arrow {
+    margin-top: 20px;
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 18px solid rgb(238, 255, 3);
+
+    animation: arrowMove 1s infinite alternate;
+    filter: drop-shadow(0 0 10px cyan);
+}
+
+@keyframes arrowMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(12px); }
+}
+
+
+.data-card p {
+    color: #ffffff;
+}
+
+.data-card p a {
+    color: #ffffff;
+}
+
+
+
+
+       
+       </style>
 </head>
 
 <body>
@@ -173,14 +309,24 @@
                 <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
             </section>
 
+
+             <section id="contacto" class="footer-contact">
+                <p></p>
+            </section>
+
+
+
+
+
+
         </main>
 
         <footer class="cyber-footer">
             <p>TECH — Bussines | Horario : 9 a 1 y 2 a 6</p>
             <p>TECH</p>
-            <p>Versión 1.0</p> 
+            <p>Versión 1.0.1</p> 
             <p>+</p> 
-            <p>P</p> 
+         
 
             <div class="triangle-container">
                 <div class="mini-triangle"></div>

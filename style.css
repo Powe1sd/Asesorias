@@ -1,3 +1,15 @@
+
+
+.mini-triangle {
+    border-left: 16px solid red;
+    animation: colorGlow 3s infinite linear;
+}
+
+
+
+
+
+
 /* === VARIABLES NEÓN CORREGIDAS PARA CONTRASTE ROJO/AZUL === */
 :root {
     --neon-main: #00FFFF; /* AZUL CIAN FUERTE como color principal para títulos y acentos de contraste */

@@ -170,29 +170,36 @@ body::before {
     animation: colorGlow 3s infinite linear;
 }
 
-/* animación multicolor neón */
 @keyframes colorGlow {
     0% {
         border-left-color: red;
         filter: drop-shadow(0 0 8px red);
     }
-    16% {
+    12% {
         border-left-color: blue;
         filter: drop-shadow(0 0 10px blue);
     }
-    32% {
+    25% {
         border-left-color: yellow;
         filter: drop-shadow(0 0 10px yellow);
     }
-    48% {
-        border-left-color: green;
-        filter: drop-shadow(0 0 10px lime);
+    37% {
+        border-left-color: lime; /* ✅ VERDE BRILLANTE */
+        filter: drop-shadow(0 0 12px lime);
     }
-    64% {
-        border-left-color: purple;
-        filter: drop-shadow(0 0 10px purple);
+   55% {
+    border-left-color: #fd57c6;
+    filter: drop-shadow(0 0 16px #ff66cc);
+}
+55% {
+    border-left-color: #ff5ec9;
+    filter: drop-shadow(0 0 18px #f851c1);
+}
+    75% {
+        border-left-color: cyan;
+        filter: drop-shadow(0 0 12px cyan);
     }
-    80% {
+    87% {
         border-left-color: white;
         filter: drop-shadow(0 0 12px white);
     }
@@ -200,7 +207,16 @@ body::before {
         border-left-color: red;
         filter: drop-shadow(0 0 8px red);
     }
+
+50% {
+    border-left-color: #f546bb; /* 💖 ROSADO CLARO */
+    filter: drop-shadow(0 0 16px #f748bd);
 }
+}
+
+
+/* animación multicolor neón */
+
 
 .floating-name {
     position: fixed;
@@ -218,8 +234,10 @@ body::before {
         0 0 5px red,
         0 0 10px blue,
         0 0 15px cyan,
-        0 0 20px white;
-}
+        0 0 20px white,
+        0 0 20px rgb(0, 0, 0);
+
+    }
 
 /* 🔵 FLECHA AZUL CARGANDO */
 .loader-arrow {
@@ -337,6 +355,7 @@ body::before {
             <p>TECH — Bussines | Horario : 9 a 1 y 2 a 6</p>
             <p>TECH</p>
             <p>Versión 1.0.1</p> 
+            <p>P</p>  
             <p>+</p> 
          
 

@@ -54,7 +54,7 @@ body::after {
 /* capa 1 */
 body::before {
     top: 0;
-    animation: starsMove 12s linear infinite;
+    animation: starsMove 18s linear infinite;
 }
 
 /* capa 2 (desfasada) */
@@ -72,16 +72,32 @@ body::after {
     z-index: -1;
 }
 
+/* capa 1 mas lento */
+/* ===== FONDO PERFECTO SIN DISTORSIÓN ===== */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%; /* 🔥 IMPORTANTE: misma altura */
+    left: 0;
+    background-image: radial-gradient(circle, rgba(0,255,255,0.8) 1px, transparent 1px),
+                      radial-gradient(circle, rgba(255,0,255,0.8) 1px, transparent 1px),
+                      radial-gradient(circle, rgba(255,255,0,0.8) 1px, transparent 1px);
+    background-size: 40px 40px, 60px 60px, 80px 80px;
+    z-index: -1;
+}
+
 /* capa 1 */
 body::before {
     top: 0;
-    animation: starsUp 20s linear infinite;
+    animation: starsUp 132s linear infinite; /* lento y fluido */
 }
 
-/* capa 2 (desfasada exactamente una pantalla) */
+/* capa 2 (continua, sin cortes) */
 body::after {
     top: 100%;
-    animation: starsUp 20s linear infinite;
+    animation: starsUp 160s linear infinite; /* misma velocidad */
 }
 
 @keyframes starsUp {

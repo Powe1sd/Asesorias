@@ -24,161 +24,96 @@
 <div class="loader-arrow"></div>
 
 
-    <style>
-        /* Estilos generales y Splash */
-       /* ===== FONDO CON PUNTOS DE COLORES ===== */
+ 
+
+<style>
+
+/* ===== RESET ===== */
 body {
     margin: 0;
-    background: #000;
-    overflow-x: hidden;
+    background: #050505;
     font-family: 'Orbitron', sans-serif;
+    color: white;
+    overflow-x: hidden;
 }
 
-
-
-/* partículas tipo puntos brillantes */
-body::before,
-body::after {
-    content: "";
-    position: fixed;
-    width: 100%;
-    height: 200%; /* 🔥 doble altura para loop infinito */
-    left: 0;
-    background-image: radial-gradient(circle, rgba(0,255,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,0,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,255,0,0.8) 1px, transparent 1px);
-    background-size: 40px 40px, 60px 60px, 80px 80px;
-    z-index: -1;
-}
-
-/* capa 1 */
+/* ===== FONDO ANIMADO SUAVE ===== */
 body::before {
-    top: 0;
-    animation: starsMove 18s linear infinite;
-}
-
-/* capa 2 (desfasada) */
-body::before,
-body::after {
     content: "";
     position: fixed;
     width: 100%;
-    height: 100%;
-    left: 0;
-    background-image: radial-gradient(circle, rgba(0,255,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,0,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,255,0,0.8) 1px, transparent 1px);
-    background-size: 40px 40px, 60px 60px, 80px 80px;
+    height: 200%;
+    background-image:
+        radial-gradient(circle, rgba(0,255,255,0.4) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,0,255,0.3) 1px, transparent 1px);
+    background-size: 60px 60px, 80px 80px;
+    animation: stars 80s linear infinite;
     z-index: -1;
 }
 
-/* capa 1 mas lento */
-/* ===== FONDO PERFECTO SIN DISTORSIÓN ===== */
-body::before,
-body::after {
-    content: "";
-    position: fixed;
-    width: 100%;
-    height: 100%; /* 🔥 IMPORTANTE: misma altura */
-    left: 0;
-    background-image: radial-gradient(circle, rgba(0,255,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,0,255,0.8) 1px, transparent 1px),
-                      radial-gradient(circle, rgba(255,255,0,0.8) 1px, transparent 1px);
-    background-size: 40px 40px, 60px 60px, 80px 80px;
-    z-index: -1;
+@keyframes stars {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
 }
 
-/* capa 1 */
-body::before {
-    top: 0;
-    animation: starsUp 132s linear infinite; /* lento y fluido */
+/* ===== HEADER ===== */
+.cyber-hero {
+    text-align: center;
+    padding: 40px 20px;
 }
 
-/* capa 2 (continua, sin cortes) */
-body::after {
-    top: 100%;
-    animation: starsUp 160s linear infinite; /* misma velocidad */
+.cyber-hero h1 {
+    font-size: 2.2rem;
+    text-shadow: 0 0 10px cyan;
 }
 
-@keyframes starsUp {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(-100%);
-    }
-}
-
-
-/* ===== GRID DE TARJETAS ===== */
+/* ===== GRID ===== */
 .data-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 25px;
-    padding: 40px;
+    gap: 20px;
+    padding: 30px;
 }
-
 
 /* ===== TARJETAS ===== */
 .data-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0,255,255,0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 25px;
-    color: white;
-    transition: 0.4s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(0,255,255,0.15);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+    transition: 0.3s ease;
     position: relative;
-    overflow: hidden;
 }
 
-/* efecto glow */
-.data-card::before {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(120deg, transparent, rgba(0,255,255,0.3), transparent);
-    transform: rotate(25deg);
-    top: -100%;
-    left: -100%;
-    transition: 0.5s;
-}
-
-.data-card:hover::before {
-    top: 100%;
-    left: 100%;
-}
-
+/* HOVER MÁS FINO */
 .data-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 0 25px cyan;
+    transform: translateY(-6px);
+    box-shadow: 0 0 15px rgba(0,255,255,0.4);
 }
 
 /* TITULOS */
 .data-card h2 {
-    margin-top: 0;
-    font-size: 1.4rem;
-    color: rgb(255, 255, 255);
-    text-shadow: 0 0 8px cyan;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px cyan;
 }
 
 /* LINKS */
 .data-card a {
-    color: #ffffff;
+    color: #fff;
     text-decoration: none;
 }
 
 .data-card a:hover {
-    text-shadow: 0 0 10px #00ffff;
+    color: cyan;
 }
 
 /* BOTÓN */
 .btn-neoprimary {
     display: inline-block;
-    margin-top: 10px;
-    padding: 10px 15px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 6px;
     background: linear-gradient(45deg, cyan, magenta);
     color: black;
     font-weight: bold;
@@ -186,141 +121,73 @@ body::after {
 }
 
 .btn-neoprimary:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px cyan;
+    transform: scale(1.08);
+    box-shadow: 0 0 10px cyan;
 }
-
 
 /* ===== FOOTER ===== */
 .cyber-footer {
     text-align: center;
     padding: 20px;
-    color: white;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin-top: 30px;
-}
-       
-
-/* TRIÁNGULO NEÓN ELEGANTE */
-.triangle-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 25px 0;
+    opacity: 0.7;
+    font-size: 0.9rem;
 }
 
-/* TRIÁNGULO MULTICOLOR */
+/* ===== TRIÁNGULO MÁS FINO ===== */
 .mini-triangle {
     width: 0;
     height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 16px solid red;
-
-    animation: colorGlow 3s infinite linear;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 14px solid cyan;
+    animation: pulse 2s infinite;
+    margin: auto;
 }
 
-@keyframes colorGlow {
-    0% {
-        border-left-color: red;
-        filter: drop-shadow(0 0 8px red);
-    }
-    12% {
-        border-left-color: blue;
-        filter: drop-shadow(0 0 10px blue);
-    }
-    25% {
-        border-left-color: yellow;
-        filter: drop-shadow(0 0 10px yellow);
-    }
-    37% {
-        border-left-color: lime; /* ✅ VERDE BRILLANTE */
-        filter: drop-shadow(0 0 12px lime);
-    }
-   55% {
-    border-left-color: #f55bc2;
-    filter: drop-shadow(0 0 16px #fd6bcd);
-}
-55% {
-    border-left-color: #fd67cb;
-    filter: drop-shadow(0 0 18px #ff5dc9);
-}
-    75% {
-        border-left-color: cyan;
-        filter: drop-shadow(0 0 12px cyan);
-    }
-    87% {
-        border-left-color: white;
-        filter: drop-shadow(0 0 12px white);
-    }
-    100% {
-        border-left-color: red;
-        filter: drop-shadow(0 0 8px red);
-    }
-
-50% {
-    border-left-color: #fa52c2; /* 💖 ROSADO CLARO */
-    filter: drop-shadow(0 0 16px #fc57c5);
-}
+@keyframes pulse {
+    0%,100% { filter: drop-shadow(0 0 5px cyan); }
+    50% { filter: drop-shadow(0 0 15px magenta); }
 }
 
-/* animación multicolor neón */
-
+/* ===== NOMBRE FLOTANTE ===== */
 .floating-name {
     position: fixed;
     bottom: 10px;
     right: 10px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.9rem;
-    color: white;
-    letter-spacing: 2px;
-    z-index: 9999;
-    pointer-events: none;
-
-    /* efecto neón */
-    text-shadow: 
-        0 0 5px red,
-        0 0 10px blue,
-        0 0 15px cyan,
-        0 0 20px white,
-        0 0 20px rgb(0, 0, 0);
-
-    }
-
-/* 🔵 FLECHA AZUL CARGANDO */
-.loader-arrow {
-    margin-top: 20px;
-    width: 0;
-    height: 0;
-    border-top: 12px solid transparent;
-    border-bottom: 12px solid transparent;
-    border-left: 18px solid rgb(238, 255, 3);
-
-    animation: arrowMove 1s infinite alternate;
-    filter: drop-shadow(0 0 10px cyan);
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-shadow: 0 0 8px cyan;
 }
 
-@keyframes arrowMove {
-    from { transform: translateX(0); }
-    to { transform: translateX(12px); }
+
+.facebook-fixed {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #1877f2;
+    padding: 12px;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 0 10px #1877f2;
+    transition: 0.3s;
+}
+
+.facebook-fixed:hover {
+    transform: scale(1.1);
 }
 
 
 .data-card p {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .data-card p a {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
+</style>
 
-.splash-screen {
-    cursor: pointer;
-}
-
-
-       </style>
 </head>
 
 <body>
@@ -388,9 +255,6 @@ body::after {
                 <h2>Normal</h2>
             </section>
 
-            
-         
-
             <section id="contacto" class="footer-contact">
                 <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
             </section>
@@ -402,18 +266,21 @@ body::after {
 
         </main>
 
+
         <footer class="cyber-footer">
             <p>TECH — Bussines | Horario : 9 a 1 y 2 a 6</p>
-            <p>TECH</p>
             <p>Versión 1.0.1</p> 
             <p>P</p>  
             <p>+</p> 
-         
+            <p>RR</p>
 
             <div class="triangle-container">
                 <div class="mini-triangle"></div>
             </div>
-        </footer>
+
+
+
+        </footer> 
 
         <div class="floating-name" style="color: #ff0808;">Brayhan 7 13</div>
 

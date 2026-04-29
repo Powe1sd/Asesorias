@@ -16,7 +16,6 @@
 </div>
 
 
-
 <audio id="bootSound" preload="auto">
     <source src="https://www.soundjay.com/button/sounds/button-16.mp3" type="audio/mpeg">
 </audio>
@@ -24,7 +23,7 @@
 <div class="loader-arrow"></div>
 
 
- 
+
 
 <style>
 
@@ -186,6 +185,78 @@ body::before {
     color: #ffffff !important;
 }
 
+
+/* ===== TRIÁNGULO MULTICOLOR PRO ===== */
+.triangle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 0;
+}
+
+.mini-triangle {
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 18px solid yellow;
+
+    animation: colorCycle 6s infinite linear;
+}
+
+/* 🔥 TODOS LOS COLORES QUE PEDISTE */
+@keyframes colorCycle {
+    0% {
+        border-left-color: yellow;
+        filter: drop-shadow(0 0 10px yellow);
+    }
+    10% {
+        border-left-color: red;
+        filter: drop-shadow(0 0 10px red);
+    }
+    20% {
+        border-left-color: black;
+        filter: drop-shadow(0 0 10px white);
+    }
+    30% {
+        border-left-color: pink;
+        filter: drop-shadow(0 0 12px pink);
+    }
+    40% {
+        border-left-color: blue;
+        filter: drop-shadow(0 0 12px blue);
+    }
+    50% {
+        border-left-color: lime;
+        filter: drop-shadow(0 0 14px lime);
+    }
+    60% {
+        border-left-color: purple;
+        filter: drop-shadow(0 0 14px purple);
+    }
+    70% {
+        border-left-color: black;
+        filter: drop-shadow(0 0 10px gray);
+    }
+    80% {
+        border-left-color: white;
+        filter: drop-shadow(0 0 12px white);
+    }
+    90% {
+        border-left-color: brown;
+        filter: drop-shadow(0 0 10px brown);
+    }
+    100% {
+        border-left-color: gray;
+        filter: drop-shadow(0 0 10px gray);
+    }
+}
+
+
+
+
+
+
 </style>
 
 </head>
@@ -272,13 +343,11 @@ body::before {
             <p>Versión 1.0.1</p> 
             <p>P</p>  
             <p>+</p> 
-            <p>RR</p>
+            <p>R R</p>
 
             <div class="triangle-container">
                 <div class="mini-triangle"></div>
             </div>
-
-
 
         </footer> 
 

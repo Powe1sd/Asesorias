@@ -1,29 +1,28 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TECH</title>
+    <title>TECH | Mi Proyecto</title>
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <audio id="bootSound" src="magia.mp3"></audio>
+```
+<audio id="bootSound" src="magia.mp3"></audio>
 
 <div class="loading-bar-container">
     <div class="loading-bar-fill"></div>
 </div>
-
 
 <audio id="bootSound" preload="auto">
     <source src="https://www.soundjay.com/button/sounds/button-16.mp3" type="audio/mpeg">
 </audio>
 
 <div class="loader-arrow"></div>
-
-
-
+```
 
 <style>
 
@@ -64,6 +63,17 @@ body::before {
 .cyber-hero h1 {
     font-size: 2.2rem;
     text-shadow: 0 0 10px cyan;
+    animation: titleGlow 3s infinite alternate;
+}
+
+@keyframes titleGlow {
+    from {
+        text-shadow: 0 0 10px cyan;
+    }
+
+    to {
+        text-shadow: 0 0 25px magenta, 0 0 40px cyan;
+    }
 }
 
 /* ===== GRID ===== */
@@ -85,7 +95,6 @@ body::before {
     position: relative;
 }
 
-/* HOVER MÁS FINO */
 .data-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 0 15px rgba(0,255,255,0.4);
@@ -132,20 +141,57 @@ body::before {
     font-size: 0.9rem;
 }
 
-/* ===== TRIÁNGULO MÁS FINO ===== */
+.cyber-footer p {
+    margin: 8px 0;
+}
+
+/* ===== TRIÁNGULO ===== */
+.triangle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px 0;
+}
+
 .mini-triangle {
     width: 0;
     height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 14px solid cyan;
-    animation: pulse 2s infinite;
-    margin: auto;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 18px solid yellow;
+    animation: colorCycle 6s infinite linear;
 }
 
-@keyframes pulse {
-    0%,100% { filter: drop-shadow(0 0 5px cyan); }
-    50% { filter: drop-shadow(0 0 15px magenta); }
+@keyframes colorCycle {
+    0% {
+        border-left-color: yellow;
+        filter: drop-shadow(0 0 10px yellow);
+    }
+
+    20% {
+        border-left-color: red;
+        filter: drop-shadow(0 0 10px red);
+    }
+
+    40% {
+        border-left-color: blue;
+        filter: drop-shadow(0 0 12px blue);
+    }
+
+    60% {
+        border-left-color: lime;
+        filter: drop-shadow(0 0 14px lime);
+    }
+
+    80% {
+        border-left-color: white;
+        filter: drop-shadow(0 0 12px white);
+    }
+
+    100% {
+        border-left-color: gray;
+        filter: drop-shadow(0 0 10px gray);
+    }
 }
 
 /* ===== NOMBRE FLOTANTE ===== */
@@ -157,7 +203,6 @@ body::before {
     opacity: 0.8;
     text-shadow: 0 0 8px cyan;
 }
-
 
 .facebook-fixed {
     position: fixed;
@@ -176,7 +221,6 @@ body::before {
     transform: scale(1.1);
 }
 
-
 .data-card p {
     color: #ffffff !important;
 }
@@ -185,180 +229,135 @@ body::before {
     color: #ffffff !important;
 }
 
-
-/* ===== TRIÁNGULO MULTICOLOR PRO ===== */
-.triangle-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 25px 0;
-}
-
-.mini-triangle {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 18px solid yellow;
-
-    animation: colorCycle 6s infinite linear;
-}
-
-/* 🔥 TODOS LOS COLORES QUE PEDISTE */
-@keyframes colorCycle {
-    0% {
-        border-left-color: yellow;
-        filter: drop-shadow(0 0 10px yellow);
-    }
-    10% {
-        border-left-color: red;
-        filter: drop-shadow(0 0 10px red);
-    }
-    20% {
-        border-left-color: black;
-        filter: drop-shadow(0 0 10px white);
-    }
-    30% {
-        border-left-color: pink;
-        filter: drop-shadow(0 0 12px pink);
-    }
-    40% {
-        border-left-color: blue;
-        filter: drop-shadow(0 0 12px blue);
-    }
-    50% {
-        border-left-color: lime;
-        filter: drop-shadow(0 0 14px lime);
-    }
-    60% {
-        border-left-color: purple;
-        filter: drop-shadow(0 0 14px purple);
-    }
-    70% {
-        border-left-color: black;
-        filter: drop-shadow(0 0 10px gray);
-    }
-    80% {
-        border-left-color: white;
-        filter: drop-shadow(0 0 12px white);
-    }
-    90% {
-        border-left-color: brown;
-        filter: drop-shadow(0 0 10px brown);
-    }
-    100% {
-        border-left-color: gray;
-        filter: drop-shadow(0 0 10px gray);
-    }
-}
-
-
-
-
-
-
 </style>
 
 </head>
 
 <body>
 
-  <audio id="bootSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
-    <div class="splash-screen" id="splash">
-        <div class="splash-logo">
-            <span class="tech-text glitch" data-text="TECH">TECH</span>
-            <div class="loading-bar-container">
-                <div class="loading-bar-fill"></div>
-            </div>
-        </div>     
+```
+<audio id="bootSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+<div class="splash-screen" id="splash">
+    <div class="splash-logo">
+        <span class="tech-text glitch" data-text="TECH">TECH</span>
+
+        <div class="loading-bar-container">
+            <div class="loading-bar-fill"></div>
+        </div>
     </div>
+</div>
 
-    <div id="content" style="display: none;">
+<div id="content" style="display: none;">
 
-        <header class="cyber-hero">
-            <h1 data-text="Desarrollo de Software">Desarrollo de software</h1>
-        </header>
+    <header class="cyber-hero">
+        <h1 data-text="Desarrollo de Software">
+            Desarrollo de Software 🚀
+        </h1>
+    </header>
 
-        <main class="data-grid">
+    <main class="data-grid">
 
-            <section id="perfil" class="data-card">
-                <a href="desarrollo.html"><h2>Perfil</h2></a>
-                <p><a href="desarrollo.html">Certificaciones </a></p>
-            </section>
+        <section id="perfil" class="data-card">
+            <a href="desarrollo.html">
+                <h2>Perfil</h2>
+            </a>
+        </section>
 
-            <section id="paz-seccion" class="data-card">
-                <a href="paz1.html"><h2>Paz</h2></a>
-                <br> 
-                <a href="paz.html"><h2>Camino hacia la paz</h2></a>
-            </section>
-            
-            <section id="mi-libro" class="data-card">
-                <h2>Mi libro</h2>
-                <p>Descarga mi libro en formato PDF con un solo clic.</p>
-                <a href="LUZ.pdf" download class="btn-neoprimary">
-                    <i class="fa-solid fa-download"></i> Descargar Libro
+        <section id="paz-seccion" class="data-card">
+            <a href="paz1.html">
+                <h2>Paz</h2>
+            </a>
+
+            <br>
+
+            <a href="paz.html">
+                <h2>Camino hacia la paz</h2>
+            </a>
+        </section>
+
+        <section id="mi-libro" class="data-card">
+            <h2>Mi libro</h2>
+
+            <p>
+                Descarga mi libro en formato PDF con un solo clic.
+            </p>
+
+            <a href="LUZ.pdf" download class="btn-neoprimary">
+                <i class="fa-solid fa-download"></i>
+                Descargar Libro
+            </a>
+
+            <h2>Extraterrestres: vida en otros planetas.</h2>
+        </section>
+
+        <section id="ingles" class="data-card">
+            <h2>Inglés</h2>
+
+            <p>
+                <a href="https://videos-blow-713-p313nol75-tempsslls-projects.vercel.app/" target="_blank">
+                    Aprendiendo inglés
                 </a>
-                <h2>Extraterrestres vida en otros planetas.</h2>
-            </section>
+            </p>
+        </section>
 
-            <section id="ingles" class="data-card">
-                <h2>Ingles</h2>
-                <p><a href="https://videos-blow-713-p313nol75-tempsslls-projects.vercel.app/" target="_blank">Aprendiendo ingles</a></p>
-            </section>
+        <section id="marca-666" class="data-card">
+            <h2>La marca 666</h2>
+            <p>Una marca, una solución.</p>
+        </section>
 
-            <section id="marca-666" class="data-card">
-                <h2>La marca 666</h2>
-                <p>Una marca, una solución.</p>
-            </section>
-            
-            <section id="plataformas-web" class="data-card">
-                <h2>Plataformas web</h2>
-                <p>Diseño de sistemas escalables, seguros y modernos.</p>
-            </section>
-                        
-            <section id="proyectos-python" class="data-card">
-                <h2>Proyectos Python</h2>
-                <p>Automatización e IA. <a href="programs-escritorio.html" target="_blank" class="text-link">Ver más</a></p>
-            </section>
+        <section id="plataformas-web" class="data-card">
+            <h2>Plataformas web</h2>
+            <p>Diseño de sistemas escalables, seguros y modernos.</p>
+        </section>
 
+        <section id="proyectos-python" class="data-card">
+            <h2>Proyectos Python</h2>
 
-            <section id="proyectos-python" class="data-card">
-                <h2>Normal</h2>
-            </section>
+            <p>
+                Automatización e IA.
+                <a href="programs-escritorio.html" target="_blank" class="text-link">
+                    Ver más
+                </a>
+            </p>
+        </section>
 
-            <section id="contacto" class="footer-contact">
-                <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
-            </section>
+        <section id="contacto" class="footer-contact">
+            <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
+        </section>
 
+    </main>
 
-             <section id="contacto" class="footer-contact">
-                <p></p>
-            </section>
+    <footer class="cyber-footer">
 
-        </main>
+        <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
 
+        <p>Versión 1.0.2</p>
 
-        <footer class="cyber-footer">
-            <p>TECH — Bussines | Horario : 9 a 1 y 2 a 6</p>
-            <p>Versión 1.0.1</p> 
-            <p>P</p>  
-            <p>+</p> 
-            <p>R R</p>
+        <p>⚡ Sistema activo</p>
 
-            <div class="triangle-container">
-                <div class="mini-triangle"></div>
-            </div>
+        <div class="triangle-container">
+            <div class="mini-triangle"></div>
+        </div>
 
-        </footer> 
+    </footer>
 
-        <div class="floating-name" style="color: #ff0808;">Brayhan 7 13</div>
-
-        <a href="https://www.facebook.com/brahyanstiven.coyrubio/" class="facebook-fixed" target="_blank">
-            <i class="fa-brands fa-facebook-f"></i>
-        </a>
+    <div class="floating-name" style="color: #ff0808;">
+        Brayhan 7 13
     </div>
 
-    <script src="app.js"></script>
+    <a href="https://www.facebook.com/brahyanstiven.coyrubio/"
+       class="facebook-fixed"
+       target="_blank">
+
+        <i class="fa-brands fa-facebook-f"></i>
+
+    </a>
+
+</div>
+
+<script src="app.js"></script>
+```
 
 </body>
 </html>

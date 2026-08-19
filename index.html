@@ -1,51 +1,42 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TECH</title>
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
-    <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-
-<audio id="bootSound" src="magia.mp3"></audio>
-
-<div class="loading-bar-container">
-    <div class="loading-bar-fill"></div>
-</div>
-
-<audio id="bootSound" preload="auto">
-    <source src="https://www.soundjay.com/button/sounds/button-16.mp3" type="audio/mpeg">
-</audio>
-
-<div class="loader-arrow"></div>
-```
-
 <style>
-
 /* ===== RESET ===== */
-body {
+* {
     margin: 0;
-    background: #050505;
-    font-family: 'Orbitron', sans-serif;
-    color: white;
-    overflow-x: hidden;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* ===== FONDO ANIMADO SUAVE ===== */
+body {
+    margin: 0;
+    background: #0a0a12;
+    font-family: 'Orbitron', sans-serif;
+    color: #ffffff;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ===== FONDO ANIMADO ===== */
 body::before {
     content: "";
     position: fixed;
     width: 100%;
     height: 200%;
     background-image:
-        radial-gradient(circle, rgba(0,255,255,0.4) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,0,255,0.3) 1px, transparent 1px);
-    background-size: 60px 60px, 80px 80px;
-    animation: stars 80s linear infinite;
+        radial-gradient(circle, rgba(255, 205, 0, 0.25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0, 56, 168, 0.2) 1px, transparent 1px);
+    background-size: 55px 55px, 75px 75px;
+    animation: stars 90s linear infinite;
     z-index: -1;
 }
 
@@ -57,92 +48,167 @@ body::before {
 /* ===== HEADER ===== */
 .cyber-hero {
     text-align: center;
-    padding: 40px 20px;
+    padding: 50px 20px 30px;
 }
 
+
 .cyber-hero h1 {
-    font-size: 2.2rem;
-    text-shadow: 0 0 10px cyan;
-    animation: titleGlow 3s infinite alternate;
+    font-size: 2.4rem;
+    font-weight: 800;
+    background-color: yellow;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleGlow 4s infinite alternate;
 }
+
 
 @keyframes titleGlow {
     from {
-        text-shadow: 0 0 10px cyan;
+        filter: drop-shadow(0 0 8px rgba(255, 205, 0, 0.5));
     }
-
     to {
-        text-shadow: 0 0 25px magenta, 0 0 40px cyan;
+        filter: drop-shadow(0 0 18px rgba(0, 56, 168, 0.6));
     }
 }
 
 /* ===== GRID ===== */
 .data-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    padding: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 30px 25px 50px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* ===== TARJETAS ===== */
 .data-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(0,255,255,0.15);
-    border-radius: 12px;
-    padding: 20px;
-    backdrop-filter: blur(8px);
-    transition: 0.3s ease;
+    background: rgba(15, 20, 40, 0.75);
+    border: 1px solid rgba(255, 205, 0, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.35s ease;
     position: relative;
+    overflow: hidden;
+}
+
+.data-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
+    opacity: 0.8;
 }
 
 .data-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 0 15px rgba(0,255,255,0.4);
+    transform: translateY(-8px);
+    border-color: rgba(255, 205, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 56, 168, 0.25),
+                0 0 20px rgba(255, 205, 0, 0.15);
 }
 
 /* TITULOS */
 .data-card h2 {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-    text-shadow: 0 0 5px cyan;
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+    color: #FFCD00;
+    text-shadow: 0 0 8px rgba(255, 205, 0, 0.4);
+}
+
+.data-card p {
+    color: #e0e0e0 !important;
+    line-height: 1.5;
+    margin-bottom: 12px;
 }
 
 /* LINKS */
 .data-card a {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
+    transition: color 0.25s;
 }
 
 .data-card a:hover {
-    color: cyan;
+    color: #FFCD00;
 }
 
 /* BOTÓN */
 .btn-neoprimary {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 6px;
-    background: linear-gradient(45deg, cyan, magenta);
-    color: black;
-    font-weight: bold;
-    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #FFCD00, #CE1126);
+    color: #111 !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
 }
 
 .btn-neoprimary:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 10px cyan;
+    transform: scale(1.06);
+    box-shadow: 0 0 18px rgba(255, 205, 0, 0.5);
+    background: linear-gradient(135deg, #FFE44D, #E63946);
 }
 
 /* ===== FOOTER ===== */
 .cyber-footer {
     text-align: center;
-    padding: 20px;
-    opacity: 0.7;
-    font-size: 0.9rem;
+    padding: 30px 20px 20px;
+    background: linear-gradient(180deg, transparent, rgba(0, 30, 80, 0.4));
+    border-top: 1px solid rgba(255, 205, 0, 0.2);
 }
 
 .cyber-footer p {
     margin: 8px 0;
+    opacity: 0.85;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* ===== BANDERA DE COLOMBIA ===== */
+.colombia-flag {
+    display: flex;
+    flex-direction: column;
+    width: 120px;
+    height: 80px;
+    margin: 20px auto 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(255, 205, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.flag-yellow {
+    background: #FFCD00;
+    height: 50%;
+}
+
+.flag-blue {
+    background: #0038A8;
+    height: 25%;
+}
+
+.flag-red {
+    background: #CE1126;
+    height: 25%;
+}
+
+.flag-label {
+    font-size: 0.75rem;
+    color: #FFCD00;
+    margin-top: 8px;
+    letter-spacing: 1px;
+    opacity: 0.9;
 }
 
 /* ===== TRIÁNGULO ===== */
@@ -150,58 +216,47 @@ body::before {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 25px 0;
+    padding: 15px 0 5px;
 }
 
 .mini-triangle {
     width: 0;
     height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 18px solid yellow;
-    animation: colorCycle 6s infinite linear;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 16px solid #FFCD00;
+    animation: colorCycle 5s infinite linear;
 }
 
 @keyframes colorCycle {
     0% {
-        border-left-color: yellow;
-        filter: drop-shadow(0 0 10px yellow);
+        border-left-color: #FFCD00;
+        filter: drop-shadow(0 0 8px #FFCD00);
     }
-
-    20% {
-        border-left-color: red;
-        filter: drop-shadow(0 0 10px red);
+    33% {
+        border-left-color: #0038A8;
+        filter: drop-shadow(0 0 10px #0038A8);
     }
-
-    40% {
-        border-left-color: blue;
-        filter: drop-shadow(0 0 12px blue);
+    66% {
+        border-left-color: #CE1126;
+        filter: drop-shadow(0 0 10px #CE1126);
     }
-
-    60% {
-        border-left-color: lime;
-        filter: drop-shadow(0 0 14px lime);
-    }
-
-    80% {
-        border-left-color: white;
-        filter: drop-shadow(0 0 12px white);
-    }
-
     100% {
-        border-left-color: gray;
-        filter: drop-shadow(0 0 10px gray);
+        border-left-color: #FFCD00;
+        filter: drop-shadow(0 0 8px #FFCD00);
     }
 }
 
 /* ===== NOMBRE FLOTANTE ===== */
 .floating-name {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    bottom: 12px;
+    right: 14px;
     font-size: 0.8rem;
-    opacity: 0.8;
-    text-shadow: 0 0 8px cyan;
+    opacity: 0.85;
+    color: #CE1126;
+    text-shadow: 0 0 8px rgba(206, 17, 38, 0.6);
+    z-index: 50;
 }
 
 .facebook-fixed {
@@ -209,51 +264,59 @@ body::before {
     bottom: 20px;
     left: 20px;
     background: #1877f2;
-    padding: 12px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
     color: white;
     font-size: 18px;
-    box-shadow: 0 0 10px #1877f2;
+    box-shadow: 0 0 12px rgba(24, 119, 242, 0.6);
     transition: 0.3s;
+    z-index: 50;
 }
 
 .facebook-fixed:hover {
-    transform: scale(1.1);
+    transform: scale(1.12);
+    box-shadow: 0 0 18px rgba(24, 119, 242, 0.9);
 }
 
-.data-card p {
-    color: #ffffff !important;
+/* Splash (por si lo usas) */
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    background: #0a0a12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
-.data-card p a {
-    color: #ffffff !important;
+.tech-text {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
-
 </style>
-
 </head>
 
 <body>
 
-```
 <audio id="bootSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
-<div class="splash-screen" id="splash">
+<div class="splash-screen" id="splash" style="display: none;">
     <div class="splash-logo">
-        <span class="tech-text glitch" data-text="TECH">TECH</span>
-
-        <div class="loading-bar-container">
-            <div class="loading-bar-fill"></div>
-        </div>
+        <span class="tech-text">TECH</span>
     </div>
 </div>
 
-<div id="content" style="display: none;">
+<div id="content">
 
     <header class="cyber-hero">
-        <h1 data-text="Desarrollo de Software">
-            Desarrollo de Software 🚀
-        </h1>
+        <h1>Desarrollo de Software </h1>
     </header>
 
     <main class="data-grid">
@@ -262,29 +325,20 @@ body::before {
             <a href="paz1.html">
                 <h2>Paz</h2>
             </a>
-
-            
-            <br>
         </section>
 
         <section id="mi-libro" class="data-card">
             <h2>Mi libro</h2>
-
-            <p>
-                Descarga mi libro en formato PDF con un solo clic.
-            </p>
-
+            <p>Descarga mi libro en formato PDF con un solo clic.</p>
             <a href="LUZ.pdf" download class="btn-neoprimary">
                 <i class="fa-solid fa-download"></i>
                 Descargar Libro
             </a>
-
-            <h2>Extraterrestres: vida en otros planetas.</h2>
+            <h2 style="margin-top: 18px;">Extraterrestres: vida en otros planetas.</h2>
         </section>
 
         <section id="ingles" class="data-card">
             <h2>Inglés</h2>
-
             <p>
                 <a href="https://videos-blow-713-p313nol75-tempsslls-projects.vercel.app/" target="_blank">
                     Aprendiendo inglés
@@ -299,49 +353,49 @@ body::before {
 
         <section id="proyectos-python" class="data-card">
             <h2>Proyectos Python</h2>
-
             <p>
                 Automatización e IA.
-                <a href="programs-escritorio.html" target="_blank" class="text-link">
+                <a href="programs-escritorio.html" target="_blank">
                     Ver más
                 </a>
             </p>
-        </section>
-
-        <section id="contacto" class="footer-contact">
-            <p>© 2025 Asesorías Profesionales. Todos los derechos reservados.</p>
         </section>
 
     </main>
 
     <footer class="cyber-footer">
 
+        <!-- BANDERA DE COLOMBIA -->
+        <div class="colombia-flag">
+            <div class="flag-yellow"></div>
+            <div class="flag-blue"></div>
+            <div class="flag-red"></div>
+        </div>
+        <div class="flag-label">COLOMBIA</div>
+
         <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
-
         <p>Versión 1.0.3</p>
-
         <p>⚡ Sistema activo</p>
-
         <p>⚡ R R</p>
-        
-
 
         <div class="triangle-container">
             <div class="mini-triangle"></div>
         </div>
 
+        <p style="margin-top: 12px; opacity: 0.7; font-size: 0.8rem;">
+            © 2025 Asesorías Profesionales. Todos los derechos reservados.
+        </p>
     </footer>
 
-    <div class="floating-name" style="color: #ff0808;">
+    <div class="floating-name">
         Brayhan 7 13
     </div>
 
     <a href="https://www.facebook.com/brahyanstiven.coyrubio/"
        class="facebook-fixed"
-       target="_blank">
-
+       target="_blank"
+       aria-label="Facebook">
         <i class="fa-brands fa-facebook-f"></i>
-
     </a>
 
 </div>

@@ -51,17 +51,16 @@ body::before {
     padding: 50px 20px 30px;
 }
 
-
 .cyber-hero h1 {
     font-size: 2.4rem;
     font-weight: 800;
-    background-color: yellow;
+    background: linear-gradient(90deg, #FFCD00);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 205, 0, 0.3);
     animation: titleGlow 4s infinite alternate;
 }
-
 
 @keyframes titleGlow {
     from {
@@ -162,30 +161,30 @@ body::before {
 /* ===== FOOTER ===== */
 .cyber-footer {
     text-align: center;
-    padding: 30px 20px 20px;
+    padding: 25px 20px 18px;
     background: linear-gradient(180deg, transparent, rgba(0, 30, 80, 0.4));
     border-top: 1px solid rgba(255, 205, 0, 0.2);
 }
 
 .cyber-footer p {
-    margin: 8px 0;
+    margin: 6px 0;
     opacity: 0.85;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: #ddd;
 }
 
-/* ===== BANDERA DE COLOMBIA ===== */
+/* ===== BANDERA DE COLOMBIA (más pequeña) ===== */
 .colombia-flag {
     display: flex;
     flex-direction: column;
-    width: 120px;
-    height: 80px;
-    margin: 20px auto 10px;
-    border-radius: 6px;
+    width: 35px;          /* ← más pequeña */
+    height: 35px;         /* ← más pequeña */
+    margin: 12px auto 6px;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
-                0 0 15px rgba(255, 205, 0, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45),
+                0 0 10px rgba(255, 205, 0, 0.25);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .flag-yellow {
@@ -204,9 +203,9 @@ body::before {
 }
 
 .flag-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #FFCD00;
-    margin-top: 8px;
+    margin-top: 5px;
     letter-spacing: 1px;
     opacity: 0.9;
 }
@@ -216,15 +215,15 @@ body::before {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px 0 5px;
+    padding: 12px 0 4px;
 }
 
 .mini-triangle {
     width: 0;
     height: 0;
-    border-top: 9px solid transparent;
-    border-bottom: 9px solid transparent;
-    border-left: 16px solid #FFCD00;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 14px solid #FFCD00;
     animation: colorCycle 5s infinite linear;
 }
 
@@ -281,37 +280,12 @@ body::before {
     transform: scale(1.12);
     box-shadow: 0 0 18px rgba(24, 119, 242, 0.9);
 }
-
-/* Splash (por si lo usas) */
-.splash-screen {
-    position: fixed;
-    inset: 0;
-    background: #0a0a12;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.tech-text {
-    font-size: 3rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
 </style>
 </head>
 
 <body>
 
 <audio id="bootSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
-
-<div class="splash-screen" id="splash" style="display: none;">
-    <div class="splash-logo">
-        <span class="tech-text">TECH</span>
-    </div>
-</div>
 
 <div id="content">
 
@@ -365,7 +339,7 @@ body::before {
 
     <footer class="cyber-footer">
 
-        <!-- BANDERA DE COLOMBIA -->
+        <!-- BANDERA DE COLOMBIA (más pequeña) -->
         <div class="colombia-flag">
             <div class="flag-yellow"></div>
             <div class="flag-blue"></div>
@@ -382,7 +356,7 @@ body::before {
             <div class="mini-triangle"></div>
         </div>
 
-        <p style="margin-top: 12px; opacity: 0.7; font-size: 0.8rem;">
+        <p style="margin-top: 10px; opacity: 0.7; font-size: 0.8rem;">
             © 2025 Asesorías Profesionales. Todos los derechos reservados.
         </p>
     </footer>

@@ -8,7 +8,6 @@
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
 <style>
 /* ===== RESET ===== */
 * {
@@ -34,8 +33,9 @@ body::before {
     height: 200%;
     background-image:
         radial-gradient(circle, rgba(255, 205, 0, 0.25) 1px, transparent 1px),
-        radial-gradient(circle, rgba(0, 56, 168, 0.2) 1px, transparent 1px);
-    background-size: 55px 55px, 75px 75px;
+        radial-gradient(circle, rgba(0, 56, 168, 0.2) 1px, transparent 1px),
+        radial-gradient(circle, rgba(206, 17, 38, 0.15) 1px, transparent 1px);
+    background-size: 55px 55px, 75px 75px, 65px 65px;
     animation: stars 90s linear infinite;
     z-index: -1;
 }
@@ -54,11 +54,11 @@ body::before {
 .cyber-hero h1 {
     font-size: 2.4rem;
     font-weight: 800;
-    background: linear-gradient(90deg, #FFCD00);
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 30px rgba(255, 205, 0, 0.3);
+    text-shadow: 0 0 30px rgba(206, 17, 38, 0.4);
     animation: titleGlow 4s infinite alternate;
 }
 
@@ -67,7 +67,7 @@ body::before {
         filter: drop-shadow(0 0 8px rgba(255, 205, 0, 0.5));
     }
     to {
-        filter: drop-shadow(0 0 18px rgba(0, 56, 168, 0.6));
+        filter: drop-shadow(0 0 18px rgba(206, 17, 38, 0.7));
     }
 }
 
@@ -106,17 +106,21 @@ body::before {
 
 .data-card:hover {
     transform: translateY(-8px);
-    border-color: rgba(255, 205, 0, 0.5);
-    box-shadow: 0 10px 30px rgba(0, 56, 168, 0.25),
-                0 0 20px rgba(255, 205, 0, 0.15);
+    border-color: rgba(206, 17, 38, 0.6);
+    box-shadow: 0 10px 30px rgba(206, 17, 38, 0.3),
+                0 0 20px rgba(255, 205, 0, 0.15),
+                0 0 15px rgba(206, 17, 38, 0.2);
 }
 
 /* TITULOS */
 .data-card h2 {
     font-size: 1.35rem;
     margin-bottom: 12px;
-    color: #FFCD00;
-    text-shadow: 0 0 8px rgba(255, 205, 0, 0.4);
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 10px rgba(206, 17, 38, 0.5);
 }
 
 .data-card p {
@@ -133,7 +137,8 @@ body::before {
 }
 
 .data-card a:hover {
-    color: #FFCD00;
+    color: #CE1126;
+    text-shadow: 0 0 8px rgba(206, 17, 38, 0.6);
 }
 
 /* BOTÓN */
@@ -143,19 +148,20 @@ body::before {
     gap: 8px;
     padding: 10px 18px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #FFCD00, #CE1126);
+    background: linear-gradient(135deg, #CE1126, #FFCD00);
     color: #111 !important;
     font-weight: 700;
     font-size: 0.95rem;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    box-shadow: 0 0 12px rgba(206, 17, 38, 0.4);
 }
 
 .btn-neoprimary:hover {
     transform: scale(1.06);
-    box-shadow: 0 0 18px rgba(255, 205, 0, 0.5);
-    background: linear-gradient(135deg, #FFE44D, #E63946);
+    box-shadow: 0 0 22px rgba(206, 17, 38, 0.7);
+    background: linear-gradient(135deg, #E63946, #FFE44D);
 }
 
 /* ===== FOOTER ===== */
@@ -163,7 +169,7 @@ body::before {
     text-align: center;
     padding: 25px 20px 18px;
     background: linear-gradient(180deg, transparent, rgba(0, 30, 80, 0.4));
-    border-top: 1px solid rgba(255, 205, 0, 0.2);
+    border-top: 1px solid rgba(206, 17, 38, 0.3);
 }
 
 .cyber-footer p {
@@ -177,13 +183,13 @@ body::before {
 .colombia-flag {
     display: flex;
     flex-direction: column;
-    width: 35px;          /* ← más pequeña */
-    height: 35px;         /* ← más pequeña */
+    width: 35px;
+    height: 35px;
     margin: 12px auto 6px;
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45),
-                0 0 10px rgba(255, 205, 0, 0.25);
+                0 0 10px rgba(206, 17, 38, 0.35);
     border: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -204,10 +210,11 @@ body::before {
 
 .flag-label {
     font-size: 0.7rem;
-    color: #FFCD00;
+    color: #CE1126;
     margin-top: 5px;
     letter-spacing: 1px;
     opacity: 0.9;
+    text-shadow: 0 0 6px rgba(206, 17, 38, 0.5);
 }
 
 /* ===== TRIÁNGULO ===== */
@@ -223,26 +230,26 @@ body::before {
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 14px solid #FFCD00;
+    border-left: 14px solid #CE1126;
     animation: colorCycle 5s infinite linear;
 }
 
 @keyframes colorCycle {
     0% {
-        border-left-color: #FFCD00;
-        filter: drop-shadow(0 0 8px #FFCD00);
-    }
-    33% {
-        border-left-color: #0038A8;
-        filter: drop-shadow(0 0 10px #0038A8);
-    }
-    66% {
         border-left-color: #CE1126;
         filter: drop-shadow(0 0 10px #CE1126);
     }
-    100% {
+    33% {
         border-left-color: #FFCD00;
-        filter: drop-shadow(0 0 8px #FFCD00);
+        filter: drop-shadow(0 0 10px #FFCD00);
+    }
+    66% {
+        border-left-color: #0038A8;
+        filter: drop-shadow(0 0 10px #0038A8);
+    }
+    100% {
+        border-left-color: #CE1126;
+        filter: drop-shadow(0 0 10px #CE1126);
     }
 }
 
@@ -252,9 +259,9 @@ body::before {
     bottom: 12px;
     right: 14px;
     font-size: 0.8rem;
-    opacity: 0.85;
+    opacity: 0.9;
     color: #CE1126;
-    text-shadow: 0 0 8px rgba(206, 17, 38, 0.6);
+    text-shadow: 0 0 10px rgba(206, 17, 38, 0.8);
     z-index: 50;
 }
 
@@ -296,8 +303,8 @@ body::before {
     <main class="data-grid">
 
         <section id="paz-seccion" class="data-card">
-            <a href="paz1.html">
-                <h2>Paz</h2>
+            <a href="">
+                <h2>Sistema de cartas</h2>
             </a>
         </section>
 
@@ -338,7 +345,7 @@ body::before {
         <section id="reasignacion-procesos" class="data-card">
     <h2>Reasignación de procesos tecnológicos</h2>
     <p>
-        Gestión de reasignación de procesos tecnológicos y devolución de equipos tecnológicos.
+        Gestión de reasignación de procesos tecnológicos y devoluciónes tecnológicos.
     </p>
 
     <a href="" class="btn-neoprimary">
@@ -350,13 +357,8 @@ body::before {
         <i class="fa-solid fa-rotate-left"></i>
         Devolución tecnológica
     </a>
+
 </section>
-
-
-
-
-
-
 
     </main>
 
@@ -372,7 +374,7 @@ body::before {
 
         <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
         <p>Versión 1.0.3</p>
-        <p>⚡ Sistema activo</p>
+        <p>⚡ Sistemas de cartas</p>
         <p>⚡ R R</p>
 
         <div class="triangle-container">
@@ -397,14 +399,13 @@ body::before {
 
 </div>
 
-
 <section id="finalizaciones-estrategias" class="data-card">
     <h2>Finalizaciones tecnológicas</h2>
     <p>
         Gestión y seguimiento de finalizaciones tecnológicas.
     </p>
 
-    <h2>Estratégias de negocio</h2>
+    <h2 style="margin-top: 18px;">Estratégias de negocio</h2>
     <p>
         Desarrollo y gestión de estrategias para fortalecer los procesos y objetivos del negocio.
     </p>
@@ -419,12 +420,6 @@ body::before {
         Estrategias de negocio
     </a>
 </section>
-
-
-
-
-
-
 <script src="app.js"></script>
 
 </body>

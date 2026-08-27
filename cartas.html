@@ -3,1053 +3,1130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Sistema de Caras</title>
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #05070d;
+            --panel: #0b0f18;
+            --panel2: #101622;
+            --blue: #168cff;
+            --purple: #8c35ff;
+            --pink: #ff3c9d;
+            --text: #f5f7ff;
+            --muted: #697386;
+            --border: rgba(255,255,255,.08);
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(140,53,255,.15),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 80%,
+                    rgba(22,140,255,.12),
+                    transparent 30%
+                ),
+                var(--bg);
+        }
+
+        .app {
+            width: min(1400px, 94%);
+            margin: auto;
+            padding-bottom: 40px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .logo-symbol {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-size: 27px;
+            color: white;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--purple),
+                    var(--blue)
+                );
+
+            box-shadow:
+                0 0 30px rgba(140,53,255,.25);
+        }
+
+        .logo h1 {
+            font-size: 19px;
+            letter-spacing: 3px;
+        }
+
+        .logo span {
+            color: var(--blue);
+            font-size: 9px;
+            letter-spacing: 4px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat small {
+            display: block;
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .stat strong {
+            font-size: 17px;
+            color: #fff;
+        }
+
+        /* =========================
+           INTRO
+        ========================= */
+
+        .intro {
+            text-align: center;
+            padding: 55px 0 40px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid rgba(140,53,255,.35);
+            border-radius: 20px;
+            color: #a66aff;
+            font-size: 8px;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+        }
+
+        .intro h2 {
+            font-size: clamp(40px, 6vw, 72px);
+            line-height: .9;
+            letter-spacing: -4px;
+        }
+
+        .intro h2 span {
+            display: block;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--purple),
+                    var(--blue),
+                    var(--pink)
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .intro p {
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* =========================
+           GAME
+        ========================= */
+
+        .game {
+            display: grid;
+            grid-template-columns: 1fr 330px;
+            gap: 20px;
+        }
+
+        /* =========================
+           BOARD
+        ========================= */
+
+        .board,
+        .panel {
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.025),
+                    transparent
+                ),
+                var(--panel);
+
+            border: 1px solid var(--border);
+            border-radius: 22px;
+        }
+
+        .board {
+            padding: 24px;
+        }
+
+        .board-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .board-title small,
+        .panel-header small,
+        .selected small {
+            color: var(--blue);
+            font-size: 8px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .board-title h3,
+        .panel-header h3 {
+            margin-top: 6px;
+            font-size: 16px;
+        }
+
+        .counter {
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+
+        .counter span {
+            display: block;
+            color: white;
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+
+        /* =========================
+           SOBRES
+        ========================= */
+
+        .packs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .pack {
+            position: relative;
+            min-height: 190px;
+            padding: 25px 12px 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            overflow: hidden;
+            cursor: pointer;
+
+            border-radius: 14px;
+            border: 1px solid rgba(22,140,255,.25);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #111827,
+                    #080b12
+                );
+
+            transition:
+                transform .25s,
+                border .25s,
+                box-shadow .25s;
+        }
+
+        .pack::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(140,53,255,.2),
+                    transparent 65%
+                );
+
+            top: -80px;
+            right: -70px;
+        }
+
+        .pack::after {
+            content: "";
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: 8px;
+            height: 2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    var(--blue),
+                    var(--purple),
+                    transparent
+                );
+
+            opacity: .7;
+        }
+
+        .pack:hover {
+            transform:
+                translateY(-8px)
+                scale(1.025);
+
+            border-color: var(--blue);
+
+            box-shadow:
+                0 15px 35px rgba(0,0,0,.45),
+                0 0 25px rgba(22,140,255,.12);
+        }
+
+        .pack-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    var(--purple) 0 8px,
+                    transparent 8px 14px
+                );
+
+            opacity: .7;
+        }
+
+        .pack-symbol {
+            width: 60px;
+            height: 60px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 18px;
+            border-radius: 16px;
+
+            color: white;
+            font-size: 25px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(140,53,255,.35),
+                    rgba(22,140,255,.18)
+                );
+
+            border: 1px solid rgba(255,255,255,.12);
+
+            box-shadow:
+                inset 0 0 20px rgba(255,255,255,.03);
+        }
+
+        .pack strong {
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .pack span {
+            margin-top: 5px;
+            color: var(--blue);
+            font-size: 8px;
+            letter-spacing: 2px;
+        }
+
+        /* =========================
+           PANEL
+        ========================= */
+
+        .panel {
+            padding: 22px;
+        }
+
+        .panel-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* =========================
+           MOSAICO
+        ========================= */
+
+        .mosaic {
+            width: 190px;
+            height: 190px;
+
+            margin: 25px auto;
+
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+
+            gap: 3px;
+            padding: 7px;
+
+            border-radius: 12px;
+
+            background: #020409;
+
+            border: 1px solid rgba(22,140,255,.35);
+
+            box-shadow:
+                0 0 30px rgba(22,140,255,.08);
+        }
+
+        .mosaic div {
+            background:
+                linear-gradient(
+                    135deg,
+                    #172236,
+                    #080c14
+                );
+
+            border-radius: 2px;
+        }
+
+        .mosaic div:nth-child(3),
+        .mosaic div:nth-child(7),
+        .mosaic div:nth-child(9),
+        .mosaic div:nth-child(13),
+        .mosaic div:nth-child(17),
+        .mosaic div:nth-child(19),
+        .mosaic div:nth-child(23) {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--purple),
+                    var(--blue)
+                );
+
+            box-shadow:
+                0 0 8px rgba(22,140,255,.4);
+        }
+
+        /* =========================
+           OBJETIVO
+        ========================= */
+
+        .objective {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .objective strong {
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .objective p {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           SELECCIONADO
+        ========================= */
+
+        .selected {
+            padding-top: 22px;
+            text-align: center;
+        }
+
+        .selected-pack {
+            width: 80px;
+            height: 80px;
+
+            margin: 15px auto 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            border: 1px dashed rgba(255,255,255,.15);
+
+            background: #080c13;
+        }
+
+        .selected-pack span {
+            font-size: 30px;
+            color: #424b5b;
+        }
+
+        .selected p {
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        /* =========================
+           CONTROLES
+        ========================= */
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .controls button {
+            padding: 15px 25px;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: .5px;
+            transition: .25s;
+        }
+
+        .restart {
+            color: var(--muted);
+            background: #0b1018;
+            border: 1px solid var(--border);
+        }
+
+        .start {
+            color: white;
+            border: none;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    var(--purple),
+                    var(--blue)
+                );
+
+            box-shadow:
+                0 10px 30px rgba(22,140,255,.18);
+        }
+
+        .start:hover,
+        .restart:hover {
+            transform: translateY(-3px);
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            padding-top: 35px;
+            color: #3e4654;
+            font-size: 8px;
+            letter-spacing: 2px;
+        }
+
+        footer span {
+            color: var(--blue);
+            margin: 0 8px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1050px) {
+
+            .game {
+                grid-template-columns: 1fr;
+            }
+
+            .packs {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px 0;
+            }
+
+            .stats {
+                width: 100%;
+                justify-content: space-around;
+                gap: 10px;
+            }
+
+            .packs {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .packs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pack {
+                min-height: 160px;
+            }
+
+            .intro h2 {
+                letter-spacing: -2px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .controls button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <div class="app">
+<div class="app">
 
-        <!-- HEADER -->
-        <header class="header">
+    <!-- HEADER -->
+    <header class="header">
 
-            <div class="logo">
-                <div class="logo-symbol">
-                    ◈
-                </div>
+        <div class="logo">
+
+            <div class="logo-symbol">
+                ◈
+            </div>
+
+            <div>
+                <h1>SISTEMA</h1>
+                <span>DE CARAS</span>
+            </div>
+
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <small>NIVEL</small>
+                <strong>01</strong>
+            </div>
+
+            <div class="stat">
+                <small>PUNTOS</small>
+                <strong id="points">0000</strong>
+            </div>
+
+            <div class="stat">
+                <small>TIEMPO</small>
+                <strong id="time">60</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- TITULO -->
+    <section class="intro">
+
+        <div class="tag">
+            JUEGO DE COLECCIÓN
+        </div>
+
+        <h2>
+            DESCUBRE
+            <span>LA CARA</span>
+        </h2>
+
+        <p>
+            Selecciona un sobre y descubre el mosaico oculto.
+        </p>
+
+    </section>
+
+
+    <!-- CONTENIDO -->
+    <main class="game">
+
+        <!-- TABLERO -->
+        <section class="board">
+
+            <div class="board-title">
 
                 <div>
-                    <h1>SISTEMA</h1>
-                    <span>DE CARAS</span>
-                </div>
-            </div>
-
-            <div class="stats">
-
-                <div class="stat">
-                    <small>NIVEL</small>
-                    <strong>01</strong>
+                    <small>COLECCIÓN</small>
+                    <h3>SOBRES DISPONIBLES</h3>
                 </div>
 
-                <div class="stat">
-                    <small>PUNTOS</small>
-                    <strong>0000</strong>
-                </div>
-
-                <div class="stat">
-                    <small>TIEMPO</small>
-                    <strong>60</strong>
+                <div class="counter">
+                    SOBRES
                 </div>
 
             </div>
 
-        </header>
 
-
-        <!-- TITULO -->
-        <section class="intro">
-
-            <div class="tag">
-                JUEGO DE COLECCIÓN
-            </div>
-
-            <h2>
-                DESCUBRE
-                <span>LA CARA</span>
-            </h2>
-
-            <p>
-                Selecciona un sobre y descubre el mosaico oculto.
-            </p>
+            <!-- SOBRES -->
+            <div class="packs" id="packs"></div>
 
         </section>
 
 
-        <!-- CONTENIDO -->
-        <main class="game">
+        <!-- PANEL DERECHO -->
+        <aside class="panel">
 
-            <!-- TABLERO -->
-            <section class="board">
+            <div class="panel-header">
 
-                <div class="board-title">
+                <small>OBJETIVO</small>
 
-                    <div>
-                        <small>COLECCIÓN</small>
-                        <h3>SOBRES DISPONIBLES</h3>
-                    </div>
+                <h3>
+                    ENCUENTRA LA CARA
+                </h3>
 
-                    <div class="counter">
-                        <span>20</span>
-                        SOBRES
-                    </div>
+            </div>
 
+
+            <!-- MOSAICO OBJETIVO -->
+            <div class="mosaic">
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+
+            </div>
+
+
+            <div class="objective">
+
+                <strong>
+                    BUSCA ESTE MOSAICO
+                </strong>
+
+                <p>
+                    Abre los sobres y encuentra
+                    la combinación correcta.
+                </p>
+
+            </div>
+
+
+            <div class="selected">
+
+                <small>
+                    SOBRE SELECCIONADO
+                </small>
+
+                <div class="selected-pack">
+                    <span>+</span>
                 </div>
 
+                <p id="selectedText">
+                    Ningún sobre seleccionado
+                </p>
 
-                <!-- SOBRES -->
-                <div class="packs">
+            </div>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">✦</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+        </aside>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◆</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+    </main>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">✦</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◇</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+    <!-- BOTONES -->
+    <section class="controls">
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">✦</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+        <button class="restart" id="restart">
+            ↻ REINICIAR
+        </button>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◆</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+        <button class="start" id="start">
+            ▶ COMENZAR JUEGO
+        </button>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◇</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+    </section>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">✦</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◆</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+    <footer>
+        SISTEMA DE CARAS
+        <span>•</span>
+        DESCUBRE · ENCUENTRA · COLECCIONA
+    </footer>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">✦</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+</div>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◇</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
 
-                    <div class="pack">
-                        <div class="pack-top"></div>
-                        <div class="pack-symbol">◆</div>
-                        <strong>CARAS</strong>
-                        <span>MOSAICO</span>
-                    </div>
+<script>
 
+    /* =====================================
+       CONFIGURACIÓN
+    ===================================== */
+
+    const TOTAL_SOBRES = 26;
+
+    const simbolos = [
+        "✦",
+        "◆",
+        "◇",
+        "✧",
+        "✦",
+        "◆",
+        "◇",
+        "✦",
+        "◆",
+        "◇"
+    ];
+
+
+    /* =====================================
+       ELEMENTOS
+    ===================================== */
+
+    const packsContainer =
+        document.getElementById("packs");
+
+    const packCounter =
+        document.getElementById("packCounter");
+
+    const selectedText =
+        document.getElementById("selectedText");
+
+    const pointsElement =
+        document.getElementById("points");
+
+    const timeElement =
+        document.getElementById("time");
+
+    const restartButton =
+        document.getElementById("restart");
+
+    const startButton =
+        document.getElementById("start");
+
+
+    /* =====================================
+       VARIABLES DEL JUEGO
+    ===================================== */
+
+    let sobresDisponibles = TOTAL_SOBRES;
+
+    let puntos = 0;
+
+    let tiempo = 60;
+
+    let timer = null;
+
+    let juegoIniciado = false;
+
+
+    /* =====================================
+       CREAR LOS 26 SOBRES
+    ===================================== */
+
+    function crearSobres() {
+
+        packsContainer.innerHTML = "";
+
+        for (let i = 1; i <= TOTAL_SOBRES; i++) {
+
+            const pack = document.createElement("div");
+
+            pack.classList.add("pack");
+
+            pack.dataset.numero = i;
+
+            const simbolo =
+                simbolos[(i - 1) % simbolos.length];
+
+            pack.innerHTML = `
+                <div class="pack-top"></div>
+
+                <div class="pack-symbol">
+                    ${simbolo}
                 </div>
 
-            </section>
+                <strong>
+                    CARAS
+                </strong>
+
+                <span>
+                    SOBRE ${String(i).padStart(2, "0")}
+                </span>
+            `;
+
+            pack.addEventListener(
+                "click",
+                () => seleccionarSobre(pack, i)
+            );
+
+            packsContainer.appendChild(pack);
+        }
+
+        packCounter.textContent = sobresDisponibles;
+    }
 
 
-            <!-- PANEL DERECHO -->
-            <aside class="panel">
+    /* =====================================
+       SELECCIONAR SOBRE
+    ===================================== */
 
-                <div class="panel-header">
-                    <small>OBJETIVO</small>
-                    <h3>ENCUENTRA LA CARA</h3>
-                </div>
+    function seleccionarSobre(pack, numero) {
 
+        if (!juegoIniciado) {
 
-                <!-- MOSAICO OBJETIVO -->
-                <div class="mosaic">
+            alert("Primero presiona COMENZAR JUEGO.");
 
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+            return;
+        }
 
-                </div>
+        if (pack.classList.contains("abierto")) {
+            return;
+        }
 
+        pack.classList.add("abierto");
 
-                <div class="objective">
-                    <strong>BUSCA ESTE MOSAICO</strong>
+        selectedText.textContent =
+            `Sobre ${String(numero).padStart(2, "0")} seleccionado`;
 
-                    <p>
-                        Abre los sobres y encuentra
-                        la combinación correcta.
-                    </p>
-                </div>
+        sobresDisponibles--;
 
+        packCounter.textContent =
+            sobresDisponibles;
 
-                <div class="selected">
+        puntos += 100;
 
-                    <small>SOBRE SELECCIONADO</small>
+        pointsElement.textContent =
+            String(puntos).padStart(4, "0");
 
-                    <div class="selected-pack">
-                        <span>+</span>
-                    </div>
+        /* Cambiar visualmente el sobre */
 
-                    <p>
-                        Ningún sobre seleccionado
-                    </p>
+        pack.style.opacity = "0.45";
+        pack.style.cursor = "default";
 
-                </div>
+        const simbolo =
+            pack.querySelector(".pack-symbol");
 
-            </aside>
+        simbolo.textContent = "✓";
 
-        </main>
+        simbolo.style.background =
+            "linear-gradient(135deg, #168cff, #8c35ff)";
+
+        /* Si se acabaron */
+
+        if (sobresDisponibles === 0) {
+
+            finalizarJuego();
+        }
+    }
 
 
-        <!-- BOTONES -->
-        <section class="controls">
+    /* =====================================
+       COMENZAR JUEGO
+    ===================================== */
 
-            <button class="restart">
-                ↻ REINICIAR
-            </button>
+    function comenzarJuego() {
 
-            <button class="start">
-                ▶ COMENZAR JUEGO
-            </button>
+        if (juegoIniciado) {
+            return;
+        }
 
-        </section>
+        juegoIniciado = true;
+
+        tiempo = 60;
+
+        timeElement.textContent =
+            tiempo;
+
+        startButton.textContent =
+            "● JUEGO ACTIVO";
+
+        iniciarTemporizador();
+    }
 
 
-        <footer>
-            SISTEMA DE CARAS
-            <span>•</span>
-            DESCUBRE · ENCUENTRA · COLECCIONA
-        </footer>
+    /* =====================================
+       TEMPORIZADOR
+    ===================================== */
 
-    </div>
+    function iniciarTemporizador() {
+
+        clearInterval(timer);
+
+        timer = setInterval(() => {
+
+            tiempo--;
+
+            timeElement.textContent =
+                tiempo;
+
+            if (tiempo <= 0) {
+
+                clearInterval(timer);
+
+                finalizarJuego();
+
+            }
+
+        }, 1000);
+    }
+
+
+    /* =====================================
+       FINALIZAR
+    ===================================== */
+
+    function finalizarJuego() {
+
+        juegoIniciado = false;
+
+        clearInterval(timer);
+
+        startButton.textContent =
+            "▶ COMENZAR JUEGO";
+
+        if (sobresDisponibles === 0) {
+
+            selectedText.textContent =
+                "¡Has abierto los 26 sobres!";
+
+        } else if (tiempo <= 0) {
+
+            selectedText.textContent =
+                "Se acabó el tiempo.";
+        }
+    }
+
+
+    /* =====================================
+       REINICIAR
+    ===================================== */
+
+    function reiniciarJuego() {
+
+        clearInterval(timer);
+
+        sobresDisponibles =
+            TOTAL_SOBRES;
+
+        puntos = 0;
+
+        tiempo = 60;
+
+        juegoIniciado = false;
+
+        pointsElement.textContent =
+            "0000";
+
+        timeElement.textContent =
+            "60";
+
+        packCounter.textContent =
+            TOTAL_SOBRES;
+
+        selectedText.textContent =
+            "Ningún sobre seleccionado";
+
+        startButton.textContent =
+            "▶ COMENZAR JUEGO";
+
+        crearSobres();
+    }
+
+
+    /* =====================================
+       BOTONES
+    ===================================== */
+
+    startButton.addEventListener(
+        "click",
+        comenzarJuego
+    );
+
+    restartButton.addEventListener(
+        "click",
+        reiniciarJuego
+    );
+
+
+    /* =====================================
+       INICIAR
+    ===================================== */
+
+    crearSobres();
+
+</script>
 
 </body>
 </html>
-```
-
-
-<style>
-    
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --bg: #05070d;
-    --panel: #0b0f18;
-    --panel2: #101622;
-
-    --blue: #168cff;
-    --purple: #8c35ff;
-    --pink: #ff3c9d;
-
-    --text: #f5f7ff;
-    --muted: #697386;
-
-    --border: rgba(255,255,255,.08);
-}
-
-body {
-    min-height: 100vh;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-    color: var(--text);
-
-    background:
-        radial-gradient(
-            circle at 15% 10%,
-            rgba(140,53,255,.15),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 90% 80%,
-            rgba(22,140,255,.12),
-            transparent 30%
-        ),
-        var(--bg);
-}
-
-.app {
-    width: min(1400px, 94%);
-
-    margin: auto;
-
-    padding-bottom: 40px;
-}
-
-
-
-.header {
-    min-height: 90px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.logo {
-    display: flex;
-
-    align-items: center;
-
-    gap: 13px;
-}
-
-.logo-symbol {
-    width: 48px;
-    height: 48px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 14px;
-
-    font-size: 27px;
-
-    color: white;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--purple),
-            var(--blue)
-        );
-
-    box-shadow:
-        0 0 30px rgba(140,53,255,.25);
-}
-
-.logo h1 {
-    font-size: 19px;
-
-    letter-spacing: 3px;
-}
-
-.logo span {
-    color: var(--blue);
-
-    font-size: 9px;
-
-    letter-spacing: 4px;
-}
-
-.stats {
-    display: flex;
-
-    gap: 40px;
-}
-
-.stat {
-    text-align: center;
-}
-
-.stat small {
-    display: block;
-
-    color: var(--muted);
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 5px;
-}
-
-.stat strong {
-    font-size: 17px;
-
-    color: #fff;
-}
-
-
-/* =========================
-   INTRO
-========================= */
-
-.intro {
-    text-align: center;
-
-    padding: 55px 0 40px;
-}
-
-.tag {
-    display: inline-block;
-
-    padding: 7px 14px;
-
-    border: 1px solid rgba(140,53,255,.35);
-
-    border-radius: 20px;
-
-    color: #a66aff;
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-
-    margin-bottom: 18px;
-}
-
-.intro h2 {
-    font-size: clamp(40px, 6vw, 72px);
-
-    line-height: .9;
-
-    letter-spacing: -4px;
-}
-
-.intro h2 span {
-    display: block;
-
-    background:
-        linear-gradient(
-            90deg,
-            var(--purple),
-            var(--blue),
-            var(--pink)
-        );
-
-    -webkit-background-clip: text;
-
-    color: transparent;
-}
-
-.intro p {
-    margin-top: 20px;
-
-    color: var(--muted);
-
-    font-size: 13px;
-}
-
-
-/* =========================
-   GAME
-========================= */
-
-.game {
-    display: grid;
-
-    grid-template-columns:
-        1fr 330px;
-
-    gap: 20px;
-}
-
-
-/* =========================
-   BOARD
-========================= */
-
-.board,
-.panel {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.025),
-            transparent
-        ),
-        var(--panel);
-
-    border: 1px solid var(--border);
-
-    border-radius: 22px;
-}
-
-.board {
-    padding: 24px;
-}
-
-.board-title {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 25px;
-}
-
-.board-title small,
-.panel-header small,
-.selected small {
-    color: var(--blue);
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-
-    font-weight: bold;
-}
-
-.board-title h3,
-.panel-header h3 {
-    margin-top: 6px;
-
-    font-size: 16px;
-}
-
-.counter {
-    color: var(--muted);
-
-    font-size: 8px;
-
-    letter-spacing: 1px;
-
-    text-align: right;
-}
-
-.counter span {
-    display: block;
-
-    color: white;
-
-    font-size: 22px;
-
-    margin-bottom: 3px;
-}
-
-
-/* =========================
-   SOBRES
-========================= */
-
-.packs {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
-}
-
-.pack {
-    position: relative;
-
-    min-height: 190px;
-
-    padding: 25px 12px 15px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    flex-direction: column;
-
-    overflow: hidden;
-
-    cursor: pointer;
-
-    border-radius: 14px;
-
-    border: 1px solid rgba(22,140,255,.25);
-
-    background:
-        linear-gradient(
-            145deg,
-            #111827,
-            #080b12
-        );
-
-    transition:
-        transform .25s,
-        border .25s,
-        box-shadow .25s;
-}
-
-
-/* BRILLO DEL SOBRE */
-
-.pack::before {
-    content: "";
-
-    position: absolute;
-
-    width: 180px;
-    height: 180px;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(140,53,255,.2),
-            transparent 65%
-        );
-
-    top: -80px;
-    right: -70px;
-}
-
-.pack::after {
-    content: "";
-
-    position: absolute;
-
-    left: 8%;
-    right: 8%;
-
-    bottom: 8px;
-
-    height: 2px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            var(--blue),
-            var(--purple),
-            transparent
-        );
-
-    opacity: .7;
-}
-
-.pack:hover {
-    transform:
-        translateY(-8px)
-        scale(1.025);
-
-    border-color: var(--blue);
-
-    box-shadow:
-        0 15px 35px rgba(0,0,0,.45),
-        0 0 25px rgba(22,140,255,.12);
-}
-
-
-/* PARTE SUPERIOR */
-
-.pack-top {
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 20px;
-
-    background:
-        repeating-linear-gradient(
-            90deg,
-            var(--purple) 0 8px,
-            transparent 8px 14px
-        );
-
-    opacity: .7;
-}
-
-
-/* SIMBOLO */
-
-.pack-symbol {
-    width: 60px;
-    height: 60px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    margin-bottom: 18px;
-
-    border-radius: 16px;
-
-    color: white;
-
-    font-size: 25px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(140,53,255,.35),
-            rgba(22,140,255,.18)
-        );
-
-    border: 1px solid rgba(255,255,255,.12);
-
-    box-shadow:
-        inset 0 0 20px rgba(255,255,255,.03);
-}
-
-.pack strong {
-    font-size: 12px;
-
-    letter-spacing: 2px;
-}
-
-.pack span {
-    margin-top: 5px;
-
-    color: var(--blue);
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-}
-
-
-/* =========================
-   PANEL
-========================= */
-
-.panel {
-    padding: 22px;
-}
-
-.panel-header {
-    padding-bottom: 20px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-
-/* =========================
-   MOSAICO
-========================= */
-
-.mosaic {
-    width: 190px;
-    height: 190px;
-
-    margin: 25px auto;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(5, 1fr);
-
-    grid-template-rows:
-        repeat(5, 1fr);
-
-    gap: 3px;
-
-    padding: 7px;
-
-    border-radius: 12px;
-
-    background: #020409;
-
-    border: 1px solid rgba(22,140,255,.35);
-
-    box-shadow:
-        0 0 30px rgba(22,140,255,.08);
-}
-
-.mosaic div {
-    background:
-        linear-gradient(
-            135deg,
-            #172236,
-            #080c14
-        );
-
-    border-radius: 2px;
-}
-
-
-/* ALGUNOS CUADROS ILUMINADOS */
-
-.mosaic div:nth-child(3),
-.mosaic div:nth-child(7),
-.mosaic div:nth-child(9),
-.mosaic div:nth-child(13),
-.mosaic div:nth-child(17),
-.mosaic div:nth-child(19),
-.mosaic div:nth-child(23) {
-    background:
-        linear-gradient(
-            135deg,
-            var(--purple),
-            var(--blue)
-        );
-
-    box-shadow:
-        0 0 8px rgba(22,140,255,.4);
-}
-
-
-/* =========================
-   OBJETIVO
-========================= */
-
-.objective {
-    text-align: center;
-
-    padding-bottom: 25px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.objective strong {
-    font-size: 13px;
-
-    letter-spacing: 1px;
-}
-
-.objective p {
-    margin-top: 8px;
-
-    color: var(--muted);
-
-    font-size: 10px;
-
-    line-height: 1.5;
-}
-
-
-/* =========================
-   SELECCIONADO
-========================= */
-
-.selected {
-    padding-top: 22px;
-
-    text-align: center;
-}
-
-.selected-pack {
-    width: 80px;
-    height: 80px;
-
-    margin: 15px auto 10px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 13px;
-
-    border: 1px dashed rgba(255,255,255,.15);
-
-    background: #080c13;
-}
-
-.selected-pack span {
-    font-size: 30px;
-
-    color: #424b5b;
-}
-
-.selected p {
-    color: var(--muted);
-
-    font-size: 9px;
-}
-
-
-/* =========================
-   CONTROLES
-========================= */
-
-.controls {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 15px;
-
-    margin-top: 25px;
-}
-
-.controls button {
-    padding: 15px 25px;
-
-    border-radius: 11px;
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-    letter-spacing: .5px;
-
-    transition: .25s;
-}
-
-.restart {
-    color: var(--muted);
-
-    background: #0b1018;
-
-    border: 1px solid var(--border);
-}
-
-.start {
-    color: white;
-
-    border: none;
-
-    background:
-        linear-gradient(
-            100deg,
-            var(--purple),
-            var(--blue)
-        );
-
-    box-shadow:
-        0 10px 30px rgba(22,140,255,.18);
-}
-
-.start:hover,
-.restart:hover {
-    transform: translateY(-3px);
-}
-
-
-/* =========================
-   FOOTER
-========================= */
-
-footer {
-    text-align: center;
-
-    padding-top: 35px;
-
-    color: #3e4654;
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-}
-
-footer span {
-    color: var(--blue);
-
-    margin: 0 8px;
-}
-
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 1050px) {
-
-    .game {
-        grid-template-columns: 1fr;
-    }
-
-    .packs {
-        grid-template-columns:
-            repeat(4, 1fr);
-    }
-
-}
-
-@media (max-width: 700px) {
-
-    .header {
-        flex-direction: column;
-
-        gap: 20px;
-
-        padding: 20px 0;
-    }
-
-    .stats {
-        width: 100%;
-
-        justify-content: space-around;
-
-        gap: 10px;
-    }
-
-    .packs {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
-
-}
-
-@media (max-width: 480px) {
-
-    .packs {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .pack {
-        min-height: 160px;
-    }
-
-    .intro h2 {
-        letter-spacing: -2px;
-    }
-
-    .controls {
-        flex-direction: column;
-    }
-
-    .controls button {
-        width: 100%;
-    }
-
-}
-```
-
-</style>

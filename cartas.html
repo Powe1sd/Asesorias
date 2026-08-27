@@ -1,6 +1,3 @@
-### `index.html`
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,347 +11,267 @@
 
 <body>
 
-    <!-- FONDO -->
-    <div class="background">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-    </div>
+    <div class="app">
 
+        <!-- HEADER -->
+        <header class="header">
 
-    <!-- ENCABEZADO -->
-    <header class="header">
+            <div class="logo">
+                <div class="logo-symbol">
+                    ◈
+                </div>
 
-        <div class="logo">
-            <div class="logo-face">
-                <span>◉</span>
-                <span>◉</span>
-                <i></i>
+                <div>
+                    <h1>SISTEMA</h1>
+                    <span>DE CARAS</span>
+                </div>
             </div>
 
-            <div class="logo-text">
-                <h1>SISTEMA</h1>
-                <span>DE CARAS</span>
-            </div>
-        </div>
+            <div class="stats">
 
-        <div class="game-info">
+                <div class="stat">
+                    <small>NIVEL</small>
+                    <strong>01</strong>
+                </div>
 
-            <div class="info">
-                <small>NIVEL</small>
-                <strong>01</strong>
-            </div>
+                <div class="stat">
+                    <small>PUNTOS</small>
+                    <strong>0000</strong>
+                </div>
 
-            <div class="info">
-                <small>PUNTOS</small>
-                <strong>0000</strong>
-            </div>
+                <div class="stat">
+                    <small>TIEMPO</small>
+                    <strong>60</strong>
+                </div>
 
-            <div class="info">
-                <small>TIEMPO</small>
-                <strong>60</strong>
             </div>
 
-        </div>
+        </header>
 
-    </header>
-
-
-    <!-- CONTENIDO -->
-    <main>
 
         <!-- TITULO -->
-        <section class="hero">
+        <section class="intro">
 
-            <div class="badge">
-                ⚡ DESAFÍO ACTIVO
+            <div class="tag">
+                JUEGO DE COLECCIÓN
             </div>
 
             <h2>
-                ENCUENTRA
+                DESCUBRE
                 <span>LA CARA</span>
             </h2>
 
             <p>
-                Observa cuidadosamente y encuentra la cara correcta
-                antes de que se termine el tiempo.
+                Selecciona un sobre y descubre el mosaico oculto.
             </p>
 
         </section>
 
 
-        <!-- OBJETIVO -->
-        <section class="target">
+        <!-- CONTENIDO -->
+        <main class="game">
 
-            <div class="target-title">
-                <span>OBJETIVO</span>
-                <small>IDENTIFICA AL PERSONAJE</small>
-            </div>
+            <!-- TABLERO -->
+            <section class="board">
 
-            <div class="target-content">
+                <div class="board-title">
 
-                <div class="target-face">
-                    <div class="face">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-
-                        <div class="mouth"></div>
+                    <div>
+                        <small>COLECCIÓN</small>
+                        <h3>SOBRES DISPONIBLES</h3>
                     </div>
+
+                    <div class="counter">
+                        <span>20</span>
+                        SOBRES
+                    </div>
+
                 </div>
 
-                <div class="target-text">
-                    <small>BUSCA ESTA CARA</small>
-                    <h3>¿DÓNDE ESTÁ?</h3>
-                    <p>
-                        Encuentra el rostro idéntico entre
-                        todas las opciones.
-                    </p>
+
+                <!-- SOBRES -->
+                <div class="packs">
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">✦</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◆</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">✦</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◇</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">✦</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◆</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◇</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">✦</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◆</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">✦</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◇</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
+                    <div class="pack">
+                        <div class="pack-top"></div>
+                        <div class="pack-symbol">◆</div>
+                        <strong>CARAS</strong>
+                        <span>MOSAICO</span>
+                    </div>
+
                 </div>
 
-            </div>
-
-        </section>
+            </section>
 
 
-        <!-- TABLERO -->
-        <section class="game-board">
+            <!-- PANEL DERECHO -->
+            <aside class="panel">
 
-            <div class="board-header">
-                <div>
-                    <span>ÁREA DE JUEGO</span>
+                <div class="panel-header">
+                    <small>OBJETIVO</small>
                     <h3>ENCUENTRA LA CARA</h3>
                 </div>
 
-                <div class="remaining">
-                    <small>OPCIONES</small>
-                    <strong>13</strong>
+
+                <!-- MOSAICO OBJETIVO -->
+                <div class="mosaic">
+
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+
                 </div>
-            </div>
 
 
-            <div class="faces-grid">
+                <div class="objective">
+                    <strong>BUSCA ESTE MOSAICO</strong>
 
-                <!-- CARA 1 -->
-                <div class="face-card">
-                    <span class="number">01</span>
+                    <p>
+                        Abre los sobres y encuentra
+                        la combinación correcta.
+                    </p>
+                </div>
 
-                    <div class="face">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
 
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
+                <div class="selected">
+
+                    <small>SOBRE SELECCIONADO</small>
+
+                    <div class="selected-pack">
+                        <span>+</span>
                     </div>
+
+                    <p>
+                        Ningún sobre seleccionado
+                    </p>
+
                 </div>
 
+            </aside>
 
-                <!-- CARA 2 -->
-                <div class="face-card">
-                    <span class="number">02</span>
-
-                    <div class="face face-2">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
+        </main>
 
 
-                <!-- CARA 3 -->
-                <div class="face-card">
-                    <span class="number">03</span>
+        <!-- BOTONES -->
+        <section class="controls">
 
-                    <div class="face face-3">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
+            <button class="restart">
+                ↻ REINICIAR
+            </button>
 
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 4 -->
-                <div class="face-card">
-                    <span class="number">04</span>
-
-                    <div class="face face-4">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 5 -->
-                <div class="face-card">
-                    <span class="number">05</span>
-
-                    <div class="face face-5">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 6 -->
-                <div class="face-card">
-                    <span class="number">06</span>
-
-                    <div class="face face-6">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 7 -->
-                <div class="face-card">
-                    <span class="number">07</span>
-
-                    <div class="face face-7">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 8 -->
-                <div class="face-card">
-                    <span class="number">08</span>
-
-                    <div class="face face-8">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 9 -->
-                <div class="face-card">
-                    <span class="number">09</span>
-
-                    <div class="face face-9">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 10 -->
-                <div class="face-card">
-                    <span class="number">10</span>
-
-                    <div class="face face-10">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 11 -->
-                <div class="face-card">
-                    <span class="number">11</span>
-
-                    <div class="face face-11">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-
-                <!-- CARA 12 -->
-                <div class="face-card">
-                    <span class="number">13</span>
-
-                    <div class="face face-12">
-                        <div class="eyes">
-                            <b></b>
-                            <b></b>
-                        </div>
-
-                        <div class="nose"></div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-
-            </div>
+            <button class="start">
+                ▶ COMENZAR JUEGO
+            </button>
 
         </section>
 
 
-        <!-- BOTÓN -->
-        <div class="actions">
+        <footer>
+            SISTEMA DE CARAS
+            <span>•</span>
+            DESCUBRE · ENCUENTRA · COLECCIONA
+        </footer>
 
-            <button class="start">
-                ▶ COMENZAR PARTIDA
-            </button>
-
-            <button class="reset">
-                ↻ REINICIAR
-            </button>
-
-        </div>
-
-    </main>
-
-
-    <footer>
-        SISTEMA DE CARAS
-        <span>•</span>
-        DESAFÍA TU MEMORIA
-    </footer>
+    </div>
 
 </body>
 </html>
@@ -362,95 +279,62 @@
 
 
 <style>
+    
 
-
-
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+:root {
+    --bg: #05070d;
+    --panel: #0b0f18;
+    --panel2: #101622;
+
+    --blue: #168cff;
+    --purple: #8c35ff;
+    --pink: #ff3c9d;
+
+    --text: #f5f7ff;
+    --muted: #697386;
+
+    --border: rgba(255,255,255,.08);
+}
+
 body {
     min-height: 100vh;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 
-    background: #090b10;
+    color: var(--text);
 
-    color: white;
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(140,53,255,.15),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 80%,
+            rgba(22,140,255,.12),
+            transparent 30%
+        ),
+        var(--bg);
+}
 
-    overflow-x: hidden;
+.app {
+    width: min(1400px, 94%);
+
+    margin: auto;
+
+    padding-bottom: 40px;
 }
 
 
-/* =========================
-   FONDO
-========================= */
-
-.background {
-    position: fixed;
-
-    inset: 0;
-
-    overflow: hidden;
-
-    pointer-events: none;
-
-    z-index: -1;
-}
-
-.circle {
-    position: absolute;
-
-    border-radius: 50%;
-
-    filter: blur(80px);
-
-    opacity: .15;
-}
-
-.circle-1 {
-    width: 500px;
-    height: 500px;
-
-    background: #ff1744;
-
-    top: -200px;
-    left: -150px;
-}
-
-.circle-2 {
-    width: 400px;
-    height: 400px;
-
-    background: #ffd000;
-
-    right: -150px;
-    top: 30%;
-}
-
-.circle-3 {
-    width: 450px;
-    height: 450px;
-
-    background: #ff1744;
-
-    bottom: -250px;
-    left: 40%;
-}
-
-
-/* =========================
-   HEADER
-========================= */
 
 .header {
-    height: 85px;
-
-    padding: 0 55px;
+    min-height: 90px;
 
     display: flex;
 
@@ -458,11 +342,7 @@ body {
 
     justify-content: space-between;
 
-    border-bottom: 1px solid rgba(255,255,255,.08);
-
-    background: rgba(9,11,16,.8);
-
-    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
 }
 
 .logo {
@@ -470,82 +350,63 @@ body {
 
     align-items: center;
 
-    gap: 14px;
+    gap: 13px;
 }
 
-.logo-face {
-    position: relative;
-
-    width: 47px;
-    height: 47px;
-
-    border-radius: 15px;
-
-    background: linear-gradient(
-        135deg,
-        #ff1744,
-        #ffb800
-    );
+.logo-symbol {
+    width: 48px;
+    height: 48px;
 
     display: flex;
 
+    align-items: center;
     justify-content: center;
 
-    align-items: center;
+    border-radius: 14px;
 
-    gap: 7px;
+    font-size: 27px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--purple),
+            var(--blue)
+        );
 
     box-shadow:
-        0 0 30px rgba(255,23,68,.25);
+        0 0 30px rgba(140,53,255,.25);
 }
 
-.logo-face span {
-    color: #090b10;
-
-    font-size: 11px;
-}
-
-.logo-face i {
-    position: absolute;
-
-    width: 18px;
-    height: 8px;
-
-    bottom: 10px;
-
-    border-bottom: 3px solid #090b10;
-
-    border-radius: 50%;
-}
-
-.logo-text h1 {
-    font-size: 18px;
+.logo h1 {
+    font-size: 19px;
 
     letter-spacing: 3px;
 }
 
-.logo-text span {
-    color: #ffb800;
+.logo span {
+    color: var(--blue);
 
     font-size: 9px;
 
     letter-spacing: 4px;
 }
 
-.game-info {
+.stats {
     display: flex;
 
-    gap: 35px;
+    gap: 40px;
 }
 
-.info {
+.stat {
     text-align: center;
 }
 
-.info small {
+.stat small {
     display: block;
 
-    color: #666d79;
+    color: var(--muted);
 
     font-size: 8px;
 
@@ -554,196 +415,112 @@ body {
     margin-bottom: 5px;
 }
 
-.info strong {
+.stat strong {
     font-size: 17px;
 
-    color: #ffb800;
+    color: #fff;
 }
 
 
 /* =========================
-   MAIN
+   INTRO
 ========================= */
 
-main {
-    width: min(1200px, 92%);
-
-    margin: auto;
+.intro {
+    text-align: center;
 
     padding: 55px 0 40px;
 }
 
-
-/* =========================
-   HERO
-========================= */
-
-.hero {
-    text-align: center;
-
-    margin-bottom: 45px;
-}
-
-.badge {
+.tag {
     display: inline-block;
 
-    padding: 8px 15px;
+    padding: 7px 14px;
 
-    border: 1px solid rgba(255,23,68,.3);
+    border: 1px solid rgba(140,53,255,.35);
 
-    border-radius: 30px;
+    border-radius: 20px;
 
-    color: #ff526f;
+    color: #a66aff;
 
-    background: rgba(255,23,68,.07);
-
-    font-size: 9px;
+    font-size: 8px;
 
     letter-spacing: 2px;
 
     margin-bottom: 18px;
 }
 
-.hero h2 {
-    font-size: clamp(38px, 6vw, 72px);
+.intro h2 {
+    font-size: clamp(40px, 6vw, 72px);
 
-    line-height: .95;
+    line-height: .9;
 
     letter-spacing: -4px;
 }
 
-.hero h2 span {
+.intro h2 span {
     display: block;
 
-    color: #ff1744;
+    background:
+        linear-gradient(
+            90deg,
+            var(--purple),
+            var(--blue),
+            var(--pink)
+        );
 
-    text-shadow:
-        0 0 30px rgba(255,23,68,.25);
+    -webkit-background-clip: text;
+
+    color: transparent;
 }
 
-.hero p {
-    max-width: 530px;
+.intro p {
+    margin-top: 20px;
 
-    margin: 20px auto 0;
-
-    color: #737b88;
-
-    line-height: 1.6;
+    color: var(--muted);
 
     font-size: 13px;
 }
 
 
 /* =========================
-   TARGET
+   GAME
 ========================= */
 
-.target {
-    padding: 25px;
+.game {
+    display: grid;
 
-    border-radius: 22px;
+    grid-template-columns:
+        1fr 330px;
 
-    border: 1px solid rgba(255,255,255,.08);
-
-    background:
-        linear-gradient(
-            120deg,
-            rgba(255,23,68,.09),
-            rgba(255,184,0,.04)
-        );
-}
-
-.target-title {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 22px;
-}
-
-.target-title span {
-    color: #ff1744;
-
-    font-size: 9px;
-
-    letter-spacing: 2px;
-
-    font-weight: bold;
-}
-
-.target-title small {
-    color: #555d69;
-
-    font-size: 8px;
-
-    letter-spacing: 1px;
-}
-
-.target-content {
-    display: flex;
-
-    align-items: center;
-
-    gap: 25px;
-}
-
-.target-face {
-    width: 115px;
-    height: 115px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 18px;
-
-    background: #0c1017;
-
-    border: 1px solid rgba(255,255,255,.08);
-}
-
-.target-text small {
-    color: #777f8c;
-
-    font-size: 9px;
-
-    letter-spacing: 2px;
-}
-
-.target-text h3 {
-    font-size: 25px;
-
-    margin: 6px 0;
-}
-
-.target-text p {
-    color: #666e7b;
-
-    font-size: 11px;
+    gap: 20px;
 }
 
 
 /* =========================
-   TABLERO
+   BOARD
 ========================= */
 
-.game-board {
-    margin-top: 25px;
+.board,
+.panel {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.025),
+            transparent
+        ),
+        var(--panel);
 
-    padding: 25px;
+    border: 1px solid var(--border);
 
     border-radius: 22px;
-
-    background: #0d1118;
-
-    border: 1px solid rgba(255,255,255,.07);
 }
 
-.board-header {
+.board {
+    padding: 24px;
+}
+
+.board-title {
     display: flex;
 
     justify-content: space-between;
@@ -753,56 +530,65 @@ main {
     margin-bottom: 25px;
 }
 
-.board-header span {
-    color: #ff1744;
+.board-title small,
+.panel-header small,
+.selected small {
+    color: var(--blue);
 
     font-size: 8px;
 
     letter-spacing: 2px;
+
+    font-weight: bold;
 }
 
-.board-header h3 {
-    margin-top: 5px;
+.board-title h3,
+.panel-header h3 {
+    margin-top: 6px;
 
-    font-size: 18px;
+    font-size: 16px;
 }
 
-.remaining {
+.counter {
+    color: var(--muted);
+
+    font-size: 8px;
+
+    letter-spacing: 1px;
+
     text-align: right;
 }
 
-.remaining small {
+.counter span {
     display: block;
 
-    color: #5e6672;
+    color: white;
 
-    font-size: 8px;
-}
+    font-size: 22px;
 
-.remaining strong {
-    color: #ffb800;
-
-    font-size: 24px;
+    margin-bottom: 3px;
 }
 
 
 /* =========================
-   GRID
+   SOBRES
 ========================= */
 
-.faces-grid {
+.packs {
     display: grid;
 
     grid-template-columns:
-        repeat(6, 1fr);
+        repeat(4, 1fr);
 
-    gap: 13px;
+    gap: 15px;
 }
 
-.face-card {
+.pack {
     position: relative;
 
-    aspect-ratio: 1;
+    min-height: 190px;
+
+    padding: 25px 12px 15px;
 
     display: flex;
 
@@ -810,18 +596,22 @@ main {
 
     justify-content: center;
 
+    flex-direction: column;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(22,140,255,.25);
+
     background:
         linear-gradient(
             145deg,
-            #151a23,
-            #0b0f15
+            #111827,
+            #080b12
         );
-
-    border: 1px solid rgba(255,255,255,.06);
-
-    border-radius: 16px;
-
-    cursor: pointer;
 
     transition:
         transform .25s,
@@ -829,286 +619,324 @@ main {
         box-shadow .25s;
 }
 
-.face-card:hover {
-    transform: translateY(-6px) scale(1.03);
 
-    border-color: #ff1744;
+/* BRILLO DEL SOBRE */
 
-    box-shadow:
-        0 15px 35px rgba(0,0,0,.4),
-        0 0 25px rgba(255,23,68,.12);
-}
+.pack::before {
+    content: "";
 
-.number {
     position: absolute;
 
-    top: 9px;
-    left: 10px;
+    width: 180px;
+    height: 180px;
 
-    color: #4e5662;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(140,53,255,.2),
+            transparent 65%
+        );
+
+    top: -80px;
+    right: -70px;
+}
+
+.pack::after {
+    content: "";
+
+    position: absolute;
+
+    left: 8%;
+    right: 8%;
+
+    bottom: 8px;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--blue),
+            var(--purple),
+            transparent
+        );
+
+    opacity: .7;
+}
+
+.pack:hover {
+    transform:
+        translateY(-8px)
+        scale(1.025);
+
+    border-color: var(--blue);
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.45),
+        0 0 25px rgba(22,140,255,.12);
+}
+
+
+/* PARTE SUPERIOR */
+
+.pack-top {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 20px;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            var(--purple) 0 8px,
+            transparent 8px 14px
+        );
+
+    opacity: .7;
+}
+
+
+/* SIMBOLO */
+
+.pack-symbol {
+    width: 60px;
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    color: white;
+
+    font-size: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(140,53,255,.35),
+            rgba(22,140,255,.18)
+        );
+
+    border: 1px solid rgba(255,255,255,.12);
+
+    box-shadow:
+        inset 0 0 20px rgba(255,255,255,.03);
+}
+
+.pack strong {
+    font-size: 12px;
+
+    letter-spacing: 2px;
+}
+
+.pack span {
+    margin-top: 5px;
+
+    color: var(--blue);
 
     font-size: 8px;
 
-    font-weight: bold;
+    letter-spacing: 2px;
 }
 
 
 /* =========================
-   CARAS
+   PANEL
 ========================= */
 
-.face {
-    position: relative;
+.panel {
+    padding: 22px;
+}
 
-    width: 75px;
-    height: 85px;
+.panel-header {
+    padding-bottom: 20px;
 
-    background:
-        linear-gradient(
-            145deg,
-            #ffd4b5,
-            #d99472
-        );
+    border-bottom: 1px solid var(--border);
+}
 
-    border-radius:
-        48%
-        48%
-        45%
-        45%;
+
+/* =========================
+   MOSAICO
+========================= */
+
+.mosaic {
+    width: 190px;
+    height: 190px;
+
+    margin: 25px auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    grid-template-rows:
+        repeat(5, 1fr);
+
+    gap: 3px;
+
+    padding: 7px;
+
+    border-radius: 12px;
+
+    background: #020409;
+
+    border: 1px solid rgba(22,140,255,.35);
 
     box-shadow:
-        inset -5px -8px 15px rgba(0,0,0,.12);
+        0 0 30px rgba(22,140,255,.08);
 }
 
-
-/* OJOS */
-
-.eyes {
-    position: absolute;
-
-    top: 31px;
-
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 22px;
-}
-
-.eyes b {
-    width: 8px;
-    height: 8px;
-
-    background: #16181c;
-
-    border-radius: 50%;
-}
-
-
-/* NARIZ */
-
-.nose {
-    position: absolute;
-
-    left: 50%;
-    top: 42px;
-
-    width: 7px;
-    height: 12px;
-
-    transform: translateX(-50%);
-
-    border-right: 2px solid rgba(80,35,25,.5);
-
-    border-radius: 50%;
-}
-
-
-/* BOCA */
-
-.mouth {
-    position: absolute;
-
-    left: 50%;
-    bottom: 17px;
-
-    width: 22px;
-    height: 7px;
-
-    transform: translateX(-50%);
-
-    border-bottom: 2px solid #722f32;
-
-    border-radius: 50%;
-}
-
-
-/* DIFERENTES CARAS */
-
-.face-2 {
-    transform: rotate(-3deg);
-
+.mosaic div {
     background:
         linear-gradient(
-            145deg,
-            #f2c09a,
-            #bd785c
+            135deg,
+            #172236,
+            #080c14
         );
+
+    border-radius: 2px;
 }
 
-.face-2 .mouth {
-    width: 13px;
-}
 
-.face-3 {
+/* ALGUNOS CUADROS ILUMINADOS */
+
+.mosaic div:nth-child(3),
+.mosaic div:nth-child(7),
+.mosaic div:nth-child(9),
+.mosaic div:nth-child(13),
+.mosaic div:nth-child(17),
+.mosaic div:nth-child(19),
+.mosaic div:nth-child(23) {
     background:
         linear-gradient(
-            145deg,
-            #e7ad7d,
-            #a96048
+            135deg,
+            var(--purple),
+            var(--blue)
         );
-}
 
-.face-3 .eyes {
-    gap: 18px;
-}
-
-.face-3 .mouth {
-    height: 3px;
-}
-
-.face-4 {
-    background:
-        linear-gradient(
-            145deg,
-            #ffe0c4,
-            #d49b7d
-        );
-}
-
-.face-4 .eyes b:first-child {
-    transform: scale(1.3);
-}
-
-.face-5 {
-    transform: rotate(2deg);
-
-    background:
-        linear-gradient(
-            145deg,
-            #c98962,
-            #874733
-        );
-}
-
-.face-5 .mouth {
-    border-bottom: 0;
-
-    border-top: 2px solid #662b2d;
-}
-
-.face-6 {
-    background:
-        linear-gradient(
-            145deg,
-            #f6c8a4,
-            #c58261
-        );
-}
-
-.face-6 .eyes b {
-    border-radius: 3px;
-}
-
-.face-7 {
-    background:
-        linear-gradient(
-            145deg,
-            #ffd9bd,
-            #c98b6d
-        );
-}
-
-.face-7 .mouth {
-    width: 27px;
-}
-
-.face-8 {
-    transform: rotate(-2deg);
-
-    background:
-        linear-gradient(
-            145deg,
-            #e4a678,
-            #a85d43
-        );
-}
-
-.face-9 {
-    background:
-        linear-gradient(
-            145deg,
-            #f5c39f,
-            #c1775c
-        );
-}
-
-.face-10 {
-    background:
-        linear-gradient(
-            145deg,
-            #d99a6f,
-            #914b36
-        );
-}
-
-.face-11 {
-    background:
-        linear-gradient(
-            145deg,
-            #ffe0c7,
-            #d59c80
-        );
-}
-
-.face-12 {
-    transform: rotate(3deg);
-
-    background:
-        linear-gradient(
-            145deg,
-            #efb58d,
-            #b9684d
-        );
+    box-shadow:
+        0 0 8px rgba(22,140,255,.4);
 }
 
 
 /* =========================
-   BOTONES
+   OBJETIVO
 ========================= */
 
-.actions {
+.objective {
+    text-align: center;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.objective strong {
+    font-size: 13px;
+
+    letter-spacing: 1px;
+}
+
+.objective p {
+    margin-top: 8px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   SELECCIONADO
+========================= */
+
+.selected {
+    padding-top: 22px;
+
+    text-align: center;
+}
+
+.selected-pack {
+    width: 80px;
+    height: 80px;
+
+    margin: 15px auto 10px;
+
     display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    border: 1px dashed rgba(255,255,255,.15);
+
+    background: #080c13;
+}
+
+.selected-pack span {
+    font-size: 30px;
+
+    color: #424b5b;
+}
+
+.selected p {
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+
+/* =========================
+   CONTROLES
+========================= */
+
+.controls {
+    display: flex;
+
+    align-items: center;
 
     justify-content: center;
 
-    gap: 12px;
+    gap: 15px;
 
-    margin-top: 28px;
+    margin-top: 25px;
 }
 
-.actions button {
+.controls button {
     padding: 15px 25px;
 
     border-radius: 11px;
 
-    font-weight: bold;
-
     cursor: pointer;
 
+    font-weight: bold;
+
+    letter-spacing: .5px;
+
     transition: .25s;
+}
+
+.restart {
+    color: var(--muted);
+
+    background: #0b1018;
+
+    border: 1px solid var(--border);
 }
 
 .start {
@@ -1118,28 +946,18 @@ main {
 
     background:
         linear-gradient(
-            135deg,
-            #ff1744,
-            #d50032
+            100deg,
+            var(--purple),
+            var(--blue)
         );
 
     box-shadow:
-        0 10px 30px rgba(255,23,68,.2);
+        0 10px 30px rgba(22,140,255,.18);
 }
 
-.start:hover {
+.start:hover,
+.restart:hover {
     transform: translateY(-3px);
-
-    box-shadow:
-        0 15px 40px rgba(255,23,68,.3);
-}
-
-.reset {
-    color: #8b929d;
-
-    background: #121720;
-
-    border: 1px solid rgba(255,255,255,.08);
 }
 
 
@@ -1148,11 +966,11 @@ main {
 ========================= */
 
 footer {
-    padding: 25px;
-
     text-align: center;
 
-    color: #464d58;
+    padding-top: 35px;
+
+    color: #3e4654;
 
     font-size: 8px;
 
@@ -1160,9 +978,9 @@ footer {
 }
 
 footer span {
-    color: #ff1744;
+    color: var(--blue);
 
-    margin: 0 7px;
+    margin: 0 8px;
 }
 
 
@@ -1170,61 +988,68 @@ footer span {
    RESPONSIVE
 ========================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
 
-    .header {
-        padding: 0 25px;
+    .game {
+        grid-template-columns: 1fr;
     }
 
-    .faces-grid {
+    .packs {
         grid-template-columns:
             repeat(4, 1fr);
     }
 
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
     .header {
-        height: auto;
-
-        padding: 20px;
+        flex-direction: column;
 
         gap: 20px;
 
-        flex-direction: column;
+        padding: 20px 0;
     }
 
-    .game-info {
+    .stats {
         width: 100%;
 
         justify-content: space-around;
+
+        gap: 10px;
     }
 
-    main {
-        width: 94%;
-
-        padding-top: 35px;
-    }
-
-    .faces-grid {
+    .packs {
         grid-template-columns:
             repeat(3, 1fr);
     }
 
-    .target-content {
-        flex-direction: column;
+}
 
-        align-items: flex-start;
+@media (max-width: 480px) {
+
+    .packs {
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
-    .actions {
+    .pack {
+        min-height: 160px;
+    }
+
+    .intro h2 {
+        letter-spacing: -2px;
+    }
+
+    .controls {
         flex-direction: column;
     }
 
-    .actions button {
+    .controls button {
         width: 100%;
     }
 
 }
+```
+
 </style>

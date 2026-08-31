@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Caras</title>
+    <title>Sistema</title>
 
     <style>
         * {
@@ -70,9 +71,11 @@
         .logo-symbol {
             width: 48px;
             height: 48px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             border-radius: 14px;
             font-size: 27px;
             color: white;
@@ -133,8 +136,10 @@
         .tag {
             display: inline-block;
             padding: 7px 14px;
+
             border: 1px solid rgba(140,53,255,.35);
             border-radius: 20px;
+
             color: #a66aff;
             font-size: 8px;
             letter-spacing: 2px;
@@ -238,7 +243,7 @@
         }
 
         /* =========================
-           SOBRES
+           SOBRES / CARTAS
         ========================= */
 
         .packs {
@@ -249,6 +254,7 @@
 
         .pack {
             position: relative;
+
             min-height: 190px;
             padding: 25px 12px 15px;
 
@@ -278,9 +284,12 @@
 
         .pack::before {
             content: "";
+
             position: absolute;
+
             width: 180px;
             height: 180px;
+
             border-radius: 50%;
 
             background:
@@ -296,10 +305,13 @@
 
         .pack::after {
             content: "";
+
             position: absolute;
+
             left: 8%;
             right: 8%;
             bottom: 8px;
+
             height: 2px;
 
             background:
@@ -328,8 +340,10 @@
 
         .pack-top {
             position: absolute;
+
             top: 0;
             left: 0;
+
             width: 100%;
             height: 20px;
 
@@ -352,6 +366,7 @@
             justify-content: center;
 
             margin-bottom: 18px;
+
             border-radius: 16px;
 
             color: white;
@@ -370,15 +385,11 @@
                 inset 0 0 20px rgba(255,255,255,.03);
         }
 
-        .pack strong {
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-
+        /* SOLO EL NÚMERO */
         .pack span {
-            margin-top: 5px;
             color: var(--blue);
-            font-size: 8px;
+            font-size: 13px;
+            font-weight: bold;
             letter-spacing: 2px;
         }
 
@@ -406,10 +417,12 @@
             margin: 25px auto;
 
             display: grid;
+
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(5, 1fr);
 
             gap: 3px;
+
             padding: 7px;
 
             border-radius: 12px;
@@ -458,7 +471,9 @@
 
         .objective {
             text-align: center;
+
             padding-bottom: 25px;
+
             border-bottom: 1px solid var(--border);
         }
 
@@ -469,7 +484,9 @@
 
         .objective p {
             margin-top: 8px;
+
             color: var(--muted);
+
             font-size: 10px;
             line-height: 1.5;
         }
@@ -516,29 +533,39 @@
 
         .controls {
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             gap: 15px;
+
             margin-top: 25px;
         }
 
         .controls button {
             padding: 15px 25px;
+
             border-radius: 11px;
+
             cursor: pointer;
+
             font-weight: bold;
             letter-spacing: .5px;
+
             transition: .25s;
         }
 
         .restart {
             color: var(--muted);
+
             background: #0b1018;
+
             border: 1px solid var(--border);
         }
 
         .start {
             color: white;
+
             border: none;
 
             background:
@@ -563,8 +590,11 @@
 
         footer {
             text-align: center;
+
             padding-top: 35px;
+
             color: #3e4654;
+
             font-size: 8px;
             letter-spacing: 2px;
         }
@@ -593,13 +623,17 @@
 
             .header {
                 flex-direction: column;
+
                 gap: 20px;
+
                 padding: 20px 0;
             }
 
             .stats {
                 width: 100%;
+
                 justify-content: space-around;
+
                 gap: 10px;
             }
 
@@ -638,6 +672,7 @@
 <div class="app">
 
     <!-- HEADER -->
+
     <header class="header">
 
         <div class="logo">
@@ -648,7 +683,7 @@
 
             <div>
                 <h1>SISTEMA</h1>
-                <span>DE CARAS</span>
+                <span>COLECCIÓN</span>
             </div>
 
         </div>
@@ -676,6 +711,7 @@
 
 
     <!-- TITULO -->
+
     <section class="intro">
 
         <div class="tag">
@@ -684,57 +720,67 @@
 
         <h2>
             DESCUBRE
-            <span>LA CARA</span>
         </h2>
 
         <p>
-            Selecciona un sobre y descubre el mosaico oculto.
+            Selecciona una carta y descubre el mosaico oculto.
         </p>
 
     </section>
 
 
     <!-- CONTENIDO -->
+
     <main class="game">
 
         <!-- TABLERO -->
+
         <section class="board">
 
             <div class="board-title">
 
                 <div>
+
                     <small>COLECCIÓN</small>
-                    <h3>SOBRES DISPONIBLES</h3>
+
+                    <h3>CARTAS DISPONIBLES</h3>
+
                 </div>
 
                 <div class="counter">
-                    SOBRES
+
+                    CARTAS
+
+                    <span id="packCounter">
+                        26
+                    </span>
+
                 </div>
 
             </div>
 
 
-            <!-- SOBRES -->
+            <!-- CARTAS -->
+
             <div class="packs" id="packs"></div>
 
         </section>
 
 
         <!-- PANEL DERECHO -->
+
         <aside class="panel">
 
             <div class="panel-header">
 
                 <small>OBJETIVO</small>
 
-                <h3>
-                    ENCUENTRA LA CARA
-                </h3>
-
+        
             </div>
 
 
             <!-- MOSAICO OBJETIVO -->
+
             <div class="mosaic">
 
                 <div></div>
@@ -772,12 +818,10 @@
 
             <div class="objective">
 
-                <strong>
-                    BUSCA ESTE MOSAICO
-                </strong>
+              
 
                 <p>
-                    Abre los sobres y encuentra
+                    Abre las cartas y encuentra
                     la combinación correcta.
                 </p>
 
@@ -787,15 +831,19 @@
             <div class="selected">
 
                 <small>
-                    SOBRE SELECCIONADO
+                    CARTA SELECCIONADA
                 </small>
 
                 <div class="selected-pack">
-                    <span>+</span>
+
+                    <span>
+                        +
+                    </span>
+
                 </div>
 
                 <p id="selectedText">
-                    Ningún sobre seleccionado
+                    Ninguna carta seleccionada
                 </p>
 
             </div>
@@ -806,23 +854,36 @@
 
 
     <!-- BOTONES -->
+
     <section class="controls">
 
-        <button class="restart" id="restart">
+        <button
+            class="restart"
+            id="restart">
+
             ↻ REINICIAR
+
         </button>
 
-        <button class="start" id="start">
+        <button
+            class="start"
+            id="start">
+
             ▶ COMENZAR JUEGO
+
         </button>
 
     </section>
 
 
     <footer>
-        SISTEMA DE CARAS
+
+        SISTEMA
+
         <span>•</span>
+
         DESCUBRE · ENCUENTRA · COLECCIONA
+
     </footer>
 
 </div>
@@ -892,103 +953,145 @@
 
 
     /* =====================================
-       CREAR LOS 26 SOBRES
+       CREAR LAS 26 CARTAS
     ===================================== */
 
     function crearSobres() {
 
         packsContainer.innerHTML = "";
 
-        for (let i = 1; i <= TOTAL_SOBRES; i++) {
+        for (
+            let i = 1;
+            i <= TOTAL_SOBRES;
+            i++
+        ) {
 
-            const pack = document.createElement("div");
+            const pack =
+                document.createElement("div");
 
             pack.classList.add("pack");
 
             pack.dataset.numero = i;
 
+
             const simbolo =
-                simbolos[(i - 1) % simbolos.length];
+                simbolos[
+                    (i - 1) %
+                    simbolos.length
+                ];
+
+
+            /*
+                AQUÍ SE QUITÓ "CARAS".
+                AHORA SOLO APARECE
+                EL SÍMBOLO Y EL NÚMERO.
+            */
 
             pack.innerHTML = `
+
                 <div class="pack-top"></div>
 
                 <div class="pack-symbol">
                     ${simbolo}
                 </div>
 
-                <strong>
-                    CARAS
-                </strong>
-
                 <span>
-                    SOBRE ${String(i).padStart(2, "0")}
+                    ${String(i).padStart(2, "0")}
                 </span>
+
             `;
+
 
             pack.addEventListener(
                 "click",
                 () => seleccionarSobre(pack, i)
             );
 
+
             packsContainer.appendChild(pack);
         }
 
-        packCounter.textContent = sobresDisponibles;
+
+        packCounter.textContent =
+            sobresDisponibles;
     }
 
 
     /* =====================================
-       SELECCIONAR SOBRE
+       SELECCIONAR CARTA
     ===================================== */
 
-    function seleccionarSobre(pack, numero) {
+    function seleccionarSobre(
+        pack,
+        numero
+    ) {
 
         if (!juegoIniciado) {
 
-            alert("Primero presiona COMENZAR JUEGO.");
+            alert(
+                "Primero presiona COMENZAR JUEGO."
+            );
 
             return;
         }
 
-        if (pack.classList.contains("abierto")) {
+
+        if (
+            pack.classList.contains("abierto")
+        ) {
+
             return;
         }
+
 
         pack.classList.add("abierto");
 
+
         selectedText.textContent =
-            `Sobre ${String(numero).padStart(2, "0")} seleccionado`;
+            `${String(numero).padStart(2, "0")} seleccionada`;
+
 
         sobresDisponibles--;
+
 
         packCounter.textContent =
             sobresDisponibles;
 
+
         puntos += 100;
+
 
         pointsElement.textContent =
             String(puntos).padStart(4, "0");
 
-        /* Cambiar visualmente el sobre */
+
+        /* Cambiar visualmente la carta */
 
         pack.style.opacity = "0.45";
+
         pack.style.cursor = "default";
+
 
         const simbolo =
             pack.querySelector(".pack-symbol");
 
+
         simbolo.textContent = "✓";
+
 
         simbolo.style.background =
             "linear-gradient(135deg, #168cff, #8c35ff)";
 
+
         /* Si se acabaron */
 
-        if (sobresDisponibles === 0) {
+        if (
+            sobresDisponibles === 0
+        ) {
 
             finalizarJuego();
         }
+
     }
 
 
@@ -999,18 +1102,23 @@
     function comenzarJuego() {
 
         if (juegoIniciado) {
+
             return;
         }
+
 
         juegoIniciado = true;
 
         tiempo = 60;
 
+
         timeElement.textContent =
             tiempo;
 
+
         startButton.textContent =
             "● JUEGO ACTIVO";
+
 
         iniciarTemporizador();
     }
@@ -1024,22 +1132,25 @@
 
         clearInterval(timer);
 
+
         timer = setInterval(() => {
 
             tiempo--;
 
+
             timeElement.textContent =
                 tiempo;
+
 
             if (tiempo <= 0) {
 
                 clearInterval(timer);
 
                 finalizarJuego();
-
             }
 
         }, 1000);
+
     }
 
 
@@ -1051,21 +1162,30 @@
 
         juegoIniciado = false;
 
+
         clearInterval(timer);
+
 
         startButton.textContent =
             "▶ COMENZAR JUEGO";
 
-        if (sobresDisponibles === 0) {
+
+        if (
+            sobresDisponibles === 0
+        ) {
 
             selectedText.textContent =
-                "¡Has abierto los 26 sobres!";
+                "¡Has abierto las 26 cartas!";
 
-        } else if (tiempo <= 0) {
+        }
+        else if (
+            tiempo <= 0
+        ) {
 
             selectedText.textContent =
                 "Se acabó el tiempo.";
         }
+
     }
 
 
@@ -1077,29 +1197,39 @@
 
         clearInterval(timer);
 
+
         sobresDisponibles =
             TOTAL_SOBRES;
 
+
         puntos = 0;
+
 
         tiempo = 60;
 
+
         juegoIniciado = false;
+
 
         pointsElement.textContent =
             "0000";
 
+
         timeElement.textContent =
             "60";
+
 
         packCounter.textContent =
             TOTAL_SOBRES;
 
+
         selectedText.textContent =
-            "Ningún sobre seleccionado";
+            "Ninguna carta seleccionada";
+
 
         startButton.textContent =
             "▶ COMENZAR JUEGO";
+
 
         crearSobres();
     }
@@ -1113,6 +1243,7 @@
         "click",
         comenzarJuego
     );
+
 
     restartButton.addEventListener(
         "click",
@@ -1130,3 +1261,4 @@
 
 </body>
 </html>
+```

@@ -287,6 +287,137 @@ body::before {
     transform: scale(1.12);
     box-shadow: 0 0 18px rgba(24, 119, 242, 0.9);
 }
+
+/* ===== CONTACTO ===== */
+.contact-section {
+    max-width: 1200px;
+    margin: 0 auto 45px;
+    padding: 30px 25px 0;
+}
+
+.contact-card {
+    background: rgba(15, 20, 40, 0.82);
+    border: 1px solid rgba(255, 205, 0, 0.28);
+    border-radius: 14px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+.contact-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
+}
+
+.contact-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.18);
+    transition: 0.3s ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 205, 0, 0.45);
+    box-shadow: 0 0 18px rgba(255, 205, 0, 0.12);
+}
+
+.contact-icon {
+    min-width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #CE1126, #FFCD00);
+    color: #111;
+    font-size: 18px;
+}
+
+.contact-info strong {
+    display: block;
+    color: #FFCD00;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.contact-info a,
+.contact-info span {
+    color: #eee;
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.contact-info a:hover {
+    color: #CE1126;
+}
+
+.contact-hours {
+    margin-top: 20px;
+    padding: 18px;
+    text-align: center;
+    border-radius: 10px;
+    background: rgba(0, 56, 168, 0.14);
+    border: 1px solid rgba(0, 56, 168, 0.3);
+    color: #ddd;
+}
+
+.contact-hours i {
+    color: #FFCD00;
+    margin-right: 8px;
+}
+
+.payment-small {
+    display: inline-block;
+    font-size: 0.72rem !important;
+    opacity: 0.75;
+    margin-top: 5px;
+    letter-spacing: 0.4px;
+}
+
+@media (max-width: 600px) {
+    .contact-section {
+        padding: 20px 15px 0;
+    }
+
+    .contact-card {
+        padding: 22px 16px;
+    }
+
+    .contact-title {
+        font-size: 1.45rem;
+    }
+}
+
 </style>
 </head>
 
@@ -317,15 +448,6 @@ body::before {
             </p>
         </section>
 
-       
-        <section id="proyectos-python" class="data-card">
-            <h2>Proyectos Python</h2>
-            <p>
-                Automatización e IA.
-                 <a href="programs-escritorio.html" target="_blank">
-                </a>
-            </p>
-        </section>
 
         <section id="reasignacion-procesos" class="data-card">
     <h2>Reasignación de procesos tecnológicos</h2>
@@ -345,44 +467,6 @@ body::before {
 
 </section>
 
-    </main>
-
-    <footer class="cyber-footer">
-
-        <!-- BANDERA DE COLOMBIA (más pequeña) -->
-        <div class="colombia-flag">
-            <div class="flag-yellow"></div>
-            <div class="flag-blue"></div>
-            <div class="flag-red"></div>
-        </div>
-        <div class="flag-label">COLOMBIA</div>
-
-        <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
-        <p>Versión 1.0.3</p>
-        <p>⚡ Sistemas de cartas</p>
-        <p>⚡ R R</p>
-
-        <div class="triangle-container">
-            <div class="mini-triangle"></div>
-        </div>
-
-        <p style="margin-top: 10px; opacity: 0.7; font-size: 0.8rem;">
-            © 2025 Asesorías Profesionales. Todos los derechos reservados.
-        </p>
-    </footer>
-
-    <div class="floating-name">
-        Brayhan 7 13
-    </div>
-
-    <a href="https://www.facebook.com/brahyanstiven.coyrubio/"
-       class="facebook-fixed"
-       target="_blank"
-       aria-label="Facebook">
-        <i class="fa-brands fa-facebook-f"></i>
-    </a>
-
-</div>
 
 <section id="finalizaciones-estrategias" class="data-card">
     <h2>Finalizaciones tecnológicas</h2>
@@ -405,6 +489,131 @@ body::before {
         Estrategias de negocio
     </a>
 </section>
+    </main>
+
+
+        <!-- ===== SECCIÓN DE CONTACTO ===== -->
+        <section id="contacto" class="contact-section">
+            <div class="contact-card">
+                <h2 class="contact-title">
+                    <i class="fa-solid fa-address-card"></i> Contacto
+                </h2>
+
+                <div class="contact-grid">
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>Facebook</strong>
+                            <a href="https://www.facebook.com/brahyanstiven.coyrubio/"
+                               target="_blank" rel="noopener noreferrer">
+                                Brayhan Estiven Coy Rubio
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>Horario de atención</strong>
+                            <span>Lunes a viernes · 9:00 a. m. – 1:00 p. m. y 2:00 p. m. – 6:00 p. m.</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>País</strong>
+                            <span>Colombia</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-solid fa-code"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>Área</strong>
+                            <span>Desarrollo de Software</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>Servicio</strong>
+                            <span>Asesorías Profesionales</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div class="contact-info">
+                            <strong>Servicios</strong>
+                            <span>Sistemas automatización, IA y gestión tecnológica</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="contact-hours">
+                    <i class="fa-solid fa-headset"></i>
+                    <strong>Gratificaciones</strong>
+                
+                    <span class="payment-small">Nequi · Daviplata · 3052076713</span>
+                
+                        </div>
+            </div>
+        </section>
+
+    <footer class="cyber-footer">
+
+        <!-- BANDERA DE COLOMBIA (más pequeña) -->
+        <div class="colombia-flag">
+            <div class="flag-yellow"></div>
+            <div class="flag-blue"></div>
+            <div class="flag-red"></div>
+        </div>
+        <div class="flag-label">COLOMBIA</div>
+
+        <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
+        <p>Versión 1.0.3</p>
+        <p>⚡ Sistema</p>
+        <p>⚡ R R</p>
+
+        <div class="triangle-container">
+            <div class="mini-triangle"></div>
+        </div>
+
+        <p style="margin-top: 10px; opacity: 0.7; font-size: 0.8rem;">
+            © 2026 Asesorías Profesionales. Todos los derechos reservados.
+        </p>
+    </footer>
+
+    <div class="floating-name">
+        Brayhan 7 13
+    </div>
+
+    <a href="https://www.facebook.com/brahyanstiven.coyrubio/"
+       class="facebook-fixed"
+       target="_blank"
+       aria-label="Facebook">
+        <i class="fa-brands fa-facebook-f"></i>
+    </a>
+
+</div>
+
+
 <script src="app.js"></script>
 
 </body>

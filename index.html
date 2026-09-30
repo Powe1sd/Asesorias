@@ -841,12 +841,13 @@ function drawPlayer() {
 }
 
 /* METEORO */
+/* METEORO */
 function drawObstacle(obstacle) {
     ctx.save();
     ctx.translate(obstacle.x + obstacle.size / 2, obstacle.y + obstacle.size / 2);
     ctx.rotate(obstacle.rotation);
 
-    ctx.shadowColor = "#FF6B00";
+    ctx.shadowColor = "#CE1126";
     ctx.shadowBlur = 16;
 
     ctx.beginPath();
@@ -857,13 +858,13 @@ function drawObstacle(obstacle) {
     ctx.closePath();
 
     const rockGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, obstacle.size * 0.7);
-    rockGrad.addColorStop(0, "#8B4513");
-    rockGrad.addColorStop(0.45, "#5C3317");
-    rockGrad.addColorStop(1, "#2C1810");
+    rockGrad.addColorStop(0, "#FF4444");
+    rockGrad.addColorStop(0.45, "#CE1126");
+    rockGrad.addColorStop(1, "#8B0000");
     ctx.fillStyle = rockGrad;
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255, 100, 0, 0.55)";
+    ctx.strokeStyle = "rgba(255, 80, 80, 0.6)";
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -876,7 +877,7 @@ function drawObstacle(obstacle) {
     ctx.arc(obstacle.size * 0.25, obstacle.size * 0.1, obstacle.size * 0.12, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "rgba(255, 180, 50, 0.35)";
+    ctx.fillStyle = "rgba(255, 100, 100, 0.35)";
     ctx.beginPath();
     ctx.arc(obstacle.size * 0.1, -obstacle.size * 0.25, obstacle.size * 0.08, 0, Math.PI * 2);
     ctx.fill();

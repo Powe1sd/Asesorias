@@ -1,0 +1,1369 @@
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    margin: 0;
+
+    background: #0a0a12;
+
+    font-family: 'Orbitron', sans-serif;
+
+    color: #ffffff;
+
+    overflow-x: hidden;
+
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   FONDO ANIMADO
+========================================================= */
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    width: 100%;
+    height: 200%;
+
+    background-image:
+
+        radial-gradient(
+            circle,
+            rgba(255, 205, 0, 0.25) 1px,
+            transparent 1px
+        ),
+
+        radial-gradient(
+            circle,
+            rgba(0, 56, 168, 0.20) 1px,
+            transparent 1px
+        ),
+
+        radial-gradient(
+            circle,
+            rgba(206, 17, 38, 0.15) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        55px 55px,
+        75px 75px,
+        65px 65px;
+
+    animation:
+        stars 90s linear infinite;
+
+    z-index: -1;
+}
+
+@keyframes stars {
+
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-50%);
+    }
+
+}
+
+
+/* =========================================================
+   MINI JUEGO - SECCION PRINCIPAL
+========================================================= */
+
+.tech-game-section {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    margin: 25px auto 10px;
+
+    padding: 0 25px;
+}
+
+
+/* CONTENEDOR */
+
+.tech-game {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 440px;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background:
+
+        radial-gradient(
+            circle at center,
+            rgba(0, 56, 168, 0.16),
+            transparent 55%
+        ),
+
+        #050509;
+
+    border:
+        1px solid
+        rgba(255, 205, 0, 0.35);
+
+    box-shadow:
+
+        0 0 35px
+        rgba(0, 56, 168, 0.15),
+
+        inset 0 0 50px
+        rgba(0, 0, 0, 0.6);
+}
+
+
+/* LINEAS DECORATIVAS */
+
+.tech-game::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+
+        linear-gradient(
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        35px 35px;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+
+/* CANVAS */
+
+#gameCanvas {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    z-index: 2;
+
+    cursor: crosshair;
+}
+
+
+/* =========================================================
+   ENCABEZADO DEL JUEGO
+========================================================= */
+
+.game-top {
+
+    position: absolute;
+
+    top: 15px;
+
+    left: 20px;
+
+    right: 20px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    z-index: 10;
+
+    pointer-events: none;
+}
+
+
+.game-title {
+
+    color: #FFCD00;
+
+    font-family:
+        'Orbitron',
+        sans-serif;
+
+    font-weight: 800;
+
+    font-size: 16px;
+
+    letter-spacing: 2px;
+
+    text-shadow:
+
+        0 0 8px
+        rgba(255,205,0,0.8),
+
+        0 0 18px
+        rgba(255,205,0,0.3);
+}
+
+
+.game-score {
+
+    color: white;
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+
+    font-size: 17px;
+}
+
+
+.game-score span {
+
+    color: #FFCD00;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   INSTRUCCIONES
+========================================================= */
+
+.game-help {
+
+    position: absolute;
+
+    bottom: 15px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 10;
+
+    color: rgba(255,255,255,0.55);
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+
+    font-size: 12px;
+
+    text-align: center;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   PANEL INICIAL
+========================================================= */
+
+.game-panel {
+
+    position: absolute;
+
+    z-index: 20;
+
+    top: 50%;
+
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    width: 340px;
+
+    max-width: 85%;
+
+    padding: 28px;
+
+    text-align: center;
+
+    background:
+        rgba(5,5,15,0.88);
+
+    border:
+        1px solid
+        rgba(255,205,0,0.35);
+
+    border-radius: 15px;
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    box-shadow:
+
+        0 0 30px
+        rgba(0,0,0,0.6),
+
+        0 0 20px
+        rgba(255,205,0,0.08);
+}
+
+
+.game-panel h2 {
+
+    font-size: 30px;
+
+    margin-bottom: 12px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #CE1126
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+}
+
+
+.game-panel p {
+
+    color: #ddd;
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+
+    line-height: 1.5;
+
+    margin-bottom: 8px;
+}
+
+
+.game-panel small {
+
+    color: #888;
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+}
+
+
+/* =========================================================
+   BOTONES JUEGO
+========================================================= */
+
+.game-btn {
+
+    margin-top: 18px;
+
+    padding:
+        11px
+        22px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-family:
+        'Orbitron',
+        sans-serif;
+
+    font-weight: 700;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #FFCD00,
+            #CE1126
+        );
+
+    color: #111;
+
+    box-shadow:
+
+        0 0 15px
+        rgba(255,205,0,0.3);
+
+    transition:
+        0.25s ease;
+}
+
+
+.game-btn:hover {
+
+    transform:
+        scale(1.06);
+
+    box-shadow:
+
+        0 0 25px
+        rgba(255,205,0,0.7);
+}
+
+
+.game-btn-blue {
+
+    background:
+        #0038A8;
+
+    color: white;
+
+    margin-left: 5px;
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+#gameOverPanel {
+
+    display: none;
+}
+
+
+#gameOverPanel h2 {
+
+    color: #CE1126;
+
+    text-shadow:
+
+        0 0 10px
+        rgba(206,17,38,0.8);
+}
+
+
+.final-score {
+
+    color: #FFCD00;
+
+    font-size: 28px;
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.cyber-hero {
+
+    text-align: center;
+
+    padding:
+        50px
+        20px
+        30px;
+}
+
+
+.cyber-hero h1 {
+
+    font-size: 2.4rem;
+
+    font-weight: 800;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #CE1126
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+
+    text-shadow:
+
+        0 0 30px
+        rgba(206,17,38,0.4);
+
+    animation:
+        titleGlow 4s infinite alternate;
+}
+
+
+@keyframes titleGlow {
+
+    from {
+
+        filter:
+            drop-shadow(
+                0 0 8px
+                rgba(255,205,0,0.5)
+            );
+    }
+
+    to {
+
+        filter:
+            drop-shadow(
+                0 0 18px
+                rgba(206,17,38,0.7)
+            );
+    }
+
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.data-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(280px, 1fr)
+        );
+
+    gap: 24px;
+
+    padding:
+        30px
+        25px
+        50px;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   TARJETAS
+========================================================= */
+
+.data-card {
+
+    background:
+        rgba(15,20,40,0.75);
+
+    border:
+        1px solid
+        rgba(255,205,0,0.25);
+
+    border-radius: 14px;
+
+    padding: 24px;
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:
+        blur(10px);
+
+    transition:
+        all 0.35s ease;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.data-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #0038A8,
+            #CE1126
+        );
+
+    opacity: 0.8;
+}
+
+
+.data-card:hover {
+
+    transform:
+        translateY(-8px);
+
+    border-color:
+        rgba(206,17,38,0.6);
+
+    box-shadow:
+
+        0 10px 30px
+        rgba(206,17,38,0.3),
+
+        0 0 20px
+        rgba(255,205,0,0.15),
+
+        0 0 15px
+        rgba(206,17,38,0.2);
+}
+
+
+.data-card h2 {
+
+    font-size: 1.35rem;
+
+    margin-bottom: 12px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #CE1126
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+
+    text-shadow:
+
+        0 0 10px
+        rgba(206,17,38,0.5);
+}
+
+
+.data-card p {
+
+    color: #e0e0e0 !important;
+
+    line-height: 1.5;
+
+    margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+.data-card a {
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    transition:
+        color 0.25s;
+}
+
+
+.data-card a:hover {
+
+    color: #CE1126;
+
+    text-shadow:
+
+        0 0 8px
+        rgba(206,17,38,0.6);
+}
+
+
+/* =========================================================
+   BOTON PRINCIPAL
+========================================================= */
+
+.btn-neoprimary {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding:
+        10px
+        18px;
+
+    border-radius: 8px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #CE1126,
+            #FFCD00
+        );
+
+    color: #111 !important;
+
+    font-weight: 700;
+
+    font-size: 0.95rem;
+
+    transition:
+        all 0.3s ease;
+
+    border: none;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        0 0 12px
+        rgba(206,17,38,0.4);
+}
+
+
+.btn-neoprimary:hover {
+
+    transform:
+        scale(1.06);
+
+    box-shadow:
+
+        0 0 22px
+        rgba(206,17,38,0.7);
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #E63946,
+            #FFE44D
+        );
+}
+
+
+/* =========================================================
+   CONTACTO
+========================================================= */
+
+.contact-section {
+
+    max-width: 1200px;
+
+    margin:
+        0 auto
+        45px;
+
+    padding:
+        30px
+        25px
+        0;
+}
+
+
+.contact-card {
+
+    background:
+        rgba(15,20,40,0.82);
+
+    border:
+        1px solid
+        rgba(255,205,0,0.28);
+
+    border-radius: 14px;
+
+    padding: 30px;
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:
+        blur(10px);
+
+    position: relative;
+
+    overflow: hidden;
+
+    box-shadow:
+
+        0 10px 35px
+        rgba(0,0,0,0.25);
+}
+
+
+.contact-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #0038A8,
+            #CE1126
+        );
+}
+
+
+.contact-title {
+
+    text-align: center;
+
+    font-size: 1.8rem;
+
+    margin-bottom: 25px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            #FFCD00,
+            #CE1126
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+}
+
+
+.contact-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(240px, 1fr)
+        );
+
+    gap: 18px;
+}
+
+
+.contact-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.08);
+
+    border-radius: 10px;
+
+    background:
+        rgba(0,0,0,0.18);
+
+    transition:
+        0.3s ease;
+}
+
+
+.contact-item:hover {
+
+    transform:
+        translateY(-4px);
+
+    border-color:
+        rgba(255,205,0,0.45);
+
+    box-shadow:
+
+        0 0 18px
+        rgba(255,205,0,0.12);
+}
+
+
+.contact-icon {
+
+    min-width: 45px;
+
+    height: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #CE1126,
+            #FFCD00
+        );
+
+    color: #111;
+
+    font-size: 18px;
+}
+
+
+.contact-info strong {
+
+    display: block;
+
+    color: #FFCD00;
+
+    font-size: 0.9rem;
+
+    margin-bottom: 5px;
+}
+
+
+.contact-info a,
+.contact-info span {
+
+    color: #eee;
+
+    text-decoration: none;
+
+    font-family:
+        'Share Tech Mono',
+        monospace;
+
+    font-size: 0.9rem;
+
+    word-break: break-word;
+}
+
+
+.contact-info a:hover {
+
+    color: #CE1126;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.cyber-footer {
+
+    text-align: center;
+
+    padding:
+        25px
+        20px
+        18px;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(0,30,80,0.4)
+        );
+
+    border-top:
+        1px solid
+        rgba(206,17,38,0.3);
+}
+
+
+.cyber-footer p {
+
+    margin: 6px 0;
+
+    opacity: 0.85;
+
+    font-size: 0.88rem;
+
+    color: #ddd;
+}
+
+
+/* =========================================================
+   BANDERA
+========================================================= */
+
+.colombia-flag {
+
+    display: flex;
+
+    flex-direction: column;
+
+    width: 35px;
+
+    height: 35px;
+
+    margin:
+        12px
+        auto
+        6px;
+
+    border-radius: 4px;
+
+    overflow: hidden;
+
+    box-shadow:
+
+        0 3px 12px
+        rgba(0,0,0,0.45),
+
+        0 0 10px
+        rgba(206,17,38,0.35);
+
+    border:
+        1.5px solid
+        rgba(255,255,255,0.15);
+}
+
+
+.flag-yellow {
+
+    background: #FFCD00;
+
+    height: 50%;
+}
+
+
+.flag-blue {
+
+    background: #0038A8;
+
+    height: 25%;
+}
+
+
+.flag-red {
+
+    background: #CE1126;
+
+    height: 25%;
+}
+
+
+.flag-label {
+
+    font-size: 0.7rem;
+
+    color: #CE1126;
+
+    margin-top: 5px;
+
+    letter-spacing: 1px;
+
+    opacity: 0.9;
+
+    text-shadow:
+
+        0 0 6px
+        rgba(206,17,38,0.5);
+}
+
+
+/* =========================================================
+   TRIANGULO
+========================================================= */
+
+.triangle-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding:
+        12px
+        0
+        4px;
+}
+
+
+.mini-triangle {
+
+    width: 0;
+    height: 0;
+
+    border-top:
+        8px solid transparent;
+
+    border-bottom:
+        8px solid transparent;
+
+    border-left:
+        14px solid #CE1126;
+
+    animation:
+        colorCycle 5s infinite linear;
+}
+
+
+@keyframes colorCycle {
+
+    0% {
+
+        border-left-color:
+            #CE1126;
+
+        filter:
+            drop-shadow(
+                0 0 10px
+                #CE1126
+            );
+    }
+
+    33% {
+
+        border-left-color:
+            #FFCD00;
+
+        filter:
+            drop-shadow(
+                0 0 10px
+                #FFCD00
+            );
+    }
+
+    66% {
+
+        border-left-color:
+            #0038A8;
+
+        filter:
+            drop-shadow(
+                0 0 10px
+                #0038A8
+            );
+    }
+
+    100% {
+
+        border-left-color:
+            #CE1126;
+
+        filter:
+            drop-shadow(
+                0 0 10px
+                #CE1126
+            );
+    }
+
+}
+
+
+/* =========================================================
+   NOMBRE FLOTANTE
+========================================================= */
+
+.floating-name {
+
+    position: fixed;
+
+    bottom: 12px;
+
+    right: 14px;
+
+    font-size: 0.8rem;
+
+    opacity: 0.9;
+
+    color: #CE1126;
+
+    text-shadow:
+
+        0 0 10px
+        rgba(206,17,38,0.8);
+
+    z-index: 50;
+}
+
+
+/* =========================================================
+   FACEBOOK
+========================================================= */
+
+.facebook-fixed {
+
+    position: fixed;
+
+    bottom: 20px;
+
+    left: 20px;
+
+    background: #1877f2;
+
+    width: 46px;
+
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: white;
+
+    font-size: 18px;
+
+    box-shadow:
+
+        0 0 12px
+        rgba(24,119,242,0.6);
+
+    transition:
+        0.3s;
+
+    z-index: 50;
+}
+
+
+.facebook-fixed:hover {
+
+    transform:
+        scale(1.12);
+
+    box-shadow:
+
+        0 0 18px
+        rgba(24,119,242,0.9);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .tech-game-section {
+
+        padding:
+            0
+            12px;
+    }
+
+
+    .tech-game {
+
+        height: 400px;
+
+        border-radius: 14px;
+    }
+
+
+    .game-title {
+
+        font-size: 12px;
+    }
+
+
+    .game-score {
+
+        font-size: 14px;
+    }
+
+
+    .game-help {
+
+        font-size: 10px;
+    }
+
+
+    .game-panel {
+
+        width: 300px;
+
+        padding: 22px;
+    }
+
+
+    .game-panel h2 {
+
+        font-size: 25px;
+    }
+
+
+    .cyber-hero h1 {
+
+        font-size: 1.8rem;
+    }
+
+
+    .contact-section {
+
+        padding:
+            20px
+            15px
+            0;
+    }
+
+
+    .contact-card {
+
+        padding:
+            22px
+            16px;
+    }
+
+
+    .contact-title {
+
+        font-size: 1.45rem;
+    }
+
+}

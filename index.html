@@ -1,2908 +1,1005 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>TECH</title>
-
 <link rel="icon" href="logo-no-background (2).png" type="image/x-icon">
-
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
->
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap"
-    rel="stylesheet"
->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
-
 /* =========================================================
    RESET
 ========================================================= */
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 html {
     scroll-behavior: smooth;
 }
-
 body {
-
     margin: 0;
-
     background: #0a0a12;
-
     font-family: 'Orbitron', sans-serif;
-
     color: #ffffff;
-
     overflow-x: hidden;
-
     min-height: 100vh;
 }
-
 
 /* =========================================================
    FONDO ANIMADO
 ========================================================= */
-
 body::before {
-
     content: "";
-
     position: fixed;
-
     width: 100%;
     height: 200%;
-
     background-image:
-
-        radial-gradient(
-            circle,
-            rgba(255, 205, 0, 0.25) 1px,
-            transparent 1px
-        ),
-
-        radial-gradient(
-            circle,
-            rgba(0, 56, 168, 0.20) 1px,
-            transparent 1px
-        ),
-
-        radial-gradient(
-            circle,
-            rgba(206, 17, 38, 0.15) 1px,
-            transparent 1px
-        );
-
-    background-size:
-        55px 55px,
-        75px 75px,
-        65px 65px;
-
-    animation:
-        stars 90s linear infinite;
-
+        radial-gradient(circle, rgba(255, 205, 0, 0.25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0, 56, 168, 0.20) 1px, transparent 1px),
+        radial-gradient(circle, rgba(206, 17, 38, 0.15) 1px, transparent 1px);
+    background-size: 55px 55px, 75px 75px, 65px 65px;
+    animation: stars 90s linear infinite;
     z-index: -1;
 }
-
 @keyframes stars {
-
-    from {
-        transform: translateY(0);
-    }
-
-    to {
-        transform: translateY(-50%);
-    }
-
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
 }
-
 
 /* =========================================================
-   MINI JUEGO - SECCION PRINCIPAL
+   MINI JUEGO
 ========================================================= */
-
 .tech-game-section {
-
     width: 100%;
-
     max-width: 1200px;
-
     margin: 25px auto 10px;
-
     padding: 0 25px;
 }
-
-
-/* CONTENEDOR */
-
 .tech-game {
-
     position: relative;
-
     width: 100%;
-
     height: 440px;
-
     overflow: hidden;
-
     border-radius: 18px;
-
     background:
-
-        radial-gradient(
-            circle at center,
-            rgba(0, 56, 168, 0.16),
-            transparent 55%
-        ),
-
+        radial-gradient(circle at center, rgba(0, 56, 168, 0.16), transparent 55%),
         #050509;
-
-    border:
-        1px solid
-        rgba(255, 205, 0, 0.35);
-
-    box-shadow:
-
-        0 0 35px
-        rgba(0, 56, 168, 0.15),
-
-        inset 0 0 50px
-        rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 205, 0, 0.35);
+    box-shadow: 0 0 35px rgba(0, 56, 168, 0.15), inset 0 0 50px rgba(0, 0, 0, 0.6);
 }
-
-
-/* LINEAS DECORATIVAS */
-
 .tech-game::before {
-
     content: "";
-
     position: absolute;
-
     inset: 0;
-
     background:
-
-        linear-gradient(
-            rgba(255,255,255,0.025) 1px,
-            transparent 1px
-        ),
-
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,0.025) 1px,
-            transparent 1px
-        );
-
-    background-size:
-        35px 35px;
-
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 35px 35px;
     pointer-events: none;
-
     z-index: 1;
 }
-
-
-/* CANVAS */
-
 #gameCanvas {
-
     position: absolute;
-
     inset: 0;
-
     width: 100%;
-
     height: 100%;
-
     z-index: 2;
-
     cursor: crosshair;
 }
 
-
-/* =========================================================
-   ENCABEZADO DEL JUEGO
-========================================================= */
-
+/* ENCABEZADO */
 .game-top {
-
     position: absolute;
-
     top: 15px;
-
     left: 20px;
-
     right: 20px;
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     z-index: 10;
-
     pointer-events: none;
 }
-
-
 .game-title {
-
     color: #FFCD00;
-
-    font-family:
-        'Orbitron',
-        sans-serif;
-
+    font-family: 'Orbitron', sans-serif;
     font-weight: 800;
-
     font-size: 16px;
-
     letter-spacing: 2px;
-
-    text-shadow:
-
-        0 0 8px
-        rgba(255,205,0,0.8),
-
-        0 0 18px
-        rgba(255,205,0,0.3);
+    text-shadow: 0 0 8px rgba(255,205,0,0.8), 0 0 18px rgba(255,205,0,0.3);
 }
-
-
 .game-score {
-
     color: white;
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
-
+    font-family: 'Share Tech Mono', monospace;
     font-size: 17px;
 }
-
-
 .game-score span {
-
     color: #FFCD00;
-
     font-weight: bold;
 }
 
-
-/* =========================================================
-   INSTRUCCIONES
-========================================================= */
-
+/* INSTRUCCIONES */
 .game-help {
-
     position: absolute;
-
     bottom: 15px;
-
     left: 50%;
-
-    transform:
-        translateX(-50%);
-
+    transform: translateX(-50%);
     z-index: 10;
-
     color: rgba(255,255,255,0.55);
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
-
+    font-family: 'Share Tech Mono', monospace;
     font-size: 12px;
-
     text-align: center;
-
     pointer-events: none;
 }
 
-
-/* =========================================================
-   PANEL INICIAL
-========================================================= */
-
+/* PANEL */
 .game-panel {
-
     position: absolute;
-
     z-index: 20;
-
     top: 50%;
-
     left: 50%;
-
-    transform:
-        translate(-50%, -50%);
-
+    transform: translate(-50%, -50%);
     width: 340px;
-
     max-width: 85%;
-
     padding: 28px;
-
     text-align: center;
-
-    background:
-        rgba(5,5,15,0.88);
-
-    border:
-        1px solid
-        rgba(255,205,0,0.35);
-
+    background: rgba(5,5,15,0.88);
+    border: 1px solid rgba(255,205,0,0.35);
     border-radius: 15px;
-
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-
-    box-shadow:
-
-        0 0 30px
-        rgba(0,0,0,0.6),
-
-        0 0 20px
-        rgba(255,205,0,0.08);
+    box-shadow: 0 0 30px rgba(0,0,0,0.6), 0 0 20px rgba(255,205,0,0.08);
 }
-
-
 .game-panel h2 {
-
     font-size: 30px;
-
     margin-bottom: 12px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #CE1126
-        );
-
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
     background-clip: text;
 }
-
-
 .game-panel p {
-
     color: #ddd;
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
-
+    font-family: 'Share Tech Mono', monospace;
     line-height: 1.5;
-
     margin-bottom: 8px;
 }
-
-
 .game-panel small {
-
     color: #888;
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
+    font-family: 'Share Tech Mono', monospace;
 }
 
-
-/* =========================================================
-   BOTONES JUEGO
-========================================================= */
-
+/* BOTONES */
 .game-btn {
-
     margin-top: 18px;
-
-    padding:
-        11px
-        22px;
-
+    padding: 11px 22px;
     border: none;
-
     border-radius: 8px;
-
     cursor: pointer;
-
-    font-family:
-        'Orbitron',
-        sans-serif;
-
+    font-family: 'Orbitron', sans-serif;
     font-weight: 700;
-
-    background:
-
-        linear-gradient(
-            135deg,
-            #FFCD00,
-            #CE1126
-        );
-
+    background: linear-gradient(135deg, #FFCD00, #CE1126);
     color: #111;
-
-    box-shadow:
-
-        0 0 15px
-        rgba(255,205,0,0.3);
-
-    transition:
-        0.25s ease;
+    box-shadow: 0 0 15px rgba(255,205,0,0.3);
+    transition: 0.25s ease;
 }
-
-
 .game-btn:hover {
-
-    transform:
-        scale(1.06);
-
-    box-shadow:
-
-        0 0 25px
-        rgba(255,205,0,0.7);
+    transform: scale(1.06);
+    box-shadow: 0 0 25px rgba(255,205,0,0.7);
 }
-
-
 .game-btn-blue {
-
-    background:
-        #0038A8;
-
+    background: #0038A8;
     color: white;
-
     margin-left: 5px;
 }
 
-
-/* =========================================================
-   GAME OVER
-========================================================= */
-
+/* GAME OVER */
 #gameOverPanel {
-
     display: none;
 }
-
-
 #gameOverPanel h2 {
-
     color: #CE1126;
-
-    text-shadow:
-
-        0 0 10px
-        rgba(206,17,38,0.8);
+    text-shadow: 0 0 10px rgba(206,17,38,0.8);
 }
-
-
 .final-score {
-
     color: #FFCD00;
-
     font-size: 28px;
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
+    font-family: 'Share Tech Mono', monospace;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
-
+/* HEADER */
 .cyber-hero {
-
     text-align: center;
-
-    padding:
-        50px
-        20px
-        30px;
+    padding: 50px 20px 30px;
 }
-
-
 .cyber-hero h1 {
-
     font-size: 2.4rem;
-
     font-weight: 800;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #CE1126
-        );
-
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
     background-clip: text;
-
-    text-shadow:
-
-        0 0 30px
-        rgba(206,17,38,0.4);
-
-    animation:
-        titleGlow 4s infinite alternate;
+    text-shadow: 0 0 30px rgba(206,17,38,0.4);
+    animation: titleGlow 4s infinite alternate;
 }
-
-
 @keyframes titleGlow {
-
-    from {
-
-        filter:
-            drop-shadow(
-                0 0 8px
-                rgba(255,205,0,0.5)
-            );
-    }
-
-    to {
-
-        filter:
-            drop-shadow(
-                0 0 18px
-                rgba(206,17,38,0.7)
-            );
-    }
-
+    from { filter: drop-shadow(0 0 8px rgba(255,205,0,0.5)); }
+    to { filter: drop-shadow(0 0 18px rgba(206,17,38,0.7)); }
 }
 
-
-/* =========================================================
-   GRID
-========================================================= */
-
+/* GRID */
 .data-grid {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(280px, 1fr)
-        );
-
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
-
-    padding:
-        30px
-        25px
-        50px;
-
+    padding: 30px 25px 50px;
     max-width: 1200px;
-
     margin: 0 auto;
 }
 
-
-/* =========================================================
-   TARJETAS
-========================================================= */
-
+/* TARJETAS */
 .data-card {
-
-    background:
-        rgba(15,20,40,0.75);
-
-    border:
-        1px solid
-        rgba(255,205,0,0.25);
-
+    background: rgba(15,20,40,0.75);
+    border: 1px solid rgba(255,205,0,0.25);
     border-radius: 14px;
-
     padding: 24px;
-
-    backdrop-filter:
-        blur(10px);
-
-    transition:
-        all 0.35s ease;
-
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: all 0.35s ease;
     position: relative;
-
     overflow: hidden;
 }
-
-
 .data-card::before {
-
     content: "";
-
     position: absolute;
-
     top: 0;
     left: 0;
-
     width: 100%;
     height: 3px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #0038A8,
-            #CE1126
-        );
-
+    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
     opacity: 0.8;
 }
-
-
 .data-card:hover {
-
-    transform:
-        translateY(-8px);
-
-    border-color:
-        rgba(206,17,38,0.6);
-
-    box-shadow:
-
-        0 10px 30px
-        rgba(206,17,38,0.3),
-
-        0 0 20px
-        rgba(255,205,0,0.15),
-
-        0 0 15px
-        rgba(206,17,38,0.2);
+    transform: translateY(-8px);
+    border-color: rgba(206,17,38,0.6);
+    box-shadow: 0 10px 30px rgba(206,17,38,0.3), 0 0 20px rgba(255,205,0,0.15), 0 0 15px rgba(206,17,38,0.2);
 }
-
-
 .data-card h2 {
-
     font-size: 1.35rem;
-
     margin-bottom: 12px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #CE1126
-        );
-
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
     background-clip: text;
-
-    text-shadow:
-
-        0 0 10px
-        rgba(206,17,38,0.5);
+    text-shadow: 0 0 10px rgba(206,17,38,0.5);
 }
-
-
 .data-card p {
-
     color: #e0e0e0 !important;
-
     line-height: 1.5;
-
     margin-bottom: 12px;
 }
-
-
-/* =========================================================
-   LINKS
-========================================================= */
-
 .data-card a {
-
     color: #ffffff;
-
     text-decoration: none;
-
-    transition:
-        color 0.25s;
+    transition: color 0.25s;
 }
-
-
 .data-card a:hover {
-
     color: #CE1126;
-
-    text-shadow:
-
-        0 0 8px
-        rgba(206,17,38,0.6);
+    text-shadow: 0 0 8px rgba(206,17,38,0.6);
 }
 
-
-/* =========================================================
-   BOTON PRINCIPAL
-========================================================= */
-
+/* BOTON PRINCIPAL */
 .btn-neoprimary {
-
     display: inline-flex;
-
     align-items: center;
-
     gap: 8px;
-
-    padding:
-        10px
-        18px;
-
+    padding: 10px 18px;
     border-radius: 8px;
-
-    background:
-
-        linear-gradient(
-            135deg,
-            #CE1126,
-            #FFCD00
-        );
-
+    background: linear-gradient(135deg, #CE1126, #FFCD00);
     color: #111 !important;
-
     font-weight: 700;
-
     font-size: 0.95rem;
-
-    transition:
-        all 0.3s ease;
-
+    transition: all 0.3s ease;
     border: none;
-
     cursor: pointer;
-
-    box-shadow:
-
-        0 0 12px
-        rgba(206,17,38,0.4);
+    box-shadow: 0 0 12px rgba(206,17,38,0.4);
 }
-
-
 .btn-neoprimary:hover {
-
-    transform:
-        scale(1.06);
-
-    box-shadow:
-
-        0 0 22px
-        rgba(206,17,38,0.7);
-
-    background:
-
-        linear-gradient(
-            135deg,
-            #E63946,
-            #FFE44D
-        );
+    transform: scale(1.06);
+    box-shadow: 0 0 22px rgba(206,17,38,0.7);
+    background: linear-gradient(135deg, #E63946, #FFE44D);
 }
 
-
-/* =========================================================
-   CONTACTO
-========================================================= */
-
+/* CONTACTO */
 .contact-section {
-
     max-width: 1200px;
-
-    margin:
-        0 auto
-        45px;
-
-    padding:
-        30px
-        25px
-        0;
+    margin: 0 auto 45px;
+    padding: 30px 25px 0;
 }
-
-
 .contact-card {
-
-    background:
-        rgba(15,20,40,0.82);
-
-    border:
-        1px solid
-        rgba(255,205,0,0.28);
-
+    background: rgba(15,20,40,0.82);
+    border: 1px solid rgba(255,205,0,0.28);
     border-radius: 14px;
-
     padding: 30px;
-
-    backdrop-filter:
-        blur(10px);
-
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     position: relative;
-
     overflow: hidden;
-
-    box-shadow:
-
-        0 10px 35px
-        rgba(0,0,0,0.25);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.25);
 }
-
-
 .contact-card::before {
-
     content: "";
-
     position: absolute;
-
     top: 0;
     left: 0;
-
     width: 100%;
     height: 3px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #0038A8,
-            #CE1126
-        );
+    background: linear-gradient(90deg, #FFCD00, #0038A8, #CE1126);
 }
-
-
 .contact-title {
-
     text-align: center;
-
     font-size: 1.8rem;
-
     margin-bottom: 25px;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            #FFCD00,
-            #CE1126
-        );
-
+    background: linear-gradient(90deg, #FFCD00, #CE1126);
     -webkit-background-clip: text;
-
     -webkit-text-fill-color: transparent;
-
     background-clip: text;
 }
-
-
 .contact-grid {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(240px, 1fr)
-        );
-
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 18px;
 }
-
-
 .contact-item {
-
     display: flex;
-
     align-items: center;
-
     gap: 15px;
-
     padding: 18px;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.08);
-
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px;
-
-    background:
-        rgba(0,0,0,0.18);
-
-    transition:
-        0.3s ease;
+    background: rgba(0,0,0,0.18);
+    transition: 0.3s ease;
 }
-
-
 .contact-item:hover {
-
-    transform:
-        translateY(-4px);
-
-    border-color:
-        rgba(255,205,0,0.45);
-
-    box-shadow:
-
-        0 0 18px
-        rgba(255,205,0,0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255,205,0,0.45);
+    box-shadow: 0 0 18px rgba(255,205,0,0.12);
 }
-
-
 .contact-icon {
-
     min-width: 45px;
-
     height: 45px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border-radius: 50%;
-
-    background:
-
-        linear-gradient(
-            135deg,
-            #CE1126,
-            #FFCD00
-        );
-
+    background: linear-gradient(135deg, #CE1126, #FFCD00);
     color: #111;
-
     font-size: 18px;
 }
-
-
 .contact-info strong {
-
     display: block;
-
     color: #FFCD00;
-
     font-size: 0.9rem;
-
     margin-bottom: 5px;
 }
-
-
 .contact-info a,
 .contact-info span {
-
     color: #eee;
-
     text-decoration: none;
-
-    font-family:
-        'Share Tech Mono',
-        monospace;
-
+    font-family: 'Share Tech Mono', monospace;
     font-size: 0.9rem;
-
     word-break: break-word;
 }
-
-
 .contact-info a:hover {
-
     color: #CE1126;
 }
 
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
+/* FOOTER */
 .cyber-footer {
-
     text-align: center;
-
-    padding:
-        25px
-        20px
-        18px;
-
-    background:
-
-        linear-gradient(
-            180deg,
-            transparent,
-            rgba(0,30,80,0.4)
-        );
-
-    border-top:
-        1px solid
-        rgba(206,17,38,0.3);
+    padding: 25px 20px 18px;
+    background: linear-gradient(180deg, transparent, rgba(0,30,80,0.4));
+    border-top: 1px solid rgba(206,17,38,0.3);
 }
-
-
 .cyber-footer p {
-
     margin: 6px 0;
-
     opacity: 0.85;
-
     font-size: 0.88rem;
-
     color: #ddd;
 }
 
-
-/* =========================================================
-   BANDERA
-========================================================= */
-
+/* BANDERA */
 .colombia-flag {
-
     display: flex;
-
     flex-direction: column;
-
     width: 35px;
-
     height: 35px;
-
-    margin:
-        12px
-        auto
-        6px;
-
+    margin: 12px auto 6px;
     border-radius: 4px;
-
     overflow: hidden;
-
-    box-shadow:
-
-        0 3px 12px
-        rgba(0,0,0,0.45),
-
-        0 0 10px
-        rgba(206,17,38,0.35);
-
-    border:
-        1.5px solid
-        rgba(255,255,255,0.15);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.45), 0 0 10px rgba(206,17,38,0.35);
+    border: 1.5px solid rgba(255,255,255,0.15);
 }
-
-
-.flag-yellow {
-
-    background: #FFCD00;
-
-    height: 50%;
-}
-
-
-.flag-blue {
-
-    background: #0038A8;
-
-    height: 25%;
-}
-
-
-.flag-red {
-
-    background: #CE1126;
-
-    height: 25%;
-}
-
-
+.flag-yellow { background: #FFCD00; height: 50%; }
+.flag-blue { background: #0038A8; height: 25%; }
+.flag-red { background: #CE1126; height: 25%; }
 .flag-label {
-
     font-size: 0.7rem;
-
     color: #CE1126;
-
     margin-top: 5px;
-
     letter-spacing: 1px;
-
     opacity: 0.9;
-
-    text-shadow:
-
-        0 0 6px
-        rgba(206,17,38,0.5);
+    text-shadow: 0 0 6px rgba(206,17,38,0.5);
 }
 
-
-/* =========================================================
-   TRIANGULO
-========================================================= */
-
+/* TRIANGULO */
 .triangle-container {
-
     display: flex;
-
     justify-content: center;
-
     align-items: center;
-
-    padding:
-        12px
-        0
-        4px;
+    padding: 12px 0 4px;
 }
-
-
 .mini-triangle {
-
     width: 0;
     height: 0;
-
-    border-top:
-        8px solid transparent;
-
-    border-bottom:
-        8px solid transparent;
-
-    border-left:
-        14px solid #CE1126;
-
-    animation:
-        colorCycle 5s infinite linear;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 14px solid #CE1126;
+    animation: colorCycle 5s infinite linear;
 }
-
-
 @keyframes colorCycle {
-
-    0% {
-
-        border-left-color:
-            #CE1126;
-
-        filter:
-            drop-shadow(
-                0 0 10px
-                #CE1126
-            );
-    }
-
-    33% {
-
-        border-left-color:
-            #FFCD00;
-
-        filter:
-            drop-shadow(
-                0 0 10px
-                #FFCD00
-            );
-    }
-
-    66% {
-
-        border-left-color:
-            #0038A8;
-
-        filter:
-            drop-shadow(
-                0 0 10px
-                #0038A8
-            );
-    }
-
-    100% {
-
-        border-left-color:
-            #CE1126;
-
-        filter:
-            drop-shadow(
-                0 0 10px
-                #CE1126
-            );
-    }
-
+    0% { border-left-color: #CE1126; filter: drop-shadow(0 0 10px #CE1126); }
+    33% { border-left-color: #FFCD00; filter: drop-shadow(0 0 10px #FFCD00); }
+    66% { border-left-color: #0038A8; filter: drop-shadow(0 0 10px #0038A8); }
+    100% { border-left-color: #CE1126; filter: drop-shadow(0 0 10px #CE1126); }
 }
 
-
-/* =========================================================
-   NOMBRE FLOTANTE
-========================================================= */
-
+/* NOMBRE FLOTANTE */
 .floating-name {
-
     position: fixed;
-
     bottom: 12px;
-
     right: 14px;
-
     font-size: 0.8rem;
-
     opacity: 0.9;
-
     color: #CE1126;
-
-    text-shadow:
-
-        0 0 10px
-        rgba(206,17,38,0.8);
-
+    text-shadow: 0 0 10px rgba(206,17,38,0.8);
     z-index: 50;
 }
 
-
-/* =========================================================
-   FACEBOOK
-========================================================= */
-
+/* FACEBOOK */
 .facebook-fixed {
-
     position: fixed;
-
     bottom: 20px;
-
     left: 20px;
-
     background: #1877f2;
-
     width: 46px;
-
     height: 46px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border-radius: 50%;
-
     color: white;
-
     font-size: 18px;
-
-    box-shadow:
-
-        0 0 12px
-        rgba(24,119,242,0.6);
-
-    transition:
-        0.3s;
-
+    box-shadow: 0 0 12px rgba(24,119,242,0.6);
+    transition: 0.3s;
     z-index: 50;
 }
-
-
 .facebook-fixed:hover {
-
-    transform:
-        scale(1.12);
-
-    box-shadow:
-
-        0 0 18px
-        rgba(24,119,242,0.9);
+    transform: scale(1.12);
+    box-shadow: 0 0 18px rgba(24,119,242,0.9);
 }
 
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
+/* RESPONSIVE */
 @media (max-width: 600px) {
-
-    .tech-game-section {
-
-        padding:
-            0
-            12px;
-    }
-
-
-    .tech-game {
-
-        height: 400px;
-
-        border-radius: 14px;
-    }
-
-
-    .game-title {
-
-        font-size: 12px;
-    }
-
-
-    .game-score {
-
-        font-size: 14px;
-    }
-
-
-    .game-help {
-
-        font-size: 10px;
-    }
-
-
-    .game-panel {
-
-        width: 300px;
-
-        padding: 22px;
-    }
-
-
-    .game-panel h2 {
-
-        font-size: 25px;
-    }
-
-
-    .cyber-hero h1 {
-
-        font-size: 1.8rem;
-    }
-
-
-    .contact-section {
-
-        padding:
-            20px
-            15px
-            0;
-    }
-
-
-    .contact-card {
-
-        padding:
-            22px
-            16px;
-    }
-
-
-    .contact-title {
-
-        font-size: 1.45rem;
-    }
-
+    .tech-game-section { padding: 0 12px; }
+    .tech-game { height: 400px; border-radius: 14px; }
+    .game-title { font-size: 12px; }
+    .game-score { font-size: 14px; }
+    .game-help { font-size: 10px; }
+    .game-panel { width: 300px; padding: 22px; }
+    .game-panel h2 { font-size: 25px; }
+    .cyber-hero h1 { font-size: 1.8rem; }
+    .contact-section { padding: 20px 15px 0; }
+    .contact-card { padding: 22px 16px; }
+    .contact-title { font-size: 1.45rem; }
 }
-
 </style>
 </head>
-
-
 <body>
 
-
-<!-- =========================================================
-     JUEGO AL INICIO
-========================================================= -->
-
+<!-- JUEGO -->
 <section class="tech-game-section">
-
     <div class="tech-game">
-
-        <!-- ENCABEZADO -->
-
         <div class="game-top">
-
-            <div class="game-title">
-                ⚡ TECH SYSTEM
-            </div>
-
+            <div class="game-title">⚡ TECH SYSTEM</div>
             <div class="game-score">
-                PUNTOS:
-                <span id="gameScore">0</span>
+                PUNTOS: <span id="gameScore">0</span>
                 &nbsp; | &nbsp;
-                RÉCORD:
-                <span id="gameRecord">0</span>
+                RÉCORD: <span id="gameRecord">0</span>
             </div>
-
         </div>
-
-
-        <!-- CANVAS -->
 
         <canvas id="gameCanvas"></canvas>
 
-
-        <!-- PANEL INICIAL -->
-
-        <div
-            class="game-panel"
-            id="startPanel"
-        >
-
-            <h2>
-                ⚡ TECH RUN
-            </h2>
-
-            <p>
-                Mueve el mouse para controlar la nave.
-            </p>
-
-            <small>
-                Esquiva los obstáculos y consigue
-                el mayor número de puntos.
-            </small>
-
+        <div class="game-panel" id="startPanel">
+            <h2>⚡ TECH RUN</h2>
+            <p>Mueve el mouse para controlar la nave.</p>
+            <small>Esquiva los meteoros y consigue el mayor número de puntos.</small>
             <br>
-
-            <button
-                class="game-btn"
-                id="startGame"
-            >
-                🚀 INICIAR
-            </button>
-
+            <button class="game-btn" id="startGame">🚀 INICIAR</button>
         </div>
 
-
-        <!-- GAME OVER -->
-
-        <div
-            class="game-panel"
-            id="gameOverPanel"
-        >
-
-            <h2>
-                💥 GAME OVER
-            </h2>
-
-            <p>
-                Sistema impactado.
+        <div class="game-panel" id="gameOverPanel">
+            <h2>💥 GAME OVER</h2>
+            <p>Sistema impactado.</p>
+            <p>Puntuación:<br>
+                <span class="final-score" id="finalScore">0</span>
             </p>
-
-            <p>
-                Puntuación:
-                <br>
-                <span
-                    class="final-score"
-                    id="finalScore"
-                >
-                    0
-                </span>
-            </p>
-
-            <button
-                class="game-btn"
-                id="restartGame"
-            >
-                🔄 REINTENTAR
-            </button>
-
-            <button
-                class="game-btn game-btn-blue"
-                id="continueGame"
-            >
-                ↓ CONTINUAR
-            </button>
-
+            <button class="game-btn" id="restartGame">🔄 REINTENTAR</button>
+            <button class="game-btn game-btn-blue" id="continueGame">↓ CONTINUAR</button>
         </div>
-
-
-        <!-- AYUDA -->
 
         <div class="game-help">
-
-            🖱️ Mueve el mouse ·
-            📱 En celular mueve el dedo ·
-            ESC para salir
-
+            🖱️ Mueve el mouse · 📱 En celular mueve el dedo · ESC para salir
         </div>
-
     </div>
-
 </section>
 
-
-
-<!-- =========================================================
-     TU CONTENIDO ORIGINAL
-========================================================= -->
-
+<!-- CONTENIDO -->
 <div id="content">
-
-
-    <!-- HEADER -->
-
     <header class="cyber-hero">
-
-        <h1>
-            Desarrollo de Software
-        </h1>
-
+        <h1>Desarrollo de Software</h1>
     </header>
 
-
-    <!-- =====================================================
-         GRID
-    ===================================================== -->
-
     <main class="data-grid">
-
-
-        <!-- SISTEMA -->
-
-        <section
-            id="paz-seccion"
-            class="data-card"
-        >
-
-            <a href="cartas.html">
-
-                <h2>
-                    Sistema
-                </h2>
-
-            </a>
-
+        <section id="paz-seccion" class="data-card">
+            <a href="cartas.html"><h2>Sistema</h2></a>
         </section>
 
-
-        <!-- INGLES -->
-
-        <section
-            id="ingles"
-            class="data-card"
-        >
-
-            <h2>
-                Inglés
-            </h2>
-
+        <section id="ingles" class="data-card">
+            <h2>Inglés</h2>
             <p>
-
-                <a
-                    href="https://videos-blow-713.vercel.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Inglés
-                </a>
-
+                <a href="https://videos-blow-713.vercel.app/" target="_blank" rel="noopener noreferrer">Inglés</a>
             </p>
-
         </section>
 
-
-        <!-- REASIGNACION -->
-
-        <section
-            id="reasignacion-procesos"
-            class="data-card"
-        >
-
-            <h2>
-                Reasignación de procesos tecnológicos
-            </h2>
-
-            <p>
-
-                Gestión de reasignación de procesos
-                tecnológicos y devoluciones tecnológicas.
-
-            </p>
-
-
-            <a
-                href=""
-                class="btn-neoprimary"
-            >
-
-                <i class="fa-solid fa-repeat"></i>
-
-                Reasignación
-
-            </a>
-
-
-            <a
-                href=""
-                class="btn-neoprimary"
-                style="margin-top: 10px;"
-            >
-
-                <i class="fa-solid fa-rotate-left"></i>
-
-                Devolución tecnológica
-
-            </a>
-
+        <section id="reasignacion-procesos" class="data-card">
+            <h2>Reasignación de procesos tecnológicos</h2>
+            <p>Gestión de reasignación de procesos tecnológicos y devoluciones tecnológicas.</p>
+            <a href="" class="btn-neoprimary"><i class="fa-solid fa-repeat"></i> Reasignación</a>
+            <a href="" class="btn-neoprimary" style="margin-top: 10px;"><i class="fa-solid fa-rotate-left"></i> Devolución tecnológica</a>
         </section>
 
-
-        <!-- FINALIZACIONES -->
-
-        <section
-            id="finalizaciones-estrategias"
-            class="data-card"
-        >
-
-            <h2>
-                Finalizaciones tecnológicas
-            </h2>
-
-            <p>
-
-                Gestión y seguimiento de finalizaciones
-                tecnológicas.
-
-            </p>
-
-
-            <h2
-                style="margin-top: 18px;"
-            >
-
-                Estrategias de negocio
-
-            </h2>
-
-
-            <p>
-
-                Desarrollo y gestión de estrategias
-                para fortalecer los procesos y objetivos
-                del negocio.
-
-            </p>
-
-
-            <a
-                href=""
-                class="btn-neoprimary"
-            >
-
-                <i class="fa-solid fa-circle-check"></i>
-
-                Finalizaciones
-
-            </a>
-
-
-            <a
-                href=""
-                class="btn-neoprimary"
-                style="margin-top: 10px;"
-            >
-
-                <i class="fa-solid fa-chart-line"></i>
-
-                Estrategias de negocio
-
-            </a>
-
+        <section id="finalizaciones-estrategias" class="data-card">
+            <h2>Finalizaciones tecnológicas</h2>
+            <p>Gestión y seguimiento de finalizaciones tecnológicas.</p>
+            <h2 style="margin-top: 18px;">Estrategias de negocio</h2>
+            <p>Desarrollo y gestión de estrategias para fortalecer los procesos y objetivos del negocio.</p>
+            <a href="" class="btn-neoprimary"><i class="fa-solid fa-circle-check"></i> Finalizaciones</a>
+            <a href="" class="btn-neoprimary" style="margin-top: 10px;"><i class="fa-solid fa-chart-line"></i> Estrategias de negocio</a>
         </section>
-
-
     </main>
 
-
-
-    <!-- =====================================================
-         CONTACTO
-    ===================================================== -->
-
-    <section
-        id="contacto"
-        class="contact-section"
-    >
-
+    <section id="contacto" class="contact-section">
         <div class="contact-card">
-
-
-            <h2 class="contact-title">
-
-                <i class="fa-solid fa-address-card"></i>
-
-                Contacto
-
-            </h2>
-
-
+            <h2 class="contact-title"><i class="fa-solid fa-address-card"></i> Contacto</h2>
             <div class="contact-grid">
-
-
-                <!-- FACEBOOK -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-brands fa-facebook-f"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-brands fa-facebook-f"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            Facebook
-                        </strong>
-
-
-                        <a
-                            href="https://www.facebook.com/brahyanstiven.coyrubio/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-
-                            Brayhan Estiven Coy Rubio
-
-                        </a>
-
+                        <strong>Facebook</strong>
+                        <a href="https://www.facebook.com/brahyanstiven.coyrubio/" target="_blank" rel="noopener noreferrer">Brayhan Estiven Coy Rubio</a>
                     </div>
-
                 </div>
-
-
-                <!-- HORARIO -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-solid fa-clock"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-solid fa-clock"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            Horario de atención
-                        </strong>
-
-
-                        <span>
-
-                            Lunes a viernes ·
-                            9:00 a. m. – 1:00 p. m.
-                            y
-                            2:00 p. m. – 6:00 p. m.
-
-                        </span>
-
+                        <strong>Horario de atención</strong>
+                        <span>Lunes a viernes · 9:00 a. m. – 1:00 p. m. y 2:00 p. m. – 6:00 p. m.</span>
                     </div>
-
                 </div>
-
-
-                <!-- PAIS -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-solid fa-location-dot"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            País
-                        </strong>
-
-
-                        <span>
-                            Colombia
-                        </span>
-
+                        <strong>País</strong>
+                        <span>Colombia</span>
                     </div>
-
                 </div>
-
-
-                <!-- AREA -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-solid fa-code"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-solid fa-code"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            Área
-                        </strong>
-
-
-                        <span>
-                            Desarrollo de Software
-                        </span>
-
+                        <strong>Área</strong>
+                        <span>Desarrollo de Software</span>
                     </div>
-
                 </div>
-
-
-                <!-- SERVICIO -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-solid fa-building"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-solid fa-building"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            Servicio
-                        </strong>
-
-
-                        <span>
-                            Asesorías Profesionales
-                        </span>
-
+                        <strong>Servicio</strong>
+                        <span>Asesorías Profesionales</span>
                     </div>
-
                 </div>
-
-
-                <!-- SERVICIOS -->
-
                 <div class="contact-item">
-
-                    <div class="contact-icon">
-
-                        <i class="fa-solid fa-layer-group"></i>
-
-                    </div>
-
-
+                    <div class="contact-icon"><i class="fa-solid fa-layer-group"></i></div>
                     <div class="contact-info">
-
-                        <strong>
-                            Servicios
-                        </strong>
-
-
-                        <span>
-                            Sistemas automatización,
-                            IA y gestión tecnológica
-                        </span>
-
+                        <strong>Servicios</strong>
+                        <span>Sistemas automatización, IA y gestión tecnológica</span>
                     </div>
-
                 </div>
-
-
             </div>
-
         </div>
-
     </section>
 
-
-
-    <!-- =====================================================
-         FOOTER
-    ===================================================== -->
-
     <footer class="cyber-footer">
-
-
-        <p>
-            TECH — Business |
-            Horario: 9 a 1 y 2 a 6
-        </p>
-
-
-        <p>
-            Versión 1.0.3
-        </p>
-
-
-        <p>
-            ⚡ Sistema
-        </p>
-
-
-        <p>
-            ⚡ R R
-        </p>
-
-
-        <!-- BANDERA -->
-
+        <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
+        <p>Versión 1.0.3</p>
+        <p>⚡ Sistema</p>
+        <p>⚡ R R</p>
         <div class="colombia-flag">
-
             <div class="flag-yellow"></div>
-
             <div class="flag-blue"></div>
-
             <div class="flag-red"></div>
-
         </div>
-
-
-        <div class="flag-label">
-            COLOMBIA
-        </div>
-
-
-        <!-- TRIANGULO -->
-
+        <div class="flag-label">COLOMBIA</div>
         <div class="triangle-container">
-
             <div class="mini-triangle"></div>
-
         </div>
-
-
-        <p
-            style="
-                margin-top: 10px;
-                opacity: 0.7;
-                font-size: 0.8rem;
-            "
-        >
-
-            © 2026 Asesorías Profesionales.
-            Todos los derechos reservados.
-
-        </p>
-
-
-        <p
-            style="
-                margin-top: 10px;
-                opacity: 0.7;
-                font-size: 0.8rem;
-            "
-        >
-
-            Privada
-
-        </p>
-
-
+        <p style="margin-top: 10px; opacity: 0.7; font-size: 0.8rem;">© 2026 Asesorías Profesionales. Todos los derechos reservados.</p>
+        <p style="margin-top: 10px; opacity: 0.7; font-size: 0.8rem;">Privada</p>
     </footer>
 
-
-
-    <!-- NOMBRE -->
-
-    <div class="floating-name">
-
-        Brayhan 7 13
-
-    </div>
-
-
-    <!-- FACEBOOK FLOTANTE -->
-
-    <a
-        href="https://www.facebook.com/brahyanstiven.coyrubio/"
-        class="facebook-fixed"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Facebook"
-    >
-
+    <div class="floating-name">Brayhan 7 13</div>
+    <a href="https://www.facebook.com/brahyanstiven.coyrubio/" class="facebook-fixed" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
         <i class="fa-brands fa-facebook-f"></i>
-
     </a>
-
-
 </div>
 
-
-
-<!-- =========================================================
-     JAVASCRIPT DEL JUEGO
-========================================================= -->
-
 <script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const startPanel = document.getElementById("startPanel");
+const gameOverPanel = document.getElementById("gameOverPanel");
+const startButton = document.getElementById("startGame");
+const restartButton = document.getElementById("restartGame");
+const continueButton = document.getElementById("continueGame");
+const scoreElement = document.getElementById("gameScore");
+const recordElement = document.getElementById("gameRecord");
+const finalScoreElement = document.getElementById("finalScore");
 
-/* =========================================================
-   ELEMENTOS
-========================================================= */
-
-const canvas =
-    document.getElementById("gameCanvas");
-
-const ctx =
-    canvas.getContext("2d");
-
-const startPanel =
-    document.getElementById("startPanel");
-
-const gameOverPanel =
-    document.getElementById("gameOverPanel");
-
-const startButton =
-    document.getElementById("startGame");
-
-const restartButton =
-    document.getElementById("restartGame");
-
-const continueButton =
-    document.getElementById("continueGame");
-
-const scoreElement =
-    document.getElementById("gameScore");
-
-const recordElement =
-    document.getElementById("gameRecord");
-
-const finalScoreElement =
-    document.getElementById("finalScore");
-
-
-/* =========================================================
-   RECORD
-========================================================= */
-
-let record =
-    Number(
-        localStorage.getItem(
-            "techRunRecord"
-        )
-    ) || 0;
-
-recordElement.textContent =
-    record;
-
-
-/* =========================================================
-   VARIABLES
-========================================================= */
+let record = Number(localStorage.getItem("techRunRecord")) || 0;
+recordElement.textContent = record;
 
 let gameRunning = false;
-
 let animationFrame = null;
-
 let score = 0;
-
 let lastTime = 0;
-
 let lastSpawn = 0;
-
 let obstacles = [];
-
 let particles = [];
 
-
-/* =========================================================
-   JUGADOR
-========================================================= */
-
-const player = {
-
-    x: 300,
-
-    y: 300,
-
-    size: 18
-
-};
-
-
-/* =========================================================
-   MOUSE
-========================================================= */
-
-const mouse = {
-
-    x: 300,
-
-    y: 300
-
-};
-
-
-/* =========================================================
-   CANVAS
-========================================================= */
+const player = { x: 300, y: 300, size: 18 };
+const mouse = { x: 300, y: 300 };
 
 function resizeCanvas() {
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-    canvas.width =
-        rect.width;
-
-    canvas.height =
-        rect.height;
-
-
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
     if (!gameRunning) {
-
-        player.x =
-            canvas.width / 2;
-
-        player.y =
-            canvas.height / 2;
-
-        mouse.x =
-            player.x;
-
-        mouse.y =
-            player.y;
-
+        player.x = canvas.width / 2;
+        player.y = canvas.height / 2;
+        mouse.x = player.x;
+        mouse.y = player.y;
     }
-
 }
-
-
-window.addEventListener(
-    "resize",
-    resizeCanvas
-);
-
-
+window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
+canvas.addEventListener("mousemove", function(event) {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = event.clientX - rect.left;
+    mouse.y = event.clientY - rect.top;
+});
 
-/* =========================================================
-   MOUSE
-========================================================= */
+canvas.addEventListener("touchmove", function(event) {
+    if (!event.touches.length) return;
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = event.touches[0].clientX - rect.left;
+    mouse.y = event.touches[0].clientY - rect.top;
+    event.preventDefault();
+}, { passive: false });
 
-canvas.addEventListener(
-    "mousemove",
-    function(event) {
-
-        const rect =
-            canvas.getBoundingClientRect();
-
-        mouse.x =
-            event.clientX -
-            rect.left;
-
-        mouse.y =
-            event.clientY -
-            rect.top;
-
-    }
-);
-
-
-/* =========================================================
-   TOUCH
-========================================================= */
-
-canvas.addEventListener(
-    "touchmove",
-    function(event) {
-
-        if (!event.touches.length)
-            return;
-
-        const rect =
-            canvas.getBoundingClientRect();
-
-        mouse.x =
-            event.touches[0].clientX -
-            rect.left;
-
-        mouse.y =
-            event.touches[0].clientY -
-            rect.top;
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-/* =========================================================
-   CREAR OBSTACULO
-========================================================= */
-
+/* CREAR METEORO */
 function createObstacle() {
-
-    const size =
-        18 +
-        Math.random() * 25;
-
-
+    const size = 16 + Math.random() * 28;
     obstacles.push({
-
-        x:
-            Math.random() *
-            (canvas.width - size),
-
-        y:
-            -size,
-
-        size:
-            size,
-
-        speed:
-            2.5 +
-            Math.random() * 2.5
-
+        x: Math.random() * (canvas.width - size),
+        y: -size,
+        size: size,
+        speed: 2.4 + Math.random() * 2.8,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.08,
+        points: generateMeteorPoints(size)
     });
-
 }
 
+function generateMeteorPoints(size) {
+    const points = [];
+    const numPoints = 7 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * Math.PI * 2;
+        const radius = size * (0.55 + Math.random() * 0.45);
+        points.push({
+            x: Math.cos(angle) * radius,
+            y: Math.sin(angle) * radius
+        });
+    }
+    return points;
+}
 
-/* =========================================================
-   CREAR PARTICULA
-========================================================= */
-
+/* PARTICULAS */
 function createParticle() {
-
     particles.push({
-
-        x:
-            player.x,
-
-        y:
-            player.y +
-            player.size,
-
-        size:
-            Math.random() * 3 + 1,
-
-        speed:
-            Math.random() * 1.5 + 0.5,
-
-        opacity: 1
-
+        x: player.x + (Math.random() - 0.5) * 8,
+        y: player.y + player.size,
+        size: Math.random() * 3 + 1,
+        speed: Math.random() * 1.8 + 0.6,
+        opacity: 1,
+        color: Math.random() > 0.5 ? "255, 180, 0" : "255, 100, 0"
     });
-
 }
 
-
-/* =========================================================
-   DIBUJAR NAVE
-========================================================= */
-
+/* NAVE MEJORADA */
 function drawPlayer() {
-
     ctx.save();
+    ctx.translate(player.x, player.y);
 
+    ctx.shadowColor = "#FFCD00";
+    ctx.shadowBlur = 18;
 
-    ctx.translate(
-        player.x,
-        player.y
-    );
-
-
-    /* brillo */
-
-    ctx.shadowColor =
-        "#FFCD00";
-
-    ctx.shadowBlur =
-        20;
-
-
-    /* nave */
-
+    // Cuerpo
     ctx.beginPath();
-
-    ctx.moveTo(
-        0,
-        -player.size
-    );
-
-    ctx.lineTo(
-        player.size,
-        player.size
-    );
-
-    ctx.lineTo(
-        0,
-        player.size / 2
-    );
-
-    ctx.lineTo(
-        -player.size,
-        player.size
-    );
-
+    ctx.moveTo(0, -player.size - 4);
+    ctx.lineTo(player.size * 0.55, player.size * 0.35);
+    ctx.lineTo(player.size * 0.35, player.size * 0.75);
+    ctx.lineTo(-player.size * 0.35, player.size * 0.75);
+    ctx.lineTo(-player.size * 0.55, player.size * 0.35);
     ctx.closePath();
 
-
-    ctx.fillStyle =
-        "#FFCD00";
-
+    const bodyGrad = ctx.createLinearGradient(0, -player.size, 0, player.size);
+    bodyGrad.addColorStop(0, "#FFE44D");
+    bodyGrad.addColorStop(0.5, "#FFCD00");
+    bodyGrad.addColorStop(1, "#E6A800");
+    ctx.fillStyle = bodyGrad;
     ctx.fill();
 
-
-    /* centro rojo */
-
-    ctx.shadowColor =
-        "#CE1126";
-
-    ctx.shadowBlur =
-        10;
-
+    // Alas
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.moveTo(-player.size * 0.35, player.size * 0.15);
+    ctx.lineTo(-player.size * 1.15, player.size * 0.65);
+    ctx.lineTo(-player.size * 0.45, player.size * 0.75);
+    ctx.closePath();
+    ctx.fillStyle = "#0038A8";
+    ctx.fill();
 
     ctx.beginPath();
-
-    ctx.arc(
-        0,
-        2,
-        4,
-        0,
-        Math.PI * 2
-    );
-
-
-    ctx.fillStyle =
-        "#CE1126";
-
+    ctx.moveTo(player.size * 0.35, player.size * 0.15);
+    ctx.lineTo(player.size * 1.15, player.size * 0.65);
+    ctx.lineTo(player.size * 0.45, player.size * 0.75);
+    ctx.closePath();
+    ctx.fillStyle = "#0038A8";
     ctx.fill();
 
+    // Cabina
+    ctx.shadowColor = "#CE1126";
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 5.5, 7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#CE1126";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(-1.5, -4, 2.2, 3, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.fill();
+
+    // Propulsores
+    ctx.shadowColor = "#FF6B00";
+    ctx.shadowBlur = 14;
+
+    const flame = 6 + Math.random() * 5;
+
+    ctx.beginPath();
+    ctx.moveTo(-6, player.size * 0.75);
+    ctx.lineTo(-3, player.size * 0.75 + flame);
+    ctx.lineTo(0, player.size * 0.75);
+    ctx.closePath();
+    ctx.fillStyle = "#FF6B00";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(6, player.size * 0.75);
+    ctx.lineTo(3, player.size * 0.75 + flame);
+    ctx.lineTo(0, player.size * 0.75);
+    ctx.closePath();
+    ctx.fillStyle = "#FF6B00";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-2, player.size * 0.75);
+    ctx.lineTo(0, player.size * 0.75 + flame * 0.7);
+    ctx.lineTo(2, player.size * 0.75);
+    ctx.closePath();
+    ctx.fillStyle = "#FFE44D";
+    ctx.fill();
 
     ctx.restore();
-
-
     createParticle();
-
 }
 
-
-/* =========================================================
-   DIBUJAR OBSTACULO
-========================================================= */
-
+/* METEORO */
 function drawObstacle(obstacle) {
-
     ctx.save();
+    ctx.translate(obstacle.x + obstacle.size / 2, obstacle.y + obstacle.size / 2);
+    ctx.rotate(obstacle.rotation);
 
-
-    ctx.shadowColor =
-        "#CE1126";
-
-    ctx.shadowBlur =
-        15;
-
-
-    ctx.fillStyle =
-        "#CE1126";
-
+    ctx.shadowColor = "#FF6B00";
+    ctx.shadowBlur = 16;
 
     ctx.beginPath();
-
-    ctx.moveTo(
-
-        obstacle.x +
-        obstacle.size / 2,
-
-        obstacle.y
-
-    );
-
-
-    ctx.lineTo(
-
-        obstacle.x +
-        obstacle.size,
-
-        obstacle.y +
-        obstacle.size / 2
-
-    );
-
-
-    ctx.lineTo(
-
-        obstacle.x +
-        obstacle.size / 2,
-
-        obstacle.y +
-        obstacle.size
-
-    );
-
-
-    ctx.lineTo(
-
-        obstacle.x,
-
-        obstacle.y +
-        obstacle.size / 2
-
-    );
-
-
+    obstacle.points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+    });
     ctx.closePath();
 
+    const rockGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, obstacle.size * 0.7);
+    rockGrad.addColorStop(0, "#8B4513");
+    rockGrad.addColorStop(0.45, "#5C3317");
+    rockGrad.addColorStop(1, "#2C1810");
+    ctx.fillStyle = rockGrad;
     ctx.fill();
 
-
-    ctx.restore();
-
-}
-
-
-/* =========================================================
-   PARTICULAS
-========================================================= */
-
-function updateParticles() {
-
-    particles.forEach(
-        (particle, index) => {
-
-            particle.y +=
-                particle.speed;
-
-            particle.opacity -=
-                0.025;
-
-
-            ctx.fillStyle =
-                `rgba(
-                    255,
-                    205,
-                    0,
-                    ${particle.opacity}
-                )`;
-
-
-            ctx.fillRect(
-
-                particle.x,
-
-                particle.y,
-
-                particle.size,
-
-                particle.size
-
-            );
-
-
-            if (
-                particle.opacity <= 0
-            ) {
-
-                particles.splice(
-                    index,
-                    1
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-function checkCollision(
-    obstacle
-) {
-
-    const dx =
-        Math.abs(
-            player.x -
-            (
-                obstacle.x +
-                obstacle.size / 2
-            )
-        );
-
-    const dy =
-        Math.abs(
-            player.y -
-            (
-                obstacle.y +
-                obstacle.size / 2
-            )
-        );
-
-    const distance =
-        Math.sqrt(
-            dx * dx +
-            dy * dy
-        );
-
-
-    return (
-        distance <
-        player.size +
-        obstacle.size / 2
-    );
-
-}
-
-
-/* =========================================================
-   DIBUJAR LINEA DE PELIGRO
-========================================================= */
-
-function drawDangerLine() {
-
-    ctx.save();
-
-    ctx.strokeStyle =
-        "rgba(206,17,38,0.08)";
-
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        0,
-        canvas.height - 55
-    );
-
-    ctx.lineTo(
-        canvas.width,
-        canvas.height - 55
-    );
-
+    ctx.strokeStyle = "rgba(255, 100, 0, 0.55)";
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.restore();
+    // Cráteres
+    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.beginPath();
+    ctx.arc(-obstacle.size * 0.2, -obstacle.size * 0.15, obstacle.size * 0.18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(obstacle.size * 0.25, obstacle.size * 0.1, obstacle.size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
 
+    ctx.fillStyle = "rgba(255, 180, 50, 0.35)";
+    ctx.beginPath();
+    ctx.arc(obstacle.size * 0.1, -obstacle.size * 0.25, obstacle.size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+    obstacle.rotation += obstacle.rotationSpeed;
 }
 
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.y += p.speed;
+        p.opacity -= 0.028;
+        ctx.fillStyle = `rgba(${p.color}, ${p.opacity})`;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        if (p.opacity <= 0) particles.splice(i, 1);
+    }
+}
 
-/* =========================================================
-   GAME LOOP
-========================================================= */
+function checkCollision(obstacle) {
+    const dx = Math.abs(player.x - (obstacle.x + obstacle.size / 2));
+    const dy = Math.abs(player.y - (obstacle.y + obstacle.size / 2));
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < player.size + obstacle.size / 2.2;
+}
+
+function drawDangerLine() {
+    ctx.save();
+    ctx.strokeStyle = "rgba(206,17,38,0.08)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height - 55);
+    ctx.lineTo(canvas.width, canvas.height - 55);
+    ctx.stroke();
+    ctx.restore();
+}
 
 function gameLoop(timestamp) {
+    if (!gameRunning) return;
 
-    if (!gameRunning)
-        return;
-
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    /* fondo */
-
-    ctx.fillStyle =
-        "rgba(5,5,12,0.30)";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-    /* línea */
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(5,5,12,0.30)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawDangerLine();
 
+    player.x += (mouse.x - player.x) * 0.13;
+    player.y += (mouse.y - player.y) * 0.13;
 
-    /* movimiento del jugador */
+    player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
+    player.y = Math.max(player.size + 25, Math.min(canvas.height - player.size - 25, player.y));
 
-    player.x +=
-        (
-            mouse.x -
-            player.x
-        ) * 0.13;
+    const spawnDelay = Math.max(250, 650 - score * 6);
 
-
-    player.y +=
-        (
-            mouse.y -
-            player.y
-        ) * 0.13;
-
-
-    /* limites */
-
-    player.x =
-        Math.max(
-            player.size,
-            Math.min(
-                canvas.width -
-                player.size,
-                player.x
-            )
-        );
-
-
-    player.y =
-        Math.max(
-            player.size + 25,
-            Math.min(
-                canvas.height -
-                player.size - 25,
-                player.y
-            )
-        );
-
-
-    /* dificultad */
-
-    const spawnDelay =
-        Math.max(
-            250,
-            650 -
-            score * 6
-        );
-
-
-    /* crear obstáculos */
-
-    if (
-        timestamp -
-        lastSpawn >
-        spawnDelay
-    ) {
-
+    if (timestamp - lastSpawn > spawnDelay) {
         createObstacle();
-
-        lastSpawn =
-            timestamp;
-
+        lastSpawn = timestamp;
     }
 
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacle = obstacles[i];
+        obstacle.y += obstacle.speed + score * 0.018;
+        drawObstacle(obstacle);
 
-    /* obstáculos */
-
-    obstacles.forEach(
-        (obstacle, index) => {
-
-            obstacle.y +=
-                obstacle.speed +
-                score * 0.018;
-
-
-            drawObstacle(
-                obstacle
-            );
-
-
-            if (
-                checkCollision(
-                    obstacle
-                )
-            ) {
-
-                endGame();
-
-                return;
-
-            }
-
-
-            /* punto */
-
-            if (
-                obstacle.y >
-                canvas.height + 50
-            ) {
-
-                obstacles.splice(
-                    index,
-                    1
-                );
-
-
-                score++;
-
-
-                scoreElement.textContent =
-                    score;
-
-
-                /* récord */
-
-                if (
-                    score >
-                    record
-                ) {
-
-                    record =
-                        score;
-
-                    recordElement.textContent =
-                        record;
-
-                    localStorage.setItem(
-                        "techRunRecord",
-                        record
-                    );
-
-                }
-
-            }
-
+        if (checkCollision(obstacle)) {
+            endGame();
+            return;
         }
-    );
 
+        if (obstacle.y > canvas.height + 50) {
+            obstacles.splice(i, 1);
+            score++;
+            scoreElement.textContent = score;
+            if (score > record) {
+                record = score;
+                recordElement.textContent = record;
+                localStorage.setItem("techRunRecord", record);
+            }
+        }
+    }
 
     drawPlayer();
-
-
     updateParticles();
-
-
-    animationFrame =
-        requestAnimationFrame(
-            gameLoop
-        );
-
+    animationFrame = requestAnimationFrame(gameLoop);
 }
-
-
-/* =========================================================
-   INICIAR
-========================================================= */
 
 function startGame() {
-
-    startPanel.style.display =
-        "none";
-
-    gameOverPanel.style.display =
-        "none";
-
-
+    startPanel.style.display = "none";
+    gameOverPanel.style.display = "none";
     obstacles = [];
-
     particles = [];
-
-
     score = 0;
-
-
-    scoreElement.textContent =
-        "0";
-
-
-    player.x =
-        canvas.width / 2;
-
-    player.y =
-        canvas.height / 2;
-
-
-    mouse.x =
-        player.x;
-
-    mouse.y =
-        player.y;
-
-
-    gameRunning =
-        true;
-
-
-    lastSpawn =
-        performance.now();
-
-
-    lastTime =
-        performance.now();
-
-
-    cancelAnimationFrame(
-        animationFrame
-    );
-
-
-    animationFrame =
-        requestAnimationFrame(
-            gameLoop
-        );
-
+    scoreElement.textContent = "0";
+    player.x = canvas.width / 2;
+    player.y = canvas.height / 2;
+    mouse.x = player.x;
+    mouse.y = player.y;
+    gameRunning = true;
+    lastSpawn = performance.now();
+    lastTime = performance.now();
+    cancelAnimationFrame(animationFrame);
+    animationFrame = requestAnimationFrame(gameLoop);
 }
-
-
-/* =========================================================
-   GAME OVER
-========================================================= */
 
 function endGame() {
-
-    if (!gameRunning)
-        return;
-
-
-    gameRunning =
-        false;
-
-
-    cancelAnimationFrame(
-        animationFrame
-    );
-
-
-    finalScoreElement.textContent =
-        score;
-
-
-    gameOverPanel.style.display =
-        "block";
-
+    if (!gameRunning) return;
+    gameRunning = false;
+    cancelAnimationFrame(animationFrame);
+    finalScoreElement.textContent = score;
+    gameOverPanel.style.display = "block";
 }
-
-
 
 function continueToSite() {
-
-    gameOverPanel.style.display =
-        "none";
-
-    startPanel.style.display =
-        "block";
-
+    gameOverPanel.style.display = "none";
+    startPanel.style.display = "block";
 }
 
+startButton.addEventListener("click", startGame);
+restartButton.addEventListener("click", startGame);
+continueButton.addEventListener("click", continueToSite);
 
-
-startButton.addEventListener(
-    "click",
-    startGame
-);
-
-
-restartButton.addEventListener(
-    "click",
-    startGame
-);
-
-
-continueButton.addEventListener(
-    "click",
-    continueToSite
-);
-
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Escape" &&
-            gameRunning
-        ) {
-
-            endGame();
-
-        }
-
-    }
-);
-
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape" && gameRunning) endGame();
+});
 </script>
-
 </body>
 </html>

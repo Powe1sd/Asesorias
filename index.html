@@ -546,7 +546,6 @@ body::before {
         </div>
 
         <div class="game-help">
-            🖱️ Mouse · 📱 Dedo · ESC salir
         </div>
     </div>
 </section>
@@ -726,13 +725,17 @@ function createObstacle() {
     const scale = getScale();
     const size = (12 + Math.random() * 18) * scale;
 
+    // Cada 100 puntos sube un poco más la velocidad base
+    const level = Math.floor(score / 180);
+    const speedBoost = 1 + level * 0.98;
+
     obstacles.push({
         x: Math.random() * Math.max(1, canvas.width - size),
         y: -size,
         size: size,
-        speed: (2.0 + Math.random() * 2.2) * (canvas.height / 420),
+        speed: (2.8 + Math.random() * 2.5) * (canvas.height / 420) * speedBoost,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.07,
+        rotationSpeed: (Math.random() - 0.5) * 0.08,
         points: generateMeteorPoints(size)
     });
 }

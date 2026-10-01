@@ -657,7 +657,6 @@ body::before {
 
 
 
-
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -670,11 +669,11 @@ const scoreElement = document.getElementById("gameScore");
 const recordElement = document.getElementById("gameRecord");
 const finalScoreElement = document.getElementById("finalScore");
 
-// Récord = puntos totales (meteoros 1 + naves 3 + grandes 6 + jefe 25)
 let record = Number(localStorage.getItem("techRunRecord")) || 0;
 recordElement.textContent = record;
 
 let gameRunning = false;
+let gamePaused = false;
 let animationFrame = null;
 let score = 0;
 let meteorsDestroyed = 0;
@@ -711,56 +710,46 @@ const player = { x: 300, y: 300, size: 18 };
 const mouse = { x: 300, y: 300 };
 let isShooting = false;
 
-/* ===== BOTONES PANTALLA COMPLETA ===== */
-(function setupFullscreenUI() {
+/* ===== INFO CRÉDITOS ===== */
+const CREDITS = {
+    name: "Brayhan Rubio",
+    phone: "3052076713",
+    label: "Desarrollo · TECH"
+};
+
+/* ===== UI: FULLSCREEN + PAUSA + CRÉDITOS ===== */
+(function setupUI() {
     const gameBox = document.querySelector(".tech-game");
     if (!gameBox) return;
 
-    // Botón entrar
+    // Fullscreen
     let btnFS = document.getElementById("btnFullscreen");
     if (!btnFS) {
         btnFS = document.createElement("button");
         btnFS.id = "btnFullscreen";
         btnFS.innerHTML = "⛶";
         btnFS.title = "Pantalla completa";
-        btnFS.style.cssText = `
-            position:absolute; top:10px; right:10px; z-index:30;
-            width:36px; height:36px; border:none; border-radius:8px;
-            background:rgba(255,205,0,0.85); color:#111; font-size:18px;
-            cursor:pointer; pointer-events:auto;
-        `;
+        btnFS.style.cssText = "position:absolute;top:10px;right:10px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(255,205,0,0.85);color:#111;font-size:18px;cursor:pointer;pointer-events:auto;";
         gameBox.appendChild(btnFS);
     }
-
-    // Botón salir (X)
     let btnExit = document.getElementById("btnExitFS");
     if (!btnExit) {
         btnExit = document.createElement("button");
         btnExit.id = "btnExitFS";
         btnExit.innerHTML = "✕";
         btnExit.title = "Salir de pantalla completa";
-        btnExit.style.cssText = `
-            position:absolute; top:10px; right:52px; z-index:30;
-            width:36px; height:36px; border:none; border-radius:8px;
-            background:rgba(206,17,38,0.9); color:#fff; font-size:18px;
-            cursor:pointer; pointer-events:auto; display:none;
-        `;
+        btnExit.style.cssText = "position:absolute;top:10px;right:52px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(206,17,38,0.9);color:#fff;font-size:18px;cursor:pointer;pointer-events:auto;display:none;";
         gameBox.appendChild(btnExit);
     }
-
-    btnFS.onclick = function() {
+    btnFS.onclick = () => {
         const el = gameBox;
         if (el.requestFullscreen) el.requestFullscreen();
         else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.msRequestFullscreen) el.msRequestFullscreen();
     };
-
-    btnExit.onclick = function() {
+    btnExit.onclick = () => {
         if (document.exitFullscreen) document.exitFullscreen();
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        else if (document.msExitFullscreen) document.msExitFullscreen();
     };
-
     function onFSChange() {
         const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
         btnExit.style.display = isFS ? "block" : "none";
@@ -769,7 +758,72 @@ let isShooting = false;
     }
     document.addEventListener("fullscreenchange", onFSChange);
     document.addEventListener("webkitfullscreenchange", onFSChange);
+
+    // Botón pausa
+    let btnPause = document.getElementById("btnPause");
+    if (!btnPause) {
+        btnPause = document.createElement("button");
+        btnPause.id = "btnPause";
+        btnPause.innerHTML = "⏸";
+        btnPause.title = "Pausar (P)";
+        btnPause.style.cssText = "position:absolute;top:10px;right:52px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(0,56,168,0.9);color:#fff;font-size:16px;cursor:pointer;pointer-events:auto;display:none;";
+        gameBox.appendChild(btnPause);
+    }
+    btnPause.onclick = () => togglePause();
+
+    // Panel de pausa / créditos
+    let pausePanel = document.getElementById("pausePanel");
+    if (!pausePanel) {
+        pausePanel = document.createElement("div");
+        pausePanel.id = "pausePanel";
+        pausePanel.className = "game-panel";
+        pausePanel.style.display = "none";
+        pausePanel.innerHTML = `
+            <h2 style="margin-bottom:8px;">⏸ PAUSA</h2>
+            <p style="color:#FFCD00;font-size:15px;margin:10px 0 4px;">${CREDITS.name}</p>
+            <p style="color:#ddd;font-size:13px;margin:4px 0;">📞 ${CREDITS.phone}</p>
+            <p style="color:#888;font-size:11px;margin:4px 0 14px;">${CREDITS.label}</p>
+            <small style="color:#aaa;">Pulsa P o el botón para continuar</small>
+            <br>
+            <button class="game-btn" id="resumeGame" style="margin-top:14px;">▶ CONTINUAR</button>
+        `;
+        gameBox.appendChild(pausePanel);
+        document.getElementById("resumeGame").onclick = () => togglePause(false);
+    }
+
+    // Créditos en el panel de inicio
+    if (startPanel && !document.getElementById("startCredits")) {
+        const cred = document.createElement("div");
+        cred.id = "startCredits";
+        cred.style.cssText = "margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,0.25);";
+        cred.innerHTML = `
+            <p style="color:#FFCD00;font-size:13px;margin:4px 0;font-family:Orbitron,sans-serif;">${CREDITS.name}</p>
+            <p style="color:#ccc;font-size:12px;margin:4px 0;font-family:'Share Tech Mono',monospace;">📞 ${CREDITS.phone}</p>
+            <p style="color:#777;font-size:11px;margin:4px 0;">${CREDITS.label}</p>
+        `;
+        startPanel.appendChild(cred);
+    }
 })();
+
+function togglePause(force) {
+    if (!gameRunning) return;
+    gamePaused = typeof force === "boolean" ? force : !gamePaused;
+
+    const pausePanel = document.getElementById("pausePanel");
+    const btnPause = document.getElementById("btnPause");
+
+    if (gamePaused) {
+        if (pausePanel) pausePanel.style.display = "block";
+        if (btnPause) btnPause.innerHTML = "▶";
+        cancelAnimationFrame(animationFrame);
+    } else {
+        if (pausePanel) pausePanel.style.display = "none";
+        if (btnPause) btnPause.innerHTML = "⏸";
+        lastSpawn = performance.now();
+        lastAmmoDrop = performance.now();
+        animationFrame = requestAnimationFrame(gameLoop);
+    }
+}
 
 function getScale() {
     return Math.min(canvas.width, canvas.height) / 400;
@@ -795,10 +849,10 @@ canvas.addEventListener("mousemove", e => {
     mouse.x = e.clientX - r.left;
     mouse.y = e.clientY - r.top;
 });
-canvas.addEventListener("mousedown", () => { isShooting = true; shoot(); });
+canvas.addEventListener("mousedown", () => { if (!gamePaused) { isShooting = true; shoot(); } });
 canvas.addEventListener("mouseup", () => { isShooting = false; });
 canvas.addEventListener("touchstart", e => {
-    if (!e.touches.length) return;
+    if (!e.touches.length || gamePaused) return;
     const r = canvas.getBoundingClientRect();
     mouse.x = e.touches[0].clientX - r.left;
     mouse.y = e.touches[0].clientY - r.top;
@@ -813,9 +867,14 @@ canvas.addEventListener("touchmove", e => {
     e.preventDefault();
 }, { passive: false });
 canvas.addEventListener("touchend", () => { isShooting = false; });
+
 document.addEventListener("keydown", e => {
-    if (e.key === " " || e.code === "Space") { e.preventDefault(); isShooting = true; shoot(); }
-    if (e.key === "Escape" && gameRunning) endGame();
+    if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (!gamePaused) { isShooting = true; shoot(); }
+    }
+    if (e.key === "Escape" && gameRunning && !gamePaused) endGame();
+    if ((e.key === "p" || e.key === "P") && gameRunning) togglePause();
 });
 document.addEventListener("keyup", e => {
     if (e.key === " " || e.code === "Space") isShooting = false;
@@ -827,8 +886,7 @@ function createMeteor() {
     const level = Math.floor(waveNumber / 2);
     obstacles.push({
         x: Math.random() * Math.max(1, canvas.width - size),
-        y: -size,
-        size,
+        y: -size, size,
         speed: (2.2 + Math.random() * 2.2 + level * 0.15) * (canvas.height / 420),
         rotation: Math.random() * Math.PI * 2,
         rotationSpeed: (Math.random() - 0.5) * 0.08,
@@ -865,8 +923,7 @@ function createBoss() {
         speed: 1.2 * (canvas.height / 420),
         rotation: 0, rotationSpeed: 0, points: [],
         type: "boss",
-        hp: 18 + waveNumber * 4,
-        maxHp: 18 + waveNumber * 4,
+        hp: 18 + waveNumber * 4, maxHp: 18 + waveNumber * 4,
         shootTimer: 20, zigzag: 0, zigzagDir: 1, baseY: 55, arriving: true
     });
 }
@@ -885,32 +942,27 @@ function generateMeteorPoints(size) {
 function spawnShipWave() {
     const count = SHIPS_PER_WAVE_BASE + Math.floor(waveNumber * 0.8);
     for (let i = 0; i < count; i++) {
-        setTimeout(() => { if (gameRunning && phase === "ships") createShip(false); }, i * 350);
+        setTimeout(() => { if (gameRunning && !gamePaused && phase === "ships") createShip(false); }, i * 350);
     }
     const bigs = 1 + (waveNumber > 3 ? 1 : 0);
     for (let i = 0; i < bigs; i++) {
-        setTimeout(() => { if (gameRunning && phase === "ships") createShip(true); }, count * 350 + i * 500);
+        setTimeout(() => { if (gameRunning && !gamePaused && phase === "ships") createShip(true); }, count * 350 + i * 500);
     }
 }
 
-/* ===== RECARGA AUTOMÁTICA CUANDO NO HAY BALAS ===== */
 function dropAmmoPack() {
     const s = 16 * getScale();
     pickups.push({
         x: Math.random() * Math.max(1, canvas.width - s),
-        y: -s,
-        type: "ammo",
-        size: s,
-        vy: (2.0 + Math.random() * 1.5) * (canvas.height / 420)  // cae como meteoro
+        y: -s, type: "ammo", size: s,
+        vy: (2.0 + Math.random() * 1.5) * (canvas.height / 420)
     });
 }
 
 function updateEmergencyAmmo(timestamp) {
-    // Si tienes 0 balas (o muy pocas), cada ~1.2s cae una recarga
     if (ammo <= 0) {
         if (timestamp - lastAmmoDrop > 1200) {
             dropAmmoPack();
-            // a veces caen 2
             if (Math.random() < 0.4) dropAmmoPack();
             lastAmmoDrop = timestamp;
         }
@@ -923,13 +975,12 @@ function updateEmergencyAmmo(timestamp) {
 }
 
 function shoot() {
-    if (!gameRunning || ammo <= 0) return;
+    if (!gameRunning || gamePaused || ammo <= 0) return;
     if (laser > 0) return;
     const now = performance.now();
     const cd = rapidFire > 0 ? 75 : shootCooldown;
     if (now - lastShot < cd) return;
     lastShot = now;
-
     const bulletSpeed = 10.5 * (canvas.height / 420);
     const s = getScale();
     function addBullet(ox) {
@@ -948,7 +999,6 @@ function enemyShoot(o) {
     const aim = Math.max(-2, Math.min(2, dx * 0.014));
     const cx = o.x + o.size / 2;
     const cy = o.y + o.size * 0.8;
-
     if (o.type === "boss") {
         for (let i = -2; i <= 2; i++) {
             enemyBullets.push({ x: cx, y: cy, vx: aim + i * 0.9, vy: speed * 0.9, size: 4 * s });
@@ -1003,7 +1053,6 @@ function createParticle() {
 function addScore(pts) {
     score += pts;
     scoreElement.textContent = score;
-    // Récord guarda los PUNTOS (meteoros + naves + jefe)
     if (score > record) {
         record = score;
         recordElement.textContent = record;
@@ -1017,11 +1066,8 @@ function destroyEnemy(o, index) {
     const colors = { meteor: "255,60,30", ship: "255,50,120", bigship: "200,50,255", boss: "255,200,0" };
     createExplosion(cx, cy, o.size * (o.type === "boss" ? 1.5 : 1), colors[o.type] || "255,100,50");
     maybeSpawnPickup(cx, cy);
-
     if (o.type === "meteor") meteorsDestroyed++;
     else shipsDestroyed++;
-
-    // Puntos: meteoro 1, nave 3, grande 6, jefe 25
     const pts = { meteor: 1, ship: 3, bigship: 6, boss: 25 }[o.type] || 1;
     addScore(pts);
     obstacles.splice(index, 1);
@@ -1076,20 +1122,10 @@ function updatePhase() {
     } else if (phase === "ships") {
         const shipsLeft = obstacles.filter(o => o.type === "ship" || o.type === "bigship").length;
         phaseTimer++;
-        if (shipsLeft === 0 && phaseTimer > 90) {
-            waveNumber++;
-            startMeteorPhase();
-        }
-        if (phaseTimer > 45 * 60) {
-            waveNumber++;
-            startMeteorPhase();
-        }
+        if (shipsLeft === 0 && phaseTimer > 90) { waveNumber++; startMeteorPhase(); }
+        if (phaseTimer > 45 * 60) { waveNumber++; startMeteorPhase(); }
     } else if (phase === "boss") {
-        if (!obstacles.some(o => o.type === "boss")) {
-            addScore(10);
-            waveNumber++;
-            startMeteorPhase();
-        }
+        if (!obstacles.some(o => o.type === "boss")) { addScore(10); waveNumber++; startMeteorPhase(); }
         phaseTimer++;
     }
 }
@@ -1359,7 +1395,6 @@ function updatePickups() {
         ctx.textBaseline = "middle";
         ctx.fillText(labels[p.type] || "?", 0, 1);
         ctx.restore();
-
         if (Math.hypot(player.x - p.x, player.y - p.y) < player.size + p.size) {
             if (p.type === "ammo") ammo = Math.min(ammo + 30, 250);
             if (p.type === "shield") shield = 320;
@@ -1431,7 +1466,6 @@ function drawHUD() {
     const mob = canvas.width < 500;
     ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, canvas.width, 44);
-
     ctx.font = mob ? "bold 10px Orbitron" : "bold 12px Orbitron";
     ctx.textBaseline = "middle";
     ctx.textAlign = "left";
@@ -1439,7 +1473,6 @@ function drawHUD() {
     ctx.fillText("PUNTOS " + score, 8, 14);
     ctx.fillStyle = "#FF6644";
     ctx.fillText("METEOROS " + meteorsDestroyed, 8, 32);
-
     ctx.textAlign = "center";
     ctx.fillStyle = "rgba(255,255,255,0.6)";
     ctx.font = mob ? "9px Share Tech Mono" : "11px Share Tech Mono";
@@ -1451,29 +1484,24 @@ function drawHUD() {
     ctx.fillText(phaseLabel, canvas.width / 2, 16);
     ctx.fillStyle = "#FFAA66";
     ctx.fillText("NAVES " + shipsDestroyed, canvas.width / 2, 32);
-
     ctx.textAlign = "right";
     ctx.font = mob ? "bold 10px Orbitron" : "bold 12px Orbitron";
     ctx.fillStyle = "#FFCD00";
     ctx.fillText("RÉCORD " + record, canvas.width - 8, 14);
     ctx.fillStyle = "#FF6688";
     ctx.fillText("VIDAS " + lives, canvas.width - 8, 32);
-
     ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, canvas.height - 36, canvas.width, 36);
     ctx.textAlign = "left";
     ctx.font = mob ? "bold 15px Orbitron" : "bold 17px Orbitron";
     ctx.fillStyle = ammo > 15 ? "#FFCD00" : "#FF3333";
     ctx.fillText("BALAS " + ammo, 10, canvas.height - 17);
-
-    // Aviso sin balas
     if (ammo <= 0) {
         ctx.fillStyle = "#FF3333";
         ctx.font = "bold 12px Orbitron";
         ctx.textAlign = "center";
         ctx.fillText("¡SIN BALAS! Atrapa las recargas +30", canvas.width / 2, canvas.height - 17);
     }
-
     ctx.font = mob ? "bold 9px Share Tech Mono" : "bold 10px Share Tech Mono";
     ctx.textAlign = "left";
     let px = mob ? 100 : 130;
@@ -1493,7 +1521,7 @@ function drawHUD() {
 }
 
 function gameLoop(timestamp) {
-    if (!gameRunning) return;
+    if (!gameRunning || gamePaused) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgba(5,5,12,0.28)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1508,7 +1536,6 @@ function gameLoop(timestamp) {
 
     updatePhase();
     updateEmergencyAmmo(timestamp);
-
     if (isShooting) shoot();
 
     player.x += (mouse.x - player.x) * 0.15;
@@ -1527,7 +1554,6 @@ function gameLoop(timestamp) {
     }
 
     const slow = slowMo > 0 ? 0.4 : 1;
-
     for (let i = obstacles.length - 1; i >= 0; i--) {
         const o = obstacles[i];
         if (o.type === "meteor") {
@@ -1552,7 +1578,6 @@ function gameLoop(timestamp) {
             }
         }
         drawObstacle(o);
-
         if (checkCollision(o)) {
             if (shield > 0 || lives > 1) {
                 createExplosion(o.x + o.size / 2, o.y + o.size / 2, o.size, "0,200,255");
@@ -1584,14 +1609,18 @@ function gameLoop(timestamp) {
 function startGame() {
     startPanel.style.display = "none";
     gameOverPanel.style.display = "none";
+    const pausePanel = document.getElementById("pausePanel");
+    if (pausePanel) pausePanel.style.display = "none";
+    const btnPause = document.getElementById("btnPause");
+    if (btnPause) { btnPause.style.display = "block"; btnPause.innerHTML = "⏸"; }
+
     obstacles = []; particles = []; bullets = []; enemyBullets = [];
     pickups = []; explosions = [];
     score = 0; meteorsDestroyed = 0; shipsDestroyed = 0;
     ammo = 100; shield = 0; rapidFire = 0; tripleShot = 0;
     slowMo = 0; laser = 0; pierce = 0; drone = 0; lives = 1;
-    waveNumber = 1;
+    waveNumber = 1; gamePaused = false;
     scoreElement.textContent = "0";
-    // Recargar récord fresco desde localStorage
     record = Number(localStorage.getItem("techRunRecord")) || 0;
     recordElement.textContent = record;
     player.x = canvas.width / 2;
@@ -1609,9 +1638,13 @@ function startGame() {
 function endGame() {
     if (!gameRunning) return;
     gameRunning = false;
+    gamePaused = false;
     cancelAnimationFrame(animationFrame);
+    const btnPause = document.getElementById("btnPause");
+    if (btnPause) btnPause.style.display = "none";
+    const pausePanel = document.getElementById("pausePanel");
+    if (pausePanel) pausePanel.style.display = "none";
     finalScoreElement.textContent = score;
-    // Asegurar que el récord se guardó
     if (score > record) {
         record = score;
         localStorage.setItem("techRunRecord", String(record));
@@ -1629,6 +1662,7 @@ startButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", startGame);
 continueButton.addEventListener("click", continueToSite);
 </script>
+
 
 
 

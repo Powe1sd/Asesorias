@@ -656,7 +656,6 @@ body::before {
 </div>
 
 
-
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -709,15 +708,40 @@ let shootCooldown = 200;
 const player = { x: 300, y: 300, size: 18 };
 const mouse = { x: 300, y: 300 };
 let isShooting = false;
+const keys = { up: false, down: false, left: false, right: false };
 
-/* ===== INFO CRÉDITOS ===== */
+// Sensibilidad separada
+let sensMouse = Number(localStorage.getItem("techSensMouse")) || 1;
+let sensKeys  = Number(localStorage.getItem("techSensKeys"))  || 1;
+let sensPad   = Number(localStorage.getItem("techSensPad"))   || 1;
+
 const CREDITS = {
     name: "Brayhan Rubio",
     phone: "3052076713",
     label: "Desarrollo · TECH"
 };
 
-/* ===== UI: FULLSCREEN + PAUSA + CRÉDITOS ===== */
+const PS_LOGO_HTML = `
+<svg width="80" height="56" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:inline-block;">
+  <rect x="8" y="22" width="104" height="42" rx="14" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+  <rect x="18" y="12" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555" stroke-width="1.5"/>
+  <rect x="74" y="12" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555" stroke-width="1.5"/>
+  <rect x="28" y="36" width="8" height="22" rx="2" fill="#333"/>
+  <rect x="21" y="43" width="22" height="8" rx="2" fill="#333"/>
+  <circle cx="88" cy="40" r="5" fill="#E60012"/>
+  <circle cx="88" cy="54" r="5" fill="#7B61FF"/>
+  <circle cx="80" cy="47" r="5" fill="#00A0E9"/>
+  <circle cx="96" cy="47" r="5" fill="#00A651"/>
+  <circle cx="48" cy="52" r="7" fill="#222" stroke="#555" stroke-width="1.5"/>
+  <circle cx="72" cy="52" r="7" fill="#222" stroke="#555" stroke-width="1.5"/>
+  <circle cx="48" cy="52" r="3" fill="#444"/>
+  <circle cx="72" cy="52" r="3" fill="#444"/>
+  <rect x="52" y="32" width="8" height="4" rx="1" fill="#555"/>
+  <rect x="62" y="32" width="8" height="4" rx="1" fill="#555"/>
+  <circle cx="60" cy="28" r="2" fill="#00A0E9"/>
+  <text x="60" y="76" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="#888">PLAYSTATION 3</text>
+</svg>`;
+
 (function setupUI() {
     const gameBox = document.querySelector(".tech-game");
     if (!gameBox) return;
@@ -737,14 +761,13 @@ const CREDITS = {
         btnExit = document.createElement("button");
         btnExit.id = "btnExitFS";
         btnExit.innerHTML = "✕";
-        btnExit.title = "Salir de pantalla completa";
+        btnExit.title = "Salir pantalla completa";
         btnExit.style.cssText = "position:absolute;top:10px;right:52px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(206,17,38,0.9);color:#fff;font-size:18px;cursor:pointer;pointer-events:auto;display:none;";
         gameBox.appendChild(btnExit);
     }
     btnFS.onclick = () => {
-        const el = gameBox;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        if (gameBox.requestFullscreen) gameBox.requestFullscreen();
+        else if (gameBox.webkitRequestFullscreen) gameBox.webkitRequestFullscreen();
     };
     btnExit.onclick = () => {
         if (document.exitFullscreen) document.exitFullscreen();
@@ -759,7 +782,7 @@ const CREDITS = {
     document.addEventListener("fullscreenchange", onFSChange);
     document.addEventListener("webkitfullscreenchange", onFSChange);
 
-    // Botón pausa
+    // Pausa
     let btnPause = document.getElementById("btnPause");
     if (!btnPause) {
         btnPause = document.createElement("button");
@@ -771,7 +794,67 @@ const CREDITS = {
     }
     btnPause.onclick = () => togglePause();
 
-    // Panel de pausa / créditos
+    // Config
+    let btnCfg = document.getElementById("btnConfig");
+    if (!btnCfg) {
+        btnCfg = document.createElement("button");
+        btnCfg.id = "btnConfig";
+        btnCfg.innerHTML = "⚙";
+        btnCfg.title = "Configuración";
+        btnCfg.style.cssText = "position:absolute;top:10px;left:10px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(255,255,255,0.15);color:#FFCD00;font-size:18px;cursor:pointer;pointer-events:auto;";
+        gameBox.appendChild(btnCfg);
+    }
+
+    let cfgPanel = document.getElementById("configPanel");
+    if (!cfgPanel) {
+        cfgPanel = document.createElement("div");
+        cfgPanel.id = "configPanel";
+        cfgPanel.className = "game-panel";
+        cfgPanel.style.cssText = "display:none;z-index:45;";
+        cfgPanel.innerHTML = `
+            <h2 style="font-size:22px;margin-bottom:12px;">⚙ CONFIGURACIÓN</h2>
+            <p style="color:#FFCD00;font-size:12px;margin-bottom:4px;">Sensibilidad ratón</p>
+            <input type="range" id="sensMouse" min="0.3" max="2.5" step="0.1" value="${sensMouse}" style="width:90%;accent-color:#FFCD00;">
+            <p id="sensMouseVal" style="color:#aaa;font-size:11px;margin:2px 0 10px;">${Number(sensMouse).toFixed(1)}x</p>
+            <p style="color:#FFCD00;font-size:12px;margin-bottom:4px;">Sensibilidad teclado (flechas)</p>
+            <input type="range" id="sensKeys" min="0.3" max="2.5" step="0.1" value="${sensKeys}" style="width:90%;accent-color:#0038A8;">
+            <p id="sensKeysVal" style="color:#aaa;font-size:11px;margin:2px 0 10px;">${Number(sensKeys).toFixed(1)}x</p>
+            <p style="color:#FFCD00;font-size:12px;margin-bottom:4px;">Sensibilidad mando</p>
+            <input type="range" id="sensPad" min="0.3" max="2.5" step="0.1" value="${sensPad}" style="width:90%;accent-color:#00A0E9;">
+            <p id="sensPadVal" style="color:#aaa;font-size:11px;margin:2px 0 14px;">${Number(sensPad).toFixed(1)}x</p>
+            <button class="game-btn" id="closeConfig">✓ GUARDAR</button>
+        `;
+        gameBox.appendChild(cfgPanel);
+
+        const bindRange = (id, which, valId) => {
+            const el = document.getElementById(id);
+            const lab = document.getElementById(valId);
+            el.oninput = () => {
+                const v = Number(el.value);
+                if (which === "mouse") sensMouse = v;
+                if (which === "keys") sensKeys = v;
+                if (which === "pad") sensPad = v;
+                lab.textContent = v.toFixed(1) + "x";
+            };
+        };
+        bindRange("sensMouse", "mouse", "sensMouseVal");
+        bindRange("sensKeys", "keys", "sensKeysVal");
+        bindRange("sensPad", "pad", "sensPadVal");
+
+        document.getElementById("closeConfig").onclick = () => {
+            localStorage.setItem("techSensMouse", String(sensMouse));
+            localStorage.setItem("techSensKeys", String(sensKeys));
+            localStorage.setItem("techSensPad", String(sensPad));
+            cfgPanel.style.display = "none";
+        };
+        btnCfg.onclick = () => {
+            const open = cfgPanel.style.display === "none";
+            cfgPanel.style.display = open ? "block" : "none";
+            if (open && gameRunning && !gamePaused) togglePause(true);
+        };
+    }
+
+    // Panel pausa
     let pausePanel = document.getElementById("pausePanel");
     if (!pausePanel) {
         pausePanel = document.createElement("div");
@@ -781,9 +864,10 @@ const CREDITS = {
         pausePanel.innerHTML = `
             <h2 style="margin-bottom:8px;">⏸ PAUSA</h2>
             <p style="color:#FFCD00;font-size:15px;margin:10px 0 4px;">${CREDITS.name}</p>
-            <p style="color:#ddd;font-size:13px;margin:4px 0;">📞 ${CREDITS.phone}</p>
+            <div>${PS_LOGO_HTML}</div>
+            <p style="color:#ddd;font-size:13px;margin:8px 0 4px;">📞 ${CREDITS.phone}</p>
             <p style="color:#888;font-size:11px;margin:4px 0 14px;">${CREDITS.label}</p>
-            <small style="color:#aaa;">Pulsa P o el botón para continuar</small>
+            <small style="color:#aaa;">P = pausar · Flechas / mando = mover · Espacio = disparar</small>
             <br>
             <button class="game-btn" id="resumeGame" style="margin-top:14px;">▶ CONTINUAR</button>
         `;
@@ -791,27 +875,32 @@ const CREDITS = {
         document.getElementById("resumeGame").onclick = () => togglePause(false);
     }
 
-    // Créditos en el panel de inicio
+    // Créditos inicio
     if (startPanel && !document.getElementById("startCredits")) {
         const cred = document.createElement("div");
         cred.id = "startCredits";
         cred.style.cssText = "margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,0.25);";
         cred.innerHTML = `
             <p style="color:#FFCD00;font-size:13px;margin:4px 0;font-family:Orbitron,sans-serif;">${CREDITS.name}</p>
-            <p style="color:#ccc;font-size:12px;margin:4px 0;font-family:'Share Tech Mono',monospace;">📞 ${CREDITS.phone}</p>
+            <div>${PS_LOGO_HTML}</div>
+            <p style="color:#ccc;font-size:12px;margin:8px 0 4px;font-family:'Share Tech Mono',monospace;">📞 ${CREDITS.phone}</p>
             <p style="color:#777;font-size:11px;margin:4px 0;">${CREDITS.label}</p>
+            <p style="color:#666;font-size:10px;margin-top:8px;">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · P pausa</p>
         `;
         startPanel.appendChild(cred);
+    }
+
+    const help = document.querySelector(".game-help");
+    if (help) {
+        help.innerHTML = "🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · <b>P</b> pausar";
     }
 })();
 
 function togglePause(force) {
     if (!gameRunning) return;
     gamePaused = typeof force === "boolean" ? force : !gamePaused;
-
     const pausePanel = document.getElementById("pausePanel");
     const btnPause = document.getElementById("btnPause");
-
     if (gamePaused) {
         if (pausePanel) pausePanel.style.display = "block";
         if (btnPause) btnPause.innerHTML = "▶";
@@ -846,8 +935,11 @@ resizeCanvas();
 
 canvas.addEventListener("mousemove", e => {
     const r = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - r.left;
-    mouse.y = e.clientY - r.top;
+    const targetX = e.clientX - r.left;
+    const targetY = e.clientY - r.top;
+    // Sensibilidad ratón: interpola hacia el cursor
+    mouse.x = player.x + (targetX - player.x) * sensMouse;
+    mouse.y = player.y + (targetY - player.y) * sensMouse;
 });
 canvas.addEventListener("mousedown", () => { if (!gamePaused) { isShooting = true; shoot(); } });
 canvas.addEventListener("mouseup", () => { isShooting = false; });
@@ -869,15 +961,71 @@ canvas.addEventListener("touchmove", e => {
 canvas.addEventListener("touchend", () => { isShooting = false; });
 
 document.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp")    { keys.up = true; e.preventDefault(); }
+    if (e.key === "ArrowDown")  { keys.down = true; e.preventDefault(); }
+    if (e.key === "ArrowLeft")  { keys.left = true; e.preventDefault(); }
+    if (e.key === "ArrowRight") { keys.right = true; e.preventDefault(); }
     if (e.key === " " || e.code === "Space") {
         e.preventDefault();
         if (!gamePaused) { isShooting = true; shoot(); }
     }
-    if (e.key === "Escape" && gameRunning && !gamePaused) endGame();
     if ((e.key === "p" || e.key === "P") && gameRunning) togglePause();
+    if (e.key === "Escape" && gameRunning && !gamePaused) endGame();
 });
 document.addEventListener("keyup", e => {
+    if (e.key === "ArrowUp")    keys.up = false;
+    if (e.key === "ArrowDown")  keys.down = false;
+    if (e.key === "ArrowLeft")  keys.left = false;
+    if (e.key === "ArrowRight") keys.right = false;
     if (e.key === " " || e.code === "Space") isShooting = false;
+});
+
+function pollGamepad() {
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    let gp = null;
+    for (let i = 0; i < pads.length; i++) {
+        if (pads[i]) { gp = pads[i]; break; }
+    }
+    if (!gp) return;
+
+    const dead = 0.22;
+    let ax = gp.axes[0] || 0;
+    let ay = gp.axes[1] || 0;
+    if (Math.abs(ax) < dead) ax = 0;
+    if (Math.abs(ay) < dead) ay = 0;
+    if (gp.buttons[12] && gp.buttons[12].pressed) ay = -1;
+    if (gp.buttons[13] && gp.buttons[13].pressed) ay = 1;
+    if (gp.buttons[14] && gp.buttons[14].pressed) ax = -1;
+    if (gp.buttons[15] && gp.buttons[15].pressed) ax = 1;
+
+    if (ax !== 0 || ay !== 0) {
+        const reach = 90 * sensPad;
+        mouse.x = player.x + ax * reach;
+        mouse.y = player.y + ay * reach;
+    }
+
+    const shootBtn =
+        (gp.buttons[0] && gp.buttons[0].pressed) ||
+        (gp.buttons[1] && gp.buttons[1].pressed) ||
+        (gp.buttons[2] && gp.buttons[2].pressed) ||
+        (gp.buttons[3] && gp.buttons[3].pressed) ||
+        (gp.buttons[5] && gp.buttons[5].pressed) ||
+        (gp.buttons[7] && gp.buttons[7].pressed);
+
+    if (shootBtn) { isShooting = true; shoot(); }
+
+    if (gp.buttons[9] && gp.buttons[9].pressed) {
+        if (!pollGamepad._startHeld) {
+            pollGamepad._startHeld = true;
+            if (gameRunning) togglePause();
+        }
+    } else {
+        pollGamepad._startHeld = false;
+    }
+}
+
+window.addEventListener("gamepadconnected", e => {
+    console.log("Mando conectado:", e.gamepad.id);
 });
 
 function createMeteor() {
@@ -1536,10 +1684,23 @@ function gameLoop(timestamp) {
 
     updatePhase();
     updateEmergencyAmmo(timestamp);
+
+    pollGamepad();
+
+    // Flechas con sensibilidad de teclado
+    const reach = 90 * sensKeys;
+    if (keys.left)  mouse.x = player.x - reach;
+    if (keys.right) mouse.x = player.x + reach;
+    if (keys.up)    mouse.y = player.y - reach;
+    if (keys.down)  mouse.y = player.y + reach;
+
     if (isShooting) shoot();
 
-    player.x += (mouse.x - player.x) * 0.15;
-    player.y += (mouse.y - player.y) * 0.15;
+    // Suavizado base (el ratón ya aplica sensMouse en mousemove)
+    const smooth = 0.12 + 0.08 * Math.min(sensMouse, 1.5);
+    player.x += (mouse.x - player.x) * smooth;
+    player.y += (mouse.y - player.y) * smooth;
+
     const margin = player.size;
     player.x = Math.max(margin, Math.min(canvas.width - margin, player.x));
     player.y = Math.max(margin + 50, Math.min(canvas.height - margin - 42, player.y));
@@ -1611,6 +1772,8 @@ function startGame() {
     gameOverPanel.style.display = "none";
     const pausePanel = document.getElementById("pausePanel");
     if (pausePanel) pausePanel.style.display = "none";
+    const cfgPanel = document.getElementById("configPanel");
+    if (cfgPanel) cfgPanel.style.display = "none";
     const btnPause = document.getElementById("btnPause");
     if (btnPause) { btnPause.style.display = "block"; btnPause.innerHTML = "⏸"; }
 
@@ -1620,6 +1783,7 @@ function startGame() {
     ammo = 100; shield = 0; rapidFire = 0; tripleShot = 0;
     slowMo = 0; laser = 0; pierce = 0; drone = 0; lives = 1;
     waveNumber = 1; gamePaused = false;
+    keys.up = keys.down = keys.left = keys.right = false;
     scoreElement.textContent = "0";
     record = Number(localStorage.getItem("techRunRecord")) || 0;
     recordElement.textContent = record;
@@ -1662,17 +1826,6 @@ startButton.addEventListener("click", startGame);
 restartButton.addEventListener("click", startGame);
 continueButton.addEventListener("click", continueToSite);
 </script>
-
-
-
-
-
-
-
-
-
-
-
 
 </body>
 </html>

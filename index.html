@@ -234,17 +234,19 @@ function resizeCanvas(){const r=canvas.getBoundingClientRect();canvas.width=Math
 window.addEventListener("resize",resizeCanvas);resizeCanvas();
 
 canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect();const tx=e.clientX-r.left,ty=e.clientY-r.top;mouse.x=player.x+(tx-player.x)*sensMouse;mouse.y=player.y+(ty-player.y)*sensMouse});
-/* Un disparo por clic / toque / tecla (sin auto-fuego continuo) */
-canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning)shoot()});
+/* Mantener clic/espacio = dispara seguido; soltar = para */
+canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting=true;shoot()}});
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
-canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;if(gameRunning)shoot();e.preventDefault()},{passive:false});
+window.addEventListener("mouseup",()=>{isShooting=false});
+canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;isShooting=true;if(gameRunning)shoot();e.preventDefault()},{passive:false});
 canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;e.preventDefault()},{passive:false});
 canvas.addEventListener("touchend",()=>{isShooting=false});
+canvas.addEventListener("touchcancel",()=>{isShooting=false});
 document.addEventListener("keydown",e=>{
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
-if((e.key===" "||e.code==="Space")&&!e.repeat){e.preventDefault();if(!gamePaused&&gameRunning)shoot()}
+if(e.key===" "||e.code==="Space"){e.preventDefault();if(!gamePaused&&gameRunning){isShooting=true;if(!e.repeat)shoot()}}
 if((e.key==="p"||e.key==="P")&&gameRunning)togglePause();
 if(e.key==="Escape"&&gameRunning&&!gamePaused)endGame()});
 document.addEventListener("keyup",e=>{
@@ -261,8 +263,9 @@ if(gp.buttons[12]&&gp.buttons[12].pressed)ay=-1;if(gp.buttons[13]&&gp.buttons[13
 if(gp.buttons[14]&&gp.buttons[14].pressed)ax=-1;if(gp.buttons[15]&&gp.buttons[15].pressed)ax=1;
 if(ax||ay){const reach=90*sensPad;mouse.x=player.x+ax*reach;mouse.y=player.y+ay*reach}
 const fireBtn=[0,1,2,3,5,7].some(i=>gp.buttons[i]&&gp.buttons[i].pressed);
-if(fireBtn&&!pollGamepad._fire){pollGamepad._fire=true;if(gameRunning&&!gamePaused)shoot()}
-if(!fireBtn)pollGamepad._fire=false;
+if(fireBtn)isShooting=true;
+else if(pollGamepad._wasFire)isShooting=false;
+pollGamepad._wasFire=fireBtn;
 if(gp.buttons[9]&&gp.buttons[9].pressed){if(!pollGamepad._h){pollGamepad._h=true;if(gameRunning)togglePause()}}else pollGamepad._h=false}
 
 function generateMeteorPoints(size){const pts=[],n=7+Math.floor(Math.random()*3);for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2,r=size*(.55+Math.random()*.45);pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r})}return pts}
@@ -640,6 +643,7 @@ drawSpaceBG();
 if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;
 updatePhase();updateEmergencyAmmo(ts);pollGamepad();
 const reach=90*sensKeys;if(keys.left)mouse.x=player.x-reach;if(keys.right)mouse.x=player.x+reach;if(keys.up)mouse.y=player.y-reach;if(keys.down)mouse.y=player.y+reach;
+if(isShooting)shoot();
 const smooth=.12+.08*Math.min(sensMouse,1.5);player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m+50,Math.min(canvas.height-m-42,player.y));
 if(phase==="meteors"){const delay=Math.max(180,500-waveNumber*25);if(ts-lastSpawn>delay){createMeteor();if(waveNumber>2&&Math.random()<.3)createMeteor();lastSpawn=ts}}

@@ -210,7 +210,7 @@ const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="htt
 
 function initStars(){
   starsBG=[];
-  const n=Math.floor((canvas.width*canvas.height)/(isMobile()?6000:3200))+(isMobile()?25:50);
+  const n=Math.floor((canvas.width*canvas.height)/(isMobile()?9000:5000))+(isMobile()?12:28);
   for(let i=0;i<n;i++)starsBG.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.3,a:.25+Math.random()*.7,sp:.12+Math.random()*.5});
 }
 
@@ -262,16 +262,15 @@ function getScale(){return Math.min(canvas.width,canvas.height)/400}
 /* Detecta móvil/touch para bajar velocidad y límites */
 function isMobile(){return canvas.width<600||('ontouchstart' in window)}
 function getProgressSpeed(){
-  /* Más avance = más rápido (sin poder lento) */
-  return 1 + Math.min(0.85, waveCount*0.045 + score*0.0012);
+  /* Más oleadas y puntos = más rápido (máx +90%) */
+  return 1 + Math.min(0.9, waveCount*0.05 + score*0.0015);
 }
 function getSpeedScale(){
-  /* Escala de velocidad según altura del canvas.
-     En celular: 34% más lento (factor 0.66). */
+  /* Solo escala por tamaño de pantalla (sin penalizar tanto el móvil) */
   const h=Math.max(canvas.height,1);
   let s=h/420;
-  if(isMobile())s*=0.66; // 34% más lento en móvil
-  return Math.min(1.1,Math.max(0.5,s));
+  if(isMobile())s*=0.88;
+  return Math.min(1.15,Math.max(0.7,s));
 }
 function resizeCanvas(){const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,r.width);canvas.height=Math.max(1,r.height);player.size=Math.max(13,Math.min(20,17*getScale()));if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}initStars()}
 window.addEventListener("resize",resizeCanvas);resizeCanvas();
@@ -328,14 +327,14 @@ function applyGravity(obj,x,y,mult){
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>(isMobile()?14:20))return;
+  if(obstacles.length>(isMobile()?10:16))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0))*sc;
   const prog=getProgressSpeed();
   obstacles.push({
     x:Math.random()*Math.max(1,canvas.width-size),y:-size-10,size,
-    speed:(2.0+Math.random()*1.8)*prog*getSpeedScale()*(isMobile()?0.85:1),
+    speed:(2.15+Math.random()*1.7)*prog*getSpeedScale(),
     vx:(Math.random()-.5)*(scenario>=3?1.6:1.0),rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
     type:isHard?"hard":kind==="explosive"?"explosive":kind==="magnetic"?"magnetic":"meteor",
@@ -347,7 +346,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype){
-  if(obstacles.length>(isMobile()?12:18))return;
+  if(obstacles.length>(isMobile()?9:14))return;
   const sc=getScale();
   let size,hp,spd,col;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -363,7 +362,7 @@ function createEnemy(etype){
   /* Se quedan arriba (zona superior) */
   const topY=28+Math.random()*45;
   obstacles.push({
-    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getProgressSpeed()*getSpeedScale()*(isMobile()?0.85:1),
+    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getProgressSpeed()*getSpeedScale(),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:25+Math.random()*55,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
@@ -390,10 +389,10 @@ function createBoss(btype){
 
 function spawnShipWave(){
   /* Pocas naves a la vez para no trabar; misma secuencia de oleadas */
-  const n=Math.min(isMobile()?4:6, 3+Math.floor(level*0.5));
+  const n=Math.min(isMobile()?3:5, 3+Math.min(2,Math.floor(waveCount*0.15)));
   for(let i=0;i<n;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
-    if(obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length>=(isMobile()?5:8))return;
+    if(obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length>=(isMobile()?4:6))return;
     let pool=["ship","hunter"];
     if(level>=2||scenario>=2)pool.push("kamikaze","hunter");
     if(level>=3||scenario>=2)pool.push("sniper","swarm");
@@ -413,10 +412,9 @@ function nextBossType(){
 }
 
 function advanceLevel(){
-  /* Solo niveles 1 y 2; waveCount sube siempre (más velocidad) */
+  /* Sin nivel 2: solo oleadas; cada oleada aumenta velocidad */
   waveCount++;
-  if(level<2)level=2;
-  else level=2;
+  level=1;
 }
 function startMeteorPhase(){phase="meteors";phaseTimer=METEOR_DURATION;obstacles=obstacles.filter(o=>["meteor","explosive","magnetic","hard"].includes(o.type))}
 function startWarning(){phase="warning";phaseTimer=WARNING_DURATION}
@@ -483,7 +481,7 @@ function enemyShoot(o){
 }
 
 function createExplosion(x,y,size,color){
-  if(explosions.length>28)explosions.splice(0,12);
+  if(explosions.length>16)explosions.splice(0,8);
   const n=Math.min(4,2+Math.floor(size/8));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*2.5;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*2.5,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
 }
@@ -505,7 +503,7 @@ function maybeSpawnPickup(x,y){
   else if(r<.25)pickups.push({x,y,type:"bomb",size:s,vy:1.5});
 }
 
-function createParticle(){if(particles.length>12||Math.random()>.45)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
+function createParticle(){if(particles.length>8||Math.random()>.6)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
 
 function saveRecord(){const saved=Number(lsGet("techRunRecord",0))||0;if(score>saved){record=score;lsSet("techRunRecord",record)}else{record=saved}if(recordElement)recordElement.textContent=record}
 function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario()}
@@ -628,24 +626,23 @@ function updateAllies(){
 
 /* TRAMPAS */
 function spawnTrap(){
-  if(traps.length>(isMobile()?4:6))return;
+  if(traps.length>(isMobile()?3:5))return;
   const s=getScale();
   const roll=Math.random();
-  const L=level;
-  if(L>=1&&roll<.10)traps.push({type:"mine",x:40+Math.random()*(canvas.width-80),y:-20,size:14*s,vy:(1.6+Math.random()*1.2)*getSpeedScale(),pulse:0,hidden:false});
-  else if(L>=2&&roll<.18)traps.push({type:"seeker",x:40+Math.random()*(canvas.width-80),y:-25,size:12*s,vy:(1.4+Math.random())*getSpeedScale(),life:400,pulse:0});
-  else if(L>=2&&roll<.26)traps.push({type:"shrapnel",x:50+Math.random()*(canvas.width-100),y:-30,size:16*s,vy:(1.8+Math.random())*getSpeedScale(),armed:true});
-  else if(L>=3&&roll<.34)traps.push({type:"hiddenmine",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.3+Math.random()*.4),size:12*s,armed:false,pulse:0});
-  else if(L>=3&&roll<.42)traps.push({type:"beam",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.25+Math.random()*.45),w:10*s,h:48*s,life:200+Math.random()*100,warning:70});
-  else if(L>=3&&roll<.50)traps.push({type:"laserwarn",x:30+Math.random()*(canvas.width-60),y:0,w:6*s,life:120,warning:50,fired:false});
-  else if(roll<.58)traps.push({type:"vortex",x:50+Math.random()*(canvas.width-100),y:-30,size:22*s,vy:(1.2+Math.random()*.8)*getSpeedScale(),spin:0});
-  else if(roll<.66)traps.push({type:"spike",x:30+Math.random()*(canvas.width-60),y:canvas.height+10,size:16*s,vy:-(2.2+Math.random()*1.5)*getSpeedScale(),wiggle:0});
-  else if(roll<.74)traps.push({type:"freeze",x:40+Math.random()*(canvas.width-80),y:-25,size:18*s,vy:(1.4+Math.random())*getSpeedScale(),pulse:0});
-  else if(L>=4&&roll<.82)traps.push({type:"blackhole",x:60+Math.random()*(canvas.width-120),y:-40,size:28*s,vy:(.85+Math.random()*.45)*getSpeedScale(),spin:0,pull:0});
-  else if(L>=3&&roll<.88){const gx=60+Math.random()*(canvas.width-120),gy=canvas.height*(.25+Math.random()*.4);gravZones.push({x:gx,y:gy,r:70*s,force:1.8,life:300});traps.push({type:"gravity",x:gx,y:gy,size:20*s,life:300})}
-  else if(L>=4&&roll<.93){storm=200;traps.push({type:"storm",x:canvas.width/2,y:canvas.height/2,life:200})}
-  else if(roll<.97)traps.push({type:"saw",x:40+Math.random()*(canvas.width-80),y:-25,size:16*s,vy:(2+Math.random()*1.2)*getSpeedScale(),spin:0});
-  else traps.push({type:"plasma",x:0,y:canvas.height*(.25+Math.random()*.45),h:8*s,life:160+Math.random()*80,warning:50});
+  /* Láseres vertical / horizontal / cruz (mitad de pantalla) */
+  if(roll<.12)traps.push({type:"laserV",x:canvas.width*(.25+Math.random()*.5),y:0,w:5*s,life:150,warning:45,fired:false});
+  else if(roll<.22)traps.push({type:"laserH",x:0,y:canvas.height*(.25+Math.random()*.5),h:5*s,life:150,warning:45,fired:false});
+  else if(roll<.30)traps.push({type:"laserX",x:canvas.width/2,y:canvas.height/2,life:160,warning:50,fired:false,rot:0});
+  /* 3 trampas nuevas */
+  else if(roll<.40)traps.push({type:"electric",x:40+Math.random()*(canvas.width-80),y:-20,size:20*s,vy:(1.5+Math.random())*getSpeedScale(),pulse:0});
+  else if(roll<.50)traps.push({type:"wall",x:0,y:canvas.height*(.35+Math.random()*.25),h:10*s,gapX:40+Math.random()*(canvas.width-120),gapW:70*s,life:200,warning:40});
+  else if(roll<.58)traps.push({type:"drone",x:Math.random()*canvas.width,y:-25,size:12*s,vx:(Math.random()-.5)*2,vy:(1.2+Math.random())*getSpeedScale(),life:350,pulse:0});
+  else if(roll<.66)traps.push({type:"mine",x:40+Math.random()*(canvas.width-80),y:-20,size:14*s,vy:(1.6+Math.random()*1.2)*getSpeedScale(),pulse:0,hidden:false});
+  else if(roll<.74)traps.push({type:"seeker",x:40+Math.random()*(canvas.width-80),y:-25,size:12*s,vy:(1.4+Math.random())*getSpeedScale(),life:350,pulse:0});
+  else if(roll<.80)traps.push({type:"shrapnel",x:50+Math.random()*(canvas.width-100),y:-30,size:16*s,vy:(1.8+Math.random())*getSpeedScale(),armed:true});
+  else if(roll<.86)traps.push({type:"spike",x:30+Math.random()*(canvas.width-60),y:canvas.height+10,size:16*s,vy:-(2.2+Math.random()*1.5)*getSpeedScale(),wiggle:0});
+  else if(roll<.92)traps.push({type:"vortex",x:50+Math.random()*(canvas.width-100),y:-30,size:20*s,vy:(1.2+Math.random()*.8)*getSpeedScale(),spin:0});
+  else traps.push({type:"saw",x:40+Math.random()*(canvas.width-80),y:-25,size:16*s,vy:(2+Math.random()*1.2)*getSpeedScale(),spin:0});
 }
 
 function updateTraps(){
@@ -653,7 +650,60 @@ function updateTraps(){
   for(let gi=gravZones.length-1;gi>=0;gi--){gravZones[gi].life--;if(gravZones[gi].life<=0)gravZones.splice(gi,1)}
   for(let i=traps.length-1;i>=0;i--){
     const t=traps[i];
-    if(t.type==="mine"){
+    if(t.type==="laserV"){
+      t.life--;t.warning--;
+      if(t.warning>0){ctx.strokeStyle=`rgba(255,80,80,${.3+Math.sin(performance.now()/80)*.2})`;ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(t.x,0);ctx.lineTo(t.x,canvas.height);ctx.stroke();ctx.setLineDash([])}
+      else{ctx.shadowColor="#FF2244";ctx.shadowBlur=isMobile()?0:12;ctx.fillStyle="rgba(255,40,60,.85)";ctx.fillRect(t.x-t.w/2,0,t.w,canvas.height);ctx.shadowBlur=0;
+        if(invisible<=0&&Math.abs(player.x-t.x)<player.size*.7+t.w/2){hitPlayer(t.x,player.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="laserH"){
+      t.life--;t.warning--;
+      if(t.warning>0){ctx.strokeStyle=`rgba(255,80,80,${.3+Math.sin(performance.now()/80)*.2})`;ctx.lineWidth=2;ctx.setLineDash([6,6]);ctx.beginPath();ctx.moveTo(0,t.y);ctx.lineTo(canvas.width,t.y);ctx.stroke();ctx.setLineDash([])}
+      else{ctx.shadowColor="#FF2244";ctx.shadowBlur=isMobile()?0:12;ctx.fillStyle="rgba(255,40,60,.85)";ctx.fillRect(0,t.y-t.h/2,canvas.width,t.h);ctx.shadowBlur=0;
+        if(invisible<=0&&Math.abs(player.y-t.y)<player.size*.7+t.h/2){hitPlayer(player.x,t.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="laserX"){
+      t.life--;t.warning--;t.rot=(t.rot||0)+.02;
+      const cx=t.x,cy=t.y;
+      if(t.warning>0){ctx.strokeStyle=`rgba(255,100,50,${.35})`;ctx.lineWidth=2;ctx.setLineDash([5,5]);
+        ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,canvas.height);ctx.moveTo(0,cy);ctx.lineTo(canvas.width,cy);ctx.stroke();ctx.setLineDash([])}
+      else{ctx.shadowColor="#FF6600";ctx.shadowBlur=isMobile()?0:10;ctx.strokeStyle="rgba(255,80,30,.9)";ctx.lineWidth=5*getScale();
+        ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,canvas.height);ctx.moveTo(0,cy);ctx.lineTo(canvas.width,cy);ctx.stroke();ctx.shadowBlur=0;
+        if(invisible<=0&&(Math.abs(player.x-cx)<player.size||Math.abs(player.y-cy)<player.size)){hitPlayer(player.x,player.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="electric"){
+      t.y+=t.vy;t.pulse+=.2;
+      ctx.strokeStyle=`rgba(100,200,255,${.5+Math.sin(t.pulse)*.3})`;ctx.lineWidth=2;
+      for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(t.x-t.size,t.y+(k-1)*4);ctx.lineTo(t.x+t.size,t.y+(k-1)*4+Math.sin(t.pulse+k)*6);ctx.stroke()}
+      ctx.fillStyle="rgba(150,220,255,.4)";ctx.beginPath();ctx.arc(t.x,t.y,t.size*.4,0,Math.PI*2);ctx.fill();
+      if(invisible<=0&&Math.hypot(player.x-t.x,player.y-t.y)<player.size+t.size*.5){hitPlayer(t.x,t.y);if(!gameRunning)return;traps.splice(i,1);continue}
+      if(t.y>canvas.height+40)traps.splice(i,1);
+    }
+    else if(t.type==="wall"){
+      t.life--;t.warning=(t.warning||0)-1;
+      const alpha=t.warning>0?.25:.8;
+      ctx.fillStyle=`rgba(180,60,60,${alpha})`;
+      ctx.fillRect(0,t.y-t.h/2,t.gapX,t.h);
+      ctx.fillRect(t.gapX+t.gapW,t.y-t.h/2,canvas.width-(t.gapX+t.gapW),t.h);
+      if(t.warning<=0&&invisible<=0){
+        const inGap=player.x>t.gapX&&player.x<t.gapX+t.gapW;
+        if(!inGap&&Math.abs(player.y-t.y)<player.size+t.h/2){hitPlayer(player.x,t.y);if(!gameRunning)return}
+      }
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="drone"){
+      t.life--;t.pulse+=.1;t.x+=t.vx;t.y+=t.vy;
+      if(t.x<10||t.x>canvas.width-10)t.vx*=-1;
+      ctx.fillStyle="#88AACC";ctx.beginPath();ctx.moveTo(t.x,t.y-t.size);ctx.lineTo(t.x+t.size,t.y+t.size*.5);ctx.lineTo(t.x-t.size,t.y+t.size*.5);ctx.closePath();ctx.fill();
+      ctx.fillStyle="#FF4466";ctx.fillRect(t.x-2,t.y,4,4);
+      if(t.life%40<1&&enemyBullets.length<18){const a=Math.atan2(player.y-t.y,player.x-t.x);enemyBullets.push({x:t.x,y:t.y,vx:Math.cos(a)*3.2*getSpeedScale(),vy:Math.sin(a)*3.2*getSpeedScale(),size:2.5*getScale()})}
+      if(invisible<=0&&Math.hypot(player.x-t.x,player.y-t.y)<player.size+t.size){hitPlayer(t.x,t.y);if(!gameRunning)return;traps.splice(i,1);continue}
+      if(t.life<=0||t.y>canvas.height+40)traps.splice(i,1);
+    }
+    else if(t.type==="mine"){
       t.y+=t.vy;t.pulse+=.15;const r=t.size*(.85+Math.sin(t.pulse)*.2);
       ctx.shadowColor="#FF4400";ctx.shadowBlur=14;ctx.fillStyle="#FF2200";ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
       ctx.fillStyle="#FFCC00";ctx.beginPath();ctx.arc(t.x,t.y,r*.35,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
@@ -905,7 +955,7 @@ function drawBullets(){
   }
 }
 function updateEnemyBullets(){
-  if(enemyBullets.length>28)enemyBullets.splice(0,enemyBullets.length-28);
+  if(enemyBullets.length>20)enemyBullets.splice(0,enemyBullets.length-20);
   const slow=1; /* sin ralentizar */
   for(let i=enemyBullets.length-1;i>=0;i--){
     const b=enemyBullets[i];b.x+=b.vx*slow;b.y+=b.vy*slow;
@@ -954,7 +1004,7 @@ function checkCollision(o){return Math.hypot(player.x-(o.x+o.size/2),player.y-(o
 
 function drawWarning(){if(phase!=="warning")return;const a=.5+Math.sin(performance.now()/120)*.4;ctx.fillStyle=`rgba(206,17,38,${a*.25})`;ctx.fillRect(0,0,canvas.width,canvas.height);
 ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${Math.min(24,canvas.width*.05)}px Orbitron`;ctx.textAlign="center";
-const msg=(waveCount>0&&waveCount%4===0)?"⚠ JEFE APROXIMÁNDOSE ⚠":level>=2?"⚠ NAVES APROXIMÁNDOSE ⚠":"⚠ OLEADA "+level+" ⚠";
+const msg=(waveCount>0&&waveCount%4===0)?"⚠ JEFE APROXIMÁNDOSE ⚠":"⚠ OLEADA "+(waveCount+1)+" ⚠";
 ctx.fillText(msg,canvas.width/2,canvas.height/2-10);
 ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font="14px Share Tech Mono";ctx.fillText(Math.ceil(phaseTimer/60)+" s",canvas.width/2,canvas.height/2+22)}
 
@@ -967,7 +1017,7 @@ ctx.font=mob?"bold 9px Orbitron":"bold 11px Orbitron";ctx.textBaseline="middle";
 ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,8,18);
 ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.75)";ctx.font=mob?"9px Share Tech Mono":"10px Share Tech Mono";
 const scenNames={1:"ÓRBITA",2:"ASTEROIDES",3:"ALIEN",4:"AGUJERO"};
-let lab=scenNames[scenario]+" · N"+level;
+let lab=scenNames[scenario]+" · O"+(waveCount+1);
 if(phase==="meteors")lab+=" · "+Math.ceil(phaseTimer/60)+"s";
 else if(phase==="warning")lab+=" · ALERTA";
 else if(phase==="ships")lab+=" · NAVES";
@@ -1056,7 +1106,7 @@ const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));playe
 if(phase==="meteors"){
   const mob=isMobile()?1.2:1;
   /* Spawns estables: no saturar en nivel 2–4 */
-  const delay=Math.max(160,400-waveCount*12-level*10)*mob;
+  const delay=Math.max(140,380-waveCount*14)*mob;
   if(ts-lastSpawn>delay){
     const r=Math.random();
     if(scenario>=2&&r<.10)createMeteor("hard");

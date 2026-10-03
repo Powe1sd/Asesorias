@@ -324,17 +324,16 @@ function applyGravity(obj,x,y,mult){
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>(isMobile()?18:26))return;
+  if(obstacles.length>(isMobile()?14:20))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0))*sc;
-  /* Velocidad por nivel: 1 base, 2 +18%, 3 +32%, 4 +45% */
-  const levelMul={1:1,2:1.18,3:1.32,4:1.45}[level]||1.2;
-  const scenBoost=scenario*.08;
+  /* Casi igual que nivel 1; 2–4 solo un poco más rápido */
+  const levelMul={1:1,2:1.08,3:1.12,4:1.16}[level]||1.1;
   obstacles.push({
     x:Math.random()*Math.max(1,canvas.width-size),y:-size-10,size,
-    speed:(1.9+Math.random()*2.0+scenBoost)*levelMul*getSpeedScale()*(isMobile()?0.8:1),
-    vx:(Math.random()-.5)*(scenario>=3?2.2:1.2),rotation:Math.random()*Math.PI*2,
+    speed:(2.0+Math.random()*1.8)*levelMul*getSpeedScale()*(isMobile()?0.85:1),
+    vx:(Math.random()-.5)*(scenario>=3?1.6:1.0),rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
     type:isHard?"hard":kind==="explosive"?"explosive":kind==="magnetic"?"magnetic":"meteor",
     hp:isHard?9999:kind==="explosive"?2:1,maxHp:isHard?9999:kind==="explosive"?2:1,
@@ -345,6 +344,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype){
+  if(obstacles.length>(isMobile()?12:18))return;
   const sc=getScale();
   let size,hp,spd,col;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -360,7 +360,7 @@ function createEnemy(etype){
   /* Se quedan arriba (zona superior) */
   const topY=28+Math.random()*45;
   obstacles.push({
-    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*({1:1,2:1.15,3:1.28,4:1.4}[level]||1.15)*getSpeedScale()*(isMobile()?0.8:1),
+    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*({1:1,2:1.06,3:1.1,4:1.12}[level]||1.08)*getSpeedScale()*(isMobile()?0.85:1),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:25+Math.random()*55,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
@@ -386,20 +386,21 @@ function createBoss(btype){
 }
 
 function spawnShipWave(){
-  const n=Math.min(isMobile()?6:10, 3+Math.floor(level*1.1)+Math.floor(scenario*.6));
+  /* Pocas naves a la vez para no trabar; misma secuencia de oleadas */
+  const n=Math.min(isMobile()?4:6, 3+Math.floor(level*0.5));
   for(let i=0;i<n;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
+    if(obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length>=(isMobile()?5:8))return;
     let pool=["ship","hunter"];
     if(level>=2||scenario>=2)pool.push("kamikaze","hunter");
     if(level>=3||scenario>=2)pool.push("sniper","swarm");
-    if(scenario>=3)pool.push("alien","creature","turret");
-    if(level>=5||scenario>=3)pool.push("thief","teleport","bigship");
-    if(scenario>=4)pool.push("hunter","kamikaze","teleport");
+    if(scenario>=3)pool.push("alien","bigship");
+    if(scenario>=4)pool.push("hunter","teleport");
     createEnemy(pool[Math.floor(Math.random()*pool.length)]);
-  },i*180);
-  if(level>=3||scenario>=2)setTimeout(()=>{if(gameRunning&&phase==="ships")createEnemy("bigship")},n*180);
+  },i*220);
+  if(level>=3||scenario>=2)setTimeout(()=>{if(gameRunning&&phase==="ships")createEnemy("bigship")},n*220);
   if(level>=4||scenario>=3){
-    for(let s=0;s<6;s++)setTimeout(()=>{if(gameRunning&&phase==="ships")createEnemy("swarm")},n*180+s*60);
+    for(let s=0;s<3;s++)setTimeout(()=>{if(gameRunning&&phase==="ships")createEnemy("swarm")},n*220+s*100);
   }
 }
 
@@ -877,12 +878,53 @@ function drawObstacle(o){
 
 function updateLaser(){if(laser<=0)return;const bw=12*getScale();ctx.fillStyle="rgba(0,255,255,.45)";ctx.fillRect(player.x-bw/2,0,bw,player.y);
 for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.abs(o.x+o.size/2-player.x)<o.size*.5+bw&&o.y<player.y){o.hp-=o.type&&String(o.type).startsWith("boss")?.1:.2;if(o.hp<=0)destroyEnemy(o,j)}}}
-function drawBullets(){for(let i=bullets.length-1;i>=0;i--){const b=bullets[i];b.y-=b.speed;ctx.fillStyle=b.pierce?"#CCFF33":"#FFE44D";ctx.beginPath();ctx.arc(b.x,b.y,b.size,0,Math.PI*2);ctx.fill();
-if(b.y<-20){bullets.splice(i,1);continue}
-for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.hypot(b.x-(o.x+o.size/2),b.y-(o.y+o.size/2))<o.size*.55+b.size){if(o.indestructible||o.type==="hard"){createExplosion(b.x,b.y,4,"150,150,150");if(!b.pierce)bullets.splice(i,1);break}o.hp--;createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break}}}}
-function updateEnemyBullets(){if(enemyBullets.length>45)enemyBullets.splice(0,enemyBullets.length-45);const slow=slowMo>0?.75:1;for(let i=enemyBullets.length-1;i>=0;i--){const b=enemyBullets[i];b.x+=b.vx*slow;b.y+=b.vy*slow;ctx.fillStyle="#FF6644";ctx.beginPath();ctx.arc(b.x,b.y,b.size,0,Math.PI*2);ctx.fill();
-if(b.y>canvas.height+20){enemyBullets.splice(i,1);continue}
-if(Math.hypot(player.x-b.x,player.y-b.y)<player.size*.8+b.size){if(invisible>0){enemyBullets.splice(i,1);continue}enemyBullets.splice(i,1);hitPlayer(b.x,b.y);if(!gameRunning)return}}}
+function drawBullets(){
+  for(let i=bullets.length-1;i>=0;i--){
+    const b=bullets[i];b.y-=b.speed;
+    /* Bala láser del jugador (no bolita) */
+    ctx.save();
+    ctx.shadowColor=b.pierce?"#CCFF33":"#FFEE88";ctx.shadowBlur=8;
+    const g=ctx.createLinearGradient(b.x,b.y+10,b.x,b.y-10);
+    if(b.pierce){g.addColorStop(0,"rgba(180,255,50,0)");g.addColorStop(.4,"#CCFF33");g.addColorStop(1,"#FFFFFF")}
+    else{g.addColorStop(0,"rgba(255,180,0,0)");g.addColorStop(.35,"#FFCD00");g.addColorStop(1,"#FFF8C0")}
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.moveTo(b.x,b.y-11);ctx.lineTo(b.x+2.8,b.y+2);ctx.lineTo(b.x+1.2,b.y+9);
+    ctx.lineTo(b.x-1.2,b.y+9);ctx.lineTo(b.x-2.8,b.y+2);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#FFF";ctx.fillRect(b.x-1,b.y-4,2,8);
+    ctx.restore();
+    if(b.y<-20){bullets.splice(i,1);continue}
+    for(let j=obstacles.length-1;j>=0;j--){
+      const o=obstacles[j];
+      if(Math.hypot(b.x-(o.x+o.size/2),b.y-(o.y+o.size/2))<o.size*.55+b.size){
+        if(o.indestructible||o.type==="hard"){createExplosion(b.x,b.y,4,"150,150,150");if(!b.pierce)bullets.splice(i,1);break}
+        o.hp--;createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
+      }
+    }
+  }
+}
+function updateEnemyBullets(){
+  if(enemyBullets.length>28)enemyBullets.splice(0,enemyBullets.length-28);
+  const slow=slowMo>0?.75:1;
+  for(let i=enemyBullets.length-1;i>=0;i--){
+    const b=enemyBullets[i];b.x+=b.vx*slow;b.y+=b.vy*slow;
+    /* Proyectil enemigo afilado (no bolita) */
+    const ang=Math.atan2(b.vy,b.vx);
+    ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ang);
+    ctx.shadowColor="#FF3355";ctx.shadowBlur=6;
+    const eg=ctx.createLinearGradient(-8,0,8,0);
+    eg.addColorStop(0,"rgba(255,50,80,0)");eg.addColorStop(.4,"#FF2244");eg.addColorStop(1,"#FFD0D8");
+    ctx.fillStyle=eg;
+    ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-5,-2.6);ctx.lineTo(-3,0);ctx.lineTo(-5,2.6);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#FFF";ctx.fillRect(-2,-1,5,2);
+    ctx.restore();
+    if(b.y>canvas.height+20||b.y<-30||b.x<-30||b.x>canvas.width+30){enemyBullets.splice(i,1);continue}
+    if(Math.hypot(player.x-b.x,player.y-b.y)<player.size*.8+b.size){
+      if(invisible>0){enemyBullets.splice(i,1);continue}
+      enemyBullets.splice(i,1);hitPlayer(b.x,b.y);if(!gameRunning)return
+    }
+  }
+}
 
 function updatePickups(){const labels={ammo:"+30",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈"};
 const colors={ammo:"#FFCD00",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA"};
@@ -1011,8 +1053,9 @@ const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));playe
 
 // spawn meteors by level
 if(phase==="meteors"){
-  const mob=isMobile()?1.25:1;
-  const delay=Math.max(150,460-level*35-scenario*12)*mob;
+  const mob=isMobile()?1.2:1;
+  /* Spawns estables: no saturar en nivel 2–4 */
+  const delay=Math.max(200,420-level*18)*mob;
   if(ts-lastSpawn>delay){
     const r=Math.random();
     if(scenario>=2&&r<.10)createMeteor("hard");
@@ -1025,11 +1068,11 @@ if(phase==="meteors"){
   }
 }
 // Naves también durante meteoros en escenarios avanzados (oleadas mixtas)
-if(phase==="meteors"&&scenario>=2&&ts-(lastEnemySpawn||0)>Math.max(2000,4500-scenario*400-level*100)){
-  if(Math.random()<.4){createEnemy(scenario>=3?(Math.random()>.5?"hunter":"alien"):"hunter");lastEnemySpawn=ts}
+if(phase==="meteors"&&scenario>=2&&ts-(lastEnemySpawn||0)>Math.max(3000,5500-scenario*150)){
+  if(Math.random()<.22&&obstacles.length<(isMobile()?12:18)){createEnemy(scenario>=3?(Math.random()>.5?"hunter":"ship"):"hunter");lastEnemySpawn=ts}
 }
-// traps
-if(level>=1&&ts-lastTrapSpawn>Math.max(1800,3600-level*120)){if(Math.random()<.5+level*.04)spawnTrap();lastTrapSpawn=ts}
+// traps (menos frecuentes para no trabar)
+if(level>=1&&ts-lastTrapSpawn>Math.max(2600,4500-level*60)){if(Math.random()<.32)spawnTrap();lastTrapSpawn=ts}
 
 /* Lento suave (no para el juego): 0.75 en vez de 0.4 */
 const slow=slowMo>0?.75:1;

@@ -141,6 +141,37 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 
 
 <script>
+
+/* =========================================================
+   TECH RUN — Br7
+   Comentarios del motor del juego (resumen por secciones)
+   =========================================================
+   VELOCIDAD:
+   - getSpeedScale() = altura_canvas/420
+   - En móvil se multiplica por 0.66 → 34% más lento
+   - Todas las velocidades (meteoritos, naves, balas) usan getSpeedScale()
+
+   NIVELES:
+   - level sube al terminar oleada de meteoros / naves / jefe
+   - Al pasar el nivel 4 → vuelve a 1 y levelLocked=true (se queda en 1)
+   - scenario (1-4) depende de la puntuación (0-99, 100-199, 200-299, 300+)
+
+   FASES (phase):
+   - "meteors" → caen meteoritos
+   - "warning" → aviso de naves/jefe
+   - "ships" → naves enemigas arriba
+   - "boss" → jefe
+
+   RENDIMIENTO:
+   - Límites de obstáculos, trampas, balas, partículas, explosiones
+   - En móvil los límites son más bajos para no trabarse
+
+   CONTROLES:
+   - Mouse / toque: mueve la nave Br7
+   - Clic mantenido o Espacio: disparar
+   - P: pausa | 🔄: reiniciar
+   ========================================================= */
+
 const canvas=document.getElementById("gameCanvas");
 const ctx=canvas.getContext("2d");
 const startPanel=document.getElementById("startPanel");
@@ -163,7 +194,7 @@ let score=0,meteorsDestroyed=0,shipsDestroyed=0;
 let lastSpawn=0,lastShot=0,lastAmmoDrop=0,lastTrapSpawn=0,lastEnemySpawn=0;
 let obstacles=[],particles=[],bullets=[],enemyBullets=[],pickups=[],explosions=[],traps=[],missiles=[],lightningFX=[],allies=[],gravZones=[];
 let starsBG=[];
-let level=1,phase="meteors",phaseTimer=0,waveNumber=1;
+let level=1,phase="meteors",phaseTimer=0,waveNumber=1,levelLocked=false;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=16*60,WARNING_DURATION=2.5*60;
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,lives=1;
@@ -180,7 +211,7 @@ const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="htt
 
 function initStars(){
   starsBG=[];
-  const n=Math.floor((canvas.width*canvas.height)/3200)+50;
+  const n=Math.floor((canvas.width*canvas.height)/(isMobile()?6000:3200))+(isMobile()?25:50);
   for(let i=0;i<n;i++)starsBG.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.3,a:.25+Math.random()*.7,sp:.12+Math.random()*.5});
 }
 
@@ -227,14 +258,17 @@ function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="bo
 if(gamePaused){if(pp)pp.style.display="block";if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame)}
 else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();animationFrame=requestAnimationFrame(gameLoop)}}
 
+/* Escala visual según tamaño del canvas (naves, meteoritos) */
 function getScale(){return Math.min(canvas.width,canvas.height)/400}
+/* Detecta móvil/touch para bajar velocidad y límites */
 function isMobile(){return canvas.width<600||('ontouchstart' in window)}
 function getSpeedScale(){
-  /* Más lento en celular y altura pequeña */
+  /* Escala de velocidad según altura del canvas.
+     En celular: 34% más lento (factor 0.66). */
   const h=Math.max(canvas.height,1);
   let s=h/420;
-  if(isMobile())s*=0.72;
-  return Math.min(1.15,Math.max(0.55,s));
+  if(isMobile())s*=0.66; // 34% más lento en móvil
+  return Math.min(1.1,Math.max(0.5,s));
 }
 function resizeCanvas(){const r=canvas.getBoundingClientRect();canvas.width=Math.max(1,r.width);canvas.height=Math.max(1,r.height);player.size=Math.max(13,Math.min(20,17*getScale()));if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}initStars()}
 window.addEventListener("resize",resizeCanvas);resizeCanvas();
@@ -289,8 +323,9 @@ function applyGravity(obj,x,y,mult){
   }
 }
 
+/* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>35)return;
+  if(obstacles.length>(isMobile()?22:30))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0))*sc;
@@ -298,7 +333,7 @@ function createMeteor(kind){
   const scenBoost=scenario*.15;
   obstacles.push({
     x:Math.random()*Math.max(1,canvas.width-size),y:-size-10,size,
-    speed:(1.8+Math.random()*2.2+levelBoost+scenBoost)*getSpeedScale()*(scenario>=2?1.1:1)*(isMobile()?0.85:1),
+    speed:(1.8+Math.random()*2.2+levelBoost+scenBoost)*getSpeedScale()*(scenario>=2?1.1:1)*(isMobile()?0.75:1),
     vx:(Math.random()-.5)*(scenario>=3?2.2:1.2),rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
     type:isHard?"hard":kind==="explosive"?"explosive":kind==="magnetic"?"magnetic":"meteor",
@@ -308,6 +343,7 @@ function createMeteor(kind){
   });
 }
 
+/* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype){
   const sc=getScale();
   let size,hp,spd,col;
@@ -324,7 +360,7 @@ function createEnemy(etype){
   /* Se quedan arriba (zona superior) */
   const topY=28+Math.random()*45;
   obstacles.push({
-    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getSpeedScale()*(isMobile()?0.85:1),
+    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getSpeedScale()*(isMobile()?0.75:1),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:25+Math.random()*55,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
@@ -350,7 +386,7 @@ function createBoss(btype){
 }
 
 function spawnShipWave(){
-  const n=5+Math.floor(level*1.4)+scenario;
+  const n=Math.min(isMobile()?6:10, 3+Math.floor(level*1.1)+Math.floor(scenario*.6));
   for(let i=0;i<n;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     let pool=["ship","hunter"];
@@ -372,30 +408,38 @@ function nextBossType(){
   return cycle[Math.floor((level-1)/5)%cycle.length];
 }
 
+function advanceLevel(){
+  /* Tras completar nivel 4 vuelve a 1 y se queda ahí */
+  if(levelLocked){level=1;return}
+  if(level>=4){level=1;levelLocked=true;return}
+  level++;
+}
 function startMeteorPhase(){phase="meteors";phaseTimer=METEOR_DURATION;obstacles=obstacles.filter(o=>["meteor","explosive","magnetic","hard"].includes(o.type))}
 function startWarning(){phase="warning";phaseTimer=WARNING_DURATION}
 function startShipPhase(){phase="ships";phaseTimer=0;obstacles=obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type));spawnShipWave()}
 function startBossPhase(){phase="boss";phaseTimer=0;obstacles=[];enemyBullets=[];createBoss(nextBossType())}
 
+/* Cambia de fase: meteoros → aviso → naves → jefe */
 function updatePhase(){
   if(phase==="meteors"){phaseTimer--;if(phaseTimer<=0)startWarning()}
   else if(phase==="warning"){phaseTimer--;if(phaseTimer<=0){
     if(level%5===0)startBossPhase();
     else if(level>=2||scenario>=2)startShipPhase();
-    else{level++;startMeteorPhase()}
+    else{advanceLevel();startMeteorPhase()}
   }}
   else if(phase==="ships"){
     phaseTimer++;
     const left=obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length;
-    if((left===0&&phaseTimer>60)||phaseTimer>28*60){level++;startMeteorPhase()}
+    if((left===0&&phaseTimer>60)||phaseTimer>28*60){advanceLevel();startMeteorPhase()}
   }
   else if(phase==="boss"){
     const bosses=obstacles.filter(o=>String(o.type).startsWith("boss"));
-    if(bosses.length===0){addScore(20+level*5);level++;startMeteorPhase()}
+    if(bosses.length===0){addScore(20+level*5);advanceLevel();startMeteorPhase()}
     phaseTimer++;
   }
 }
 
+/* Cambia escenario al llegar a 100 / 200 / 300 puntos */
 function checkScenario(){
   let ns=1;
   if(score>=300)ns=4;else if(score>=200)ns=3;else if(score>=100)ns=2;
@@ -410,14 +454,15 @@ function checkScenario(){
 function dropAmmoPack(){const s=16*getScale();pickups.push({x:Math.random()*Math.max(1,canvas.width-s),y:-s,type:"ammo",size:s,vy:(2+Math.random()*1.5)*getSpeedScale()})}
 function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack();if(Math.random()<.4)dropAmmoPack();lastAmmoDrop=ts}else if(ammo<=10&&ts-lastAmmoDrop>2500){dropAmmoPack();lastAmmoDrop=ts}}
 
-function shoot(){if(!gameRunning||gamePaused||ammo<=0||laser>0)return;const now=performance.now();if(now-lastShot<(rapidFire>0?75:shootCooldown))return;lastShot=now;const sp=10.5*getSpeedScale(),s=getScale();
+/* Disparo del jugador (respeta cooldown y munición) */
+function shoot(){if(!gameRunning||gamePaused||ammo<=0||laser>0)return;if(bullets.length>40)return;const now=performance.now();if(now-lastShot<(rapidFire>0?75:shootCooldown))return;lastShot=now;const sp=10.5*getSpeedScale(),s=getScale();
 const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:pierce>0});ammo--};
 if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
 
 function enemyShoot(o){
   const s=getScale(),cx=o.x+o.size/2,cy=o.y+o.size*.8;
   const aim=Math.max(-2.5,Math.min(2.5,(player.x-cx)*.016));
-  const speed=(3.5+Math.random()*1.6+level*.08)*getSpeedScale()*(isMobile()?0.85:1);
+  const speed=(3.5+Math.random()*1.6+level*.08)*getSpeedScale()*(isMobile()?0.75:1);
   if(o.type==="sniper"){
     enemyBullets.push({x:cx,y:cy,vx:aim*1.2,vy:speed*1.15,size:3.2*s,aim:true});
   } else if(o.type==="boss_mothership"||o.type==="boss_tentacle"){
@@ -435,14 +480,15 @@ function enemyShoot(o){
 }
 
 function createExplosion(x,y,size,color){
-  if(explosions.length>80)explosions.splice(0,20);
+  if(explosions.length>50)explosions.splice(0,20);
   const n=Math.min(6,4+Math.floor(size/5));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*3;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*3,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
 }
 
+/* Suelta un poder al azar (máx. pocos en pantalla) */
 function maybeSpawnPickup(x,y){
   /* Máximo 4 poderes en pantalla para no saturar / trabar */
-  if(pickups.length>=4)return;
+  if(pickups.length>=(isMobile()?3:4))return;
   const r=Math.random(),s=16*getScale();
   /* ~22% total, balanceado */
   if(r<.04)pickups.push({x,y,type:"ammo",size:s,vy:1.5});
@@ -458,7 +504,7 @@ function maybeSpawnPickup(x,y){
   else if(r<.22)pickups.push({x,y,type:"bomb",size:s,vy:1.5});
 }
 
-function createParticle(){if(particles.length>40)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2.5+.8,speed:Math.random()*1.6+.5,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
+function createParticle(){if(particles.length>25)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2.5+.8,speed:Math.random()*1.6+.5,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
 
 function saveRecord(){const saved=Number(lsGet("techRunRecord",0))||0;if(score>saved){record=score;lsSet("techRunRecord",record)}else{record=saved}if(recordElement)recordElement.textContent=record}
 function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario()}
@@ -571,7 +617,7 @@ function updateAllies(){
 
 /* TRAMPAS */
 function spawnTrap(){
-  if(traps.length>8)return;
+  if(traps.length>(isMobile()?5:7))return;
   const s=getScale();
   const roll=Math.random();
   const L=level;
@@ -848,6 +894,7 @@ if(ammo<=0){ctx.textAlign="center";ctx.font="bold 12px Orbitron";ctx.fillText("�
 const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(slowMo>0)pows.push(["LENTO","#AA88FF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=100;pows.forEach(([t,c])=>{ctx.fillStyle=c;ctx.fillText(t,px,canvas.height-17);px+=55})}
 
+/* Fondo según escenario (Tierra, asteroides, alien, agujero) */
 function drawSpaceBG(){
   // Escenarios visuales
   if(scenario===1){
@@ -907,6 +954,7 @@ function drawSpaceBG(){
   }
 }
 
+/* Bucle principal cada frame: mover, dibujar, colisiones */
 function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
 ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
@@ -1013,13 +1061,14 @@ updateLaser();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunnin
 updatePickups();updateExplosions();updateLightning();updateAllies();drawPlayer();updateParticles();drawWarning();drawHUD();
 animationFrame=requestAnimationFrame(gameLoop)}
 
+/* Reinicia variables y empieza la partida */
 function startGame(){
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;lives=1;level=1;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;lives=1;level=1;levelLocked=false;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecord",0))||0;if(recordElement)recordElement.textContent=record;

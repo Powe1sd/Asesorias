@@ -17,9 +17,9 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game{position:relative;width:100%;height:440px;overflow:hidden;border-radius:18px;background:#020b22;border:1px solid rgba(255,205,0,.35);box-shadow:0 0 20px rgba(0,56,168,.2);touch-action:none}
 .tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(100,160,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(100,160,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:1}
 #gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none}
-.game-top{position:absolute;top:15px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;z-index:10;pointer-events:none}
-.game-title{color:#FFCD00;font-weight:800;font-size:16px;letter-spacing:2px;text-shadow:0 0 8px rgba(255,205,0,.8)}
-.game-score{font-family:'Share Tech Mono',monospace;font-size:17px}
+.game-top{position:absolute;top:8px;left:44px;right:150px;display:flex;flex-direction:column;align-items:flex-start;z-index:12;pointer-events:none;gap:2px}
+.game-title{color:#FFCD00;font-weight:800;font-size:13px;letter-spacing:1px;text-shadow:0 0 8px rgba(255,205,0,.8);white-space:nowrap}
+.game-score{font-family:'Share Tech Mono',monospace;font-size:12px;text-align:left;line-height:1.4;color:#ddd;text-shadow:0 1px 3px #000}
 .game-score span{color:#FFCD00;font-weight:bold}
 .game-help{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(255,255,255,.55);font-family:'Share Tech Mono',monospace;font-size:12px;pointer-events:none;white-space:nowrap}
 .game-panel{position:absolute;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;max-width:85%;padding:28px;text-align:center;background:rgba(5,10,25,.94);border:1px solid rgba(255,205,0,.35);border-radius:15px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -61,8 +61,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .mini-triangle{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #CE1126;animation:colorCycle 5s infinite linear}
 @keyframes colorCycle{0%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}33%{border-left-color:#FFCD00;filter:drop-shadow(0 0 10px #FFCD00)}66%{border-left-color:#0038A8;filter:drop-shadow(0 0 10px #0038A8)}100%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}}
 .floating-name{position:fixed;bottom:12px;right:14px;font-size:.8rem;color:#CE1126;z-index:50}
-.facebook-fixed{position:fixed;bottom:20px;left:20px;background:#1877f2;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:18px;z-index:50;text-decoration:none}
-@media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:380px}.game-title{font-size:11px}.game-score{font-size:12px}.game-help{font-size:9px}.game-panel{width:280px;padding:20px}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
+@media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:400px}.game-top{left:42px;right:140px;top:8px}.game-title{font-size:11px}.game-score{font-size:10px;text-align:left}.game-help{font-size:9px}.game-panel{width:280px;padding:20px}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
 </style>
 </head>
 <body>
@@ -71,7 +70,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <div class="tech-game">
 <div class="game-top">
 <div class="game-title">⚡ TECH SYSTEM</div>
-<div class="game-score">PUNTOS: <span id="gameScore">0</span> &nbsp;|&nbsp; RÉCORD: <span id="gameRecord">0</span></div>
+<div class="game-score">PUNTOS <span id="gameScore">0</span> · RÉCORD <span id="gameRecord">0</span> · VIDAS <span id="gameLives">1</span></div>
 </div>
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
@@ -115,7 +114,6 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <div class="contact-card">
 <h2 class="contact-title"><i class="fa-solid fa-address-card"></i> Contacto</h2>
 <div class="contact-grid">
-<div class="contact-item"><div class="contact-icon"><i class="fa-brands fa-facebook-f"></i></div><div class="contact-info"><strong>Facebook</strong><a href="https://www.facebook.com/brahyanstiven.coyrubio/" target="_blank" rel="noopener">Brayhan Estiven Coy Rubio</a></div></div>
 <div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-clock"></i></div><div class="contact-info"><strong>Horario de atención</strong><span>Lunes a viernes · 9:00 a. m. – 1:00 p. m. y 2:00 p. m. – 6:00 p. m.</span></div></div>
 <div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div><div class="contact-info"><strong>País</strong><span>Colombia</span></div></div>
 <div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-code"></i></div><div class="contact-info"><strong>Área</strong><span>Desarrollo de Software</span></div></div>
@@ -136,7 +134,6 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <p style="margin-top:10px;opacity:.7;font-size:.8rem">Privada</p>
 </footer>
 <div class="floating-name">Brayhan 7 13</div>
-<a href="https://www.facebook.com/brahyanstiven.coyrubio/" class="facebook-fixed" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
 </div>
 
 
@@ -181,7 +178,9 @@ const restartButton=document.getElementById("restartGame");
 const continueButton=document.getElementById("continueGame");
 const scoreElement=document.getElementById("gameScore");
 const recordElement=document.getElementById("gameRecord");
+const livesElement=document.getElementById("gameLives");
 const finalScoreElement=document.getElementById("finalScore");
+function updateLivesUI(){if(livesElement)livesElement.textContent=lives}
 
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,String(v));return true}catch(e){return false}}
@@ -218,18 +217,18 @@ function initStars(){
 (function setupUI(){
 const gameBox=document.querySelector(".tech-game");if(!gameBox)return;
 function mk(id,html,title,css){let b=document.getElementById(id);if(!b){b=document.createElement("button");b.id=id;b.innerHTML=html;b.title=title;b.style.cssText=css;gameBox.appendChild(b)}return b}
-const btnFS=mk("btnFullscreen","⛶","Pantalla completa","position:absolute;top:10px;right:10px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(255,205,0,.85);color:#111;font-size:18px;cursor:pointer");
-const btnExit=mk("btnExitFS","✕","Salir","position:absolute;top:10px;right:52px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(206,17,38,.9);color:#fff;font-size:18px;cursor:pointer;display:none");
+const btnFS=mk("btnFullscreen","⛶","Pantalla completa","position:absolute;top:8px;right:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,205,0,.85);color:#111;font-size:15px;cursor:pointer");
+const btnExit=mk("btnExitFS","✕","Salir","position:absolute;top:8px;right:44px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.9);color:#fff;font-size:15px;cursor:pointer;display:none");
 btnFS.onclick=()=>{if(gameBox.requestFullscreen)gameBox.requestFullscreen();else if(gameBox.webkitRequestFullscreen)gameBox.webkitRequestFullscreen()};
 btnExit.onclick=()=>{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen()};
 function onFS(){const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);btnExit.style.display=fs?"block":"none";btnFS.style.display=fs?"none":"block";setTimeout(resizeCanvas,100)}
 document.addEventListener("fullscreenchange",onFS);document.addEventListener("webkitfullscreenchange",onFS);
-const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:10px;right:52px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:16px;cursor:pointer;display:none");
+const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:8px;right:80px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:14px;cursor:pointer;display:none");
 btnPause.onclick=()=>togglePause();
-const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;top:10px;right:94px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(206,17,38,.85);color:#fff;font-size:14px;cursor:pointer;display:none");
+const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;top:8px;right:116px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.85);color:#fff;font-size:13px;cursor:pointer;display:none");
 btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
-const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:10px;left:10px;z-index:30;width:36px;height:36px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:18px;cursor:pointer");
+const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45";
 cfg.innerHTML=`<h2 style="font-size:22px;margin-bottom:12px">⚙ CONFIG</h2>
@@ -329,11 +328,12 @@ function createMeteor(kind){
   const sc=getScale();
   const isHard=kind==="hard";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0))*sc;
-  const levelBoost=Math.floor(level/2)*.12;
-  const scenBoost=scenario*.15;
+  /* Velocidad por nivel: 1 base, 2 +18%, 3 +32%, 4 +45% */
+  const levelMul={1:1,2:1.18,3:1.32,4:1.45}[level]||1.2;
+  const scenBoost=scenario*.08;
   obstacles.push({
     x:Math.random()*Math.max(1,canvas.width-size),y:-size-10,size,
-    speed:(1.8+Math.random()*2.2+levelBoost+scenBoost)*getSpeedScale()*(scenario>=2?1.1:1)*(isMobile()?0.75:1),
+    speed:(1.9+Math.random()*2.0+scenBoost)*levelMul*getSpeedScale()*(isMobile()?0.8:1),
     vx:(Math.random()-.5)*(scenario>=3?2.2:1.2),rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
     type:isHard?"hard":kind==="explosive"?"explosive":kind==="magnetic"?"magnetic":"meteor",
@@ -360,7 +360,7 @@ function createEnemy(etype){
   /* Se quedan arriba (zona superior) */
   const topY=28+Math.random()*45;
   obstacles.push({
-    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getSpeedScale()*(isMobile()?0.75:1),
+    x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*({1:1,2:1.15,3:1.28,4:1.4}[level]||1.15)*getSpeedScale()*(isMobile()?0.8:1),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:25+Math.random()*55,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
@@ -513,9 +513,17 @@ function destroyEnemy(o,i){
   const cx=o.x+o.size/2,cy=o.y+o.size/2;
   if(o.type==="explosive"){
     createExplosion(cx,cy,o.size*1.3,"255,100,30");
+    /* Ráfaga de balas enemigas al explotar */
+    const nB=isMobile()?6:8;
+    for(let k=0;k<nB;k++){
+      const a=(k/nB)*Math.PI*2+Math.random()*.2;
+      const sp=(3.2+Math.random()*1.5)*getSpeedScale();
+      enemyBullets.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:3*getScale()});
+    }
     for(let k=0;k<2;k++){
       const a=Math.random()*Math.PI*2,sz=o.size*.35;
-      obstacles.push({x:cx,y:cy,size:sz,speed:(1.5+Math.random()*1.8)*getSpeedScale(),vx:Math.cos(a)*1.5,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false});
+      if(obstacles.length<(isMobile()?22:30))
+        obstacles.push({x:cx,y:cy,size:sz,speed:(1.5+Math.random()*1.8)*getSpeedScale(),vx:Math.cos(a)*1.5,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false});
     }
   } else {
     const colors={meteor:"255,60,30",explosive:"255,120,20",magnetic:"80,180,255",hunter:"0,220,255",sniper:"255,200,50",turret:"AA8844",kamikaze:"FF3333",swarm:"88FF88",thief:"FF66AA",teleport:"CC66FF",creature:"66FFAA",ship:"00BFFF",bigship:"2ECC71",boss_meteor:"FF8844",boss_mothership:"222222",boss_tentacle:"AA44FF",boss_bh:"220044"};
@@ -621,17 +629,19 @@ function spawnTrap(){
   const s=getScale();
   const roll=Math.random();
   const L=level;
-  if(L>=1&&roll<.12)traps.push({type:"mine",x:40+Math.random()*(canvas.width-80),y:-20,size:14*s,vy:(1.6+Math.random()*1.2)*getSpeedScale(),pulse:0,hidden:false});
-  else if(L>=4&&roll<.22)traps.push({type:"hiddenmine",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.3+Math.random()*.4),size:12*s,armed:false,pulse:0});
-  else if(L>=4&&roll<.34)traps.push({type:"beam",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.25+Math.random()*.45),w:10*s,h:48*s,life:200+Math.random()*100,warning:70});
-  else if(L>=6&&roll<.44)traps.push({type:"laserwarn",x:30+Math.random()*(canvas.width-60),y:0,w:6*s,life:120,warning:50,fired:false});
-  else if(roll<.52)traps.push({type:"vortex",x:50+Math.random()*(canvas.width-100),y:-30,size:22*s,vy:(1.2+Math.random()*.8)*getSpeedScale(),spin:0});
-  else if(roll<.60)traps.push({type:"spike",x:30+Math.random()*(canvas.width-60),y:canvas.height+10,size:16*s,vy:-(2.2+Math.random()*1.5)*getSpeedScale(),wiggle:0});
-  else if(roll<.68)traps.push({type:"freeze",x:40+Math.random()*(canvas.width-80),y:-25,size:18*s,vy:(1.4+Math.random())*getSpeedScale(),pulse:0});
-  else if(L>=5&&roll<.78)traps.push({type:"blackhole",x:60+Math.random()*(canvas.width-120),y:-40,size:28*s,vy:(.85+Math.random()*.45)*getSpeedScale(),spin:0,pull:0});
-  else if(L>=6&&roll<.86){const gx=60+Math.random()*(canvas.width-120),gy=canvas.height*(.25+Math.random()*.4);gravZones.push({x:gx,y:gy,r:70*s,force:1.8,life:300});traps.push({type:"gravity",x:gx,y:gy,size:20*s,life:300})}
-  else if(L>=7&&roll<.92){storm=200;traps.push({type:"storm",x:canvas.width/2,y:canvas.height/2,life:200})}
-  else if(roll<.96)traps.push({type:"saw",x:40+Math.random()*(canvas.width-80),y:-25,size:16*s,vy:(2+Math.random()*1.2)*getSpeedScale(),spin:0});
+  if(L>=1&&roll<.10)traps.push({type:"mine",x:40+Math.random()*(canvas.width-80),y:-20,size:14*s,vy:(1.6+Math.random()*1.2)*getSpeedScale(),pulse:0,hidden:false});
+  else if(L>=2&&roll<.18)traps.push({type:"seeker",x:40+Math.random()*(canvas.width-80),y:-25,size:12*s,vy:(1.4+Math.random())*getSpeedScale(),life:400,pulse:0});
+  else if(L>=2&&roll<.26)traps.push({type:"shrapnel",x:50+Math.random()*(canvas.width-100),y:-30,size:16*s,vy:(1.8+Math.random())*getSpeedScale(),armed:true});
+  else if(L>=3&&roll<.34)traps.push({type:"hiddenmine",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.3+Math.random()*.4),size:12*s,armed:false,pulse:0});
+  else if(L>=3&&roll<.42)traps.push({type:"beam",x:40+Math.random()*(canvas.width-80),y:canvas.height*(.25+Math.random()*.45),w:10*s,h:48*s,life:200+Math.random()*100,warning:70});
+  else if(L>=3&&roll<.50)traps.push({type:"laserwarn",x:30+Math.random()*(canvas.width-60),y:0,w:6*s,life:120,warning:50,fired:false});
+  else if(roll<.58)traps.push({type:"vortex",x:50+Math.random()*(canvas.width-100),y:-30,size:22*s,vy:(1.2+Math.random()*.8)*getSpeedScale(),spin:0});
+  else if(roll<.66)traps.push({type:"spike",x:30+Math.random()*(canvas.width-60),y:canvas.height+10,size:16*s,vy:-(2.2+Math.random()*1.5)*getSpeedScale(),wiggle:0});
+  else if(roll<.74)traps.push({type:"freeze",x:40+Math.random()*(canvas.width-80),y:-25,size:18*s,vy:(1.4+Math.random())*getSpeedScale(),pulse:0});
+  else if(L>=4&&roll<.82)traps.push({type:"blackhole",x:60+Math.random()*(canvas.width-120),y:-40,size:28*s,vy:(.85+Math.random()*.45)*getSpeedScale(),spin:0,pull:0});
+  else if(L>=3&&roll<.88){const gx=60+Math.random()*(canvas.width-120),gy=canvas.height*(.25+Math.random()*.4);gravZones.push({x:gx,y:gy,r:70*s,force:1.8,life:300});traps.push({type:"gravity",x:gx,y:gy,size:20*s,life:300})}
+  else if(L>=4&&roll<.93){storm=200;traps.push({type:"storm",x:canvas.width/2,y:canvas.height/2,life:200})}
+  else if(roll<.97)traps.push({type:"saw",x:40+Math.random()*(canvas.width-80),y:-25,size:16*s,vy:(2+Math.random()*1.2)*getSpeedScale(),spin:0});
   else traps.push({type:"plasma",x:0,y:canvas.height*(.25+Math.random()*.45),h:8*s,life:160+Math.random()*80,warning:50});
 }
 
@@ -645,6 +655,35 @@ function updateTraps(){
       ctx.shadowColor="#FF4400";ctx.shadowBlur=14;ctx.fillStyle="#FF2200";ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
       ctx.fillStyle="#FFCC00";ctx.beginPath();ctx.arc(t.x,t.y,r*.35,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
       if(invisible<=0&&Math.hypot(player.x-t.x,player.y-t.y)<player.size+r){createExplosion(t.x,t.y,28,"255,80,0");traps.splice(i,1);hitPlayer(t.x,t.y);if(!gameRunning)return;continue}
+      if(t.y>canvas.height+40)traps.splice(i,1);
+    }
+    else if(t.type==="seeker"){
+      /* Mina teledirigida: se acerca al jugador */
+      t.life--;t.pulse+=.12;
+      const dx=player.x-t.x,dy=player.y-t.y,d=Math.hypot(dx,dy)||1;
+      t.x+=(dx/d)*1.6*getSpeedScale();t.y+=(dy/d)*1.1*getSpeedScale()+t.vy*.3;
+      const r=t.size*(.9+Math.sin(t.pulse)*.15);
+      ctx.shadowColor="#FF00AA";ctx.shadowBlur=12;ctx.fillStyle="#FF2288";
+      ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="#FFCCEE";ctx.lineWidth=1.5;ctx.stroke();ctx.shadowBlur=0;
+      if(invisible<=0&&d<player.size+r){createExplosion(t.x,t.y,26,"255,0,150");traps.splice(i,1);hitPlayer(t.x,t.y);if(!gameRunning)return;continue}
+      if(t.life<=0||t.y>canvas.height+40)traps.splice(i,1);
+    }
+    else if(t.type==="shrapnel"){
+      /* Cápsula que al acercarse o al llegar abajo suelta ráfaga de balas */
+      t.y+=t.vy;
+      ctx.shadowColor="#FFAA00";ctx.shadowBlur=10;ctx.fillStyle="#CC6600";
+      ctx.beginPath();ctx.moveTo(t.x,t.y-t.size);ctx.lineTo(t.x+t.size*.7,t.y+t.size*.5);ctx.lineTo(t.x-t.size*.7,t.y+t.size*.5);ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+      const near=Math.hypot(player.x-t.x,player.y-t.y)<70*getScale();
+      if(near||t.y>canvas.height*.55){
+        const nB=isMobile()?5:7;
+        for(let k=0;k<nB;k++){
+          const a=(k/nB)*Math.PI*2;
+          const sp=(2.8+Math.random())*getSpeedScale();
+          enemyBullets.push({x:t.x,y:t.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2.8*getScale()});
+        }
+        createExplosion(t.x,t.y,20,"255,180,50");traps.splice(i,1);continue;
+      }
       if(t.y>canvas.height+40)traps.splice(i,1);
     }
     else if(t.type==="hiddenmine"){
@@ -736,7 +775,7 @@ function updateTraps(){
   }
 }
 
-function hitPlayer(x,y){if(invisible>0)return;if(shield>0){createExplosion(x,y,10,"0,200,255");shield=Math.max(0,shield-70);return}if(lives>1){lives--;shield=120;createExplosion(player.x,player.y,30,"255,100,0");return}endGame()}
+function hitPlayer(x,y){if(invisible>0)return;if(shield>0){createExplosion(x,y,10,"0,200,255");shield=Math.max(0,shield-70);return}if(lives>1){lives--;updateLivesUI();shield=120;createExplosion(player.x,player.y,30,"255,100,0");return}endGame()}
 
 function drawPlayer(){
   ctx.save();ctx.translate(player.x,player.y);
@@ -858,7 +897,7 @@ ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
 if(p.type==="ammo")ammo=Math.min(ammo+30,250);if(p.type==="shield")shield=320;if(p.type==="rapid")rapidFire=400;
 if(p.type==="triple")tripleShot=340;if(p.type==="slow")slowMo=300;if(p.type==="laser")laser=220;if(p.type==="bomb")activateBomb();
-if(p.type==="pierce")pierce=360;if(p.type==="life")lives=Math.min(lives+1,3);
+if(p.type==="pierce")pierce=360;if(p.type==="life"){lives=Math.min(lives+1,3);updateLivesUI()}
 if(p.type==="invisible")invisible=280;if(p.type==="magnet")magnet=400;
 if(p.type==="hammer")activateHammer();
 if(p.type==="missile"){missilePower=420;for(let k=0;k<3;k++)setTimeout(()=>{if(gameRunning&&!gamePaused)fireMissile()},k*120)}
@@ -876,23 +915,27 @@ ctx.fillText(msg,canvas.width/2,canvas.height/2-10);
 ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font="14px Share Tech Mono";ctx.fillText(Math.ceil(phaseTimer/60)+" s",canvas.width/2,canvas.height/2+22)}
 
 function drawHUD(){
-ctx.fillStyle="rgba(0,0,0,.6)";ctx.fillRect(0,0,canvas.width,44);
-ctx.font=canvas.width<500?"bold 10px Orbitron":"bold 12px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
-ctx.fillStyle="#FFCD00";ctx.fillText("PUNTOS "+score,8,14);ctx.fillStyle="#FF6644";ctx.fillText("METEOROS "+meteorsDestroyed,8,32);
-ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.7)";ctx.font="10px Share Tech Mono";
+const mob=canvas.width<500;
+/* Barra superior corta: PUNTOS/RÉCORD van en HTML a la izquierda de TECH SYSTEM */
+const padR=mob?8:130;
+ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,canvas.width,mob?40:36);
+ctx.font=mob?"bold 9px Orbitron":"bold 11px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
+ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,8,18);
+ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.75)";ctx.font=mob?"9px Share Tech Mono":"10px Share Tech Mono";
 const scenNames={1:"ÓRBITA",2:"ASTEROIDES",3:"ALIEN",4:"AGUJERO"};
-let lab=scenNames[scenario]+" · NIV "+level+" · ";
-if(phase==="meteors")lab+="METEOROS "+Math.ceil(phaseTimer/60)+"s";
-else if(phase==="warning")lab+="ALERTA";
-else if(phase==="ships")lab+="NAVES";
-else lab+="¡JEFE!";
-ctx.fillText(lab,canvas.width/2,16);ctx.fillStyle="#FFAA66";ctx.fillText("NAVES "+shipsDestroyed,canvas.width/2,32);
-ctx.textAlign="right";ctx.font="bold 12px Orbitron";ctx.fillStyle="#FFCD00";ctx.fillText("RÉCORD "+record,canvas.width-8,14);ctx.fillStyle="#FF6688";ctx.fillText("VIDAS "+lives,canvas.width-8,32);
-ctx.fillStyle="rgba(0,0,0,.6)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
-ctx.textAlign="left";ctx.font="bold 16px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);
-if(ammo<=0){ctx.textAlign="center";ctx.font="bold 12px Orbitron";ctx.fillText("¡SIN BALAS! Atrapa +30",canvas.width/2,canvas.height-17)}
+let lab=scenNames[scenario]+" · N"+level;
+if(phase==="meteors")lab+=" · "+Math.ceil(phaseTimer/60)+"s";
+else if(phase==="warning")lab+=" · ALERTA";
+else if(phase==="ships")lab+=" · NAVES";
+else lab+=" · JEFE";
+ctx.fillText(lab,canvas.width/2,12);
+ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
+/* VIDAS van en HTML a la izquierda (TECH SYSTEM) */
+ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
+ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);
+if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +30",canvas.width/2,canvas.height-17)}
 const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(slowMo>0)pows.push(["LENTO","#AA88FF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);
-ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=100;pows.forEach(([t,c])=>{ctx.fillStyle=c;ctx.fillText(t,px,canvas.height-17);px+=55})}
+ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
 function drawSpaceBG(){
@@ -967,8 +1010,8 @@ const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));playe
 
 // spawn meteors by level
 if(phase==="meteors"){
-  const mob=isMobile()?1.35:1;
-  const delay=Math.max(160,480-level*22-scenario*15)*mob;
+  const mob=isMobile()?1.25:1;
+  const delay=Math.max(150,460-level*35-scenario*12)*mob;
   if(ts-lastSpawn>delay){
     const r=Math.random();
     if(scenario>=2&&r<.10)createMeteor("hard");
@@ -1069,6 +1112,7 @@ score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;triple
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecord",0))||0;if(recordElement)recordElement.textContent=record;
+updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();
 initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop)}

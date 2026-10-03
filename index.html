@@ -14,7 +14,7 @@ body{margin:0;background:#0a0a12;font-family:'Orbitron',sans-serif;color:#fff;ov
 body::before{content:"";position:fixed;width:100%;height:200%;background-image:radial-gradient(circle,rgba(255,205,0,.25) 1px,transparent 1px),radial-gradient(circle,rgba(0,56,168,.2) 1px,transparent 1px),radial-gradient(circle,rgba(206,17,38,.15) 1px,transparent 1px);background-size:55px 55px,75px 75px,65px 65px;animation:stars 90s linear infinite;z-index:-1}
 @keyframes stars{to{transform:translateY(-50%)}}
 .tech-game-section{width:100%;max-width:1200px;margin:25px auto 10px;padding:0 25px}
-.tech-game{position:relative;width:100%;height:440px;overflow:hidden;border-radius:18px;background:#020b22;border:1px solid rgba(255,205,0,.35);box-shadow:0 0 35px rgba(0,56,168,.3),inset 0 0 60px rgba(0,40,100,.35);touch-action:none}
+.tech-game{position:relative;width:100%;height:440px;overflow:hidden;border-radius:18px;background:#020b22;border:1px solid rgba(255,205,0,.35);box-shadow:0 0 20px rgba(0,56,168,.2);touch-action:none}
 .tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(100,160,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(100,160,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:1}
 #gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none}
 .game-top{position:absolute;top:15px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;z-index:10;pointer-events:none}
@@ -898,16 +898,9 @@ ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=100;pows.forEach
 function drawSpaceBG(){
   // Escenarios visuales
   if(scenario===1){
-    ctx.fillStyle="#020b22";ctx.fillRect(0,0,canvas.width,canvas.height);
-    // Tierra abajo
-    const earth=ctx.createRadialGradient(canvas.width*.5,canvas.height+40,20,canvas.width*.5,canvas.height+40,canvas.width*.55);
-    earth.addColorStop(0,"#1a6b3a");earth.addColorStop(.35,"#0a3d6e");earth.addColorStop(.7,"rgba(10,40,80,.5)");earth.addColorStop(1,"rgba(2,11,34,0)");
-    ctx.fillStyle=earth;ctx.beginPath();ctx.arc(canvas.width*.5,canvas.height+60,canvas.width*.5,0,Math.PI*2);ctx.fill();
-    // satélites
-    const t=performance.now()/1000;
-    ctx.fillStyle="rgba(200,200,220,.7)";
-    ctx.fillRect(canvas.width*.2+Math.sin(t)*.02*canvas.width,canvas.height*.3,6,3);
-    ctx.fillRect(canvas.width*.7+Math.cos(t*.8)*.03*canvas.width,canvas.height*.45,5,2);
+    /* Nivel 1: solo azul plano — sin bola, arco ni planeta */
+    ctx.fillStyle="#020b22";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
   } else if(scenario===2){
     ctx.fillStyle="#0a0810";ctx.fillRect(0,0,canvas.width,canvas.height);
     const neb=ctx.createRadialGradient(canvas.width*.5,canvas.height*.4,10,canvas.width*.5,canvas.height*.4,canvas.width*.6);
@@ -918,25 +911,29 @@ function drawSpaceBG(){
       ctx.fillStyle="rgba(90,70,50,.35)";ctx.beginPath();ctx.arc(ax,ay,4+i%5,0,Math.PI*2);ctx.fill()}
   } else if(scenario===3){
     ctx.fillStyle="#0a0520";ctx.fillRect(0,0,canvas.width,canvas.height);
-    // planeta alien
-    const pl=ctx.createRadialGradient(canvas.width*.75,canvas.height*.2,10,canvas.width*.75,canvas.height*.2,canvas.width*.35);
-    pl.addColorStop(0,"#44ff88");pl.addColorStop(.4,"#228855");pl.addColorStop(.7,"rgba(20,80,40,.4)");pl.addColorStop(1,"rgba(10,5,32,0)");
-    ctx.fillStyle=pl;ctx.beginPath();ctx.arc(canvas.width*.75,canvas.height*.15,canvas.width*.28,0,Math.PI*2);ctx.fill();
-    // luna
-    ctx.fillStyle="rgba(180,160,255,.5)";ctx.beginPath();ctx.arc(canvas.width*.25,canvas.height*.25,18,0,Math.PI*2);ctx.fill();
+    /* En móvil no dibujar planeta grande (parecía una bola) */
+    if(!isMobile()){
+      const pl=ctx.createRadialGradient(canvas.width*.75,canvas.height*.2,10,canvas.width*.75,canvas.height*.2,canvas.width*.35);
+      pl.addColorStop(0,"#44ff88");pl.addColorStop(.4,"#228855");pl.addColorStop(.7,"rgba(20,80,40,.4)");pl.addColorStop(1,"rgba(10,5,32,0)");
+      ctx.fillStyle=pl;ctx.beginPath();ctx.arc(canvas.width*.75,canvas.height*.15,canvas.width*.28,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="rgba(180,160,255,.5)";ctx.beginPath();ctx.arc(canvas.width*.25,canvas.height*.25,18,0,Math.PI*2);ctx.fill();
+    }
     const neb=ctx.createRadialGradient(canvas.width*.2,canvas.height*.7,5,canvas.width*.2,canvas.height*.7,canvas.width*.4);
-    neb.addColorStop(0,"rgba(120,40,180,.2)");neb.addColorStop(1,"rgba(10,5,32,0)");ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height);
+    neb.addColorStop(0,"rgba(120,40,180,.15)");neb.addColorStop(1,"rgba(10,5,32,0)");ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height);
   } else {
-    // Dimensión agujero negro
     ctx.fillStyle="#050010";ctx.fillRect(0,0,canvas.width,canvas.height);
     const t=performance.now()/800;
-    const cx=canvas.width*.5+Math.sin(t)*30,cy=canvas.height*.4+Math.cos(t*.7)*20;
-    const bh=ctx.createRadialGradient(cx,cy,5,cx,cy,canvas.width*.45);
-    bh.addColorStop(0,"#000");bh.addColorStop(.2,"#1a0033");bh.addColorStop(.5,"rgba(60,0,100,.4)");bh.addColorStop(1,"rgba(5,0,16,0)");
-    ctx.fillStyle=bh;ctx.fillRect(0,0,canvas.width,canvas.height);
-    // distorsión
-    ctx.strokeStyle=`rgba(140,60,200,${.15+Math.sin(t*2)*.1})`;ctx.lineWidth=2;
-    for(let k=1;k<=4;k++){ctx.beginPath();ctx.ellipse(cx,cy,30*k+Math.sin(t+k)*8,20*k+Math.cos(t+k)*6,t*.3,0,Math.PI*2);ctx.stroke()}
+    const cx=canvas.width*.5+Math.sin(t)*20,cy=canvas.height*.35+Math.cos(t*.7)*15;
+    if(!isMobile()){
+      const bh=ctx.createRadialGradient(cx,cy,5,cx,cy,canvas.width*.4);
+      bh.addColorStop(0,"#000");bh.addColorStop(.25,"#1a0033");bh.addColorStop(.55,"rgba(60,0,100,.35)");bh.addColorStop(1,"rgba(5,0,16,0)");
+      ctx.fillStyle=bh;ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle=`rgba(140,60,200,${.12+Math.sin(t*2)*.08})`;ctx.lineWidth=1.5;
+      for(let k=1;k<=3;k++){ctx.beginPath();ctx.ellipse(cx,cy,28*k+Math.sin(t+k)*6,18*k,t*.3,0,Math.PI*2);ctx.stroke()}
+    } else {
+      /* Móvil: solo tinte violeta, sin círculo grande */
+      ctx.fillStyle="rgba(40,0,80,.25)";ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
   }
   for(const st of starsBG){st.y+=st.sp*(scenario>=4?1.4:1);if(st.y>canvas.height){st.y=-2;st.x=Math.random()*canvas.width}
     const col=scenario===3?`rgba(180,255,200,${st.a})`:scenario===4?`rgba(200,150,255,${st.a})`:`rgba(180,210,255,${st.a})`;

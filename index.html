@@ -62,6 +62,18 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @keyframes colorCycle{0%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}33%{border-left-color:#FFCD00;filter:drop-shadow(0 0 10px #FFCD00)}66%{border-left-color:#0038A8;filter:drop-shadow(0 0 10px #0038A8)}100%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}}
 .floating-name{position:fixed;bottom:12px;right:14px;font-size:.8rem;color:#CE1126;z-index:50}
 @media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:380px}.game-top{left:42px;right:140px;top:8px}.game-title{font-size:11px}.game-score{font-size:10px;text-align:left}.game-help{font-size:9px}.game-panel{width:280px;padding:20px}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
+
+/* Touch pad móvil (debajo del juego) */
+.touch-pad{display:none;max-width:1200px;margin:8px auto 16px;padding:0 12px;user-select:none;-webkit-user-select:none}
+.touch-pad-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(5,10,25,.92);border:1px solid rgba(255,205,0,.3);border-radius:16px;padding:12px 16px}
+.touch-stick-wrap{position:relative;width:120px;height:120px;border-radius:50%;background:rgba(0,40,100,.35);border:2px solid rgba(255,205,0,.4);touch-action:none}
+.touch-stick-base{position:absolute;inset:0;border-radius:50%}
+.touch-stick-knob{position:absolute;width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#FFCD00,#CE1126);left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px rgba(255,205,0,.5);pointer-events:none}
+.touch-fire{width:88px;height:88px;border-radius:50%;border:2px solid rgba(206,17,38,.7);background:radial-gradient(circle at 35% 30%,#ff6666,#CE1126 55%,#8b0000);color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;touch-action:none;box-shadow:0 0 16px rgba(206,17,38,.45)}
+.touch-fire:active,.touch-fire.pressed{transform:scale(.94);box-shadow:0 0 22px rgba(255,50,50,.7)}
+.touch-pad-label{color:rgba(255,255,255,.45);font-size:10px;font-family:'Share Tech Mono',monospace;text-align:center;margin-top:6px}
+@media(max-width:900px){.touch-pad{display:block}}
+@media(max-width:600px){.touch-stick-wrap{width:110px;height:110px}.touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -89,6 +101,22 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <div class="game-help"></div>
 </div>
 </section>
+
+<div class="touch-pad" id="touchPad" aria-label="Controles táctiles">
+  <div class="touch-pad-inner">
+    <div>
+      <div class="touch-stick-wrap" id="touchStick">
+        <div class="touch-stick-base"></div>
+        <div class="touch-stick-knob" id="touchKnob"></div>
+      </div>
+      <div class="touch-pad-label">MOVER</div>
+    </div>
+    <div>
+      <button type="button" class="touch-fire" id="touchFire">🔥 FIRE</button>
+      <div class="touch-pad-label">DISPARAR</div>
+    </div>
+  </div>
+</div>
 
 <div id="content">
 <header class="cyber-hero"><h1>Desarrollo de Software</h1></header>
@@ -197,7 +225,7 @@ let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=16*60,WARNING_DURATION=2.5*60;
-let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,lives=1;
+let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,lives=1;
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
@@ -223,6 +251,7 @@ const SFX = {
   bg: null, shoot: null, explode: null, power: null, hit: null, gameover: null,
   laser: null, bomb: null, rapid: null, hammer: null, missile: null,
   shield: null, triple: null, nova: null, overdrive: null, allies: null,
+  reflect: null, burst: null, repair: null,
   /* Sonidos de trampas */
   trap: null, laserTrap: null, mineTrap: null
 };
@@ -245,10 +274,14 @@ try {
   SFX.nova = new Audio("audios/nova.mp3");
   SFX.overdrive = new Audio("audios/turbo.mp3");
   SFX.allies = new Audio("audios/aliados.mp3");
-  /* TRAMPAS — descomenta cuando tengas los archivos: */
+  /* TRAMPAS — quita el // para activar: */
   // SFX.trap = new Audio("audios/trampa.mp3");
   // SFX.laserTrap = new Audio("audios/laser-trampa.mp3");
   // SFX.mineTrap = new Audio("audios/mina.mp3");
+  /* PODERES NUEVOS */
+  // SFX.reflect = new Audio("audios/reflect.mp3");
+  // SFX.burst = new Audio("audios/burst.mp3");
+  // SFX.repair = new Audio("audios/repair.mp3");
 } catch(e) {}
 
 function applyAudioVolumes(){
@@ -410,6 +443,64 @@ canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return
 canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;e.preventDefault()},{passive:false});
 canvas.addEventListener("touchend",()=>{isShooting=false});
 canvas.addEventListener("touchcancel",()=>{isShooting=false});
+
+/* ===== TOUCH PAD (móvil) ===== */
+(function initTouchPad(){
+  const stick=document.getElementById("touchStick");
+  const knob=document.getElementById("touchKnob");
+  const fireBtn=document.getElementById("touchFire");
+  if(!stick||!knob||!fireBtn)return;
+  let stickId=null, stickCX=0, stickCY=0, stickR=50;
+  function setKnob(dx,dy){
+    const d=Math.hypot(dx,dy)||1;
+    const maxR=stickR*0.55;
+    const m=Math.min(1,maxR/d);
+    knob.style.transform=`translate(calc(-50% + ${dx*m}px), calc(-50% + ${dy*m}px))`;
+  }
+  function applyStick(dx,dy){
+    const d=Math.hypot(dx,dy);
+    if(d<8){setKnob(0,0);return}
+    const nx=dx/d, ny=dy/d, force=Math.min(1,d/stickR);
+    const reach=95*sensPad*force;
+    mouse.x=player.x+nx*reach;
+    mouse.y=player.y+ny*reach;
+    setKnob(dx,dy);
+  }
+  function onStickStart(e){
+    e.preventDefault();
+    const t=e.changedTouches?e.changedTouches[0]:e;
+    stickId=t.identifier!==undefined?t.identifier:"mouse";
+    const r=stick.getBoundingClientRect();
+    stickCX=r.left+r.width/2;stickCY=r.top+r.height/2;stickR=r.width/2;
+    applyStick(t.clientX-stickCX,t.clientY-stickCY);
+  }
+  function onStickMove(e){
+    if(stickId===null)return;
+    e.preventDefault();
+    const touches=e.changedTouches||[e];
+    for(const t of touches){
+      if(t.identifier!==undefined&&t.identifier!==stickId)continue;
+      applyStick(t.clientX-stickCX,t.clientY-stickCY);
+      break;
+    }
+  }
+  function onStickEnd(e){
+    if(e.changedTouches){
+      for(const t of e.changedTouches){if(t.identifier===stickId){stickId=null;setKnob(0,0);return}}
+    } else {stickId=null;setKnob(0,0)}
+  }
+  stick.addEventListener("touchstart",onStickStart,{passive:false});
+  stick.addEventListener("touchmove",onStickMove,{passive:false});
+  stick.addEventListener("touchend",onStickEnd,{passive:false});
+  stick.addEventListener("touchcancel",onStickEnd,{passive:false});
+  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()},{passive:false});
+  fireBtn.addEventListener("touchend",e=>{e.preventDefault();isShooting=false;fireBtn.classList.remove("pressed")},{passive:false});
+  fireBtn.addEventListener("touchcancel",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
+  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()});
+  fireBtn.addEventListener("mouseup",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
+  fireBtn.addEventListener("mouseleave",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
+})();
+
 document.addEventListener("keydown",e=>{
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
@@ -472,7 +563,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype){
-  if(obstacles.length>(isMobile()?4:9))return;
+  if(obstacles.length>(isMobile()?8:16))return;
   const sc=getScale();
   let size,hp,spd,col;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -515,10 +606,10 @@ function createBoss(btype){
 
 function spawnShipWave(){
   /* Pocas naves a la vez para no trabar; misma secuencia de oleadas */
-  const n=Math.min(isMobile()?2:4, 2+Math.min(2,Math.floor(waveCount*0.12)));
+  const n=Math.min(isMobile()?5:8, 4+Math.min(4,Math.floor(waveCount*0.25)));
   for(let i=0;i<n;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
-    if(obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length>=(isMobile()?3:5))return;
+    if(obstacles.filter(o=>!["meteor","explosive","magnetic","hard"].includes(o.type)).length>=(isMobile()?7:12))return;
     let pool=["ship","hunter"];
     if(level>=2||scenario>=2)pool.push("kamikaze","hunter");
     if(level>=3||scenario>=2)pool.push("sniper","swarm");
@@ -615,21 +706,23 @@ function createExplosion(x,y,size,color){
 
 /* Suelta un poder al azar (máx. pocos en pantalla) */
 function maybeSpawnPickup(x,y){
-  /* Sin reloj lento; máx. 3 en pantalla */
   if(pickups.length>=(isMobile()?2:3))return;
   const r=Math.random(),s=16*getScale();
   if(r<.05)pickups.push({x,y,type:"ammo",size:s,vy:1.5});
   else if(r<.08)pickups.push({x,y,type:"hammer",size:s,vy:1.5});
-  else if(r<.11)pickups.push({x,y,type:"shield",size:s,vy:1.5});
-  else if(r<.14)pickups.push({x,y,type:"rapid",size:s,vy:1.5});
-  else if(r<.16)pickups.push({x,y,type:"triple",size:s,vy:1.5});
-  else if(r<.18)pickups.push({x,y,type:"missile",size:s,vy:1.5});
-  else if(r<.195)pickups.push({x,y,type:"allies",size:s,vy:1.5});
-  else if(r<.21)pickups.push({x,y,type:"overdrive",size:s,vy:1.5}); /* NUEVO: turbo nave */
-  else if(r<.225)pickups.push({x,y,type:"nova",size:s,vy:1.5}); /* NUEVO: onda expansiva */
-  else if(r<.235)pickups.push({x,y,type:"life",size:s,vy:1.5});
-  else if(r<.245)pickups.push({x,y,type:"laser",size:s,vy:1.5});
-  else if(r<.255)pickups.push({x,y,type:"bomb",size:s,vy:1.5});
+  else if(r<.10)pickups.push({x,y,type:"shield",size:s,vy:1.5});
+  else if(r<.12)pickups.push({x,y,type:"rapid",size:s,vy:1.5});
+  else if(r<.14)pickups.push({x,y,type:"triple",size:s,vy:1.5});
+  else if(r<.155)pickups.push({x,y,type:"missile",size:s,vy:1.5});
+  else if(r<.17)pickups.push({x,y,type:"allies",size:s,vy:1.5});
+  else if(r<.185)pickups.push({x,y,type:"overdrive",size:s,vy:1.5});
+  else if(r<.20)pickups.push({x,y,type:"nova",size:s,vy:1.5});
+  else if(r<.215)pickups.push({x,y,type:"reflect",size:s,vy:1.5}); /* refleja balas enemigas */
+  else if(r<.23)pickups.push({x,y,type:"burst",size:s,vy:1.5}); /* ráfaga 8 disparos */
+  else if(r<.245)pickups.push({x,y,type:"repair",size:s,vy:1.5}); /* +1 vida o escudo */
+  else if(r<.255)pickups.push({x,y,type:"life",size:s,vy:1.5});
+  else if(r<.265)pickups.push({x,y,type:"laser",size:s,vy:1.5});
+  else if(r<.275)pickups.push({x,y,type:"bomb",size:s,vy:1.5});
 }
 
 function createParticle(){if(isMobile()||particles.length>5||Math.random()>.75)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
@@ -669,6 +762,14 @@ function destroyEnemy(o,i){
   obstacles.splice(i,1);
 }
 
+function activateBurst(){
+  const sp=11*getSpeedScale(),s=getScale();
+  for(let i=0;i<8;i++){
+    const ang=-Math.PI/2+(i-3.5)*0.12;
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:Math.sin(ang)*sp*0.35,vy:-Math.cos(ang)*sp});
+  }
+  if(ammo>=8)ammo-=8; else ammo=0;
+}
 function activateNova(){
   /* Onda expansiva desde la nave: daño en radio */
   const R=110*getScale();
@@ -1221,13 +1322,17 @@ function updateEnemyBullets(){
     if(b.y>canvas.height+20||b.y<-30||b.x<-30||b.x>canvas.width+30){enemyBullets.splice(i,1);continue}
     if(Math.hypot(player.x-b.x,player.y-b.y)<player.size*.8+b.size){
       if(invisible>0){enemyBullets.splice(i,1);continue}
+      if(reflect>0){ /* refleja bala */
+        bullets.push({x:b.x,y:b.y,speed:9*getSpeedScale(),size:b.size,pierce:false});
+        enemyBullets.splice(i,1);continue;
+      }
       enemyBullets.splice(i,1);hitPlayer(b.x,b.y);if(!gameRunning)return
     }
   }
 }
 
-function updatePickups(){const labels={ammo:"+30",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸"};
-const colors={ammo:"#FFCD00",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00"};
+function updatePickups(){const labels={ammo:"+30",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+"};
+const colors={ammo:"#FFCD00",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88"};
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];
 if(magnet>0){const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=(dx/d)*2.5;p.y+=(dy/d)*2.5}
 p.y+=p.vy;
@@ -1253,6 +1358,9 @@ else if(p.type==="missile"){missilePower=420;playSfx("missile");if(!SFX.missile)
 else if(p.type==="allies"){spawnAllies();playSfx("allies");if(!SFX.allies)playSfx("power")}
 else if(p.type==="overdrive"){overdrive=360;playSfx("overdrive");if(!SFX.overdrive)playSfx("power")}
 else if(p.type==="nova"){nova=1;activateNova();playSfx("nova");if(!SFX.nova)playSfx("explode")}
+else if(p.type==="reflect"){reflect=360;playSfx("reflect");if(!SFX.reflect)playSfx("shield");if(!SFX.shield)playSfx("power")}
+else if(p.type==="burst"){burst=1;activateBurst();playSfx("burst");if(!SFX.burst)playSfx("rapid");if(!SFX.rapid)playSfx("shoot")}
+else if(p.type==="repair"){if(lives<3){lives++;updateLivesUI()}else shield=Math.max(shield,280);playSfx("repair");if(!SFX.repair)playSfx("power")}
 else playSfx("power");
 createExplosion(p.x,p.y,10,"255,255,100");pickups.splice(i,1)}else if(p.y>canvas.height+30)pickups.splice(i,1)}}
 
@@ -1286,7 +1394,7 @@ ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +30",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);
+const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
@@ -1361,7 +1469,7 @@ if(!gameRunning||gamePaused)return;
 /* Móvil: saltar 1 de cada 2 frames de efectos pesados */
 const _lite=isMobile()&&((gameLoop._f=(gameLoop._f|0)+1)%2===0);
 ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
-if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;
+if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;
 updatePhase();updateEmergencyAmmo(ts);pollGamepad();
 const reach=90*sensKeys;if(keys.left)mouse.x=player.x-reach;if(keys.right)mouse.x=player.x+reach;if(keys.up)mouse.y=player.y-reach;if(keys.down)mouse.y=player.y+reach;
 if(isShooting)shoot();
@@ -1473,7 +1581,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecord",0))||0;if(recordElement)recordElement.textContent=record;

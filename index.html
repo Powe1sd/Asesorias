@@ -73,7 +73,14 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-fire:active,.touch-fire.pressed{transform:scale(.94);box-shadow:0 0 22px rgba(255,50,50,.7)}
 .touch-pad-label{color:rgba(255,255,255,.45);font-size:10px;font-family:'Share Tech Mono',monospace;text-align:center;margin-top:6px}
 @media(max-width:900px){.touch-pad{display:block}}
+/* Visible en pantalla completa y en dispositivos táctiles */
+.touch-pad.show-fs{display:block!important;position:fixed;left:0;right:0;bottom:0;z-index:9999;margin:0;padding:8px 12px 16px;background:rgba(2,8,20,.92);max-width:none}
+.tech-game:fullscreen .touch-pad-fs,.tech-game:-webkit-full-screen .touch-pad-fs{display:flex!important}
+
 @media(max-width:600px){.touch-stick-wrap{width:110px;height:110px}.touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
+.tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{background:#020b22;padding:12px;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{height:min(72vh,560px);width:min(100%,900px);max-width:100%}
+.tech-game-section:fullscreen .touch-pad,.tech-game-section:-webkit-full-screen .touch-pad{display:block!important;width:min(100%,900px);margin-top:12px}
 </style>
 </head>
 <body>
@@ -231,9 +238,9 @@ const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
 let isShooting=false;
 const keys={up:false,down:false,left:false,right:false};
-let sensMouse=Number(lsGet("techSensMouse",1))||1;
-let sensKeys=Number(lsGet("techSensKeys",1))||1;
-let sensPad=Number(lsGet("techSensPad",1))||1;
+let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
+let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
+let sensPad=Number(lsGet("techSensPad",1.1)); if(isNaN(sensPad)||sensPad<=0)sensPad=1.1;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusic",0.18)); if(isNaN(volMusic))volMusic=0.18;
 let volSfx=Number(lsGet("techVolSfx",0.28)); if(isNaN(volSfx))volSfx=0.28;
@@ -336,9 +343,23 @@ const gameBox=document.querySelector(".tech-game");if(!gameBox)return;
 function mk(id,html,title,css){let b=document.getElementById(id);if(!b){b=document.createElement("button");b.id=id;b.innerHTML=html;b.title=title;b.style.cssText=css;gameBox.appendChild(b)}return b}
 const btnFS=mk("btnFullscreen","⛶","Pantalla completa","position:absolute;top:8px;right:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,205,0,.85);color:#111;font-size:15px;cursor:pointer");
 const btnExit=mk("btnExitFS","✕","Salir","position:absolute;top:8px;right:44px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.9);color:#fff;font-size:15px;cursor:pointer;display:none");
-btnFS.onclick=()=>{if(gameBox.requestFullscreen)gameBox.requestFullscreen();else if(gameBox.webkitRequestFullscreen)gameBox.webkitRequestFullscreen()};
+btnFS.onclick=()=>{
+  const wrap=document.querySelector('.tech-game-section')||gameBox;
+  if(wrap.requestFullscreen)wrap.requestFullscreen();
+  else if(wrap.webkitRequestFullscreen)wrap.webkitRequestFullscreen();
+};
 btnExit.onclick=()=>{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen()};
-function onFS(){const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);btnExit.style.display=fs?"block":"none";btnFS.style.display=fs?"none":"block";setTimeout(resizeCanvas,100)}
+function onFS(){
+  const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  btnExit.style.display=fs?"block":"none";
+  btnFS.style.display=fs?"none":"block";
+  const tp=document.getElementById("touchPad");
+  if(tp){
+    if(fs){tp.classList.add("show-fs");tp.style.display="block"}
+    else{tp.classList.remove("show-fs");tp.style.display=""}
+  }
+  setTimeout(resizeCanvas,120);
+}
 document.addEventListener("fullscreenchange",onFS);document.addEventListener("webkitfullscreenchange",onFS);
 const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:8px;right:80px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:14px;cursor:pointer;display:none");
 btnPause.onclick=()=>togglePause();
@@ -349,15 +370,15 @@ const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
-<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad ratón</p>
-<input type="range" id="sensMouse" min="0.3" max="2.5" step="0.1" value="${sensMouse}" style="width:90%;accent-color:#FFCD00">
-<p id="sensMouseVal" style="color:#aaa;font-size:10px">${Number(sensMouse).toFixed(1)}x</p>
-<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad teclado</p>
-<input type="range" id="sensKeys" min="0.3" max="2.5" step="0.1" value="${sensKeys}" style="width:90%;accent-color:#0038A8">
-<p id="sensKeysVal" style="color:#aaa;font-size:10px">${Number(sensKeys).toFixed(1)}x</p>
-<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad mando</p>
-<input type="range" id="sensPad" min="0.3" max="2.5" step="0.1" value="${sensPad}" style="width:90%;accent-color:#00A0E9">
-<p id="sensPadVal" style="color:#aaa;font-size:10px">${Number(sensPad).toFixed(1)}x</p>
+<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad ratón / touch en canvas</p>
+<input type="range" id="sensMouse" min="0.2" max="2.0" step="0.05" value="${sensMouse}" style="width:90%;accent-color:#FFCD00">
+<p id="sensMouseVal" style="color:#aaa;font-size:10px">${Number(sensMouse).toFixed(2)}x</p>
+<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad teclado (flechas)</p>
+<input type="range" id="sensKeys" min="0.3" max="2.2" step="0.05" value="${sensKeys}" style="width:90%;accent-color:#0038A8">
+<p id="sensKeysVal" style="color:#aaa;font-size:10px">${Number(sensKeys).toFixed(2)}x</p>
+<p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad touch pad / mando</p>
+<input type="range" id="sensPad" min="0.3" max="2.2" step="0.05" value="${sensPad}" style="width:90%;accent-color:#00A0E9">
+<p id="sensPadVal" style="color:#aaa;font-size:10px">${Number(sensPad).toFixed(2)}x</p>
 <hr style="border:none;border-top:1px solid rgba(255,205,0,.25);margin:12px 0">
 <p style="color:#FF6688;font-size:12px;margin:4px 0">🔊 AUDIO</p>
 <p style="color:#ccc;font-size:11px;margin:4px 0 2px">Música de fondo</p>
@@ -376,7 +397,7 @@ cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
 gameBox.appendChild(cfg);
 [["sensMouse","mouse","sensMouseVal"],["sensKeys","keys","sensKeysVal"],["sensPad","pad","sensPadVal"]].forEach(([id,w,vid])=>{
 const el=document.getElementById(id),lab=document.getElementById(vid);
-if(el)el.oninput=()=>{const v=Number(el.value);if(w==="mouse")sensMouse=v;if(w==="keys")sensKeys=v;if(w==="pad")sensPad=v;if(lab)lab.textContent=v.toFixed(1)+"x"}});
+if(el)el.oninput=()=>{const v=Number(el.value);if(w==="mouse")sensMouse=v;if(w==="keys")sensKeys=v;if(w==="pad")sensPad=v;if(lab)lab.textContent=v.toFixed(2)+"x"}});
 const vm=document.getElementById("volMusic"), vml=document.getElementById("volMusicVal");
 if(vm)vm.oninput=()=>{setMusicVolume(Number(vm.value));if(vml)vml.textContent=Math.round(volMusic*100)+"%"};
 const vs=document.getElementById("volSfx"), vsl=document.getElementById("volSfxVal");
@@ -434,13 +455,21 @@ function resizeCanvas(){
 }
 window.addEventListener("resize",resizeCanvas);resizeCanvas();
 
-canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect();const tx=e.clientX-r.left,ty=e.clientY-r.top;mouse.x=player.x+(tx-player.x)*sensMouse;mouse.y=player.y+(ty-player.y)*sensMouse});
+canvas.addEventListener("mousemove",e=>{
+  const r=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/Math.max(1,r.width), scaleY=canvas.height/Math.max(1,r.height);
+  const tx=(e.clientX-r.left)*scaleX, ty=(e.clientY-r.top)*scaleY;
+  /* sensMouse 0.2–2: qué tanto sigue al cursor (1 = natural) */
+  const k=Math.max(0.15,Math.min(1.5,sensMouse));
+  mouse.x=player.x+(tx-player.x)*k;
+  mouse.y=player.y+(ty-player.y)*k;
+});
 canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting=true;shoot()}});
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
 window.addEventListener("mouseup",()=>{isShooting=false});
-canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;isShooting=true;if(gameRunning)shoot();e.preventDefault()},{passive:false});
-canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;e.preventDefault()},{passive:false});
+canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;isShooting=true;if(gameRunning)shoot();e.preventDefault()},{passive:false});
+canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;e.preventDefault()},{passive:false});
 canvas.addEventListener("touchend",()=>{isShooting=false});
 canvas.addEventListener("touchcancel",()=>{isShooting=false});
 
@@ -459,9 +488,9 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
   }
   function applyStick(dx,dy){
     const d=Math.hypot(dx,dy);
-    if(d<8){setKnob(0,0);return}
-    const nx=dx/d, ny=dy/d, force=Math.min(1,d/stickR);
-    const reach=95*sensPad*force;
+    if(d<10){setKnob(0,0);return}
+    const nx=dx/d, ny=dy/d, force=Math.min(1,(d-10)/Math.max(20,stickR-10));
+    const reach=Math.min(canvas.width,canvas.height)*0.28*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     setKnob(dx,dy);
@@ -1474,7 +1503,7 @@ updatePhase();updateEmergencyAmmo(ts);pollGamepad();
 const reach=90*sensKeys;if(keys.left)mouse.x=player.x-reach;if(keys.right)mouse.x=player.x+reach;if(keys.up)mouse.y=player.y-reach;if(keys.down)mouse.y=player.y+reach;
 if(isShooting)shoot();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
-const smooth=(overdrive>0?0.28:0.14)+.08*Math.min(sensMouse,1.5);player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
+const smooth=Math.min(0.45,(overdrive>0?0.22:0.12)*Math.max(0.5,Math.min(1.8,sensMouse+0.15)));player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 // gravity pull on player
 applyGravity(player,player.x,player.y,1);
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m+50,Math.min(canvas.height-m-42,player.y));

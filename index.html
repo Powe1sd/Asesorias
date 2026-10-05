@@ -137,7 +137,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <div id="content">
 <header class="cyber-hero"><h1>Desarrollo de Software</h1></header>
 <main class="data-grid">
-
+<section class="data-card"><a href="cartas.html"><h2>Sistema</h2></a></section>
 <section class="data-card"><h2>Inglés</h2><p><a href="https://videos-blow-713.vercel.app/" target="_blank" rel="noopener">Inglés</a></p></section>
 <section class="data-card">
 <h2>Reasignación de procesos tecnológicos</h2>
@@ -1381,7 +1381,7 @@ function updateEnemyBullets(){
   }
 }
 
-function updatePickups(){const labels={ammo:"+30",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+"};
+function updatePickups(){const labels={ammo:"+40",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+"};
 const colors={ammo:"#FFCD00",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88"};
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];
 if(magnet>0){const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=(dx/d)*2.5;p.y+=(dy/d)*2.5}
@@ -1393,7 +1393,7 @@ ctx.font=`bold ${Math.max(12,p.size*.7)}px Orbitron`;ctx.textAlign="center";ctx.
 ctx.fillText(labels[p.type]||"?",p.x,p.y);
 ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
-if(p.type==="ammo"){ammo=Math.min(ammo+30,250);playSfx("power")}
+if(p.type==="ammo"){ammo=Math.min(ammo+40,250);playSfx("power")}
 else if(p.type==="shield"){shield=320;playSfx("shield");if(!SFX.shield)playSfx("power")}
 else if(p.type==="rapid"){rapidFire=400;playSfx("rapid");if(!SFX.rapid)playSfx("power")}
 else if(p.type==="triple"){tripleShot=340;playSfx("triple");if(!SFX.triple)playSfx("power")}
@@ -1443,7 +1443,7 @@ ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
 /* VIDAS van en HTML a la izquierda (TECH SYSTEM) */
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);
-if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +30",canvas.width/2,canvas.height-17)}
+if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
 const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 

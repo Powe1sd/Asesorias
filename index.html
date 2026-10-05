@@ -78,9 +78,18 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game:fullscreen .touch-pad-fs,.tech-game:-webkit-full-screen .touch-pad-fs{display:flex!important}
 
 @media(max-width:600px){.touch-stick-wrap{width:110px;height:110px}.touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
-.tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{background:#020b22;padding:12px;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{height:min(72vh,560px);width:min(100%,900px);max-width:100%}
-.tech-game-section:fullscreen .touch-pad,.tech-game-section:-webkit-full-screen .touch-pad{display:block!important;width:min(100%,900px);margin-top:12px}
+.tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
+  background:#020b22;padding:10px 12px 8px;overflow:auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{
+  height:min(70vh,520px);width:min(96vw,900px);max-width:100%;flex-shrink:0;
+}
+.tech-game-section:fullscreen .touch-pad,
+.tech-game-section:-webkit-full-screen .touch-pad{
+  display:block!important;width:min(96vw,900px);margin:10px auto 0;flex-shrink:0;
+}
 </style>
 </head>
 <body>
@@ -107,7 +116,6 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 </div>
 <div class="game-help"></div>
 </div>
-</section>
 
 <div class="touch-pad" id="touchPad" aria-label="Controles táctiles">
   <div class="touch-pad-inner">
@@ -124,6 +132,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     </div>
   </div>
 </div>
+</section>
 
 <div id="content">
 <header class="cyber-hero"><h1>Desarrollo de Software</h1></header>
@@ -355,10 +364,15 @@ function onFS(){
   btnFS.style.display=fs?"none":"block";
   const tp=document.getElementById("touchPad");
   if(tp){
-    if(fs){tp.classList.add("show-fs");tp.style.display="block"}
-    else{tp.classList.remove("show-fs");tp.style.display=""}
+    if(fs){
+      tp.classList.add("show-fs");
+      tp.style.cssText="display:block!important;width:min(96vw,900px);margin:10px auto 0;";
+    } else {
+      tp.classList.remove("show-fs");
+      tp.style.cssText="";
+    }
   }
-  setTimeout(resizeCanvas,120);
+  setTimeout(resizeCanvas,150);
 }
 document.addEventListener("fullscreenchange",onFS);document.addEventListener("webkitfullscreenchange",onFS);
 const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:8px;right:80px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:14px;cursor:pointer;display:none");
@@ -522,10 +536,10 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
   stick.addEventListener("touchmove",onStickMove,{passive:false});
   stick.addEventListener("touchend",onStickEnd,{passive:false});
   stick.addEventListener("touchcancel",onStickEnd,{passive:false});
-  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()},{passive:false});
+  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");doVibrate(18);if(gameRunning&&!gamePaused)shoot()},{passive:false});
   fireBtn.addEventListener("touchend",e=>{e.preventDefault();isShooting=false;fireBtn.classList.remove("pressed")},{passive:false});
   fireBtn.addEventListener("touchcancel",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
-  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()});
+  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");doVibrate(18);if(gameRunning&&!gamePaused)shoot()});
   fireBtn.addEventListener("mouseup",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
   fireBtn.addEventListener("mouseleave",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
 })();
@@ -578,10 +592,17 @@ function createMeteor(kind){
   const isHard=kind==="hard";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0))*sc;
   const prog=getProgressSpeed();
+  /* Salen cerca de donde está la nave (con un poco de variación) */
+  const spread=canvas.width*0.35;
+  let mx=player.x+(Math.random()-0.5)*spread*2;
+  mx=Math.max(size,Math.min(canvas.width-size,mx));
+  /* 25% completamente aleatorio para no predecir todo */
+  if(Math.random()<0.25) mx=Math.random()*Math.max(1,canvas.width-size);
   obstacles.push({
-    x:Math.random()*Math.max(1,canvas.width-size),y:-size-10,size,
+    x:mx-size/2,y:-size-10,size,
     speed:(2.05+Math.random()*1.6)*prog*getSpeedScale(),
-    vx:(Math.random()-.5)*(scenario>=3?1.6:1.0),rotation:Math.random()*Math.PI*2,
+    vx:(Math.random()-.5)*(scenario>=3?1.6:1.0)+((player.x-(mx))/canvas.width)*0.8,
+    rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
     type:isHard?"hard":kind==="explosive"?"explosive":kind==="magnetic"?"magnetic":"meteor",
     hp:isHard?9999:kind==="explosive"?2:1,maxHp:isHard?9999:kind==="explosive"?2:1,
@@ -1506,7 +1527,7 @@ if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
 const smooth=Math.min(0.45,(overdrive>0?0.22:0.12)*Math.max(0.5,Math.min(1.8,sensMouse+0.15)));player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 // gravity pull on player
 applyGravity(player,player.x,player.y,1);
-const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m+50,Math.min(canvas.height-m-42,player.y));
+const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m,Math.min(canvas.height-m,player.y));
 
 // spawn meteors by level
 if(phase==="meteors"){

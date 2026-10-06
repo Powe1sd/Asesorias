@@ -251,8 +251,8 @@ let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMous
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
 let sensPad=Number(lsGet("techSensPadV2",0.34)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.34;
 /* Volúmenes por defecto bajos */
-let volMusic=Number(lsGet("techVolMusic",0.18)); if(isNaN(volMusic))volMusic=0.18;
-let volSfx=Number(lsGet("techVolSfx",0.28)); if(isNaN(volSfx))volSfx=0.28;
+let volMusic=Number(lsGet("techVolMusicV2",0.18)); if(isNaN(volMusic))volMusic=0.18;
+let volSfx=Number(lsGet("techVolSfxV2",0.18)); if(isNaN(volSfx))volSfx=0.18;
 let audioMuted=lsGet("techAudioMuted","0")==="1";
 let vibrateOn=lsGet("techVibrate","1")!=="0";
 function doVibrate(ms){
@@ -422,7 +422,7 @@ const vt=document.getElementById("vibrateToggle");
 if(vt)vt.onchange=()=>{vibrateOn=vt.checked;if(vibrateOn)doVibrate(30)};
 document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV2",sensPad);
-  lsSet("techVolMusic",volMusic);lsSet("techVolSfx",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
+  lsSet("techVolMusicV2",volMusic);lsSet("techVolSfxV2",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");
   cfg.style.display="none"};
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}

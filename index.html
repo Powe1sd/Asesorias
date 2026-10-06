@@ -251,7 +251,7 @@ let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=16*60,WARNING_DURATION=2.5*60;
-let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,lives=1;
+let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,hammerCharges=4,lives=1;
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
@@ -426,10 +426,9 @@ function loadMidGame(){
 }
 function useSpecialPower(){
   if(!gameRunning||gamePaused)return;
+  if(hammerCharges<=0){doVibrate(8);return}
   doVibrate(25);
-  if(typeof activateHammer==="function"){playSfx("hammer");activateHammer();return}
-  if(typeof activateNova==="function"){activateNova();return}
-  if(typeof activateBomb==="function"){activateBomb();return}
+  if(activateHammer()){playSfx("hammer");if(!SFX.hammer)playSfx("power")}
 }
 
 
@@ -445,9 +444,9 @@ const SFX = {
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
   SFX.bg = new Audio("audios/fondo.mp3");
-   SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
-   SFX.bg3 = new Audio("audios/fondo-alien.mp3");
-   SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
+  // SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
+  // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
+  // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
   SFX.shoot = new Audio("audios/disparo.mp3");
   SFX.explode = new Audio("audios/explosion.mp3");
   SFX.power = new Audio("audios/poder.mp3");
@@ -793,8 +792,9 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
   const spBtn=document.getElementById("touchSpecial");
   function doSpecial(){
     if(!gameRunning||gamePaused)return;
+    if(hammerCharges<=0){doVibrate(8);return}
     doVibrate(22);
-    if(typeof activateHammer==="function"){activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power");return}
+    if(activateHammer()){playSfx("hammer");if(!SFX.hammer)playSfx("power")}
   }
   if(spBtn){
     spBtn.addEventListener("touchstart",e=>{e.preventDefault();doSpecial()},{passive:false});
@@ -1110,17 +1110,28 @@ function activateBomb(){
 }
 
 function activateHammer(){
-  const targets=[...obstacles];
-  targets.forEach(o=>{
+  /* Máximo 4 rayos por uso; gasta 1 carga */
+  if(hammerCharges<=0)return false;
+  hammerCharges--;
+  const targets=[];
+  for(let i=0;i<obstacles.length;i++){
+    const o=obstacles[i];
+    if(o.type==="hard"||o.indestructible)continue;
+    targets.push({o,i,d:Math.hypot(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2))});
+  }
+  targets.sort((a,b)=>a.d-b.d);
+  const hit=targets.slice(0,4); /* solo 4 rayos */
+  const killIdx=[];
+  hit.forEach(({o,i})=>{
     const cx=o.x+o.size/2,cy=o.y+o.size/2;
     const br=[];for(let s=1;s<5;s++){const t=s/5;br.push({x:player.x+(cx-player.x)*t+(Math.random()-.5)*40,y:player.y+(cy-player.y)*t+(Math.random()-.5)*30})}
     if(lightningFX.length<(isMobile()?2:8))lightningFX.push({x1:player.x,y1:player.y,x2:cx,y2:cy,life:28,maxLife:28,branches:br});
+    if(String(o.type).startsWith("boss")){o.hp-=14;createExplosion(cx,cy,50,"180,220,255");if(o.hp<=0)killIdx.push(i)}
+    else killIdx.push(i);
   });
-  for(let i=obstacles.length-1;i>=0;i--){
-    if(String(obstacles[i].type).startsWith("boss")){obstacles[i].hp-=14;createExplosion(obstacles[i].x+obstacles[i].size/2,obstacles[i].y+obstacles[i].size/2,50,"180,220,255");if(obstacles[i].hp<=0)destroyEnemy(obstacles[i],i)}
-    else destroyEnemy(obstacles[i],i);
-  }
-  enemyBullets=[];createExplosion(player.x,player.y,40,"200,230,255");
+  killIdx.sort((a,b)=>b-a).forEach(i=>{if(obstacles[i])destroyEnemy(obstacles[i],i)});
+  createExplosion(player.x,player.y,40,"200,230,255");
+  return true;
 }
 function updateLightning(){
   for(let i=lightningFX.length-1;i>=0;i--){
@@ -1682,7 +1693,7 @@ else if(p.type==="pierce"){pierce=360;playSfx("power")}
 else if(p.type==="life"){lives=Math.min(lives+1,3);updateLivesUI();playSfx("power")}
 else if(p.type==="invisible"){invisible=280;playSfx("power")}
 else if(p.type==="magnet"){magnet=400;playSfx("power")}
-else if(p.type==="hammer"){activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power")}
+else if(p.type==="hammer"){hammerCharges=Math.min(8,hammerCharges+4);playSfx("hammer");if(!SFX.hammer)playSfx("power")}
 else if(p.type==="missile"){missilePower=420;playSfx("missile");if(!SFX.missile)playSfx("power");for(let k=0;k<3;k++)setTimeout(()=>{if(gameRunning&&!gamePaused)fireMissile()},k*120)}
 else if(p.type==="allies"){spawnAllies();playSfx("allies");if(!SFX.allies)playSfx("power")}
 else if(p.type==="overdrive"){overdrive=360;playSfx("overdrive");if(!SFX.overdrive)playSfx("power")}
@@ -1726,7 +1737,7 @@ ctx.textAlign="right";ctx.fillStyle="#88CCFF";ctx.font="9px Share Tech Mono";ctx
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);
+const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(hammerCharges>0)pows.push(["RAYOS "+hammerCharges,"#E8F0FF"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
@@ -1929,7 +1940,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;hammerCharges=4;lives=1;level=1;waveCount=0;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecord",0))||0;if(recordElement)recordElement.textContent=record;

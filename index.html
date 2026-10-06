@@ -90,6 +90,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game-section:-webkit-full-screen .touch-pad{
   display:block!important;width:min(96vw,900px);margin:10px auto 0;flex-shrink:0;
 }
+#configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+#configPanel .game-btn{position:sticky;bottom:0;margin-top:12px}
 </style>
 </head>
 <body>
@@ -251,8 +253,8 @@ let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMous
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
 let sensPad=Number(lsGet("techSensPadV2",0.34)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.34;
 /* Volúmenes por defecto bajos */
-let volMusic=Number(lsGet("techVolMusicV2",0.18)); if(isNaN(volMusic))volMusic=0.18;
-let volSfx=Number(lsGet("techVolSfxV2",0.18)); if(isNaN(volSfx))volSfx=0.18;
+let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
+let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
 let audioMuted=lsGet("techAudioMuted","0")==="1";
 let vibrateOn=lsGet("techVibrate","1")!=="0";
 function doVibrate(ms){
@@ -382,7 +384,7 @@ btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
 const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
 let cfg=document.getElementById("configPanel");
-if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45";
+if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45;max-height:min(85vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
 <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad ratón / touch en canvas</p>
 <input type="range" id="sensMouse" min="0.2" max="2.0" step="0.05" value="${sensMouse}" style="width:90%;accent-color:#FFCD00">
@@ -422,7 +424,7 @@ const vt=document.getElementById("vibrateToggle");
 if(vt)vt.onchange=()=>{vibrateOn=vt.checked;if(vibrateOn)doVibrate(30)};
 document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV2",sensPad);
-  lsSet("techVolMusicV2",volMusic);lsSet("techVolSfxV2",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
+  lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");
   cfg.style.display="none"};
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}

@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV4",1.35)); if(isNaN(sensPad)||sensPad<=0)sensPad=1.35;
+let sensPad=Number(lsGet("techSensPadV5",0.75)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.75;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -692,7 +692,7 @@ if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPow
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
-  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV4",sensPad);
+  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV5",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techPowerMode",powerMode);
   cfg.style.display="none"};
@@ -922,8 +922,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(12,stickR*0.65),0.85));
-    const reach=Math.min(canvas.width,canvas.height)*0.62*sensPad*force;
+    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.75),0.9));
+    const reach=Math.min(canvas.width,canvas.height)*0.36*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;
@@ -1027,7 +1027,7 @@ const dead=.22;let ax=gp.axes[0]||0,ay=gp.axes[1]||0;
 if(Math.abs(ax)<dead)ax=0;if(Math.abs(ay)<dead)ay=0;
 if(gp.buttons[12]&&gp.buttons[12].pressed)ay=-1;if(gp.buttons[13]&&gp.buttons[13].pressed)ay=1;
 if(gp.buttons[14]&&gp.buttons[14].pressed)ax=-1;if(gp.buttons[15]&&gp.buttons[15].pressed)ax=1;
-if(ax||ay){const reach=90*sensPad;mouse.x=player.x+ax*reach;mouse.y=player.y+ay*reach}
+if(ax||ay){const reach=70*sensPad;mouse.x=player.x+ax*reach;mouse.y=player.y+ay*reach}
 const fireBtn=[0,1,2,3,5,7].some(i=>gp.buttons[i]&&gp.buttons[i].pressed);
 if(fireBtn)isShooting=true;else if(pollGamepad._wasFire)isShooting=false;
 pollGamepad._wasFire=fireBtn;
@@ -2115,8 +2115,8 @@ if(gyroOn&&window._gyro){mouse.x=player.x+window._gyro.x*100*sensPad;mouse.y=pla
 
 if(isShooting)shoot();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
-const baseSmooth=stickActive?(overdrive>0?0.72:0.58):(overdrive>0?0.28:0.18);
-const smooth=Math.min(0.85,baseSmooth*Math.max(0.85,Math.min(2.2,(stickActive?sensPad:sensMouse)+0.25)));
+const baseSmooth=stickActive?(overdrive>0?0.42:0.32):(overdrive>0?0.24:0.16);
+const smooth=Math.min(0.55,baseSmooth*Math.max(0.7,Math.min(1.6,(stickActive?sensPad:sensMouse)+0.15)));
 player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 // gravity pull on player
 applyGravity(player,player.x,player.y,1);

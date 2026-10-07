@@ -935,7 +935,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
     const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.75),0.9));
-    const reach=Math.min(canvas.width,canvas.height)*0.80*sensPad*force;
+    const reach=Math.min(canvas.width,canvas.height)*1.80*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;

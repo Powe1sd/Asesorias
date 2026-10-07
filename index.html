@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV3",0.95)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.95;
+let sensPad=Number(lsGet("techSensPadV4",1.35)); if(isNaN(sensPad)||sensPad<=0)sensPad=1.35;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -692,7 +692,7 @@ if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPow
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
-  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV3",sensPad);
+  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV4",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techPowerMode",powerMode);
   cfg.style.display="none"};
@@ -857,19 +857,43 @@ canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
 window.addEventListener("mouseup",()=>{isShooting=false});
+let canvasShootId=null, fireTouchId=null;
+function setAimFromTouch(t){
+  const r=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/Math.max(1,r.width), scaleY=canvas.height/Math.max(1,r.height);
+  mouse.x=(t.clientX-r.left)*scaleX;
+  mouse.y=(t.clientY-r.top)*scaleY;
+}
 canvas.addEventListener("touchstart",e=>{
   if(!e.touches.length||gamePaused)return;
   if(e.target.closest&&e.target.closest(".touch-pad"))return;
-  const r=canvas.getBoundingClientRect();
-  const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);
-  mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;
-  /* en móvil con touch pad no disparar desde el canvas */
-  if(!document.getElementById("touchPad")||window.innerWidth>900){isShooting=true;if(gameRunning)shoot()}
+  const t=e.changedTouches[0]||e.touches[0];
+  canvasShootId=t.identifier;
+  setAimFromTouch(t);
+  isShooting=true;
+  if(gameRunning)shoot();
   e.preventDefault();
 },{passive:false});
-canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;e.preventDefault()},{passive:false});
-canvas.addEventListener("touchend",()=>{isShooting=false});
-canvas.addEventListener("touchcancel",()=>{isShooting=false});
+canvas.addEventListener("touchmove",e=>{
+  if(!e.touches.length)return;
+  if(e.target.closest&&e.target.closest(".touch-pad"))return;
+  /* seguir el dedo que empezó el disparo/movimiento */
+  let t=null;
+  for(let i=0;i<e.touches.length;i++){
+    if(canvasShootId===null||e.touches[i].identifier===canvasShootId){t=e.touches[i];break}
+  }
+  if(!t)t=e.touches[0];
+  setAimFromTouch(t);
+  e.preventDefault();
+},{passive:false});
+canvas.addEventListener("touchend",e=>{
+  for(let i=0;i<e.changedTouches.length;i++){
+    if(e.changedTouches[i].identifier===canvasShootId){canvasShootId=null;isShooting=false;break}
+  }
+  /* si ya no queda ningún dedo en pantalla (salvo pad), soltar disparo */
+  if(e.touches.length===0&&fireTouchId===null)isShooting=false;
+},{passive:false});
+canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===null)isShooting=false});
 
 /* ===== TOUCH PAD (móvil) — optimizado ===== */
 (function initTouchPad(){
@@ -897,9 +921,9 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
       return;
     }
     const nx=dx/d, ny=dy/d;
-    /* respuesta casi lineal al movimiento del dedo */
-    const force=Math.min(1,d/Math.max(18,stickR*0.85));
-    const reach=Math.min(canvas.width,canvas.height)*0.48*sensPad*force;
+    /* más sensible: fuerza sube rápido con poco movimiento */
+    const force=Math.min(1,Math.pow(d/Math.max(12,stickR*0.65),0.85));
+    const reach=Math.min(canvas.width,canvas.height)*0.62*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;
@@ -956,12 +980,32 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
     tpm.addEventListener("touchstart",tog,{passive:false});tpm.addEventListener("click",tog);
   }
 
-  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();e.stopPropagation();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()},{passive:false});
-  fireBtn.addEventListener("touchend",e=>{e.preventDefault();isShooting=false;fireBtn.classList.remove("pressed")},{passive:false});
-  fireBtn.addEventListener("touchcancel",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
-  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()});
-  fireBtn.addEventListener("mouseup",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
-  fireBtn.addEventListener("mouseleave",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
+  function fireDown(e){
+    if(e){e.preventDefault();e.stopPropagation()}
+    if(e&&e.changedTouches&&e.changedTouches[0])fireTouchId=e.changedTouches[0].identifier;
+    isShooting=true;
+    fireBtn.classList.add("pressed");
+    if(gameRunning&&!gamePaused)shoot();
+  }
+  function fireUp(e){
+    if(e){e.preventDefault();e.stopPropagation()}
+    if(e&&e.changedTouches){
+      for(let i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier===fireTouchId){fireTouchId=null;break}
+      }
+    } else fireTouchId=null;
+    if(fireTouchId===null&&canvasShootId===null)isShooting=false;
+    fireBtn.classList.remove("pressed");
+  }
+  fireBtn.addEventListener("touchstart",fireDown,{passive:false});
+  fireBtn.addEventListener("touchend",fireUp,{passive:false});
+  fireBtn.addEventListener("touchcancel",fireUp,{passive:false});
+  fireBtn.addEventListener("mousedown",fireDown);
+  fireBtn.addEventListener("mouseup",fireUp);
+  fireBtn.addEventListener("mouseleave",fireUp);
+  /* pointer events (Android/iOS modernos) */
+  fireBtn.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"||e.pointerType==="pen"){fireDown(e)}});
+  fireBtn.addEventListener("pointerup",e=>{if(e.pointerType==="touch"||e.pointerType==="pen"){fireUp(e)}});
 })();
 
 document.addEventListener("keydown",e=>{
@@ -1144,10 +1188,20 @@ function dropAmmoPack(){const s=16*getScale();pickups.push({x:Math.random()*Math
 function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack();if(Math.random()<.4)dropAmmoPack();lastAmmoDrop=ts}else if(ammo<=10&&ts-lastAmmoDrop>2500){dropAmmoPack();lastAmmoDrop=ts}}
 
 /* Disparo del jugador (respeta cooldown y munición) */
-function shoot(){if(!gameRunning||gamePaused||ammo<=0||laser>0)return;if(bullets.length>(isMobile()?14:24))return;const now=performance.now();if(now-lastShot<(rapidFire>0?75:shootCooldown))return;lastShot=now;playSfx("shoot");const sp=10.5*getSpeedScale(),s=getScale();
-  if(currentWeapon==="double"&&ownedWeapons.includes("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
-  if(currentWeapon==="spread"&&ownedWeapons.includes("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
-  if(currentWeapon==="pierce"&&ownedWeapons.includes("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
+function shoot(){
+  if(!gameRunning||gamePaused)return;
+  if(ammo<=0||laser>0)return;
+  if(bullets.length>(isMobile()?18:24))return;
+  const now=performance.now();
+  const cd=rapidFire>0?55:(isMobile()?120:shootCooldown);
+  if(now-lastShot<cd)return;
+  lastShot=now;
+  try{playSfx("shoot")}catch(e){}
+  const sp=10.5*getSpeedScale(),s=getScale();
+  const has=w=>Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(w)>=0;
+  if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
+  if(currentWeapon==="spread"&&has("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
+  if(currentWeapon==="pierce"&&has("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
 
 const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:pierce>0});ammo--};
 if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
@@ -2061,8 +2115,8 @@ if(gyroOn&&window._gyro){mouse.x=player.x+window._gyro.x*100*sensPad;mouse.y=pla
 
 if(isShooting)shoot();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
-const baseSmooth=stickActive?(overdrive>0?0.55:0.42):(overdrive>0?0.22:0.14);
-const smooth=Math.min(0.65,baseSmooth*Math.max(0.7,Math.min(1.8,(stickActive?sensPad:sensMouse)+0.2)));
+const baseSmooth=stickActive?(overdrive>0?0.72:0.58):(overdrive>0?0.28:0.18);
+const smooth=Math.min(0.85,baseSmooth*Math.max(0.85,Math.min(2.2,(stickActive?sensPad:sensMouse)+0.25)));
 player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 // gravity pull on player
 applyGravity(player,player.x,player.y,1);

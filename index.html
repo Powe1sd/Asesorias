@@ -71,7 +71,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   box-shadow:0 0 24px rgba(0,100,255,.15),inset 0 1px 0 rgba(255,255,255,.06)}
 .touch-col{display:flex;flex-direction:column;align-items:center}
 .touch-mid{display:flex;flex-direction:column;gap:8px;align-items:center}
-.touch-stick-wrap{position:relative;width:118px;height:118px;border-radius:50%;
+.touch-stick-wrap{position:relative;width:118px;height:118px;border-radius:50%;touch-action:none;-webkit-user-select:none;
   background:radial-gradient(circle at 40% 35%,rgba(40,90,160,.45),rgba(5,15,35,.9));
   border:2px solid rgba(0,200,255,.45);touch-action:none;
   box-shadow:0 0 18px rgba(0,150,255,.25),inset 0 0 20px rgba(0,0,0,.5)}
@@ -80,7 +80,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   background:radial-gradient(circle at 35% 30%,#fff,#FFCD00 40%,#CE1126 85%);
   left:50%;top:50%;transform:translate(-50%,-50%);
   box-shadow:0 0 14px rgba(255,205,0,.55),0 4px 10px rgba(0,0,0,.4);pointer-events:none}
-.touch-fire{width:92px;height:92px;border-radius:50%;border:2px solid rgba(255,60,80,.7);
+.touch-fire{width:92px;height:92px;border-radius:50%;border:2px solid rgba(255,60,80,.7);touch-action:none;-webkit-user-select:none;
   background:radial-gradient(circle at 35% 28%,#ff8a8a,#CE1126 50%,#5a0000);
   color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;
   touch-action:none;box-shadow:0 0 20px rgba(206,17,38,.45),inset 0 1px 0 rgba(255,255,255,.25)}
@@ -285,11 +285,11 @@ let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisib
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
-let isShooting=false;
+let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV2",0.34)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.34;
+let sensPad=Number(lsGet("techSensPadV3",0.95)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.95;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -692,7 +692,7 @@ if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPow
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
-  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV2",sensPad);
+  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV3",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techPowerMode",powerMode);
   cfg.style.display="none"};
@@ -857,46 +857,71 @@ canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
 window.addEventListener("mouseup",()=>{isShooting=false});
-canvas.addEventListener("touchstart",e=>{if(!e.touches.length||gamePaused)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;isShooting=true;if(gameRunning)shoot();e.preventDefault()},{passive:false});
+canvas.addEventListener("touchstart",e=>{
+  if(!e.touches.length||gamePaused)return;
+  if(e.target.closest&&e.target.closest(".touch-pad"))return;
+  const r=canvas.getBoundingClientRect();
+  const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);
+  mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;
+  /* en móvil con touch pad no disparar desde el canvas */
+  if(!document.getElementById("touchPad")||window.innerWidth>900){isShooting=true;if(gameRunning)shoot()}
+  e.preventDefault();
+},{passive:false});
 canvas.addEventListener("touchmove",e=>{if(!e.touches.length)return;const r=canvas.getBoundingClientRect();const scaleX=canvas.width/Math.max(1,r.width),scaleY=canvas.height/Math.max(1,r.height);mouse.x=(e.touches[0].clientX-r.left)*scaleX;mouse.y=(e.touches[0].clientY-r.top)*scaleY;e.preventDefault()},{passive:false});
 canvas.addEventListener("touchend",()=>{isShooting=false});
 canvas.addEventListener("touchcancel",()=>{isShooting=false});
 
-/* ===== TOUCH PAD (móvil) ===== */
+/* ===== TOUCH PAD (móvil) — optimizado ===== */
 (function initTouchPad(){
   const stick=document.getElementById("touchStick");
   const knob=document.getElementById("touchKnob");
   const fireBtn=document.getElementById("touchFire");
   if(!stick||!knob||!fireBtn)return;
   let stickId=null, stickCX=0, stickCY=0, stickR=50;
+  let lastKnobX=0, lastKnobY=0;
   function setKnob(dx,dy){
     const d=Math.hypot(dx,dy)||1;
-    const maxR=stickR*0.55;
+    const maxR=stickR*0.62;
     const m=Math.min(1,maxR/d);
-    knob.style.transform=`translate(calc(-50% + ${dx*m}px), calc(-50% + ${dy*m}px))`;
+    const kx=dx*m, ky=dy*m;
+    if(Math.abs(kx-lastKnobX)<0.5&&Math.abs(ky-lastKnobY)<0.5)return;
+    lastKnobX=kx;lastKnobY=ky;
+    knob.style.transform="translate(calc(-50% + "+kx.toFixed(1)+"px), calc(-50% + "+ky.toFixed(1)+"px))";
   }
   function applyStick(dx,dy){
     const d=Math.hypot(dx,dy);
-    if(d<10){setKnob(0,0);return}
-    const nx=dx/d, ny=dy/d, force=Math.min(1,(d-10)/Math.max(20,stickR-10));
-    const reach=Math.min(canvas.width,canvas.height)*0.28*sensPad*force;
+    if(d<5){
+      /* zona muerta pequeña: mantiene dirección suave al centro */
+      stickActive=true;
+      setKnob(0,0);
+      return;
+    }
+    const nx=dx/d, ny=dy/d;
+    /* respuesta casi lineal al movimiento del dedo */
+    const force=Math.min(1,d/Math.max(18,stickR*0.85));
+    const reach=Math.min(canvas.width,canvas.height)*0.48*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
+    stickActive=true;
     setKnob(dx,dy);
   }
   function onStickStart(e){
     e.preventDefault();
+    e.stopPropagation();
     const t=e.changedTouches?e.changedTouches[0]:e;
     stickId=t.identifier!==undefined?t.identifier:"mouse";
     const r=stick.getBoundingClientRect();
     stickCX=r.left+r.width/2;stickCY=r.top+r.height/2;stickR=r.width/2;
+    stickActive=true;
     applyStick(t.clientX-stickCX,t.clientY-stickCY);
   }
   function onStickMove(e){
     if(stickId===null)return;
     e.preventDefault();
-    const touches=e.changedTouches||[e];
-    for(const t of touches){
+    e.stopPropagation();
+    const touches=e.touches||e.changedTouches||[e];
+    for(let i=0;i<touches.length;i++){
+      const t=touches[i];
       if(t.identifier!==undefined&&t.identifier!==stickId)continue;
       applyStick(t.clientX-stickCX,t.clientY-stickCY);
       break;
@@ -904,13 +929,18 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
   }
   function onStickEnd(e){
     if(e.changedTouches){
-      for(const t of e.changedTouches){if(t.identifier===stickId){stickId=null;setKnob(0,0);return}}
-    } else {stickId=null;setKnob(0,0)}
+      for(const t of e.changedTouches){
+        if(t.identifier===stickId){stickId=null;stickActive=false;lastKnobX=0;lastKnobY=0;setKnob(0,0);return}
+      }
+    } else {stickId=null;stickActive=false;lastKnobX=0;lastKnobY=0;setKnob(0,0)}
   }
   stick.addEventListener("touchstart",onStickStart,{passive:false});
   stick.addEventListener("touchmove",onStickMove,{passive:false});
   stick.addEventListener("touchend",onStickEnd,{passive:false});
   stick.addEventListener("touchcancel",onStickEnd,{passive:false});
+  /* capturar movimiento aunque el dedo salga del stick */
+  window.addEventListener("touchmove",function(e){if(stickId!==null)onStickMove(e)},{passive:false});
+  window.addEventListener("touchend",function(e){if(stickId!==null)onStickEnd(e)},{passive:false});
   const spBtn=document.getElementById("touchSpecial");
   function doSpecial(){ useSpecialPower(); }
   if(spBtn){
@@ -926,10 +956,10 @@ canvas.addEventListener("touchcancel",()=>{isShooting=false});
     tpm.addEventListener("touchstart",tog,{passive:false});tpm.addEventListener("click",tog);
   }
 
-  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");doVibrate(18);if(gameRunning&&!gamePaused)shoot()},{passive:false});
+  fireBtn.addEventListener("touchstart",e=>{e.preventDefault();e.stopPropagation();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()},{passive:false});
   fireBtn.addEventListener("touchend",e=>{e.preventDefault();isShooting=false;fireBtn.classList.remove("pressed")},{passive:false});
   fireBtn.addEventListener("touchcancel",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
-  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");doVibrate(18);if(gameRunning&&!gamePaused)shoot()});
+  fireBtn.addEventListener("mousedown",e=>{e.preventDefault();isShooting=true;fireBtn.classList.add("pressed");if(gameRunning&&!gamePaused)shoot()});
   fireBtn.addEventListener("mouseup",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
   fireBtn.addEventListener("mouseleave",()=>{isShooting=false;fireBtn.classList.remove("pressed")});
 })();
@@ -2031,7 +2061,9 @@ if(gyroOn&&window._gyro){mouse.x=player.x+window._gyro.x*100*sensPad;mouse.y=pla
 
 if(isShooting)shoot();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
-const smooth=Math.min(0.45,(overdrive>0?0.22:0.12)*Math.max(0.5,Math.min(1.8,sensMouse+0.15)));player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
+const baseSmooth=stickActive?(overdrive>0?0.55:0.42):(overdrive>0?0.22:0.14);
+const smooth=Math.min(0.65,baseSmooth*Math.max(0.7,Math.min(1.8,(stickActive?sensPad:sensMouse)+0.2)));
+player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 // gravity pull on player
 applyGravity(player,player.x,player.y,1);
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m,Math.min(canvas.height-m,player.y));

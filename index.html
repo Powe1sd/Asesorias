@@ -162,7 +162,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top">
-<div class="game-title">⚡ TECH SYSTEM · Brayhan Estiven Coy Rubio</div>
+<div class="game-title">⚡ TECH SYSTEM</div>
 <div class="game-score">PUNTOS <span id="gameScore">0</span> · RÉCORD <span id="gameRecord">0</span> · VIDAS <span id="gameLives">1</span></div>
 </div>
 <canvas id="gameCanvas"></canvas>
@@ -323,13 +323,24 @@ let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
 let audioMuted=lsGet("techAudioMuted","0")==="1";
 let vibrateOn=lsGet("techVibrate","1")!=="0";
 let vibrateShoot=lsGet("techVibrateShoot","1")!=="0";
-function doVibrate(ms){
+function doVibrate(ms, kind){
   try{
-    if(!vibrateOn) return;
-    if(typeof navigator!=="undefined"&&navigator.vibrate) navigator.vibrate(ms||40);
+    if(kind==="shoot"){ if(!vibrateShoot) return; }
+    else { if(!vibrateOn) return; }
+    const fn = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate;
+    if(typeof fn==="function"){
+      /* patrón corto se siente mejor en Android */
+      if(kind==="shoot") fn.call(navigator, [0, ms||18]);
+      else fn.call(navigator, ms||40);
+    }
   }catch(e){}
 }
-const CREDITS={name:"Brayhan Estiven Coy Rubio",phone:"3052076713",email:"Brayan32455415@gmail.co",label:"Desarrollo · TECH"};
+/* Desbloquear vibración con el primer toque (Android) */
+document.addEventListener("touchstart",function _unlockVib(){
+  try{ const fn=navigator.vibrate||navigator.webkitVibrate; if(fn) fn.call(navigator,1); }catch(e){}
+},{passive:true,once:true});
+
+const CREDITS={name:"Brayhan Estiven Coy Rubio",phone:"3052076713",email:"brayan32455415@gmail.com",label:"Desarrollo · TECH"};
 
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
@@ -517,6 +528,11 @@ function showUserManual(){
   <p style="font-size:11px;color:#ccc;line-height:1.5">Oleadas de meteoritos y naves. Esquiva, dispara, sube de puntuación. Escenarios cambian al avanzar. Comparte tu récord al terminar.</p>
   <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">NAVES</p>
   <p style="font-size:11px;color:#ccc;line-height:1.5">Elige diseño y color en el inicio. Algunos se desbloquean con récord.</p>
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:center">
+    <p style="color:#FFCD00;font-size:13px;margin:4px 0">Brayhan Estiven Coy Rubio</p>
+    <p style="color:#ddd;font-size:12px;margin:4px 0">📞 3052076713</p>
+    <p style="color:#ddd;font-size:11px;margin:4px 0">✉ brayan32455415@gmail.com</p>
+  </div>
   <button class="game-btn" id="closeManual" style="width:100%;margin-top:12px">CERRAR</button>`;
   m.style.display="block";
   document.getElementById("closeManual").onclick=()=>{m.style.display="none"};
@@ -749,7 +765,7 @@ pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD0
 <button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
 gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
-c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:8px 0 4px;font-family:'Share Tech Mono',monospace">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
+c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:6px 0 2px">📞 ${CREDITS.phone}</p><p style="color:#ccc;font-size:11px;margin:2px 0 6px">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
 
 if(startPanel&&!document.getElementById("startExtras")){
@@ -1229,7 +1245,7 @@ function shoot(){
   if(now-lastShot<cd)return;
   lastShot=now;
   try{playSfx("shoot")}catch(e){}
-  if(vibrateShoot)doVibrate(12);
+  doVibrate(20,"shoot");
   const sp=10.5*getSpeedScale(),s=getScale();
   const has=w=>Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(w)>=0;
   if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}

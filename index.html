@@ -134,7 +134,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top">
-<div class="game-title">⚡ TECH SYSTEM · Brayhan Rubio</div>
+<div class="game-title">⚡ TECH SYSTEM · Brayhan Estiven Coy Rubio</div>
 <div class="game-score">PUNTOS <span id="gameScore">0</span> · RÉCORD <span id="gameRecord">0</span> · VIDAS <span id="gameLives">1</span></div>
 </div>
 <canvas id="gameCanvas"></canvas>
@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV7",0.11)); if(isNaN(sensPad))sensPad=0.11; if(sensPad<0)sensPad=0;
+let sensPad=Number(lsGet("techSensPadV7",0.15)); if(isNaN(sensPad))sensPad=0.15; if(sensPad<0)sensPad=0;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -301,7 +301,7 @@ function doVibrate(ms){
     if(typeof navigator!=="undefined"&&navigator.vibrate) navigator.vibrate(ms||40);
   }catch(e){}
 }
-const CREDITS={name:"Brayhan Rubio",phone:"3052076713",label:"Desarrollo · TECH"};
+const CREDITS={name:"Brayhan Estiven Coy Rubio",phone:"3052076713",email:"Brayan32455415@gmail.co",label:"Desarrollo · TECH"};
 
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
@@ -312,7 +312,7 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta
-let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1 espacio 2 nieve 3 fuego 4 cristal
+let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
 
 let metaCoins=Number(lsGet("techCoins",0))||0;
 let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
@@ -391,7 +391,7 @@ function makeScoreCard(){
   g.fillText("Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed,W/2,445);
   g.fillText("Dificultad: "+String(difficulty).toUpperCase(),W/2,490);
   g.fillStyle="rgba(255,255,255,.12)";g.fillRect(80,530,W-160,2);
-  g.fillStyle="#FFCD00";g.font="bold 24px Orbitron,Arial,sans-serif";g.fillText("Brayhan Rubio",W/2,590);
+  g.fillStyle="#FFCD00";g.font="bold 24px Orbitron,Arial,sans-serif";g.fillText("Brayhan Estiven Coy Rubio",W/2,590);
   g.fillStyle="#aaa";g.font="18px Share Tech Mono,monospace";g.fillText("Colombia · TECH",W/2,630);
   g.fillStyle="#CE1126";g.font="bold 20px Orbitron,Arial,sans-serif";g.fillText("Jesucristo",W/2,700);
   g.fillStyle="#666";g.font="14px Share Tech Mono,monospace";g.fillText(new Date().toLocaleString(),W/2,760);
@@ -412,7 +412,7 @@ function downloadScoreCard(){
   });
 }
 function shareScoreText(){
-  return "🚀 TECH RUN Br7\n⭐ "+score+" puntos (récord "+record+")\n☄️ Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed+"\n🎯 "+String(difficulty).toUpperCase()+"\n👨‍💻 Brayhan Rubio · Colombia";
+  return "🚀 TECH RUN Br7\n⭐ "+score+" puntos (récord "+record+")\n☄️ Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed+"\n🎯 "+String(difficulty).toUpperCase()+"\n👨‍💻 Brayhan Estiven Coy Rubio · Colombia";
 }
 async function shareScoreNative(){
   const text=shareScoreText();
@@ -710,13 +710,13 @@ document.getElementById("closeConfig").onclick=()=>{
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
-pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:15px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:13px;margin:8px 0 4px">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
+pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:14px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:12px;margin:6px 0 2px">✉ ${CREDITS.email}</p><p style="color:#ddd;font-size:12px;margin:4px 0">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
 <button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
 gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
-c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:12px;margin:8px 0 4px;font-family:'Share Tech Mono',monospace">📞 ${CREDITS.phone}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
+c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:8px 0 4px;font-family:'Share Tech Mono',monospace">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
 
 if(startPanel&&!document.getElementById("startExtras")){
@@ -736,6 +736,10 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="2" class="${selectedWorld===2?"active":""}">2 Nieve</button>
       <button type="button" data-world="3" class="${selectedWorld===3?"active":""}">3 Fuego</button>
       <button type="button" data-world="4" class="${selectedWorld===4?"active":""}">4 Cristal</button>
+      <button type="button" data-world="5" class="${selectedWorld===5?"active":""}">5 Halloween</button>
+      <button type="button" data-world="6" class="${selectedWorld===6?"active":""}">6 Neón</button>
+      <button type="button" data-world="7" class="${selectedWorld===7?"active":""}">7 Tóxico</button>
+      <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
     <canvas id="shipPreview" width="220" height="120" style="width:100%;max-width:240px;height:120px;display:block;margin:8px auto;border-radius:12px;border:1px solid rgba(255,205,0,.35);background:#020b22"></canvas>
     <h3>🚀 Modelo de nave</h3>
@@ -874,7 +878,10 @@ function setAimFromTouch(t){
   const r=canvas.getBoundingClientRect();
   const scaleX=canvas.width/Math.max(1,r.width), scaleY=canvas.height/Math.max(1,r.height);
   mouse.x=(t.clientX-r.left)*scaleX;
-  mouse.y=(t.clientY-r.top)*scaleY;
+  /* Nave por encima del dedo para que no la tape */
+  const fingerY=(t.clientY-r.top)*scaleY;
+  const offset=Math.max(48, player.size*2.8);
+  mouse.y=fingerY-offset;
 }
 canvas.addEventListener("touchstart",e=>{
   if(!e.touches.length||gamePaused)return;
@@ -934,9 +941,9 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(17,stickR*0.30),0.37));
-    const reach=Math.min(canvas.width,canvas.height)*0.33*sensPad*force;
-    mouse.x=player.x+nx*reach;3
+    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.75),0.9));
+    const reach=Math.min(canvas.width,canvas.height)*0.36*sensPad*force;
+    mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;
     setKnob(dx,dy);
@@ -1827,6 +1834,10 @@ function drawShipPreview(){
   if(selectedWorld===2){bg.addColorStop(0,"#0a1520");bg.addColorStop(1,"#1a3040")}
   else if(selectedWorld===3){bg.addColorStop(0,"#1a0800");bg.addColorStop(1,"#3a1000")}
   else if(selectedWorld===4){bg.addColorStop(0,"#0a1028");bg.addColorStop(1,"#152050")}
+  else if(selectedWorld===5){bg.addColorStop(0,"#0a0508");bg.addColorStop(1,"#1a0a00")}
+  else if(selectedWorld===6){bg.addColorStop(0,"#050010");bg.addColorStop(1,"#001018")}
+  else if(selectedWorld===7){bg.addColorStop(0,"#030a02");bg.addColorStop(1,"#0a1a05")}
+  else if(selectedWorld===8){bg.addColorStop(0,"#000");bg.addColorStop(1,"#0a0015")}
   else{bg.addColorStop(0,"#020b22");bg.addColorStop(1,"#0a1a40")}
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<25;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
@@ -2076,11 +2087,51 @@ function drawSpaceBG(){
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
     if(!lowPower){const neb=ctx.createRadialGradient(canvas.width*.5,canvas.height,10,canvas.width*.5,canvas.height,canvas.width*.7);neb.addColorStop(0,"rgba(255,80,0,.2)");neb.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height)}
   } else if(selectedWorld===4){
-    /* CRISTAL / NEÓN */
+    /* CRISTAL */
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     g.addColorStop(0,"#050818");g.addColorStop(.5,"#0a1840");g.addColorStop(1,"#120828");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
     if(!lowPower){ctx.strokeStyle="rgba(100,200,255,.08)";ctx.lineWidth=1;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(i*canvas.width/5,0);ctx.lineTo(canvas.width,canvas.height-i*40);ctx.stroke()}}
+  } else if(selectedWorld===5){
+    /* HALLOWEEN */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#0a0508");g.addColorStop(.4,"#1a0a00");g.addColorStop(1,"#0d0610");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    const neb=ctx.createRadialGradient(canvas.width*.7,canvas.height*.2,5,canvas.width*.7,canvas.height*.2,canvas.width*.4);
+    neb.addColorStop(0,"rgba(255,100,0,.12)");neb.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){for(let i=0;i<(isMobile()?6:12);i++){const x=(i*73+performance.now()/50)%canvas.width;const y=20+(i*47)%(canvas.height*0.6);ctx.fillStyle="rgba(180,80,255,.15)";ctx.beginPath();ctx.arc(x,y,2+i%3,0,Math.PI*2);ctx.fill()}}
+  } else if(selectedWorld===6){
+    /* NEÓN CYBER */
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,"#050010");g.addColorStop(.5,"#0a0020");g.addColorStop(1,"#001018");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      ctx.strokeStyle="rgba(0,255,200,.12)";ctx.lineWidth=1;
+      const off=(performance.now()/30)%40;
+      for(let y=-40;y<canvas.height+40;y+=40){ctx.beginPath();ctx.moveTo(0,y+off);ctx.lineTo(canvas.width,y+off-20);ctx.stroke()}
+      ctx.strokeStyle="rgba(255,0,180,.1)";
+      for(let x=-40;x<canvas.width+40;x+=50){ctx.beginPath();ctx.moveTo(x+off,0);ctx.lineTo(x+off-15,canvas.height);ctx.stroke()}
+    }
+  } else if(selectedWorld===7){
+    /* TÓXICO */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#030a02");g.addColorStop(.5,"#0a1a05");g.addColorStop(1,"#051208");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    const neb=ctx.createRadialGradient(canvas.width*.3,canvas.height*.7,5,canvas.width*.3,canvas.height*.7,canvas.width*.45);
+    neb.addColorStop(0,"rgba(80,255,40,.12)");neb.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){for(let i=0;i<(isMobile()?5:10);i++){const x=(i*89+performance.now()/60)%(canvas.width+20)-10;const y=(i*61+performance.now()/45)%canvas.height;ctx.fillStyle="rgba(120,255,60,.2)";ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill()}}
+  } else if(selectedWorld===8){
+    /* VACÍO / ABISMO */
+    const g=ctx.createRadialGradient(canvas.width*.5,canvas.height*.45,5,canvas.width*.5,canvas.height*.45,canvas.width*.7);
+    g.addColorStop(0,"#000");g.addColorStop(.35,"#0a0015");g.addColorStop(.7,"#050010");g.addColorStop(1,"#000005");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const t=performance.now()/900;
+      ctx.strokeStyle=`rgba(120,60,200,${0.1+Math.sin(t)*.05})`;ctx.lineWidth=1.5;
+      for(let k=1;k<=3;k++){ctx.beginPath();ctx.ellipse(canvas.width*.5,canvas.height*.42,20*k+Math.sin(t+k)*4,12*k,t*.2,0,Math.PI*2);ctx.stroke()}
+    }
   } else if(scenario===1){
     /* Órbita: azul casi negro */
     const g=ctx.createLinearGradient(0,0,0,canvas.height);

@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV5",0.10)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.10;
+let sensPad=Number(lsGet("techSensPadV7",0.7)); if(isNaN(sensPad))sensPad=0.7; if(sensPad<0)sensPad=0;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -644,7 +644,7 @@ cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
 <input type="range" id="sensKeys" min="0.3" max="2.2" step="0.05" value="${sensKeys}" style="width:90%;accent-color:#0038A8">
 <p id="sensKeysVal" style="color:#aaa;font-size:10px">${Number(sensKeys).toFixed(2)}x</p>
 <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad touch pad / mando</p>
-<input type="range" id="sensPad" min="0.15" max="2.0" step="0.01" value="${sensPad}" style="width:90%;accent-color:#00A0E9">
+<input type="range" id="sensPad" min="0" max="2.0" step="0.01" value="${sensPad}" style="width:90%;accent-color:#00A0E9">
 <p id="sensPadVal" style="color:#aaa;font-size:10px">${Number(sensPad).toFixed(2)}x</p>
 <hr style="border:none;border-top:1px solid rgba(255,205,0,.25);margin:12px 0">
 <p style="color:#FF6688;font-size:12px;margin:4px 0">🔊 AUDIO</p>
@@ -703,7 +703,7 @@ if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPow
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
-  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV5",sensPad);
+  lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techPowerMode",powerMode);
   cfg.style.display="none"};
@@ -934,8 +934,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.55),0.43));
-    const reach=Math.min(canvas.width,canvas.height)*0.77*sensPad*force;
+    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.66),0.15));
+    const reach=Math.min(canvas.width,canvas.height)*0.50*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;

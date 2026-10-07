@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV5",0.60)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.60;
+let sensPad=Number(lsGet("techSensPadV5",0.75)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.75;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -311,7 +311,7 @@ let lowPower=lsGet("techLowPower","0")==="1";
 let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
-let shipModel=lsGet("techShipModel","fighter"); // fighter|interceptor|heavy|stealth|wing|needle|delta
+let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1 espacio 2 nieve 3 fuego 4 cristal
 
 let metaCoins=Number(lsGet("techCoins",0))||0;
@@ -729,6 +729,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     <canvas id="shipPreview" width="220" height="120" style="width:100%;max-width:240px;height:120px;display:block;margin:8px auto;border-radius:12px;border:1px solid rgba(255,205,0,.35);background:#020b22"></canvas>
     <h3>🚀 Modelo de nave</h3>
     <div class="diff-btns">
+      <button type="button" data-model="classic" class="${shipModel==="classic"?"active":""}">Clásica</button>
       <button type="button" data-model="fighter" class="${shipModel==="fighter"?"active":""}">Cazadora</button>
       <button type="button" data-model="interceptor" class="${shipModel==="interceptor"?"active":""}">Interceptor</button>
       <button type="button" data-model="heavy" class="${shipModel==="heavy"?"active":""}">Pesada</button>
@@ -771,7 +772,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       shipSkin=b.getAttribute("data-skin");lsSet("techShipSkin",shipSkin);renderStart();
     });
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
-      shipModel=b.getAttribute("data-model");lsSet("techShipModel",shipModel);renderStart();
+      shipModel=b.getAttribute("data-model");lsSet("techShipModelV2",shipModel);renderStart();
     });
     box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
       selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
@@ -922,8 +923,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.70),0.11));
-    const reach=Math.min(canvas.width,canvas.height)*0.20*sensPad*force;
+    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.75),0.9));
+    const reach=Math.min(canvas.width,canvas.height)*0.36*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;
@@ -1728,7 +1729,19 @@ function drawShipModel(g,s,model,skin,label){
   bodyG.addColorStop(0,col.a);bodyG.addColorStop(.5,col.b);bodyG.addColorStop(1,col.c);
   g.fillStyle=bodyG;g.strokeStyle=col.stroke;g.lineWidth=Math.max(1,s*.08);
   g.beginPath();
-  if(model==="interceptor"){
+  if(model==="classic"){
+    /* Nave clásica original Br7 (cuerpo + alas laterales) */
+    g.moveTo(0,-s-5);g.lineTo(s*.22,-s*.35);g.lineTo(s*.5,s*.15);g.lineTo(s*.32,s*.72);g.lineTo(0,s*.5);
+    g.lineTo(-s*.32,s*.72);g.lineTo(-s*.5,s*.15);g.lineTo(-s*.22,-s*.35);g.closePath();
+    g.fill();g.stroke();
+    /* alas */
+    g.fillStyle=bodyG;
+    g.beginPath();g.moveTo(-s*.25,s*.05);g.lineTo(-s*1.15,s*.5);g.lineTo(-s*1.0,s*.78);g.lineTo(-s*.3,s*.62);g.closePath();g.fill();g.stroke();
+    g.beginPath();g.moveTo(s*.25,s*.05);g.lineTo(s*1.15,s*.5);g.lineTo(s*1.0,s*.78);g.lineTo(s*.3,s*.62);g.closePath();g.fill();g.stroke();
+    /* línea central */
+    g.strokeStyle=col.stroke;g.globalAlpha=0.55;g.beginPath();g.moveTo(0,-s-2);g.lineTo(0,s*.35);g.stroke();g.globalAlpha=1;
+    g.beginPath(); /* vacío para no rellenar de nuevo abajo */
+  }else if(model==="interceptor"){
     g.moveTo(0,-s-6);g.lineTo(s*.15,-s*.2);g.lineTo(s*.7,s*.4);g.lineTo(s*.2,s*.2);g.lineTo(0,s*.55);
     g.lineTo(-s*.2,s*.2);g.lineTo(-s*.7,s*.4);g.lineTo(-s*.15,-s*.2);g.closePath();
   }else if(model==="heavy"){
@@ -1778,7 +1791,7 @@ function drawShipPreview(){
   drawShipModel(g,28,shipModel,shipSkin,"Br7");
   g.restore();
   g.fillStyle="rgba(255,205,0,.8)";g.font="11px Orbitron";g.textAlign="center";
-  const names={fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta"};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta"};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-10);
 }
 

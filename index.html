@@ -310,7 +310,10 @@ let damageFlash=0,introTimer=0;
 let lowPower=lsGet("techLowPower","0")==="1";
 let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
-let shipSkin=lsGet("techShipSkin","white"); // white|black|gold
+let shipSkin=lsGet("techShipSkin","white");
+let shipModel=lsGet("techShipModel","fighter"); // fighter|interceptor|heavy|stealth|wing|needle|delta
+let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1 espacio 2 nieve 3 fuego 4 cristal
+
 let metaCoins=Number(lsGet("techCoins",0))||0;
 let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
 let upgAmmo=Number(lsGet("techUpgAmmo",0))||0;
@@ -698,8 +701,9 @@ let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
 pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:15px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:13px;margin:8px 0 4px">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
-<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>`;
-gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame()}
+<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
+<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
+gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
 c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:12px;margin:8px 0 4px;font-family:'Share Tech Mono',monospace">📞 ${CREDITS.phone}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
@@ -715,7 +719,25 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-d="normal" class="${difficulty==="normal"?"active":""}">NORMAL</button>
       <button type="button" data-d="hard" class="${difficulty==="hard"?"active":""}">DIFÍCIL</button>
     </div>
-        <h3>Nave · diseño</h3>
+    <h3>🌍 Mundo</h3>
+    <div class="diff-btns">
+      <button type="button" data-world="1" class="${selectedWorld===1?"active":""}">1 Espacio</button>
+      <button type="button" data-world="2" class="${selectedWorld===2?"active":""}">2 Nieve</button>
+      <button type="button" data-world="3" class="${selectedWorld===3?"active":""}">3 Fuego</button>
+      <button type="button" data-world="4" class="${selectedWorld===4?"active":""}">4 Cristal</button>
+    </div>
+    <canvas id="shipPreview" width="220" height="120" style="width:100%;max-width:240px;height:120px;display:block;margin:8px auto;border-radius:12px;border:1px solid rgba(255,205,0,.35);background:#020b22"></canvas>
+    <h3>🚀 Modelo de nave</h3>
+    <div class="diff-btns">
+      <button type="button" data-model="fighter" class="${shipModel==="fighter"?"active":""}">Cazadora</button>
+      <button type="button" data-model="interceptor" class="${shipModel==="interceptor"?"active":""}">Interceptor</button>
+      <button type="button" data-model="heavy" class="${shipModel==="heavy"?"active":""}">Pesada</button>
+      <button type="button" data-model="stealth" class="${shipModel==="stealth"?"active":""}">Sigilo</button>
+      <button type="button" data-model="wing" class="${shipModel==="wing"?"active":""}">Ala X</button>
+      <button type="button" data-model="needle" class="${shipModel==="needle"?"active":""}">Aguja</button>
+      <button type="button" data-model="delta" class="${shipModel==="delta"?"active":""}">Delta</button>
+    </div>
+    <h3>🎨 Color</h3>
     <div class="diff-btns">
       <button type="button" data-skin="white" class="${shipSkin==="white"?"active":""}">Blanca</button>
       <button type="button" data-skin="black" class="${shipSkin==="black"?"active":""}">Negra</button>
@@ -746,9 +768,15 @@ if(startPanel&&!document.getElementById("startExtras")){
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
     box.querySelectorAll("[data-skin]").forEach(b=>b.onclick=()=>{
-      const sk=b.getAttribute("data-skin");
-      shipSkin=sk;lsSet("techShipSkin",sk);renderStart();
+      shipSkin=b.getAttribute("data-skin");lsSet("techShipSkin",shipSkin);renderStart();
     });
+    box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
+      shipModel=b.getAttribute("data-model");lsSet("techShipModel",shipModel);renderStart();
+    });
+    box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
+      selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
+    });
+    setTimeout(drawShipPreview,30);
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
       const prices={basic:0,double:40,pierce:60,spread:80};
@@ -1597,6 +1625,79 @@ function updateTraps(){
 
 function hitPlayer(x,y){if(invisible>0)return;playSfx("hit");damageFlash=25;combo=0;comboMult=1; /* daño + rompe combo */if(shield>0){createExplosion(x,y,10,"0,200,255");shield=Math.max(0,shield-70);return}if(lives>1){lives--;updateLivesUI();shield=120;createExplosion(player.x,player.y,30,"255,100,0");return}endGame()}
 
+
+function getShipColors(skin){
+  if(skin==="black")return{a:"#0a0a0a",b:"#1a1a1a",c:"#050505",stroke:"#888"};
+  if(skin==="gold")return{a:"#B8860B",b:"#FFD700",c:"#8B6914",stroke:"#FFEE88"};
+  if(skin==="cyan")return{a:"#003344",b:"#00E5FF",c:"#006688",stroke:"#AAFFFF"};
+  if(skin==="crimson")return{a:"#2a0008",b:"#CE1126",c:"#5a0010",stroke:"#FF6688"};
+  if(skin==="violet")return{a:"#1a0033",b:"#AA66FF",c:"#440088",stroke:"#DDBBFF"};
+  if(skin==="lime")return{a:"#0a2200",b:"#88FF44",c:"#226600",stroke:"#CCFF88"};
+  if(skin==="steel")return{a:"#222",b:"#99AABB",c:"#445566",stroke:"#CCDDEE"};
+  if(skin==="orange")return{a:"#331500",b:"#FF8800",c:"#994400",stroke:"#FFCC88"};
+  return{a:"#f5f5f5",b:"#ffffff",c:"#c8c8c8",stroke:"#CE1126"};
+}
+/** Dibuja modelo de nave en un context 2D centrado en 0,0 */
+function drawShipModel(g,s,model,skin,label){
+  const col=getShipColors(skin);
+  const bodyG=g.createLinearGradient(-s*.7,-s,s*.7,s);
+  bodyG.addColorStop(0,col.a);bodyG.addColorStop(.5,col.b);bodyG.addColorStop(1,col.c);
+  g.fillStyle=bodyG;g.strokeStyle=col.stroke;g.lineWidth=Math.max(1,s*.08);
+  g.beginPath();
+  if(model==="interceptor"){
+    g.moveTo(0,-s-6);g.lineTo(s*.15,-s*.2);g.lineTo(s*.7,s*.4);g.lineTo(s*.2,s*.2);g.lineTo(0,s*.55);
+    g.lineTo(-s*.2,s*.2);g.lineTo(-s*.7,s*.4);g.lineTo(-s*.15,-s*.2);g.closePath();
+  }else if(model==="heavy"){
+    g.moveTo(0,-s-2);g.lineTo(s*.45,-s*.1);g.lineTo(s*.55,s*.5);g.lineTo(s*.25,s*.75);g.lineTo(0,s*.6);
+    g.lineTo(-s*.25,s*.75);g.lineTo(-s*.55,s*.5);g.lineTo(-s*.45,-s*.1);g.closePath();
+  }else if(model==="stealth"){
+    g.moveTo(0,-s-4);g.lineTo(s*.9,s*.55);g.lineTo(0,s*.25);g.lineTo(-s*.9,s*.55);g.closePath();
+  }else if(model==="wing"){
+    g.moveTo(0,-s-3);g.lineTo(s*.25,-s*.3);g.lineTo(s*1.3,s*.15);g.lineTo(s*.3,s*.35);g.lineTo(0,s*.7);
+    g.lineTo(-s*.3,s*.35);g.lineTo(-s*1.3,s*.15);g.lineTo(-s*.25,-s*.3);g.closePath();
+  }else if(model==="needle"){
+    g.moveTo(0,-s-8);g.lineTo(s*.12,s*.2);g.lineTo(s*.18,s*.7);g.lineTo(0,s*.45);g.lineTo(-s*.18,s*.7);g.lineTo(-s*.12,s*.2);g.closePath();
+  }else if(model==="delta"){
+    g.moveTo(0,-s-4);g.lineTo(s*.85,s*.65);g.lineTo(0,s*.35);g.lineTo(-s*.85,s*.65);g.closePath();
+  }else{
+    /* fighter default */
+    g.moveTo(0,-s-5);g.lineTo(s*.22,-s*.35);g.lineTo(s*.5,s*.15);g.lineTo(s*.32,s*.72);g.lineTo(0,s*.5);
+    g.lineTo(-s*.32,s*.72);g.lineTo(-s*.5,s*.15);g.lineTo(-s*.22,-s*.35);g.closePath();
+  }
+  g.fill();g.stroke();
+  /* cabina */
+  const cab=g.createRadialGradient(0,-2,1,0,0,s*.35);
+  cab.addColorStop(0,"#fff");cab.addColorStop(.6,"#8ab");cab.addColorStop(1,"#345");
+  g.fillStyle=cab;g.beginPath();g.ellipse(0,-s*.15,s*.18,s*.28,0,0,Math.PI*2);g.fill();
+  /* propulsor */
+  const fl=4+Math.random()*4;
+  const thr=g.createLinearGradient(0,s*.4,0,s*.4+fl);
+  thr.addColorStop(0,"#fff");thr.addColorStop(.5,"#FF8844");thr.addColorStop(1,"rgba(255,0,0,0)");
+  g.fillStyle=thr;g.beginPath();g.moveTo(-s*.15,s*.45);g.lineTo(0,s*.45+fl);g.lineTo(s*.15,s*.45);g.closePath();g.fill();
+  if(label){g.fillStyle="#CE1126";g.font="bold "+Math.max(8,s*.45)+"px Orbitron";g.textAlign="center";g.textBaseline="top";g.fillText(label,0,s*.75)}
+}
+function drawShipPreview(){
+  const pv=document.getElementById("shipPreview");
+  if(!pv)return;
+  const g=pv.getContext("2d");
+  const W=pv.width,H=pv.height;
+  g.clearRect(0,0,W,H);
+  /* fondo según mundo */
+  const bg=g.createLinearGradient(0,0,0,H);
+  if(selectedWorld===2){bg.addColorStop(0,"#0a1520");bg.addColorStop(1,"#1a3040")}
+  else if(selectedWorld===3){bg.addColorStop(0,"#1a0800");bg.addColorStop(1,"#3a1000")}
+  else if(selectedWorld===4){bg.addColorStop(0,"#0a1028");bg.addColorStop(1,"#152050")}
+  else{bg.addColorStop(0,"#020b22");bg.addColorStop(1,"#0a1a40")}
+  g.fillStyle=bg;g.fillRect(0,0,W,H);
+  for(let i=0;i<25;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
+  g.save();g.translate(W/2,H/2+4);
+  drawShipModel(g,28,shipModel,shipSkin,"Br7");
+  g.restore();
+  g.fillStyle="rgba(255,205,0,.8)";g.font="11px Orbitron";g.textAlign="center";
+  const names={fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta"};
+  g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-10);
+}
+
 function drawPlayer(){
   /* Estela */
   if(!lowPower){
@@ -1613,42 +1714,10 @@ function drawPlayer(){
   if(invisible>0)ctx.globalAlpha=.3+Math.sin(performance.now()/80)*.15;
   if(shield>0){ctx.beginPath();ctx.arc(0,0,player.size*1.65,0,Math.PI*2);ctx.strokeStyle=`rgba(0,220,255,${.4+Math.sin(performance.now()/100)*.25})`;ctx.lineWidth=2.5;ctx.stroke()}
   ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(0,player.size*.9,player.size*.55,player.size*.12,0,0,Math.PI*2);ctx.fill();
-  /* Nave blanca con acentos y nombre rojo */
   const s=player.size;
-  ctx.shadowColor=isMobile()?"transparent":"rgba(255,255,255,.5)";ctx.shadowBlur=isMobile()?0:12;
-  const bodyG=ctx.createLinearGradient(-s*.7,-s,s*.7,s);
-  if(shipSkin==="black"){bodyG.addColorStop(0,"#0a0a0a");bodyG.addColorStop(.5,"#1a1a1a");bodyG.addColorStop(1,"#050505")}
-  else if(shipSkin==="gold"){bodyG.addColorStop(0,"#B8860B");bodyG.addColorStop(.5,"#FFD700");bodyG.addColorStop(1,"#8B6914")}
-  else if(shipSkin==="cyan"){bodyG.addColorStop(0,"#003344");bodyG.addColorStop(.5,"#00E5FF");bodyG.addColorStop(1,"#006688")}
-  else if(shipSkin==="crimson"){bodyG.addColorStop(0,"#2a0008");bodyG.addColorStop(.5,"#CE1126");bodyG.addColorStop(1,"#5a0010")}
-  else if(shipSkin==="violet"){bodyG.addColorStop(0,"#1a0033");bodyG.addColorStop(.5,"#AA66FF");bodyG.addColorStop(1,"#440088")}
-  else if(shipSkin==="lime"){bodyG.addColorStop(0,"#0a2200");bodyG.addColorStop(.5,"#88FF44");bodyG.addColorStop(1,"#226600")}
-  else if(shipSkin==="steel"){bodyG.addColorStop(0,"#222");bodyG.addColorStop(.5,"#99AABB");bodyG.addColorStop(1,"#445566")}
-  else if(shipSkin==="orange"){bodyG.addColorStop(0,"#331500");bodyG.addColorStop(.5,"#FF8800");bodyG.addColorStop(1,"#994400")}
-  else{bodyG.addColorStop(0,"#f5f5f5");bodyG.addColorStop(.3,"#e8e8e8");bodyG.addColorStop(.5,"#ffffff");bodyG.addColorStop(.7,"#ddd");bodyG.addColorStop(1,"#c8c8c8")}
-  ctx.beginPath();
-  ctx.moveTo(0,-s-5);ctx.lineTo(s*.22,-s*.35);ctx.lineTo(s*.5,s*.15);ctx.lineTo(s*.32,s*.72);ctx.lineTo(0,s*.5);ctx.lineTo(-s*.32,s*.72);ctx.lineTo(-s*.5,s*.15);ctx.lineTo(-s*.22,-s*.35);
-  ctx.closePath();ctx.fillStyle=bodyG;ctx.fill();
-  ctx.strokeStyle="#CE1126";ctx.lineWidth=1.6;ctx.stroke();
-  ctx.strokeStyle="rgba(206,17,38,.55)";ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(0,-s-2);ctx.lineTo(0,s*.35);ctx.stroke();
-  ctx.fillStyle="#eee";
-  ctx.beginPath();ctx.moveTo(-s*.25,s*.05);ctx.lineTo(-s*1.2,s*.5);ctx.lineTo(-s*1.05,s*.78);ctx.lineTo(-s*.3,s*.62);ctx.closePath();ctx.fill();
-  ctx.strokeStyle="#CE1126";ctx.lineWidth=1.1;ctx.stroke();
-  ctx.beginPath();ctx.moveTo(s*.25,s*.05);ctx.lineTo(s*1.2,s*.5);ctx.lineTo(s*1.05,s*.78);ctx.lineTo(s*.3,s*.62);ctx.closePath();ctx.fill();
-  ctx.strokeStyle="#CE1126";ctx.lineWidth=1.1;ctx.stroke();
-  const cabG=ctx.createRadialGradient(-2,-4,1,0,0,s*.42);
-  cabG.addColorStop(0,"#ffffff");cabG.addColorStop(.4,"#cce6ff");cabG.addColorStop(.75,"#8899aa");cabG.addColorStop(1,"#556");
-  ctx.fillStyle=cabG;ctx.beginPath();ctx.ellipse(0,-3,s*.26,s*.36,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle="rgba(206,17,38,.4)";ctx.lineWidth=1;ctx.stroke();
-  const flame=5+Math.random()*6;ctx.shadowColor="#FF4400";ctx.shadowBlur=isMobile()?0:12;
-  const thrG=ctx.createLinearGradient(0,s*.5,0,s*.5+flame);
-  thrG.addColorStop(0,"#fff");thrG.addColorStop(.3,"#FF8844");thrG.addColorStop(.65,"#CE1126");thrG.addColorStop(1,"rgba(80,0,0,0)");
-  ctx.fillStyle=thrG;ctx.beginPath();ctx.moveTo(-s*.22,s*.52);ctx.lineTo(0,s*.52+flame);ctx.lineTo(s*.22,s*.52);ctx.closePath();ctx.fill();
+  ctx.shadowColor=isMobile()?"transparent":"rgba(255,255,255,.4)";ctx.shadowBlur=isMobile()?0:10;
+  drawShipModel(ctx,s,shipModel,shipSkin,"Br7");
   ctx.shadowBlur=0;ctx.globalAlpha=1;
-  ctx.fillStyle="#CE1126";ctx.font=`bold ${Math.max(9,s*.55)}px Orbitron`;
-  ctx.textAlign="center";ctx.textBaseline="top";
-  ctx.fillText("Br7",0,s*.85);
   ctx.restore();
   createParticle();
 }
@@ -1853,8 +1922,26 @@ ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
 function drawSpaceBG(){
-  // Escenarios visuales
-  if(scenario===1){
+  // Mundo elegido en el menú
+  if(selectedWorld===2){
+    /* NIEVE */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#0a1525");g.addColorStop(.5,"#152838");g.addColorStop(1,"#0c1a28");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){for(let i=0;i<(isMobile()?12:22);i++){const x=(i*97+performance.now()/25)%(canvas.width+20)-10;const y=(i*53+performance.now()/40)%canvas.height;ctx.fillStyle="rgba(220,240,255,.55)";ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill()}}
+  } else if(selectedWorld===3){
+    /* FUEGO */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#1a0600");g.addColorStop(.4,"#3a1200");g.addColorStop(1,"#120400");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){const neb=ctx.createRadialGradient(canvas.width*.5,canvas.height,10,canvas.width*.5,canvas.height,canvas.width*.7);neb.addColorStop(0,"rgba(255,80,0,.2)");neb.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height)}
+  } else if(selectedWorld===4){
+    /* CRISTAL / NEÓN */
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,"#050818");g.addColorStop(.5,"#0a1840");g.addColorStop(1,"#120828");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){ctx.strokeStyle="rgba(100,200,255,.08)";ctx.lineWidth=1;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(i*canvas.width/5,0);ctx.lineTo(canvas.width,canvas.height-i*40);ctx.stroke()}}
+  } else if(scenario===1){
     /* Órbita: azul casi negro */
     const g=ctx.createLinearGradient(0,0,0,canvas.height);
     g.addColorStop(0,"#000618");g.addColorStop(.25,"#001030");g.addColorStop(.5,"#0a2060");g.addColorStop(.75,"#0d2870");g.addColorStop(1,"#000c22");
@@ -2051,7 +2138,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
@@ -2083,14 +2170,26 @@ extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">🪙 Mon
   +'<button class="game-btn" id="shareFbBtn" style="margin:0;background:#1877f2;color:#fff">Facebook</button>'
   +'<button class="game-btn" id="shareIgBtn" style="margin:0;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff">Instagram</button>'
   +'<button class="game-btn game-btn-blue" id="dlScoreBtn" style="margin:0">🖼️ Imagen</button>'
+  +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">🏠 INICIO</button>'
   +'</div>'
   +'<p style="color:#888;font-size:10px;margin-top:8px">Se genera una imagen con tus puntos para subirla</p>';
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
 const fb=document.getElementById("shareFbBtn");if(fb)fb.onclick=shareFacebook;
 const ig=document.getElementById("shareIgBtn");if(ig)ig.onclick=shareInstagram;
-const dl=document.getElementById("dlScoreBtn");if(dl)dl.onclick=downloadScoreCard;
+const dl=document.getElementById("dlScoreBtn");if(dl)dl.onclick=downloadScoreCard;const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
 }
 function continueToSite(){gameOverPanel.style.display="none";startPanel.style.display="block"}
+function goToStartMenu(){
+  gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
+  stopBgMusic&&stopBgMusic();
+  gameOverPanel.style.display="none";
+  const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
+  const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
+  const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
+  startPanel.style.display="block";
+  setTimeout(drawShipPreview,50);
+}
+
 startButton.addEventListener("click",startGame);
 restartButton.addEventListener("click",startGame);
 continueButton.addEventListener("click",continueToSite);

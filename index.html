@@ -71,7 +71,21 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   box-shadow:0 0 24px rgba(0,100,255,.15),inset 0 1px 0 rgba(255,255,255,.06)}
 .touch-col{display:flex;flex-direction:column;align-items:center}
 .touch-mid{display:flex;flex-direction:column;gap:8px;align-items:center}
-.touch-stick-wrap{position:relative;width:118px;height:118px;border-radius:50%;touch-action:none;-webkit-user-select:none;
+
+.touch-move-pad{
+  width:130px;height:120px;border-radius:18px;touch-action:none;-webkit-user-select:none;
+  background:linear-gradient(160deg,rgba(20,50,100,.55),rgba(5,15,35,.9));
+  border:2px solid rgba(0,200,255,.4);
+  box-shadow:0 0 16px rgba(0,120,255,.2),inset 0 0 24px rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.touch-move-hint{color:rgba(150,220,255,.45);font-size:11px;font-family:Orbitron,sans-serif;letter-spacing:1px;pointer-events:none}
+.touch-move-pad:active{border-color:rgba(255,205,0,.55);box-shadow:0 0 20px rgba(0,180,255,.35)}
+@media(max-width:600px){
+  .touch-move-pad{width:120px;height:110px}
+}
+
+.touch-stick-wrap-OLD{position:relative;width:118px;height:118px;border-radius:50%;touch-action:none;-webkit-user-select:none;
   background:radial-gradient(circle at 40% 35%,rgba(40,90,160,.45),rgba(5,15,35,.9));
   border:2px solid rgba(0,200,255,.45);touch-action:none;
   box-shadow:0 0 18px rgba(0,150,255,.25),inset 0 0 20px rgba(0,0,0,.5)}
@@ -92,7 +106,21 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 #touchSpecial{border-color:rgba(255,205,0,.5);color:#FFCD00}
 @media(max-width:900px){.touch-pad{display:block}}
 @media(max-width:600px){
-  .touch-stick-wrap{width:108px;height:108px}
+  
+.touch-move-pad{
+  width:130px;height:120px;border-radius:18px;touch-action:none;-webkit-user-select:none;
+  background:linear-gradient(160deg,rgba(20,50,100,.55),rgba(5,15,35,.9));
+  border:2px solid rgba(0,200,255,.4);
+  box-shadow:0 0 16px rgba(0,120,255,.2),inset 0 0 24px rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.touch-move-hint{color:rgba(150,220,255,.45);font-size:11px;font-family:Orbitron,sans-serif;letter-spacing:1px;pointer-events:none}
+.touch-move-pad:active{border-color:rgba(255,205,0,.55);box-shadow:0 0 20px rgba(0,180,255,.35)}
+@media(max-width:600px){
+  .touch-move-pad{width:120px;height:110px}
+}
+
+.touch-stick-wrap-OLD{width:108px;height:108px}
   .touch-stick-knob{width:42px;height:42px}
   .touch-fire{width:84px;height:84px;font-size:13px}
   .touch-util{min-width:50px;height:34px;font-size:10px}
@@ -157,9 +185,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <div class="touch-pad" id="touchPad" aria-label="Controles táctiles">
   <div class="touch-pad-inner">
     <div class="touch-col">
-      <div class="touch-stick-wrap" id="touchStick">
-        <div class="touch-stick-ring"></div>
-        <div class="touch-stick-knob" id="touchKnob"></div>
+      <div class="touch-move-pad" id="touchStick" aria-label="Mover nave">
+        <span class="touch-move-hint">MOVER</span>
       </div>
     </div>
     <div class="touch-mid">
@@ -918,73 +945,52 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
 /* ===== TOUCH PAD (móvil) — optimizado ===== */
 (function initTouchPad(){
   const stick=document.getElementById("touchStick");
-  const knob=document.getElementById("touchKnob");
   const fireBtn=document.getElementById("touchFire");
-  if(!stick||!knob||!fireBtn)return;
-  let stickId=null, stickCX=0, stickCY=0, stickR=50;
-  let lastKnobX=0, lastKnobY=0;
-  function setKnob(dx,dy){
-    const d=Math.hypot(dx,dy)||1;
-    const maxR=stickR*0.62;
-    const m=Math.min(1,maxR/d);
-    const kx=dx*m, ky=dy*m;
-    if(Math.abs(kx-lastKnobX)<1.2&&Math.abs(ky-lastKnobY)<1.2)return;
-    lastKnobX=kx;lastKnobY=ky;
-    knob.style.transform="translate(calc(-50% + "+kx.toFixed(1)+"px), calc(-50% + "+ky.toFixed(1)+"px))";
-  }
-  function applyStick(dx,dy){
-    const d=Math.hypot(dx,dy);
-    if(d<5){
-      /* zona muerta pequeña: mantiene dirección suave al centro */
-      stickActive=true;
-      setKnob(0,0);
-      return;
-    }
-    const nx=dx/d, ny=dy/d;
-    /* más sensible: fuerza sube rápido con poco movimiento */
-    let force=d/Math.max(16,stickR*0.7);if(force>1)force=1;
-    const reach=Math.min(canvas.width,canvas.height)*0.40*sensPad*force;
-    mouse.x=player.x+nx*reach;
-    mouse.y=player.y+ny*reach;
+  if(!stick||!fireBtn)return;
+  let stickId=null;
+  /* Zona táctil como la pantalla: el dedo mapea la posición de la nave */
+  function aimFromPad(clientX,clientY){
+    const r=stick.getBoundingClientRect();
+    let u=(clientX-r.left)/Math.max(1,r.width);
+    let v=(clientY-r.top)/Math.max(1,r.height);
+    if(u<0)u=0;if(u>1)u=1;if(v<0)v=0;if(v>1)v=1;
+    /* margen interno para que no se pegue a los bordes */
+    const m=player.size*1.2;
+    mouse.x=m+u*(canvas.width-m*2);
+    mouse.y=m+v*(canvas.height-m*2);
     stickActive=true;
-    setKnob(dx,dy);
   }
   function onStickStart(e){
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault();e.stopPropagation();
     const t=e.changedTouches?e.changedTouches[0]:e;
     stickId=t.identifier!==undefined?t.identifier:"mouse";
-    const r=stick.getBoundingClientRect();
-    stickCX=r.left+r.width/2;stickCY=r.top+r.height/2;stickR=r.width/2;
-    stickActive=true;
-    applyStick(t.clientX-stickCX,t.clientY-stickCY);
+    aimFromPad(t.clientX,t.clientY);
   }
   function onStickMove(e){
     if(stickId===null)return;
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault();e.stopPropagation();
     const touches=e.touches||e.changedTouches||[e];
     for(let i=0;i<touches.length;i++){
       const t=touches[i];
       if(t.identifier!==undefined&&t.identifier!==stickId)continue;
-      applyStick(t.clientX-stickCX,t.clientY-stickCY);
+      aimFromPad(t.clientX,t.clientY);
       break;
     }
   }
   function onStickEnd(e){
     if(e.changedTouches){
       for(const t of e.changedTouches){
-        if(t.identifier===stickId){stickId=null;stickActive=false;lastKnobX=0;lastKnobY=0;setKnob(0,0);return}
+        if(t.identifier===stickId){stickId=null;stickActive=false;return}
       }
-    } else {stickId=null;stickActive=false;lastKnobX=0;lastKnobY=0;setKnob(0,0)}
+    } else {stickId=null;stickActive=false}
   }
   stick.addEventListener("touchstart",onStickStart,{passive:false});
   stick.addEventListener("touchmove",onStickMove,{passive:false});
   stick.addEventListener("touchend",onStickEnd,{passive:false});
   stick.addEventListener("touchcancel",onStickEnd,{passive:false});
-  /* capturar movimiento aunque el dedo salga del stick */
   window.addEventListener("touchmove",function(e){if(stickId!==null)onStickMove(e)},{passive:false});
   window.addEventListener("touchend",function(e){if(stickId!==null)onStickEnd(e)},{passive:false});
+
   const spBtn=document.getElementById("touchSpecial");
   function doSpecial(){ useSpecialPower(); }
   if(spBtn){

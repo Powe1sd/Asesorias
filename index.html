@@ -289,7 +289,7 @@ let isShooting=false;let stickActive=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
-let sensPad=Number(lsGet("techSensPadV5",0.15)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.15;
+let sensPad=Number(lsGet("techSensPadV5",0.10)); if(isNaN(sensPad)||sensPad<=0)sensPad=0.10;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
 let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
@@ -934,8 +934,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.81),0.13));
-    const reach=Math.min(canvas.width,canvas.height)*0.41*sensPad*force;
+    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.83),0.17));
+    const reach=Math.min(canvas.width,canvas.height)*0.43*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;

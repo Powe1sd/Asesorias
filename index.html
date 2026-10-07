@@ -880,7 +880,8 @@ function setAimFromTouch(t){
   mouse.x=(t.clientX-r.left)*scaleX;
   /* Nave por encima del dedo para que no la tape */
   const fingerY=(t.clientY-r.top)*scaleY;
-  const offset=Math.max(48, player.size*2.8);
+  /* ~2.5–3 cm por encima del dedo para que no tape la nave */
+  const offset=Math.max(110, player.size*4.5 + canvas.height*0.06);
   mouse.y=fingerY-offset;
 }
 canvas.addEventListener("touchstart",e=>{
@@ -927,7 +928,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     const maxR=stickR*0.62;
     const m=Math.min(1,maxR/d);
     const kx=dx*m, ky=dy*m;
-    if(Math.abs(kx-lastKnobX)<0.5&&Math.abs(ky-lastKnobY)<0.5)return;
+    if(Math.abs(kx-lastKnobX)<1.2&&Math.abs(ky-lastKnobY)<1.2)return;
     lastKnobX=kx;lastKnobY=ky;
     knob.style.transform="translate(calc(-50% + "+kx.toFixed(1)+"px), calc(-50% + "+ky.toFixed(1)+"px))";
   }
@@ -941,8 +942,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     }
     const nx=dx/d, ny=dy/d;
     /* más sensible: fuerza sube rápido con poco movimiento */
-    const force=Math.min(1,Math.pow(d/Math.max(14,stickR*0.75),0.9));
-    const reach=Math.min(canvas.width,canvas.height)*0.36*sensPad*force;
+    let force=d/Math.max(16,stickR*0.7);if(force>1)force=1;
+    const reach=Math.min(canvas.width,canvas.height)*0.40*sensPad*force;
     mouse.x=player.x+nx*reach;
     mouse.y=player.y+ny*reach;
     stickActive=true;
@@ -2093,14 +2094,52 @@ function drawSpaceBG(){
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
     if(!lowPower){ctx.strokeStyle="rgba(100,200,255,.08)";ctx.lineWidth=1;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(i*canvas.width/5,0);ctx.lineTo(canvas.width,canvas.height-i*40);ctx.stroke()}}
   } else if(selectedWorld===5){
-    /* HALLOWEEN */
+    /* HALLOWEEN: calabazas, dulces, luna, niebla */
     const g=ctx.createLinearGradient(0,0,0,canvas.height);
-    g.addColorStop(0,"#0a0508");g.addColorStop(.4,"#1a0a00");g.addColorStop(1,"#0d0610");
+    g.addColorStop(0,"#08040a");g.addColorStop(.35,"#1a0c02");g.addColorStop(.7,"#120810");g.addColorStop(1,"#050308");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-    const neb=ctx.createRadialGradient(canvas.width*.7,canvas.height*.2,5,canvas.width*.7,canvas.height*.2,canvas.width*.4);
-    neb.addColorStop(0,"rgba(255,100,0,.12)");neb.addColorStop(1,"rgba(0,0,0,0)");
+    /* luna */
+    if(!isMobile()){
+      ctx.fillStyle="rgba(255,220,160,.2)";ctx.beginPath();ctx.arc(canvas.width*.82,canvas.height*.14,28,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="rgba(255,200,100,.12)";ctx.beginPath();ctx.arc(canvas.width*.82,canvas.height*.14,40,0,Math.PI*2);ctx.fill();
+    }
+    /* niebla naranja */
+    const neb=ctx.createRadialGradient(canvas.width*.5,canvas.height,10,canvas.width*.5,canvas.height,canvas.width*.6);
+    neb.addColorStop(0,"rgba(255,100,0,.14)");neb.addColorStop(1,"rgba(0,0,0,0)");
     ctx.fillStyle=neb;ctx.fillRect(0,0,canvas.width,canvas.height);
-    if(!lowPower){for(let i=0;i<(isMobile()?6:12);i++){const x=(i*73+performance.now()/50)%canvas.width;const y=20+(i*47)%(canvas.height*0.6);ctx.fillStyle="rgba(180,80,255,.15)";ctx.beginPath();ctx.arc(x,y,2+i%3,0,Math.PI*2);ctx.fill()}}
+    const t=performance.now()/800;
+    const nPump=isMobile()?3:5;
+    for(let i=0;i<nPump;i++){
+      const px=(i*canvas.width/(nPump+0.5)+Math.sin(t+i)*8)%canvas.width;
+      const py=canvas.height-18-(i%3)*6;
+      const pr=10+i%4;
+      /* calabaza */
+      ctx.fillStyle="#e67e22";ctx.beginPath();ctx.ellipse(px,py,pr*1.1,pr*.85,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#2d6a1e";ctx.fillRect(px-2,py-pr-4,4,6);
+      ctx.fillStyle="#1a1a1a";ctx.beginPath();ctx.moveTo(px-4,py-2);ctx.lineTo(px-1,py+2);ctx.lineTo(px-7,py+2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(px+4,py-2);ctx.lineTo(px+1,py+2);ctx.lineTo(px+7,py+2);ctx.fill();
+      ctx.beginPath();ctx.arc(px,py+4,3,0,Math.PI);ctx.fill();
+    }
+    /* dulces flotando */
+    const nCandy=isMobile()?4:8;
+    for(let i=0;i<nCandy;i++){
+      const cx=(i*97+t*30)%(canvas.width+20)-10;
+      const cy=40+(i*53+Math.sin(t+i)*20)%(canvas.height*0.55);
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(t+i);
+      ctx.fillStyle=i%2?("#ff66aa"):("#9b59ff");
+      ctx.fillRect(-5,-2,10,4);
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-5,0,2.5,0,Math.PI*2);ctx.arc(5,0,2.5,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+    /* murciélagos simples */
+    if(!lowPower){
+      for(let i=0;i<(isMobile()?2:4);i++){
+        const bx=(i*140+t*40)%(canvas.width+30)-15;
+        const by=30+i*35+Math.sin(t*2+i)*8;
+        ctx.strokeStyle="rgba(40,20,40,.5)";ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(bx-6,by);ctx.quadraticCurveTo(bx-3,by-5,bx,by);ctx.quadraticCurveTo(bx+3,by-5,bx+6,by);ctx.stroke();
+      }
+    }
   } else if(selectedWorld===6){
     /* NEÓN CYBER */
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
@@ -2223,12 +2262,12 @@ if(gyroOn&&window._gyro){mouse.x=player.x+window._gyro.x*100*sensPad;mouse.y=pla
 if(isShooting)shoot();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
 /* Movimiento directo y fluido (sin sensación de ralentizar) */
-const baseSmooth=stickActive?(overdrive>0?0.62:0.5):(overdrive>0?0.38:0.32);
-const smooth=Math.min(0.75,baseSmooth*Math.max(0.9,Math.min(1.8,(stickActive?sensPad:sensMouse)+0.2)));
+/* Seguimiento fluido del stick / dedo */
+const baseSmooth=stickActive?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34);
+const smooth=Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive?Math.max(sensPad,0.35):sensMouse)+0.15)));
 player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
-/* gravedad suave: no frena el tactil */
-if(!stickActive)applyGravity(player,player.x,player.y,0.45);
-else applyGravity(player,player.x,player.y,0.15);
+if(stickActive)applyGravity(player,player.x,player.y,0.08);
+else applyGravity(player,player.x,player.y,0.35);
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m,Math.min(canvas.height-m,player.y));
 
 // spawn meteors by level

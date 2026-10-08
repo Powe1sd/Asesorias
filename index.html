@@ -351,6 +351,8 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta
+let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
+
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
 
 let metaCoins=Number(lsGet("techCoins",0))||0;
@@ -421,7 +423,7 @@ function makeScoreCard(){
   g.strokeStyle="rgba(255,205,0,.45)";g.lineWidth=4;g.strokeRect(24,24,W-48,H-48);
   g.fillStyle="#FFCD00";g.font="bold 42px Orbitron,Arial,sans-serif";g.textAlign="center";
   g.fillText("TECH RUN",W/2,90);
-  g.fillStyle="#CE1126";g.font="bold 28px Orbitron,Arial,sans-serif";g.fillText("Br7",W/2,130);
+  g.fillStyle="#CE1126";g.font="bold 28px Orbitron,Arial,sans-serif";g.fillText(String(shipName||"Br7"),W/2,130);
   g.fillStyle="rgba(255,255,255,.15)";g.fillRect(80,170,W-160,2);
   g.fillStyle="#fff";g.font="20px Share Tech Mono,monospace";g.fillText("PUNTUACIÓN",W/2,230);
   g.fillStyle="#FFCD00";g.font="bold 96px Orbitron,Arial,sans-serif";g.fillText(String(score),W/2,340);
@@ -430,8 +432,8 @@ function makeScoreCard(){
   g.fillText("Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed,W/2,445);
   g.fillText("Dificultad: "+String(difficulty).toUpperCase(),W/2,490);
   g.fillStyle="rgba(255,255,255,.12)";g.fillRect(80,530,W-160,2);
-  g.fillStyle="#FFCD00";g.font="bold 24px Orbitron,Arial,sans-serif";g.fillText("Brayhan Estiven Coy Rubio",W/2,590);
-  g.fillStyle="#aaa";g.font="18px Share Tech Mono,monospace";g.fillText("Colombia · TECH",W/2,630);
+  /* crédito casi invisible */
+  g.fillStyle="rgba(255,205,0,.28)";g.font="9px Share Tech Mono,monospace";g.fillText("Brayhan Estiven Coy Rubio · TECH",W/2,600);
   g.fillStyle="#CE1126";g.font="bold 20px Orbitron,Arial,sans-serif";g.fillText("Jesucristo",W/2,700);
   g.fillStyle="#666";g.font="14px Share Tech Mono,monospace";g.fillText(new Date().toLocaleString(),W/2,760);
   return cv;
@@ -451,7 +453,7 @@ function downloadScoreCard(){
   });
 }
 function shareScoreText(){
-  return "🚀 TECH RUN Br7\n⭐ "+score+" puntos (récord "+record+")\n☄️ Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed+"\n🎯 "+String(difficulty).toUpperCase()+"\n👨‍💻 Brayhan Estiven Coy Rubio · Colombia";
+  return "🚀 TECH RUN "+(shipName||"Br7")+"\n⭐ "+score+" puntos (récord "+record+")\n☄️ Meteoritos: "+meteorsDestroyed+" · Naves: "+shipsDestroyed+"\n🎯 "+String(difficulty).toUpperCase();
 }
 async function shareScoreNative(){
   const text=shareScoreText();
@@ -802,6 +804,10 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-model="needle" class="${shipModel==="needle"?"active":""}">Aguja</button>
       <button type="button" data-model="delta" class="${shipModel==="delta"?"active":""}">Delta</button>
     </div>
+    <h3>✏️ Nombre de la nave</h3>
+    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
+      style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
+    <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
     <h3>🎨 Color</h3>
     <div class="diff-btns">
       <button type="button" data-skin="white" class="${shipSkin==="white"?"active":""}">Blanca</button>
@@ -838,6 +844,20 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
       shipModel=b.getAttribute("data-model");lsSet("techShipModelV2",shipModel);renderStart();
     });
+    const sni=box.querySelector("#shipNameInput");
+    if(sni){
+      sni.onclick=e=>e.stopPropagation();
+      sni.oninput=()=>{
+        shipName=(sni.value||"Br7").slice(0,10);
+        lsSet("techShipName",shipName);
+        drawShipPreview();
+      };
+      sni.onchange=()=>{
+        shipName=(sni.value||"Br7").slice(0,10)||"Br7";
+        lsSet("techShipName",shipName);
+        drawShipPreview();
+      };
+    }
     box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
       selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
     });
@@ -1843,14 +1863,18 @@ function drawShipModel(g,s,model,skin,label){
   g.shadowBlur=0;
   /* Br7 en el centro de la nave */
   if(label){
-    g.fillStyle="rgba(0,0,0,.35)";
-    g.font="bold "+Math.max(9,s*.5)+"px Orbitron";
+    const nm=String(label).slice(0,10);
+    const fs=Math.max(10, Math.min(s*0.72, s*1.1/Math.max(2,nm.length*0.4)));
+    g.font="bold "+fs+"px Orbitron";
     g.textAlign="center";g.textBaseline="middle";
-    g.fillText(label,0.8,1.2);
+    g.lineWidth=Math.max(1.5,s*0.08);
+    g.strokeStyle="rgba(0,0,0,.85)";
+    g.fillStyle="#FFCD00";
+    g.strokeText(nm,0,s*0.05);
+    g.fillText(nm,0,s*0.05);
     g.fillStyle="#CE1126";
-    g.strokeStyle="rgba(255,220,100,.5)";g.lineWidth=0.8;
-    g.strokeText(label,0,0);
-    g.fillText(label,0,0);
+    g.font="bold "+Math.max(8,fs*0.85)+"px Orbitron";
+    g.fillText(nm,0,s*0.05);
   }
 }
 function drawShipPreview(){
@@ -1872,7 +1896,7 @@ function drawShipPreview(){
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<25;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   g.save();g.translate(W/2,H/2+4);
-  drawShipModel(g,28,shipModel,shipSkin,"Br7");
+  drawShipModel(g,28,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.8)";g.font="11px Orbitron";g.textAlign="center";
   const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta"};
@@ -1897,7 +1921,7 @@ function drawPlayer(){
   ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(0,player.size*.9,player.size*.55,player.size*.12,0,0,Math.PI*2);ctx.fill();
   const s=player.size;
   ctx.shadowColor=isMobile()?"transparent":"rgba(255,255,255,.4)";ctx.shadowBlur=isMobile()?0:10;
-  drawShipModel(ctx,s,shipModel,shipSkin,"Br7");
+  drawShipModel(ctx,s,shipModel,shipSkin,shipName);
   ctx.shadowBlur=0;ctx.globalAlpha=1;
   ctx.restore();
   createParticle();
@@ -2087,6 +2111,15 @@ const mob=canvas.width<500;
 /* Barra superior corta: PUNTOS/RÉCORD van en HTML a la izquierda de TECH SYSTEM */
 const padR=mob?8:130;
 ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,canvas.width,mob?40:36);
+/* Nombre de la nave bien visible en pantalla */
+ctx.textAlign="center";ctx.textBaseline="middle";
+ctx.font=mob?"bold 14px Orbitron":"bold 16px Orbitron";
+ctx.fillStyle="#CE1126";
+ctx.strokeStyle="rgba(0,0,0,.7)";ctx.lineWidth=3;
+const nm=String(shipName||"Br7");
+ctx.strokeText("🚀 "+nm,canvas.width/2,mob?14:12);
+ctx.fillStyle="#FFCD00";
+ctx.fillText("🚀 "+nm,canvas.width/2,mob?14:12);
 ctx.font=mob?"bold 9px Orbitron":"bold 11px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
 ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,8,18);
 ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.75)";ctx.font=mob?"9px Share Tech Mono":"10px Share Tech Mono";

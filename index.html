@@ -2516,16 +2516,10 @@ const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br
 extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">🪙 Monedas: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:6px">TOP 5</p><p style="color:#ddd;font-size:11px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0">📤 COMPARTIR</button>'
-  +'<button class="game-btn" id="shareFbBtn" style="margin:0;background:#1877f2;color:#fff">Facebook</button>'
-  +'<button class="game-btn" id="shareIgBtn" style="margin:0;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff">Instagram</button>'
-  +'<button class="game-btn game-btn-blue" id="dlScoreBtn" style="margin:0">🖼️ Imagen</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">🏠 INICIO</button>'
-  +'</div>'
-  +'<p style="color:#888;font-size:10px;margin-top:8px">Se genera una imagen con tus puntos para subirla</p>';
+  +'</div>';
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
-const fb=document.getElementById("shareFbBtn");if(fb)fb.onclick=shareFacebook;
-const ig=document.getElementById("shareIgBtn");if(ig)ig.onclick=shareInstagram;
-const dl=document.getElementById("dlScoreBtn");if(dl)dl.onclick=downloadScoreCard;const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
+const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
 }
 function continueToSite(){gameOverPanel.style.display="none";startPanel.style.display="block"}
 function goToStartMenu(){

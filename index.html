@@ -2518,10 +2518,7 @@ if(phase==="meteors"){
     lastSpawn=ts;
   }
 }
-// Naves también durante meteoros en escenarios avanzados (oleadas mixtas)
-if(phase==="meteors"&&scenario>=2&&ts-(lastEnemySpawn||0)>Math.max(3000,5500-scenario*150)){
-  if(Math.random()<.22&&obstacles.length<(isMobile()?12:18)){createEnemy(scenario>=3?(Math.random()>.5?"hunter":"ship"):"hunter");lastEnemySpawn=ts}
-}
+/* Naves enemigas SOLO en oleadas (phase ships), no al inicio ni en meteoros */
 // traps (menos frecuentes para no trabar)
 if(level>=1&&ts-lastTrapSpawn>Math.max(isMobile()?3500:2600,isMobile()?5500:4500-level*60)){if(Math.random()<(isMobile()?0.2:0.32))spawnTrap();lastTrapSpawn=ts}
 

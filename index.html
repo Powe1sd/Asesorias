@@ -306,7 +306,7 @@ let obstacles=[],particles=[],bullets=[],enemyBullets=[],pickups=[],explosions=[
 let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
-const METEOR_DURATION=14*60,WARNING_DURATION=2.2*60;
+const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
@@ -1167,17 +1167,14 @@ function createEnemy(etype,role){
   else if(etype==="creature"||etype==="alien"){size=(16+Math.random()*6)*sc;hp=5;spd=1.3}
   else if(etype==="bigship"){size=(14+Math.random()*8)*sc;hp=4+Math.floor(level/2);spd=1.3}
   else{size=(10+Math.random()*6)*sc;hp=2+Math.floor(level/3);spd=1.5}
-  const isDive=role==="dive"||(etype==="kamikaze"&&role!=="top");
-  /* cazadoras siempre arriba salvo si role dive explícito */
-  const isTop=role==="top"||etype==="hunter"||etype==="sniper"||etype==="bigship"||etype==="ship";
-  const topY=(isDive&&!isTop)?(canvas.height*0.25+Math.random()*40):(18+Math.random()*48);
+  const topY=18+Math.random()*48;
   obstacles.push({
     x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getProgressSpeed()*getSpeedScale(),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:8+Math.random()*20,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
     aimLine:0,teleTimer:120+Math.random()*80,swarmId:0,regroup:0,
-    role:(isDive&&role==="dive")?"dive":"top"
+    role:"top"
   });
 }
 
@@ -1200,21 +1197,15 @@ function createBoss(btype){
 
 function spawnShipWave(){
   const dm=diffSpawnMult();
-  /* Cazadoras y naves ARRIBA con zigzag; pocos bajan de uno en uno */
+  /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  const nDive=Math.min(isMobile()?1:2, 1);
-  let poolTop=["hunter","hunter","ship","sniper"];
+  let poolTop=["hunter","hunter","ship","sniper","kamikaze"];
   if(waveCount>=1)poolTop.push("ship","hunter");
   if(scenario>=3)poolTop.push("alien","teleport");
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     createEnemy(poolTop[Math.floor(Math.random()*poolTop.length)],"top");
   },i*650);
-  for(let i=0;i<nDive;i++)setTimeout(()=>{
-    if(!gameRunning||gamePaused||phase!=="ships")return;
-    createEnemy("kamikaze","dive");
-  },nTop*650+800+i*1500);
-  /* Cada 3 oleadas: nave GRANDE que dispara */
   if(waveCount>0&&waveCount%3===0){
     setTimeout(()=>{
       if(!gameRunning||gamePaused||phase!=="ships")return;
@@ -1944,7 +1935,7 @@ function drawShipPreview(){
   else if(selectedWorld===6){bg.addColorStop(0,"#050010");bg.addColorStop(1,"#001018")}
   else if(selectedWorld===7){bg.addColorStop(0,"#030a02");bg.addColorStop(1,"#0a1a05")}
   else if(selectedWorld===8){bg.addColorStop(0,"#000");bg.addColorStop(1,"#0a0015")}
-  else{bg.addColorStop(0,"#000");bg.addColorStop(1,"#111")}
+  else{bg.addColorStop(0,"#020b22");bg.addColorStop(1,"#0a1a40")}
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<25;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   g.save();g.translate(W/2,H/2+4);
@@ -1999,14 +1990,14 @@ function drawObstacle(o){
       o.rotation=(o.rotation||0)+(o.rotationSpeed||.08);
     } else {
       /* Meteorito rocoso realista */
-      const glow=o.type==="hard"?"#999":o.type==="magnetic"?"#66AAFF":o.type==="explosive"?"#FF7700":o.type==="boss_meteor"?"#FF9944":"#AA5522";
+      const glow=o.type==="hard"?"#999":o.type==="magnetic"?"#66AAFF":o.type==="explosive"?"#FF7700":o.type==="boss_meteor"?"#FF9944":"#FF2222";
       ctx.shadowColor=glow;ctx.shadowBlur=o.type==="hard"?4:10;
       ctx.beginPath();(o.points||[]).forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.closePath();
       const g=ctx.createRadialGradient(-o.size*.2,-o.size*.25,1,0,0,o.size*.75);
       if(o.type==="hard"){g.addColorStop(0,"#bbb");g.addColorStop(.45,"#666");g.addColorStop(1,"#1a1a1a")}
       else if(o.type==="magnetic"){g.addColorStop(0,"#AACCFF");g.addColorStop(.5,"#4477BB");g.addColorStop(1,"#0a1a33")}
       else if(o.type==="explosive"){g.addColorStop(0,"#FFCC66");g.addColorStop(.35,"#FF6622");g.addColorStop(1,"#4a1000")}
-      else{g.addColorStop(0,"#C4A574");g.addColorStop(.35,"#8B6914");g.addColorStop(.65,"#5C4033");g.addColorStop(1,"#2a1810")}
+      else{g.addColorStop(0,"#FF6666");g.addColorStop(.3,"#E02020");g.addColorStop(.6,"#8B0000");g.addColorStop(1,"#2a0505")}
       ctx.fillStyle=g;ctx.fill();
       ctx.strokeStyle="rgba(0,0,0,.35)";ctx.lineWidth=1.2;ctx.stroke();
       /* cráteres */
@@ -2411,9 +2402,9 @@ function drawSpaceBG(){
       for(let k=1;k<=3;k++){ctx.beginPath();ctx.ellipse(canvas.width*.5,canvas.height*.42,20*k+Math.sin(t+k)*4,12*k,t*.2,0,Math.PI*2);ctx.stroke()}
     }
   } else if(scenario===1||selectedWorld===1){
-    /* Espacio negro */
+    /* Mundo clásico: azul espacial */
     const g=ctx.createLinearGradient(0,0,0,canvas.height);
-    g.addColorStop(0,"#000");g.addColorStop(.5,"#050505");g.addColorStop(1,"#0a0a0a");
+    g.addColorStop(0,"#000618");g.addColorStop(.25,"#001030");g.addColorStop(.5,"#0a2060");g.addColorStop(.75,"#0d2870");g.addColorStop(1,"#000c22");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
     const n1=ctx.createRadialGradient(canvas.width*.35,canvas.height*.3,3,canvas.width*.35,canvas.height*.3,canvas.width*.45);
     n1.addColorStop(0,"rgba(15,50,120,.09)");n1.addColorStop(1,"rgba(0,0,0,0)");
@@ -2517,12 +2508,12 @@ if(phase==="meteors"){
   const delay=Math.max(isMobile()?180:120, ((isMobile()?420:340)-waveCount*(isMobile()?10:16))/(typeof diffSpawnMult==='function'?diffSpawnMult():1))*mob;
   if(ts-lastSpawn>delay){
     const r=Math.random();
-    if(r<.14)createMeteor("fireball");
-    else if(scenario>=2&&r<.22)createMeteor("hard");
-    else if(scenario>=2&&r<.38)createMeteor("explosive");
-    else if(scenario>=3&&r<.48)createMeteor("magnetic");
+    if(r<.04)createMeteor("fireball"); /* pocas bolas de fuego */
+    else if(scenario>=2&&r<.12)createMeteor("hard");
+    else if(scenario>=2&&r<.28)createMeteor("explosive");
+    else if(scenario>=3&&r<.38)createMeteor("magnetic");
     else createMeteor("normal");
-    if(Math.random()<.12)createMeteor("fireball");
+    if(Math.random()<.04)createMeteor("fireball");
     if(scenario>=2&&Math.random()<.1&&!isMobile())createMeteor("normal");
     lastSpawn=ts;
   }
@@ -2568,21 +2559,17 @@ for(let i=obstacles.length-1;i>=0;i--){
       o.zigzag=(o.zigzag||0)+0.055*o.zigzagDir;
       const cx=o.x+o.size/2, cy=o.y+o.size/2;
       const dx=player.x-cx, dy=player.y-cy, dist=Math.hypot(dx,dy)||1;
-      if(o.role==="dive"){
-        /* Uno a uno: baja perseguiendo */
-        o.x+=(dx/dist)*o.speed*1.15*slow*frz+Math.sin(o.zigzag)*1.8*slow;
-        o.y+=(dy/dist)*o.speed*0.85*slow*frz;
-        if(o.y>canvas.height*0.85)o.y=canvas.height*0.85;
-      } else {
-        /* Cazadoras / mayoría: ARRIBA, más zigzag, disparan */
-        const zigAmp=o.type==="hunter"?3.8:2.8;
-        o.zigzag+=(o.type==="hunter"?0.09:0.06)*o.zigzagDir;
-        o.x+=Math.sin(o.zigzag)*zigAmp*slow*frz;
-        o.y=o.baseY+Math.sin(o.zigzag*1.1)*18+Math.cos(o.zigzag*0.5)*6;
-        o.x+=(dx/dist)*o.speed*0.4*slow*frz;
-        const maxY=canvas.height*0.36;
-        if(o.y>maxY)o.y=maxY;
-      }
+      /* Todas las naves de oleada se quedan ARRIBA (zigzag + disparo) */
+      const zigAmp=o.type==="hunter"?4.2:o.type==="kamikaze"?3.5:2.8;
+      o.zigzag+=(o.type==="hunter"?0.1:0.07)*o.zigzagDir;
+      o.x+=Math.sin(o.zigzag)*zigAmp*slow*frz;
+      o.y=o.baseY+Math.sin(o.zigzag*1.15)*16+Math.cos(o.zigzag*0.55)*5;
+      /* solo un poco hacia el jugador en horizontal, sin bajar */
+      o.x+=(dx/dist)*o.speed*0.25*slow*frz;
+      const maxY=canvas.height*0.34;
+      if(o.y>maxY)o.y=maxY;
+      o.role="top";
+
       if(o.x<5){o.x=5;o.zigzagDir=1}if(o.x+o.size>canvas.width-5){o.x=canvas.width-o.size-5;o.zigzagDir=-1}
       if(o.y<12)o.y=12;
       if(o.type==="teleport"){

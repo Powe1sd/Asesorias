@@ -311,7 +311,7 @@ let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisib
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
-let isShooting=false;let stickActive=false;
+let isShooting=false;let stickActive=false;let touchDriving=false;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
@@ -563,8 +563,10 @@ const SFX = {
   laser: null, bomb: null, rapid: null, hammer: null, missile: null,
   shield: null, triple: null, nova: null, overdrive: null, allies: null,
   reflect: null, burst: null, repair: null,
+  chrono: null, barrier: null, stormbolt: null, bazooka: null,
   /* Sonidos de trampas */
-  trap: null, laserTrap: null, mineTrap: null
+  trap: null, laserTrap: null, mineTrap: null,
+  trapBlade: null, trapNet: null, trapBomb: null
 };
 
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
@@ -582,13 +584,13 @@ try {
   SFX.bomb = new Audio("audios/bomba.mp3");
   SFX.rapid = new Audio("audios/rapido.mp3");
   SFX.hammer = new Audio("audios/rayo.mp3");
-  /* SFX.chrono = new Audio("audios/crono.mp3"); */
-  /* SFX.barrier = new Audio("audios/barrera.mp3"); */
-  /* SFX.stormbolt = new Audio("audios/tormenta.mp3"); */
-  /* SFX.bazooka = new Audio("audios/bazuca.mp3"); */
-  /* SFX.trapBlade = new Audio("audios/trampa-sierra.mp3"); */
-  /* SFX.trapNet = new Audio("audios/trampa-red.mp3"); */
-  /* SFX.trapBomb = new Audio("audios/trampa-bomba.mp3"); */
+  SFX.chrono = new Audio("audios/crono.mp3");
+  SFX.barrier = new Audio("audios/barrera.mp3");
+  SFX.stormbolt = new Audio("audios/tormenta.mp3");
+  SFX.bazooka = new Audio("audios/bazuca.mp3");
+  SFX.trapBlade = new Audio("audios/trampa-sierra.mp3");
+  SFX.trapNet = new Audio("audios/trampa-red.mp3");
+  SFX.trapBomb = new Audio("audios/trampa-bomba.mp3");
 
   SFX.missile = new Audio("audios/misil.mp3");
   SFX.shield = new Audio("audios/escudo.mp3");
@@ -965,6 +967,7 @@ canvas.addEventListener("touchstart",e=>{
   if(e.target.closest&&e.target.closest(".touch-pad"))return;
   const t=e.changedTouches[0]||e.touches[0];
   canvasShootId=t.identifier;
+  touchDriving=true;
   setAimFromTouch(t);
   isShooting=true;
   if(gameRunning)shoot();
@@ -984,12 +987,11 @@ canvas.addEventListener("touchmove",e=>{
 },{passive:false});
 canvas.addEventListener("touchend",e=>{
   for(let i=0;i<e.changedTouches.length;i++){
-    if(e.changedTouches[i].identifier===canvasShootId){canvasShootId=null;isShooting=false;break}
+    if(e.changedTouches[i].identifier===canvasShootId){canvasShootId=null;isShooting=false;if(!stickActive)touchDriving=false;break}
   }
-  /* si ya no queda ningún dedo en pantalla (salvo pad), soltar disparo */
-  if(e.touches.length===0&&fireTouchId===null)isShooting=false;
+  if(e.touches.length===0&&fireTouchId===null){isShooting=false;if(!stickActive)touchDriving=false}
 },{passive:false});
-canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===null)isShooting=false});
+canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===null)isShooting=false;if(!stickActive)touchDriving=false});
 
 /* ===== TOUCH PAD (móvil) — optimizado ===== */
 (function initTouchPad(){
@@ -1003,11 +1005,12 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     let u=(clientX-r.left)/Math.max(1,r.width);
     let v=(clientY-r.top)/Math.max(1,r.height);
     if(u<0)u=0;if(u>1)u=1;if(v<0)v=0;if(v>1)v=1;
-    /* margen interno para que no se pegue a los bordes */
     const m=player.size*1.2;
     mouse.x=m+u*(canvas.width-m*2);
+    /* Y: no bajar de golpe; el pad mueve pero prioriza mantener altura al tocar */
     mouse.y=m+v*(canvas.height-m*2);
     stickActive=true;
+    touchDriving=true;
   }
   function onStickStart(e){
     e.preventDefault();e.stopPropagation();
@@ -1029,9 +1032,9 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   function onStickEnd(e){
     if(e.changedTouches){
       for(const t of e.changedTouches){
-        if(t.identifier===stickId){stickId=null;stickActive=false;return}
+        if(t.identifier===stickId){stickId=null;stickActive=false;if(canvasShootId===null)touchDriving=false;return}
       }
-    } else {stickId=null;stickActive=false}
+    } else {stickId=null;stickActive=false;if(canvasShootId===null)touchDriving=false}
   }
   stick.addEventListener("touchstart",onStickStart,{passive:false});
   stick.addEventListener("touchmove",onStickMove,{passive:false});
@@ -1059,6 +1062,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     if(e){e.preventDefault();e.stopPropagation()}
     if(e&&e.changedTouches&&e.changedTouches[0])fireTouchId=e.changedTouches[0].identifier;
     isShooting=true;
+    touchDriving=true; /* al disparar se mantiene, no baja */
     fireBtn.classList.add("pressed");
     if(gameRunning&&!gamePaused)shoot();
   }
@@ -1070,6 +1074,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
       }
     } else fireTouchId=null;
     if(fireTouchId===null&&canvasShootId===null)isShooting=false;
+    if(fireTouchId===null&&canvasShootId===null&&!stickActive)touchDriving=false;
     fireBtn.classList.remove("pressed");
   }
   fireBtn.addEventListener("touchstart",fireDown,{passive:false});
@@ -1315,31 +1320,16 @@ function createExplosion(x,y,size,color){
 
 /* Suelta un poder al azar (máx. pocos en pantalla) */
 function maybeSpawnPickup(x,y){
-  if(pickups.length>=(isMobile()?2:3))return;
+  /* Poderes en TODOS los mundos (1–8), sin filtro por escenario */
+  if(pickups.length>=(isMobile()?3:4))return;
   const r=Math.random(),s=16*getScale();
-  if(r<.08){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
-  if(r<.05)pickups.push({x,y,type:"ammo",size:s,vy:1.5});
-  else if(r<.08)pickups.push({x,y,type:"hammer",size:s,vy:1.5});
-  else if(r<.10)pickups.push({x,y,type:"shield",size:s,vy:1.5});
-  else if(r<.12)pickups.push({x,y,type:"rapid",size:s,vy:1.5});
-  else if(r<.14)pickups.push({x,y,type:"triple",size:s,vy:1.5});
-  else if(r<.155)pickups.push({x,y,type:"missile",size:s,vy:1.5});
-  else if(r<.17)pickups.push({x,y,type:"allies",size:s,vy:1.5});
-  else if(r<.185)pickups.push({x,y,type:"overdrive",size:s,vy:1.5});
-  else if(r<.20)pickups.push({x,y,type:"nova",size:s,vy:1.5});
-  else if(r<.215)pickups.push({x,y,type:"reflect",size:s,vy:1.5}); /* refleja balas enemigas */
-  else if(r<.23)pickups.push({x,y,type:"burst",size:s,vy:1.5}); /* ráfaga 8 disparos */
-  else if(r<.245)pickups.push({x,y,type:"repair",size:s,vy:1.5}); /* +1 vida o escudo */
-  else if(r<.255)pickups.push({x,y,type:"life",size:s,vy:1.5});
-  else if(r<.265)pickups.push({x,y,type:"laser",size:s,vy:1.5});
-  else if(r<.275)pickups.push({x,y,type:"bomb",size:s,vy:1.5});
-  else if(r<.29)pickups.push({x,y,type:"invisible",size:s,vy:1.5});
-  else if(r<.305)pickups.push({x,y,type:"drone",size:s,vy:1.5});
-  else if(r<.32)pickups.push({x,y,type:"freeze",size:s,vy:1.5});
-  else if(r<.335)pickups.push({x,y,type:"chrono",size:s,vy:1.5}); /* +tiempo escudo corto + balas */
-  else if(r<.35)pickups.push({x,y,type:"barrier",size:s,vy:1.5}); /* barrera frontal */
-  else if(r<.365)pickups.push({x,y,type:"stormbolt",size:s,vy:1.5});
-  else if(r<.38)pickups.push({x,y,type:"bazooka",size:s,vy:1.5}); /* bazuca: misil grande */
+  if(r<.07){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
+  /* pool de poderes especiales (hammer, chrono, barrier, stormbolt, bazooka, etc.) */
+  if(r<.55){
+    const pool=["ammo","hammer","shield","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka"];
+    const type=pool[Math.floor(Math.random()*pool.length)];
+    pickups.push({x,y,type,size:s,vy:1.5});
+  }
 }
 
 function createParticle(){if(isMobile()||particles.length>5||Math.random()>.75)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
@@ -2494,9 +2484,21 @@ if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
 if(bazooka>0&&isShooting&&Math.random()<.06){bazooka--;fireBazooka()}
 /* Movimiento directo y fluido (sin sensación de ralentizar) */
 /* Seguimiento fluido del stick / dedo */
-const baseSmooth=stickActive?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34);
-const smooth=Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive?Math.max(sensPad,0.35):sensMouse)+0.15)));
+const keyDrive=typeof keys!=="undefined"&&(keys.left||keys.right||keys.up||keys.down);
+/* Disparar también cuenta como control: no retrocede al mantener FIRE */
+const controlling=touchDriving||stickActive||canvasShootId!==null||keyDrive||isShooting||fireTouchId!==null;
+const baseSmooth=stickActive||touchDriving?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34);
+const smooth=Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive||touchDriving?Math.max(sensPad,0.35):sensMouse)+0.15)));
 player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
+/* Solo al SOLTAR (ni mover ni disparar): retrocede */
+if(!controlling){
+  const drift=1.35*getSpeedScale()*(overdrive>0?1.4:1);
+  player.y+=drift;
+  mouse.y=player.y;
+} else if(isShooting&&!stickActive&&canvasShootId===null){
+  /* Solo FIRE: mantiene altura actual */
+  mouse.y=player.y;
+}
 if(stickActive)applyGravity(player,player.x,player.y,0.08);
 else applyGravity(player,player.x,player.y,0.35);
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m,Math.min(canvas.height-m,player.y));

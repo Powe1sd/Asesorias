@@ -598,11 +598,11 @@ const SFX = {
 
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
-  SFX.bg = new Audio("audios/fondo.mp3"); SFX.bg.preload="auto";
+  SFX.bg = new Audio("audios/fondo.mp3");
   // SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
   // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
   // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
-  SFX.shoot = new Audio("audios/disparo.mp3"); SFX.shoot.preload="auto";
+  SFX.shoot = new Audio("audios/disparo.mp3");
   SFX.explode = new Audio("audios/explosion.mp3");
   SFX.power = new Audio("audios/poder.mp3");
   SFX.hit = new Audio("audios/dano.mp3");
@@ -625,88 +625,54 @@ try {
   SFX.nova = new Audio("audios/nova.mp3");
   SFX.overdrive = new Audio("audios/turbo.mp3");
   SFX.allies = new Audio("audios/aliados.mp3");
-  /* TRAMPAS: rutas activadas; si no existen, se usa el fallback */
-  SFX.trap = new Audio("audios/trampa.mp3");
-  SFX.laserTrap = new Audio("audios/laser-trampa.mp3");
-  SFX.mineTrap = new Audio("audios/mina.mp3");
+  /* TRAMPAS — quita el // para activar: */
+  // SFX.trap = new Audio("audios/trampa.mp3");
+  // SFX.laserTrap = new Audio("audios/laser-trampa.mp3");
+  // SFX.mineTrap = new Audio("audios/mina.mp3");
   /* PODERES NUEVOS */
-  SFX.reflect = new Audio("audios/reflect.mp3");
-  SFX.burst = new Audio("audios/burst.mp3");
-  SFX.repair = new Audio("audios/repair.mp3");
+  // SFX.reflect = new Audio("audios/reflect.mp3");
+  // SFX.burst = new Audio("audios/burst.mp3");
+  // SFX.repair = new Audio("audios/repair.mp3");
 } catch(e) {}
 
-/* Audio robusto: usa MP3 si existen y sintetiza efectos si faltan. */
-let techAudioCtx=null, techMasterGain=null, techDroneNodes=[], techDroneTimer=null;
-function getTechAudio(){
-  try{
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)return null;
-    if(!techAudioCtx){
-      techAudioCtx=new AC();
-      techMasterGain=techAudioCtx.createGain();
-      techMasterGain.gain.value=audioMuted?0:1;
-      techMasterGain.connect(techAudioCtx.destination);
-    }
-    if(techAudioCtx.state==='suspended') techAudioCtx.resume().catch(()=>{});
-    return techAudioCtx;
-  }catch(e){return null}
-}
-function unlockTechAudio(){getTechAudio();}
-window.addEventListener('pointerdown',unlockTechAudio,{once:true,passive:true});
-window.addEventListener('keydown',unlockTechAudio,{once:true});
 function applyAudioVolumes(){
-  try{if(SFX.bg){SFX.bg.volume=audioMuted?0:volMusic;SFX.bg.loop=true}}catch(e){}
-  try{if(techMasterGain&&techAudioCtx)techMasterGain.gain.setTargetAtTime(audioMuted?0:1,techAudioCtx.currentTime,.03)}catch(e){}
-}
-function synthSfx(key){
-  const c=getTechAudio(); if(!c||!techMasterGain||audioMuted||volSfx<=0)return;
-  const now=c.currentTime, out=c.createGain(); out.gain.value=Math.max(.001,Math.min(1,volSfx*.42)); out.connect(techMasterGain);
-  const tone=(freq,endFreq,duration,wave='sawtooth',gain=.25,delay=0)=>{
-    const o=c.createOscillator(),g=c.createGain(); o.type=wave; o.frequency.setValueAtTime(Math.max(30,freq),now+delay); o.frequency.exponentialRampToValueAtTime(Math.max(30,endFreq),now+delay+duration);
-    g.gain.setValueAtTime(.001,now+delay);g.gain.exponentialRampToValueAtTime(Math.max(.002,gain),now+delay+.012);g.gain.exponentialRampToValueAtTime(.001,now+delay+duration);
-    o.connect(g);g.connect(out);o.start(now+delay);o.stop(now+delay+duration+.03);
-  };
-  const noise=(duration,gain=.18)=>{try{const n=c.createBufferSource(),b=c.createBuffer(1,Math.max(1,Math.floor(c.sampleRate*duration)),c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);n.buffer=b;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=1400;const g=c.createGain();g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.001,now+duration);n.connect(f);f.connect(g);g.connect(out);n.start(now);n.stop(now+duration)}catch(e){}};
-  switch(key){
-    case 'shoot': case 'laser': tone(980,260,.075,'square',.20); break;
-    case 'explode': case 'bomb': case 'nova': noise(.28,.25);tone(170,42,.32,'sawtooth',.32);break;
-    case 'hit': case 'gameover': tone(280,65,.38,'triangle',.28);break;
-    case 'power': case 'shield': case 'triple': tone(420,1050,.20,'sine',.22);tone(700,1250,.16,'sine',.12,.09);break;
-    case 'hammer': case 'stormbolt': tone(1100,90,.23,'sawtooth',.25);noise(.12,.12);break;
-    case 'rapid': case 'overdrive': tone(240,900,.17,'square',.15);break;
-    case 'missile': case 'bazooka': tone(500,75,.26,'sawtooth',.23);noise(.16,.10);break;
-    case 'chrono': case 'barrier': tone(850,360,.22,'sine',.22);break;
-    default: tone(520,260,.15,'triangle',.20);break;
-  }
-  setTimeout(()=>{try{out.disconnect()}catch(e){}},650);
-}
-function playSfx(key){
-  if(audioMuted)return;
-  const a=SFX[key];
-  if(a&&a.src){
-    try{const n=a.cloneNode?a.cloneNode():a;n.volume=Math.max(0,Math.min(1,volSfx));n.preload='auto';const p=n.play();if(p&&p.catch)p.catch(()=>synthSfx(key));return}catch(e){}
-  }
-  synthSfx(key);
-}
-function startBgMusic(){
-  if(audioMuted)return;
-  const c=getTechAudio();applyAudioVolumes();
-  try{if(SFX.bg&&SFX.bg.src){SFX.bg.currentTime=0;const p=SFX.bg.play();if(p&&p.catch)p.catch(()=>startTechDrone());return}}catch(e){}
-  startTechDrone();
-}
-function startTechDrone(){
-  const c=getTechAudio();if(!c||audioMuted||techDroneNodes.length)return;
   try{
-    const g=c.createGain();g.gain.value=Math.max(.001,volMusic*.055);g.connect(techMasterGain);
-    [55,82.4,110].forEach((hz,i)=>{const o=c.createOscillator(),og=c.createGain();o.type=i===1?'triangle':'sine';o.frequency.value=hz;og.gain.value=i===0?.48:.18;o.connect(og);og.connect(g);o.start();techDroneNodes.push(o,og)});
-    techDroneNodes.push(g);
+    if(SFX.bg){ SFX.bg.volume = audioMuted ? 0 : volMusic; SFX.bg.loop = true; }
   }catch(e){}
 }
-function stopTechDrone(){try{for(const n of techDroneNodes){if(n.stop)try{n.stop()}catch(e){}if(n.disconnect)n.disconnect()}techDroneNodes=[]}catch(e){techDroneNodes=[]}}
-function stopBgMusic(){try{if(SFX.bg){SFX.bg.pause();SFX.bg.currentTime=0}}catch(e){}stopTechDrone()}
-function setMusicVolume(v){volMusic=Math.max(0,Math.min(1,v));applyAudioVolumes();if(!audioMuted&&gameRunning&&SFX.bg&&SFX.bg.paused)startBgMusic()}
-function setSfxVolume(v){volSfx=Math.max(0,Math.min(1,v))}
-function toggleMute(){audioMuted=!audioMuted;applyAudioVolumes();if(audioMuted){try{if(SFX.bg)SFX.bg.pause()}catch(e){}stopTechDrone()}else if(gameRunning)startBgMusic()}
+function playSfx(key){
+  try{
+    if(audioMuted) return;
+    const a = SFX[key];
+    if(!a || !a.src) return;
+    const n = a.cloneNode ? a.cloneNode() : a;
+    n.volume = volSfx;
+    const p = n.play();
+    if(p && p.catch) p.catch(()=>{});
+  }catch(e){}
+}
+function startBgMusic(){
+  try{
+    if(!SFX.bg || audioMuted) return;
+    applyAudioVolumes();
+    SFX.bg.currentTime=0;
+    SFX.bg.play().catch(()=>{});
+  }catch(e){}
+}
+function stopBgMusic(){
+  try{ if(SFX.bg){ SFX.bg.pause(); SFX.bg.currentTime=0; } }catch(e){}
+}
+function setMusicVolume(v){
+  volMusic=Math.max(0,Math.min(1,v));
+  applyAudioVolumes();
+  if(SFX.bg && !audioMuted && gameRunning && SFX.bg.paused) startBgMusic();
+}
+function setSfxVolume(v){ volSfx=Math.max(0,Math.min(1,v)); }
+function toggleMute(){
+  audioMuted=!audioMuted;
+  if(audioMuted){ if(SFX.bg) SFX.bg.volume=0; }
+  else { applyAudioVolumes(); if(gameRunning) startBgMusic(); }
+}
 
 const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:inline-block"><path d="M36 42 C20 42,8 38,2 48 C-4 58,2 70,12 74 C22 78,28 72,34 78 C40 84,48 88,58 86" fill="none" stroke="#1a1a1a" stroke-width="5" stroke-linecap="round"/><path d="M36 42 C20 42,8 38,2 48 C-4 58,2 70,12 74 C22 78,28 72,34 78 C40 84,48 88,58 86" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"/><rect x="54" y="82" width="14" height="9" rx="2" fill="#2a2a2a" stroke="#777"/><rect x="36" y="20" width="110" height="44" rx="14" fill="#1a1a1a" stroke="#555" stroke-width="2"/><rect x="32" y="36" width="10" height="12" rx="2" fill="#0d0d0d" stroke="#444"/><rect x="46" y="10" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555"/><rect x="108" y="10" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555"/><rect x="56" y="34" width="8" height="22" rx="2" fill="#333"/><rect x="49" y="41" width="22" height="8" rx="2" fill="#333"/><circle cx="122" cy="38" r="5" fill="#E60012"/><circle cx="122" cy="52" r="5" fill="#7B61FF"/><circle cx="114" cy="45" r="5" fill="#00A0E9"/><circle cx="130" cy="45" r="5" fill="#00A651"/><circle cx="78" cy="50" r="7" fill="#222" stroke="#555"/><circle cx="100" cy="50" r="7" fill="#222" stroke="#555"/><circle cx="78" cy="50" r="3" fill="#444"/><circle cx="100" cy="50" r="3" fill="#444"/><rect x="84" y="30" width="8" height="4" rx="1" fill="#555"/><rect x="94" y="30" width="8" height="4" rx="1" fill="#555"/><circle cx="91" cy="26" r="2" fill="#00A0E9"/><text x="95" y="92" text-anchor="middle" font-size="7" fill="#888" font-family="Arial">PLAYSTATION 3</text></svg>`;
 
@@ -2666,7 +2632,6 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
-unlockTechAudio();
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";

@@ -65,12 +65,19 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 
 
 .touch-pad{display:none;max-width:1200px;margin:10px auto 18px;padding:0 10px;user-select:none;-webkit-user-select:none}
+.touch-info{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 12px 4px;margin:0 auto;max-width:100%;
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:#ddd;letter-spacing:.3px;
+  background:linear-gradient(180deg,rgba(6,14,32,.98),rgba(4,10,24,.95));
+  border:1px solid rgba(0,180,255,.28);border-bottom:none;border-radius:16px 16px 0 0}
+.touch-info span{color:#fff;font-weight:700}
+.touch-info .ti-pts{color:#FFCD00}.touch-info .ti-rec{color:#9fdfff}.touch-info .ti-lives{color:#FF6688}
+.touch-info .ti-rayo{color:#FFCD00;min-width:42px;text-align:right}
 .touch-pad-inner{display:flex;align-items:center;justify-content:space-between;gap:10px;
   background:linear-gradient(180deg,rgba(8,18,40,.95),rgba(4,10,24,.98));
-  border:1px solid rgba(0,180,255,.35);border-radius:22px;padding:14px 16px;
+  border:1px solid rgba(0,180,255,.35);border-radius:0 0 22px 22px;padding:10px 14px 12px;
   box-shadow:0 0 24px rgba(0,100,255,.15),inset 0 1px 0 rgba(255,255,255,.06)}
 .touch-col{display:flex;flex-direction:column;align-items:center}
-.touch-mid{display:flex;flex-direction:column;gap:8px;align-items:center}
+.touch-mid{display:flex;flex-direction:column;gap:6px;align-items:center}
 
 .touch-move-pad{
   width:130px;height:120px;border-radius:18px;touch-action:none;-webkit-user-select:none;
@@ -103,29 +110,21 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   background:rgba(0,40,90,.7);color:#9fdfff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;
   touch-action:none;box-shadow:0 0 10px rgba(0,120,255,.2)}
 .touch-util:active{background:rgba(0,80,160,.85);color:#fff}
-#touchSpecial{border-color:rgba(255,205,0,.5);color:#FFCD00}
+#touchSpecial{border-color:rgba(255,205,0,.5);color:#FFCD00;min-width:56px;font-size:12px;line-height:1.1}
 @media (hover:none) and (pointer:coarse) and (max-width:1200px){.touch-pad{display:block}}
 @media(max-width:600px){
-  
-.touch-move-pad{
-  width:130px;height:120px;border-radius:18px;touch-action:none;-webkit-user-select:none;
-  background:linear-gradient(160deg,rgba(20,50,100,.55),rgba(5,15,35,.9));
-  border:2px solid rgba(0,200,255,.4);
-  box-shadow:0 0 16px rgba(0,120,255,.2),inset 0 0 24px rgba(0,0,0,.35);
-  display:flex;align-items:center;justify-content:center;position:relative;
+  .touch-info{font-size:10px;padding:5px 10px 3px;border-radius:14px 14px 0 0}
+  .touch-pad-inner{padding:8px 10px 10px;border-radius:0 0 18px 18px}
+  .touch-move-pad{width:110px;height:100px}
+  .touch-move-hint{font-size:10px}
+  .touch-fire{width:78px;height:78px;font-size:12px}
+  .touch-util{min-width:48px;height:32px;font-size:10px;padding:0 8px}
+  #touchSpecial{min-width:48px;font-size:11px}
 }
-.touch-move-hint{color:rgba(150,220,255,.45);font-size:11px;font-family:Orbitron,sans-serif;letter-spacing:1px;pointer-events:none}
-.touch-move-pad:active{border-color:rgba(255,205,0,.55);box-shadow:0 0 20px rgba(0,180,255,.35)}
-@media(max-width:600px){
-  .touch-move-pad{width:120px;height:110px}
+/* Reducir animación de estrellas del body en móvil (menos lag) */
+@media (hover:none) and (pointer:coarse){
+  body::before{animation:none;opacity:.55}
 }
-
-.touch-stick-wrap-OLD{width:108px;height:108px}
-  .touch-stick-knob{width:42px;height:42px}
-  .touch-fire{width:84px;height:84px;font-size:13px}
-  .touch-util{min-width:50px;height:34px;font-size:10px}
-}
-.touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
   background:#000;padding:0;overflow:hidden;display:block;
   width:100vw;height:100vh;max-width:none;margin:0;
@@ -140,12 +139,13 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 /* En móviles/tabletas con controles táctiles, dejar espacio inferior para el mando. */
 @media (hover:none) and (pointer:coarse), (pointer:coarse) and (max-width:1200px){
   .tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{
-    height:calc(100vh - 142px);height:calc(100dvh - 142px);width:100vw;
+    height:calc(100vh - 168px);height:calc(100dvh - 168px);width:100vw;
   }
   .tech-game-section:fullscreen .touch-pad,.tech-game-section:-webkit-full-screen .touch-pad{
-    display:block!important;width:100%;max-width:900px;margin:0 auto;padding:4px 10px 8px;
+    display:block!important;width:100%;max-width:900px;margin:0 auto;padding:2px 10px 6px;
   }
-  .tech-game-section:fullscreen .touch-pad-inner,.tech-game-section:-webkit-full-screen .touch-pad-inner{padding:8px 12px;}
+  .tech-game-section:fullscreen .touch-pad-inner,.tech-game-section:-webkit-full-screen .touch-pad-inner{padding:6px 10px 8px;}
+  .tech-game-section:fullscreen .touch-info,.tech-game-section:-webkit-full-screen .touch-info{padding:4px 10px 2px}
 }
 #configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
 #configPanel .game-btn{position:sticky;bottom:0;margin-top:12px}
@@ -196,6 +196,29 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-toast{position:fixed;z-index:100000;left:50%;bottom:24px;transform:translateX(-50%);background:#071b27;border:1px solid #00c8ff;color:#e9fbff;padding:10px 15px;border-radius:10px;font:11px Orbitron,sans-serif;box-shadow:0 0 22px #003d55;max-width:90vw;text-align:center}
 @media(max-width:460px){.tech-hub{padding:12px}.tech-hub-grid{grid-template-columns:1fr}.tech-hub-head h2{font-size:14px}.tech-feature-btn{font-size:8px;padding:9px 2px}}
 
+
+/* Ajuste móvil: la X queda dentro del cuadro del módulo, no pegada al borde de pantalla. */
+@media (max-width: 600px) {
+  #techHubModal { padding: 8px; box-sizing: border-box; }
+  #techHubModal .tech-hub {
+    position: relative; width: 100%; max-width: 100%; box-sizing: border-box;
+    padding: 14px 12px; max-height: calc(100dvh - 16px); border-radius: 14px;
+  }
+  #techHubModal .tech-hub-head {
+    position: relative; display: block; box-sizing: border-box;
+    padding: 0 42px 10px 0; margin-bottom: 10px; min-height: 34px;
+  }
+  #techHubModal .tech-hub-head h2 { font-size: 13px; line-height: 1.35; padding-top: 5px; }
+  #techHubModal .tech-wallet { display: inline-block; margin: 8px 0 0; font-size: 11px; padding: 6px 9px; }
+  #techHubModal .tech-hub-x {
+    position: absolute; top: 0; right: 0; width: 30px; height: 30px;
+    min-width: 30px; padding: 0; display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box; font-size: 0; line-height: 1; border-radius: 8px;
+  }
+  #techHubModal .tech-hub-x::after { content: "×"; font: 700 22px/1 Arial, sans-serif; }
+  #techHubModal .tech-module-close-row { justify-content: flex-start; margin: 0 0 10px; }
+  #techHubModal .tech-module-close { padding: 7px 10px; }
+}
 </style>
 </head>
 <body>
@@ -223,6 +246,12 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 </div>
 
 <div class="touch-pad" id="touchPad" aria-label="Controles táctiles">
+  <div class="touch-info" id="touchInfo" aria-live="polite">
+    <span>PTS <span class="ti-pts" id="touchScore">0</span></span>
+    <span>REC <span class="ti-rec" id="touchRecord">0</span></span>
+    <span>❤ <span class="ti-lives" id="touchLives">1</span></span>
+    <span class="ti-rayo" id="touchRayoLabel">⚡ <span id="touchRayo">3</span></span>
+  </div>
   <div class="touch-pad-inner">
     <div class="touch-col">
       <div class="touch-move-pad" id="touchStick" aria-label="Mover nave">
@@ -232,7 +261,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     <div class="touch-mid">
       <button type="button" class="touch-util" id="touchPause">⏸</button>
       <button type="button" class="touch-util" id="touchPowerMode" title="Poderes auto/manual">AUTO</button>
-      <button type="button" class="touch-util" id="touchSpecial">⚡</button>
+      <button type="button" class="touch-util" id="touchSpecial" title="Poder especial (rayo)">⚡ 3</button>
     </div>
     <div class="touch-col">
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
@@ -332,7 +361,19 @@ const scoreElement=document.getElementById("gameScore");
 const recordElement=document.getElementById("gameRecord");
 const livesElement=document.getElementById("gameLives");
 const finalScoreElement=document.getElementById("finalScore");
-function updateLivesUI(){if(livesElement)livesElement.textContent=lives}
+function updateLivesUI(){if(livesElement)livesElement.textContent=lives;updateTouchHUD()}
+function updateTouchHUD(){
+  const ts=document.getElementById("touchScore");
+  const tr=document.getElementById("touchRecord");
+  const tl=document.getElementById("touchLives");
+  const trayo=document.getElementById("touchRayo");
+  const spBtn=document.getElementById("touchSpecial");
+  if(ts)ts.textContent=score;
+  if(tr)tr.textContent=record;
+  if(tl)tl.textContent=lives;
+  if(trayo)trayo.textContent=specialCharges;
+  if(spBtn)spBtn.textContent="⚡ "+specialCharges;
+}
 
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,String(v));if(k==="techCoinsV2"||k==="techCoins"){localStorage.setItem("techCoinsV2",String(v));localStorage.setItem("techCoins",String(v));const wb=document.getElementById("techWalletBalance");if(wb)wb.textContent=(Number(v)||0).toLocaleString("es-CO")}return true}catch(e){return false}}
@@ -585,6 +626,7 @@ function useSpecialPower(){
   if(!gameRunning||gamePaused)return;
   if(specialCharges<=0){doVibrate(8);return}
   specialCharges--;
+  updateTouchHUD();
   doVibrate(25);
   /* Poder aleatorio */
   const opts=["hammer","nova","bomb","burst","shield","rapid","missile"];
@@ -727,7 +769,7 @@ const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="htt
 
 function initStars(){
   starsBG=[];
-  const n=Math.min(110,Math.floor((canvas.width*canvas.height)/(lowPower||isMobile()?15000:7000))+(lowPower?8:(isMobile()?18:28)));
+  const n=Math.min(lowPower||isMobile()?36:110,Math.floor((canvas.width*canvas.height)/(lowPower||isMobile()?22000:7000))+(lowPower?4:(isMobile()?8:28)));
   for(let i=0;i<n;i++)starsBG.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.3,a:.25+Math.random()*.7,sp:.12+Math.random()*.5});
 }
 
@@ -1169,6 +1211,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   /* pointer events (Android/iOS modernos) */
   fireBtn.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"||e.pointerType==="pen"){fireDown(e)}});
   fireBtn.addEventListener("pointerup",e=>{if(e.pointerType==="touch"||e.pointerType==="pen"){fireUp(e)}});
+  try{updateTouchHUD()}catch(e){}
 })();
 
 document.addEventListener("keydown",e=>{
@@ -1418,7 +1461,7 @@ function maybeSpawnPickup(x,y){
 function createParticle(){if(lowPower||isMobile()||particles.length>4||Math.random()>.8)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
 
 function saveRecord(){const saved=Number(lsGet("techRunRecordV4",0))||0;if(score>saved){record=score;lsSet("techRunRecordV4",record)}else{record=saved}if(recordElement)recordElement.textContent=record}
-function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario()}
+function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario();updateTouchHUD()}
 
 function destroyEnemy(o,i){
   const cx=o.x+o.size/2,cy=o.y+o.size/2;
@@ -2282,6 +2325,7 @@ else if(p.type==="reflect"){reflect=360;playSfx("reflect");if(!SFX.reflect)playS
 else if(p.type==="burst"){if(powerMode==="auto"){burst=1;activateBurst()}else{specialCharges=Math.min(6,specialCharges+1);powersCollected++}playSfx("burst");if(!SFX.burst)playSfx("power")}
 else if(p.type==="repair"){if(lives<3){lives++;updateLivesUI()}else shield=Math.max(shield,280);playSfx("repair");if(!SFX.repair)playSfx("power")}
 else playSfx("power");
+updateTouchHUD();
 createExplosion(p.x,p.y,10,"255,255,100");pickups.splice(i,1)}else if(p.y>canvas.height+30)pickups.splice(i,1)}}
 
 function updateExplosions(){for(let i=explosions.length-1;i>=0;i--){const e=explosions[i];e.x+=e.vx;e.y+=e.vy;e.opacity-=.04;e.size*=.96;ctx.fillStyle=`rgba(${e.color},${e.opacity})`;ctx.beginPath();ctx.arc(e.x,e.y,e.size,0,Math.PI*2);ctx.fill();if(e.opacity<=0)explosions.splice(i,1)}}
@@ -2543,20 +2587,22 @@ if(!gameRunning||gamePaused)return;
 /* Móvil: saltar 1 de cada 2 frames de efectos pesados */
 const _lite=isMobile()&&((gameLoop._f=(gameLoop._f|0)+1)%2===0);
 ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
-/* Protección anti-lag: límites directos sin crear objetos nuevos por fotograma. */
+/* Protección anti-lag: límites más agresivos en móvil/bajo consumo */
 const _liteMode=lowPower||isMobile();
-if(obstacles.length>(_liteMode?12:20))obstacles.splice(0,obstacles.length-(_liteMode?12:20));
-if(bullets.length>(_liteMode?42:90))bullets.splice(0,bullets.length-(_liteMode?42:90));
-if(enemyBullets.length>(_liteMode?30:55))enemyBullets.splice(0,enemyBullets.length-(_liteMode?30:55));
-if(pickups.length>(_liteMode?5:8))pickups.splice(0,pickups.length-(_liteMode?5:8));
-if(explosions.length>(_liteMode?14:24))explosions.splice(0,explosions.length-(_liteMode?14:24));
-if(particles.length>(_liteMode?8:24))particles.splice(0,particles.length-(_liteMode?8:24));
-if(traps.length>(_liteMode?10:16))traps.splice(0,traps.length-(_liteMode?10:16));
-if(missiles.length>(_liteMode?8:14))missiles.splice(0,missiles.length-(_liteMode?8:14));
-if(lightningFX.length>(_liteMode?8:14))lightningFX.splice(0,lightningFX.length-(_liteMode?8:14));
-if(allies.length>(_liteMode?3:5))allies.splice(0,allies.length-(_liteMode?3:5));
-if(drones.length>(_liteMode?3:5))drones.splice(0,drones.length-(_liteMode?3:5));
-if(gravZones.length>(_liteMode?5:8))gravZones.splice(0,gravZones.length-(_liteMode?5:8));
+if(obstacles.length>(_liteMode?9:20))obstacles.splice(0,obstacles.length-(_liteMode?9:20));
+if(bullets.length>(_liteMode?28:90))bullets.splice(0,bullets.length-(_liteMode?28:90));
+if(enemyBullets.length>(_liteMode?18:55))enemyBullets.splice(0,enemyBullets.length-(_liteMode?18:55));
+if(pickups.length>(_liteMode?4:8))pickups.splice(0,pickups.length-(_liteMode?4:8));
+if(explosions.length>(_liteMode?8:24))explosions.splice(0,explosions.length-(_liteMode?8:24));
+if(particles.length>(_liteMode?4:24))particles.splice(0,particles.length-(_liteMode?4:24));
+if(traps.length>(_liteMode?6:16))traps.splice(0,traps.length-(_liteMode?6:16));
+if(missiles.length>(_liteMode?5:14))missiles.splice(0,missiles.length-(_liteMode?5:14));
+if(lightningFX.length>(_liteMode?4:14))lightningFX.splice(0,lightningFX.length-(_liteMode?4:14));
+if(allies.length>(_liteMode?2:5))allies.splice(0,allies.length-(_liteMode?2:5));
+if(drones.length>(_liteMode?2:5))drones.splice(0,drones.length-(_liteMode?2:5));
+if(gravZones.length>(_liteMode?3:8))gravZones.splice(0,gravZones.length-(_liteMode?3:8));
+/* Actualizar HUD del touch-pad cada ~10 frames (evita trabajo extra por frame) */
+if(!_lite&&((gameLoop._hud=(gameLoop._hud|0)+1)%10===0))updateTouchHUD();
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
 if(introTimer>0){
   const a=Math.min(1,introTimer/40);
@@ -2697,7 +2743,14 @@ for(let i=obstacles.length-1;i>=0;i--){
 }
 updateTraps();updateExtraTraps();if(!gameRunning)return;
 updateLaser();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunning)return;
-updatePickups();updateExplosions();updateLightning();updateAllies();updateDrones();drawPlayer();updateParticles();drawWarning();drawHUD();
+updatePickups();
+if(!_lite){updateExplosions();updateLightning();updateParticles()}
+else{/* móvil: un frame de cada 2 sin partículas/explosiones/rayos para bajar lag */
+  if(explosions.length>6)explosions.length=6;
+  if(particles.length>3)particles.length=3;
+  if(lightningFX.length>2)lightningFX.length=2;
+}
+updateAllies();updateDrones();drawPlayer();drawWarning();drawHUD();
 animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
@@ -2718,6 +2771,7 @@ combo=0;comboTimer=0;comboMult=1;damageFlash=0;introTimer=120;
 const rec=Number(lsGet("techRunRecordV4",0))||0;
 ammo=100+(rec>=30?20:0);lives=1+(rec>=60?1:0);updateLivesUI();
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
+updateTouchHUD();
 
 startBgMusic();
 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1258,21 +1259,22 @@ function applyGravity(obj,x,y,mult){
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>(isMobile()?6:12))return;
+  /* Límite suave: permite flujo continuo sin picos de lag */
+  if(obstacles.length>(isMobile()?10:16))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const isFire=kind==="fireball";
   const size=(8+Math.random()*18+(kind==="explosive"?6:0)+(kind==="magnetic"?4:0)+(isHard?10:0)+(isFire?4:0))*sc;
   const prog=getProgressSpeed();
   /* Salen cerca de donde está la nave (con un poco de variación) */
-  const spread=canvas.width*0.35;
+  const spread=canvas.width*0.4;
   let mx=player.x+(Math.random()-0.5)*spread*2;
   mx=Math.max(size,Math.min(canvas.width-size,mx));
-  /* 25% completamente aleatorio para no predecir todo */
-  if(Math.random()<0.25) mx=Math.random()*Math.max(1,canvas.width-size);
+  /* 30% completamente aleatorio para no predecir todo */
+  if(Math.random()<0.3) mx=Math.random()*Math.max(1,canvas.width-size);
   obstacles.push({
     x:mx-size/2,y:-size-10,size,
-    speed:(2.05+Math.random()*1.6)*prog*getSpeedScale(),
+    speed:(2.1+Math.random()*1.5)*prog*getSpeedScale(),
     vx:(Math.random()-.5)*(scenario>=3?1.6:1.0)+((player.x-(mx))/canvas.width)*0.8,
     rotation:Math.random()*Math.PI*2,
     rotationSpeed:(Math.random()-.5)*.1,points:generateMeteorPoints(size),
@@ -1630,8 +1632,8 @@ function updateDrones(){
 function spawnAllies(){
   allies=[];
   const sc=getScale();
-  const n=isMobile()?2:4;
-  for(let i=0;i<n;i++){
+  /* Siempre 2 a cada lado de la nave = 4 aliados */
+  for(let i=0;i<2;i++){
     allies.push({x:player.x-50-i*18,y:player.y+20+i*8,side:-1,phase:i*.7,size:8*sc,life:400,shootT:25+i*12});
     allies.push({x:player.x+50+i*18,y:player.y+20+i*8,side:1,phase:i*.7+1,size:8*sc,life:400,shootT:30+i*12});
   }
@@ -2589,7 +2591,7 @@ const _lite=isMobile()&&((gameLoop._f=(gameLoop._f|0)+1)%2===0);
 ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
 /* Protección anti-lag: límites más agresivos en móvil/bajo consumo */
 const _liteMode=lowPower||isMobile();
-if(obstacles.length>(_liteMode?9:20))obstacles.splice(0,obstacles.length-(_liteMode?9:20));
+if(obstacles.length>(_liteMode?12:20))obstacles.splice(0,obstacles.length-(_liteMode?12:20));
 if(bullets.length>(_liteMode?28:90))bullets.splice(0,bullets.length-(_liteMode?28:90));
 if(enemyBullets.length>(_liteMode?18:55))enemyBullets.splice(0,enemyBullets.length-(_liteMode?18:55));
 if(pickups.length>(_liteMode?4:8))pickups.splice(0,pickups.length-(_liteMode?4:8));
@@ -2598,20 +2600,13 @@ if(particles.length>(_liteMode?4:24))particles.splice(0,particles.length-(_liteM
 if(traps.length>(_liteMode?6:16))traps.splice(0,traps.length-(_liteMode?6:16));
 if(missiles.length>(_liteMode?5:14))missiles.splice(0,missiles.length-(_liteMode?5:14));
 if(lightningFX.length>(_liteMode?4:14))lightningFX.splice(0,lightningFX.length-(_liteMode?4:14));
-if(allies.length>(_liteMode?2:5))allies.splice(0,allies.length-(_liteMode?2:5));
+if(allies.length>(_liteMode?4:6))allies.splice(0,allies.length-(_liteMode?4:6));
 if(drones.length>(_liteMode?2:5))drones.splice(0,drones.length-(_liteMode?2:5));
 if(gravZones.length>(_liteMode?3:8))gravZones.splice(0,gravZones.length-(_liteMode?3:8));
 /* Actualizar HUD del touch-pad cada ~10 frames (evita trabajo extra por frame) */
 if(!_lite&&((gameLoop._hud=(gameLoop._hud|0)+1)%10===0))updateTouchHUD();
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
-if(introTimer>0){
-  const a=Math.min(1,introTimer/40);
-  ctx.fillStyle=`rgba(0,0,0,${0.35*a})`;ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${Math.min(22,canvas.width*0.05)}px Orbitron`;ctx.textAlign="center";
-  ctx.fillText(lang==="en"?"Br7 launching...":"Br7 despega...",canvas.width/2,canvas.height/2-10);
-  ctx.fillStyle=`rgba(255,255,255,${a*0.8})`;ctx.font="12px Share Tech Mono";
-  ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+18);
-}
+/* Intro desactivada: no tapa el juego ni los poderes al iniciar */
 
 if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;
 if(comboTimer>0){comboTimer--}else{combo=0;comboMult=1}
@@ -2646,20 +2641,21 @@ if(stickActive)applyGravity(player,player.x,player.y,0.08);
 else applyGravity(player,player.x,player.y,0.35);
 const m=player.size;player.x=Math.max(m,Math.min(canvas.width-m,player.x));player.y=Math.max(m,Math.min(canvas.height-m,player.y));
 
-// spawn meteors by level
+// spawn meteors by level — fluido y constante (sin pausas ni ráfagas)
 if(phase==="meteors"){
-  const mob=isMobile()?1.2:1;
-  /* Spawns estables: no saturar en nivel 2–4 */
-  const delay=Math.max(isMobile()?180:120, ((isMobile()?420:340)-waveCount*(isMobile()?10:16))/(typeof diffSpawnMult==='function'?diffSpawnMult():1))*mob;
+  /* Delay más corto y estable en móvil para flujo continuo */
+  const baseDelay=isMobile()?160:110;
+  const waveCut=waveCount*(isMobile()?8:14);
+  const delay=Math.max(isMobile()?95:70,(baseDelay-waveCut)/(typeof diffSpawnMult==='function'?diffSpawnMult():1));
   if(ts-lastSpawn>delay){
     const r=Math.random();
-    if(r<.04)createMeteor("fireball"); /* pocas bolas de fuego */
-    else if(scenario>=2&&r<.12)createMeteor("hard");
-    else if(scenario>=2&&r<.28)createMeteor("explosive");
-    else if(scenario>=3&&r<.38)createMeteor("magnetic");
+    if(r<.035)createMeteor("fireball");
+    else if(scenario>=2&&r<.10)createMeteor("hard");
+    else if(scenario>=2&&r<.24)createMeteor("explosive");
+    else if(scenario>=3&&r<.34)createMeteor("magnetic");
     else createMeteor("normal");
-    if(Math.random()<.04)createMeteor("fireball");
-    if(scenario>=2&&Math.random()<.1&&!isMobile())createMeteor("normal");
+    /* Segundo meteorito ocasional solo si hay hueco (evita picos) */
+    if(obstacles.length<(isMobile()?7:12)&&Math.random()<(isMobile()?0.12:0.22))createMeteor("normal");
     lastSpawn=ts;
   }
 }
@@ -2767,7 +2763,7 @@ if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
 updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
-combo=0;comboTimer=0;comboMult=1;damageFlash=0;introTimer=120;
+combo=0;comboTimer=0;comboMult=1;damageFlash=0;introTimer=0;
 const rec=Number(lsGet("techRunRecordV4",0))||0;
 ammo=100+(rec>=30?20:0);lives=1+(rec>=60?1:0);updateLivesUI();
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
@@ -2838,8 +2834,8 @@ document.addEventListener("keydown",function(e){
   function levelFor(v){let n=1,need=100;while(v>=need&&n<1000){v-=need;n++;need=100+n*45}return n}
   function xpToNext(v){let n=1,need=100;while(v>=need&&n<1000){v-=need;n++;need=100+n*45}return {level:n,inside:v,need:100+n*45}}
   levelX=levelFor(xp);
-  function grantXP(amount,reason){xp+=amount;save('xp',xp);const was=levelX;levelX=levelFor(xp);if(levelX>was){const bonus=levelX*15;coins+=bonus;lsSet('techCoinsV2',coins);notify('⬆ NIVEL '+levelX+' · +'+bonus+' monedas')}else if(reason)notify('+'+amount+' XP · '+reason);if(modal.classList.contains('open'))renderHub()}
-  function progress(id,amount=1){if(!daily[id])daily[id]={progress:0,claimed:false};const m=missions.find(x=>x.id===id);if(!m||daily[id].claimed)return;daily[id].progress=Math.min(m.goal,daily[id].progress+amount);save('daily',daily);if(daily[id].progress>=m.goal)notify('🎯 Misión lista: '+m.title);}
+  function grantXP(amount,reason){xp+=amount;save('xp',xp);const was=levelX;levelX=levelFor(xp);if(levelX>was){const bonus=levelX*15;coins+=bonus;lsSet('techCoinsV2',coins);notify('⬆ NIVEL '+levelX+' · +'+bonus+' monedas')}else if(reason&&reason!=='meteorito'&&reason!=='nave enemiga'&&reason!=='inicio de misión'){notify('+'+amount+' XP · '+reason)}if(modal.classList.contains('open'))renderHub()}
+  function progress(id,amount=1){if(!daily[id])daily[id]={progress:0,claimed:false};const m=missions.find(x=>x.id===id);if(!m||daily[id].claimed)return;daily[id].progress=Math.min(m.goal,daily[id].progress+amount);save('daily',daily);/* sin toast: no molesta en partida */}
   function claimMission(id){const m=missions.find(x=>x.id===id),d=daily[id];if(!m||!d||d.claimed||d.progress<m.goal)return;d.claimed=true;coins+=m.reward;lsSet('techCoinsV2',coins);save('daily',daily);grantXP(m.reward,'misión diaria');if(missions.every(q=>daily[q.id]&&daily[q.id].claimed)){if(lastCompleted!==dailyDay){const yesterday=new Date(Date.now()-86400000);const y=yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');streak=lastCompleted===y?streak+1:1;lastCompleted=dailyDay;save('streak',streak);save('lastCompleted',lastCompleted);coins+=streak*10;lsSet('techCoinsV2',coins);notify('🔥 Racha de '+streak+' días · bono '+(streak*10)+' monedas')}}renderHub()}
   const rewards=[{level:2,label:'Rastro cian',type:'trail',value:'cyan'},{level:5,label:'250 monedas',type:'coins',value:250},{level:10,label:'Estela dorada',type:'trail',value:'gold'},{level:20,label:'Efecto Nova',type:'burst',value:'nova'},{level:30,label:'500 monedas',type:'coins',value:500},{level:50,label:'Estela arcoíris',type:'trail',value:'rainbow'},{level:100,label:'Nave legendaria',type:'skin',value:'legendary'}];
   function claimReward(r){if(levelX<r.level||seasonClaims.includes(r.level))return;if(r.type==='coins'){coins+=r.value;lsSet('techCoinsV2',coins)}else{cosmetics[r.type]=r.value;save('cosmetics',cosmetics)}seasonClaims.push(r.level);save('seasonClaims',seasonClaims);notify('🎁 Recompensa desbloqueada: '+r.label);renderHub()}

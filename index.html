@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TECH</title>
+<title>TECH RUN — Edición Expansión</title>
 <link rel="icon" href="logo-no-background (2).png" type="image/x-icon">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -155,6 +155,33 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   #startPanel{padding-bottom:24px!important}
   #startExtras{padding-bottom:8px}
 }
+
+/* TECH RUN // EXPANSIÓN DE SISTEMAS */
+.tech-feature-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0 4px}
+.tech-feature-btn{font:700 9px Orbitron,sans-serif;color:#dff7ff;background:linear-gradient(135deg,#081323,#111);border:1px solid rgba(0,220,255,.42);border-radius:8px;padding:10px 4px;cursor:pointer;box-shadow:inset 0 0 12px rgba(0,200,255,.05);transition:.18s}
+.tech-feature-btn:hover{border-color:#ffcd00;color:#ffcd00;transform:translateY(-1px)}
+#techHubModal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.82);backdrop-filter:blur(9px);display:none;align-items:center;justify-content:center;padding:14px}
+#techHubModal.open{display:flex}
+.tech-hub{width:min(760px,100%);max-height:90vh;overflow:auto;background:linear-gradient(145deg,rgba(5,14,28,.99),rgba(0,0,0,.99));border:1px solid rgba(0,220,255,.55);border-radius:16px;box-shadow:0 0 35px rgba(0,190,255,.14);padding:17px;color:#eaf8ff;font-family:Orbitron,sans-serif}
+.tech-hub-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #173142;padding-bottom:12px;margin-bottom:12px}
+.tech-hub-head h2{font-size:17px;letter-spacing:1px;color:#fff;margin:0}
+.tech-hub-x{border:1px solid #355061;border-radius:8px;background:#09131d;color:#fff;padding:7px 11px;font-weight:bold;cursor:pointer}
+.tech-hub-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:14px}
+.tech-hub-tab{font:700 9px Orbitron,sans-serif;border:1px solid #24485c;border-radius:8px;background:#07111b;color:#9ac9dc;padding:10px 4px;cursor:pointer}
+.tech-hub-tab.active{border-color:#ffcd00;color:#ffcd00;background:#171506}
+.tech-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.tech-tile{border:1px solid #18394b;border-radius:11px;padding:12px;background:linear-gradient(140deg,rgba(11,30,46,.85),rgba(5,8,15,.9));min-width:0}
+.tech-tile h3{font-size:11px;color:#ffcd00;margin:0 0 7px;letter-spacing:.5px}
+.tech-tile p,.tech-tile li{font:11px/1.6 'Share Tech Mono',monospace;color:#bed0dc}
+.tech-meter{height:6px;background:#15212b;border-radius:99px;overflow:hidden;margin:8px 0}
+.tech-meter span{display:block;height:100%;background:linear-gradient(90deg,#00b7ff,#ffcd00);box-shadow:0 0 9px #00b7ff}
+.tech-hub-action{font:700 9px Orbitron,sans-serif;border:1px solid #1c9ac0;border-radius:7px;background:#071c29;color:#dffaff;padding:8px 10px;margin-top:8px;cursor:pointer}
+.tech-hub-action.gold{border-color:#a98b18;color:#ffdc5a;background:#211b05}
+.tech-hub-action:disabled{opacity:.4;cursor:not-allowed}
+.tech-pill{display:inline-block;border:1px solid #315164;border-radius:99px;padding:4px 7px;font-size:8px;color:#9bdcf4;margin:2px}
+.tech-toast{position:fixed;z-index:100000;left:50%;bottom:24px;transform:translateX(-50%);background:#071b27;border:1px solid #00c8ff;color:#e9fbff;padding:10px 15px;border-radius:10px;font:11px Orbitron,sans-serif;box-shadow:0 0 22px #003d55;max-width:90vw;text-align:center}
+@media(max-width:460px){.tech-hub{padding:12px}.tech-hub-grid{grid-template-columns:1fr}.tech-hub-head h2{font-size:14px}.tech-feature-btn{font-size:8px;padding:9px 2px}}
+
 </style>
 </head>
 <body>
@@ -168,7 +195,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
 <h2>⚡ TECH RUN</h2>
-<small>Elige dificultad y nave · Desliza para ver más</small><br>
+<small>Elige dificultad.</small><br>
 <button class="game-btn" id="startGame">🚀 INICIAR</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
@@ -571,81 +598,115 @@ const SFX = {
 
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
-  SFX.bg = new Audio("audios/fondo.mp3");
-  // SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
-  // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
-  // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
-  SFX.shoot = new Audio("audios/disparo.mp3");
-  SFX.explode = new Audio("audios/explosion.mp3");
-  SFX.power = new Audio("audios/poder.mp3");
-  SFX.hit = new Audio("audios/dano.mp3");
-  SFX.gameover = new Audio("audios/gameover.mp3");
-  SFX.laser = new Audio("audios/laser.mp3");
-  SFX.bomb = new Audio("audios/bomba.mp3");
-  SFX.rapid = new Audio("audios/rapido.mp3");
-  SFX.hammer = new Audio("audios/rayo.mp3");
-  SFX.chrono = new Audio("audios/crono.mp3");
-  SFX.barrier = new Audio("audios/barrera.mp3");
-  SFX.stormbolt = new Audio("audios/tormenta.mp3");
-  SFX.bazooka = new Audio("audios/bazuca.mp3");
-  SFX.trapBlade = new Audio("audios/trampa-sierra.mp3");
-  SFX.trapNet = new Audio("audios/trampa-red.mp3");
-  SFX.trapBomb = new Audio("audios/trampa-bomba.mp3");
+  SFX.bg = new Audio("./audios/fondo.mp3"); SFX.bg.preload="auto";
+  // SFX.bg2 = new Audio("./audios/fondo-asteroides.mp3");
+  // SFX.bg3 = new Audio("./audios/fondo-alien.mp3");
+  // SFX.bg4 = new Audio("./audios/fondo-agujero.mp3");
+  SFX.shoot = new Audio("./audios/disparo.mp3"); SFX.shoot.preload="auto";
+  SFX.explode = new Audio("./audios/explosion.mp3");
+  SFX.power = new Audio("./audios/poder.mp3");
+  SFX.hit = new Audio("./audios/dano.mp3");
+  SFX.gameover = new Audio("./audios/gameover.mp3");
+  SFX.laser = new Audio("./audios/laser.mp3");
+  SFX.bomb = new Audio("./audios/bomba.mp3");
+  SFX.rapid = new Audio("./audios/rapido.mp3");
+  SFX.hammer = new Audio("./audios/rayo.mp3");
+  SFX.chrono = new Audio("./audios/crono.mp3");
+  SFX.barrier = new Audio("./audios/barrera.mp3");
+  SFX.stormbolt = new Audio("./audios/tormenta.mp3");
+  SFX.bazooka = new Audio("./audios/bazuca.mp3");
+  SFX.trapBlade = new Audio("./audios/trampa-sierra.mp3");
+  SFX.trapNet = new Audio("./audios/trampa-red.mp3");
+  SFX.trapBomb = new Audio("./audios/trampa-bomba.mp3");
 
-  SFX.missile = new Audio("audios/misil.mp3");
-  SFX.shield = new Audio("audios/escudo.mp3");
-  SFX.triple = new Audio("audios/triple.mp3");
-  SFX.nova = new Audio("audios/nova.mp3");
-  SFX.overdrive = new Audio("audios/turbo.mp3");
-  SFX.allies = new Audio("audios/aliados.mp3");
-  /* TRAMPAS — quita el // para activar: */
-  // SFX.trap = new Audio("audios/trampa.mp3");
-  // SFX.laserTrap = new Audio("audios/laser-trampa.mp3");
-  // SFX.mineTrap = new Audio("audios/mina.mp3");
+  SFX.missile = new Audio("./audios/misil.mp3");
+  SFX.shield = new Audio("./audios/escudo.mp3");
+  SFX.triple = new Audio("./audios/triple.mp3");
+  SFX.nova = new Audio("./audios/nova.mp3");
+  SFX.overdrive = new Audio("./audios/turbo.mp3");
+  SFX.allies = new Audio("./audios/aliados.mp3");
+  /* TRAMPAS: rutas activadas; si no existen, se usa el fallback */
+  SFX.trap = new Audio("./audios/trampa.mp3");
+  SFX.laserTrap = new Audio("./audios/laser-trampa.mp3");
+  SFX.mineTrap = new Audio("./audios/mina.mp3");
   /* PODERES NUEVOS */
-  // SFX.reflect = new Audio("audios/reflect.mp3");
-  // SFX.burst = new Audio("audios/burst.mp3");
-  // SFX.repair = new Audio("audios/repair.mp3");
+  SFX.reflect = new Audio("./audios/reflect.mp3");
+  SFX.burst = new Audio("./audios/burst.mp3");
+  SFX.repair = new Audio("./audios/repair.mp3");
 } catch(e) {}
 
-function applyAudioVolumes(){
+/* Audio robusto: usa MP3 si existen y sintetiza efectos si faltan. */
+let techAudioCtx=null, techMasterGain=null, techDroneNodes=[], techDroneTimer=null;
+function getTechAudio(){
   try{
-    if(SFX.bg){ SFX.bg.volume = audioMuted ? 0 : volMusic; SFX.bg.loop = true; }
-  }catch(e){}
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    if(!techAudioCtx){
+      techAudioCtx=new AC();
+      techMasterGain=techAudioCtx.createGain();
+      techMasterGain.gain.value=audioMuted?0:1;
+      techMasterGain.connect(techAudioCtx.destination);
+    }
+    if(techAudioCtx.state==='suspended') techAudioCtx.resume().catch(()=>{});
+    return techAudioCtx;
+  }catch(e){return null}
+}
+function unlockTechAudio(){getTechAudio();}
+window.addEventListener('pointerdown',unlockTechAudio,{once:true,passive:true});
+window.addEventListener('keydown',unlockTechAudio,{once:true});
+function applyAudioVolumes(){
+  try{if(SFX.bg){SFX.bg.volume=audioMuted?0:volMusic;SFX.bg.loop=true}}catch(e){}
+  try{if(techMasterGain&&techAudioCtx)techMasterGain.gain.setTargetAtTime(audioMuted?0:1,techAudioCtx.currentTime,.03)}catch(e){}
+}
+function synthSfx(key){
+  const c=getTechAudio(); if(!c||!techMasterGain||audioMuted||volSfx<=0)return;
+  const now=c.currentTime, out=c.createGain(); out.gain.value=Math.max(.001,Math.min(1,volSfx*.42)); out.connect(techMasterGain);
+  const tone=(freq,endFreq,duration,wave='sawtooth',gain=.25,delay=0)=>{
+    const o=c.createOscillator(),g=c.createGain(); o.type=wave; o.frequency.setValueAtTime(Math.max(30,freq),now+delay); o.frequency.exponentialRampToValueAtTime(Math.max(30,endFreq),now+delay+duration);
+    g.gain.setValueAtTime(.001,now+delay);g.gain.exponentialRampToValueAtTime(Math.max(.002,gain),now+delay+.012);g.gain.exponentialRampToValueAtTime(.001,now+delay+duration);
+    o.connect(g);g.connect(out);o.start(now+delay);o.stop(now+delay+duration+.03);
+  };
+  const noise=(duration,gain=.18)=>{try{const n=c.createBufferSource(),b=c.createBuffer(1,Math.max(1,Math.floor(c.sampleRate*duration)),c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);n.buffer=b;const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=1400;const g=c.createGain();g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.001,now+duration);n.connect(f);f.connect(g);g.connect(out);n.start(now);n.stop(now+duration)}catch(e){}};
+  switch(key){
+    case 'shoot': case 'laser': tone(980,260,.075,'square',.20); break;
+    case 'explode': case 'bomb': case 'nova': noise(.28,.25);tone(170,42,.32,'sawtooth',.32);break;
+    case 'hit': case 'gameover': tone(280,65,.38,'triangle',.28);break;
+    case 'power': case 'shield': case 'triple': tone(420,1050,.20,'sine',.22);tone(700,1250,.16,'sine',.12,.09);break;
+    case 'hammer': case 'stormbolt': tone(1100,90,.23,'sawtooth',.25);noise(.12,.12);break;
+    case 'rapid': case 'overdrive': tone(240,900,.17,'square',.15);break;
+    case 'missile': case 'bazooka': tone(500,75,.26,'sawtooth',.23);noise(.16,.10);break;
+    case 'chrono': case 'barrier': tone(850,360,.22,'sine',.22);break;
+    default: tone(520,260,.15,'triangle',.20);break;
+  }
+  setTimeout(()=>{try{out.disconnect()}catch(e){}},650);
 }
 function playSfx(key){
-  try{
-    if(audioMuted) return;
-    const a = SFX[key];
-    if(!a || !a.src) return;
-    const n = a.cloneNode ? a.cloneNode() : a;
-    n.volume = volSfx;
-    const p = n.play();
-    if(p && p.catch) p.catch(()=>{});
-  }catch(e){}
+  if(audioMuted)return;
+  const a=SFX[key];
+  if(a&&a.src){
+    try{const n=a.cloneNode?a.cloneNode():a;n.volume=Math.max(0,Math.min(1,volSfx));n.preload='auto';const p=n.play();if(p&&p.catch)p.catch(()=>synthSfx(key));return}catch(e){}
+  }
+  synthSfx(key);
 }
 function startBgMusic(){
+  if(audioMuted)return;
+  const c=getTechAudio();applyAudioVolumes();
+  try{if(SFX.bg&&SFX.bg.src){SFX.bg.currentTime=0;const p=SFX.bg.play();if(p&&p.catch)p.catch(()=>startTechDrone());return}}catch(e){}
+  startTechDrone();
+}
+function startTechDrone(){
+  const c=getTechAudio();if(!c||audioMuted||techDroneNodes.length)return;
   try{
-    if(!SFX.bg || audioMuted) return;
-    applyAudioVolumes();
-    SFX.bg.currentTime=0;
-    SFX.bg.play().catch(()=>{});
+    const g=c.createGain();g.gain.value=Math.max(.001,volMusic*.055);g.connect(techMasterGain);
+    [55,82.4,110].forEach((hz,i)=>{const o=c.createOscillator(),og=c.createGain();o.type=i===1?'triangle':'sine';o.frequency.value=hz;og.gain.value=i===0?.48:.18;o.connect(og);og.connect(g);o.start();techDroneNodes.push(o,og)});
+    techDroneNodes.push(g);
   }catch(e){}
 }
-function stopBgMusic(){
-  try{ if(SFX.bg){ SFX.bg.pause(); SFX.bg.currentTime=0; } }catch(e){}
-}
-function setMusicVolume(v){
-  volMusic=Math.max(0,Math.min(1,v));
-  applyAudioVolumes();
-  if(SFX.bg && !audioMuted && gameRunning && SFX.bg.paused) startBgMusic();
-}
-function setSfxVolume(v){ volSfx=Math.max(0,Math.min(1,v)); }
-function toggleMute(){
-  audioMuted=!audioMuted;
-  if(audioMuted){ if(SFX.bg) SFX.bg.volume=0; }
-  else { applyAudioVolumes(); if(gameRunning) startBgMusic(); }
-}
+function stopTechDrone(){try{for(const n of techDroneNodes){if(n.stop)try{n.stop()}catch(e){}if(n.disconnect)n.disconnect()}techDroneNodes=[]}catch(e){techDroneNodes=[]}}
+function stopBgMusic(){try{if(SFX.bg){SFX.bg.pause();SFX.bg.currentTime=0}}catch(e){}stopTechDrone()}
+function setMusicVolume(v){volMusic=Math.max(0,Math.min(1,v));applyAudioVolumes();if(!audioMuted&&gameRunning&&SFX.bg&&SFX.bg.paused)startBgMusic()}
+function setSfxVolume(v){volSfx=Math.max(0,Math.min(1,v))}
+function toggleMute(){audioMuted=!audioMuted;applyAudioVolumes();if(audioMuted){try{if(SFX.bg)SFX.bg.pause()}catch(e){}stopTechDrone()}else if(gameRunning)startBgMusic()}
 
 const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="http://www.w3.org/2000/svg" style="margin-top:8px;display:inline-block"><path d="M36 42 C20 42,8 38,2 48 C-4 58,2 70,12 74 C22 78,28 72,34 78 C40 84,48 88,58 86" fill="none" stroke="#1a1a1a" stroke-width="5" stroke-linecap="round"/><path d="M36 42 C20 42,8 38,2 48 C-4 58,2 70,12 74 C22 78,28 72,34 78 C40 84,48 88,58 86" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"/><rect x="54" y="82" width="14" height="9" rx="2" fill="#2a2a2a" stroke="#777"/><rect x="36" y="20" width="110" height="44" rx="14" fill="#1a1a1a" stroke="#555" stroke-width="2"/><rect x="32" y="36" width="10" height="12" rx="2" fill="#0d0d0d" stroke="#444"/><rect x="46" y="10" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555"/><rect x="108" y="10" width="28" height="18" rx="8" fill="#1a1a1a" stroke="#555"/><rect x="56" y="34" width="8" height="22" rx="2" fill="#333"/><rect x="49" y="41" width="22" height="8" rx="2" fill="#333"/><circle cx="122" cy="38" r="5" fill="#E60012"/><circle cx="122" cy="52" r="5" fill="#7B61FF"/><circle cx="114" cy="45" r="5" fill="#00A0E9"/><circle cx="130" cy="45" r="5" fill="#00A651"/><circle cx="78" cy="50" r="7" fill="#222" stroke="#555"/><circle cx="100" cy="50" r="7" fill="#222" stroke="#555"/><circle cx="78" cy="50" r="3" fill="#444"/><circle cx="100" cy="50" r="3" fill="#444"/><rect x="84" y="30" width="8" height="4" rx="1" fill="#555"/><rect x="94" y="30" width="8" height="4" rx="1" fill="#555"/><circle cx="91" cy="26" r="2" fill="#00A0E9"/><text x="95" y="92" text-anchor="middle" font-size="7" fill="#888" font-family="Arial">PLAYSTATION 3</text></svg>`;
 
@@ -2605,6 +2666,7 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
+unlockTechAudio();
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
@@ -2662,6 +2724,90 @@ continueButton.addEventListener("click",continueToSite);
 document.addEventListener("keydown",function(e){
   if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
 });
+
+/* ================= TECH RUN: PROGRESSION + RETOS + HANGAR ================= */
+(function techExpansion(){
+  const $=id=>document.getElementById(id);
+  const localDay=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+  const read=(k,f)=>{try{const v=localStorage.getItem('techX_'+k);return v===null?f:JSON.parse(v)}catch(e){return f}};
+  const save=(k,v)=>{try{localStorage.setItem('techX_'+k,JSON.stringify(v))}catch(e){}}
+  const xpStart=()=>Math.max(0,Number(read('xp',0))||0);
+  let xp=xpStart(),levelX=1,seasonClaims=read('seasonClaims',[]),daily=read('daily',{}),dailyDay=read('dailyDay',''),streak=Number(read('streak',0))||0,lastCompleted=read('lastCompleted',''),totalRunSeconds=0,lastFrame=0,lastCoins=Number(coins)||0,sessionPowerCount=0,comboMilestones=read('comboMilestones',[]),cosmetics=read('cosmetics',{trail:'blue',skin:'default',burst:'blue'}),activeEvent=read('eventDay','')===localDay()?read('event','meteor-rush'):['meteor-rush','boss-hunt','coin-rain'][Math.floor(Date.now()/86400000)%3];
+  const missions=[
+    {id:'meteors',title:'LLUVIA DE METEOROS',desc:'Destruye 20 meteoritos',goal:20,reward:80,icon:'☄️'},
+    {id:'ships',title:'CAZANAVES',desc:'Derriba 10 naves enemigas',goal:10,reward:100,icon:'🚀'},
+    {id:'survive',title:'SUPERVIVIENTE',desc:'Sobrevive 180 segundos',goal:180,reward:120,icon:'⏱️'},
+    {id:'coins',title:'CAZATESOROS',desc:'Recoge 15 monedas',goal:15,reward:90,icon:'🪙'},
+    {id:'powers',title:'SOBRECARGA',desc:'Recoge 5 poderes',goal:5,reward:100,icon:'⚡'},
+    {id:'combo',title:'COMBO LETAL',desc:'Consigue un combo x10',goal:10,reward:150,icon:'💥'}
+  ];
+  function freshDaily(){return Object.fromEntries(missions.map(m=>[m.id,{progress:0,claimed:false}]))}
+  if(dailyDay!==localDay()){dailyDay=localDay();daily=freshDaily();save('dailyDay',dailyDay);save('daily',daily)}
+  missions.forEach(m=>{if(!daily[m.id])daily[m.id]={progress:0,claimed:false}});
+  function notify(msg){const old=$('techToast');if(old)old.remove();const el=document.createElement('div');el.id='techToast';el.className='tech-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+  function levelFor(v){let n=1,need=100;while(v>=need&&n<1000){v-=need;n++;need=100+n*45}return n}
+  function xpToNext(v){let n=1,need=100;while(v>=need&&n<1000){v-=need;n++;need=100+n*45}return {level:n,inside:v,need:100+n*45}}
+  levelX=levelFor(xp);
+  function grantXP(amount,reason){xp+=amount;save('xp',xp);const was=levelX;levelX=levelFor(xp);if(levelX>was){const bonus=levelX*15;coins+=bonus;lsSet('techCoinsV2',coins);notify('⬆ NIVEL '+levelX+' · +'+bonus+' monedas')}else if(reason)notify('+'+amount+' XP · '+reason);renderHub()}
+  function progress(id,amount=1){if(!daily[id])daily[id]={progress:0,claimed:false};const m=missions.find(x=>x.id===id);if(!m||daily[id].claimed)return;daily[id].progress=Math.min(m.goal,daily[id].progress+amount);save('daily',daily);if(daily[id].progress>=m.goal)notify('🎯 Misión lista: '+m.title);}
+  function claimMission(id){const m=missions.find(x=>x.id===id),d=daily[id];if(!m||!d||d.claimed||d.progress<m.goal)return;d.claimed=true;coins+=m.reward;lsSet('techCoinsV2',coins);save('daily',daily);grantXP(m.reward,'misión diaria');if(missions.every(q=>daily[q.id]&&daily[q.id].claimed)){if(lastCompleted!==dailyDay){const yesterday=new Date(Date.now()-86400000);const y=yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');streak=lastCompleted===y?streak+1:1;lastCompleted=dailyDay;save('streak',streak);save('lastCompleted',lastCompleted);coins+=streak*10;lsSet('techCoinsV2',coins);notify('🔥 Racha de '+streak+' días · bono '+(streak*10)+' monedas')}}renderHub()}
+  const rewards=[{level:2,label:'Rastro cian',type:'trail',value:'cyan'},{level:5,label:'250 monedas',type:'coins',value:250},{level:10,label:'Estela dorada',type:'trail',value:'gold'},{level:20,label:'Efecto Nova',type:'burst',value:'nova'},{level:30,label:'500 monedas',type:'coins',value:500},{level:50,label:'Estela arcoíris',type:'trail',value:'rainbow'},{level:100,label:'Nave legendaria',type:'skin',value:'legendary'}];
+  function claimReward(r){if(levelX<r.level||seasonClaims.includes(r.level))return;if(r.type==='coins'){coins+=r.value;lsSet('techCoinsV2',coins)}else{cosmetics[r.type]=r.value;save('cosmetics',cosmetics)}seasonClaims.push(r.level);save('seasonClaims',seasonClaims);notify('🎁 Recompensa desbloqueada: '+r.label);renderHub()}
+  const shop=[{id:'trail-cyan',name:'Estela Cian',price:120,type:'trail',value:'cyan',icon:'〰️'},{id:'trail-gold',name:'Estela Dorada',price:220,type:'trail',value:'gold',icon:'✨'},{id:'trail-rainbow',name:'Estela Prisma',price:400,type:'trail',value:'rainbow',icon:'🌈'},{id:'skin-neon',name:'Piel Neón',price:250,type:'skin',value:'neon',icon:'🛸'},{id:'skin-legendary',name:'Piel Legendaria',price:700,type:'skin',value:'legendary',icon:'👑'},{id:'burst-nova',name:'Explosión Nova',price:300,type:'burst',value:'nova',icon:'💥'}];
+  let activeTab='daily';
+  const modal=document.createElement('div');modal.id='techHubModal';modal.innerHTML='<section class="tech-hub" role="dialog" aria-modal="true" aria-label="Centro de operaciones TECH RUN"><header class="tech-hub-head"><h2>⚡ CENTRO DE OPERACIONES</h2><button class="tech-hub-x" id="techHubClose">✕ CERRAR</button></header><nav class="tech-hub-tabs"><button class="tech-hub-tab" data-tab="daily">🎯 MISIONES</button><button class="tech-hub-tab" data-tab="profile">🏆 PERFIL</button><button class="tech-hub-tab" data-tab="shop">🛒 HANGAR</button><button class="tech-hub-tab" data-tab="pass">🎁 PASE XP</button><button class="tech-hub-tab" data-tab="worlds">🌌 MUNDOS</button><button class="tech-hub-tab" data-tab="events">👾 EVENTOS</button></nav><div id="techHubContent"></div></section>';
+  document.body.appendChild(modal);
+  function tile(title,body){return '<article class="tech-tile"><h3>'+title+'</h3>'+body+'</article>'}
+  function renderHub(){const c=$('techHubContent');if(!c)return;document.querySelectorAll('.tech-hub-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===activeTab));let html='';
+    if(activeTab==='daily'){
+      html='<div class="tech-hub-grid">'+tile('🎯 OBJETIVOS DE HOY','<p>Reinicio local: '+dailyDay+' · Completa tareas y reclama monedas + XP.</p><p>🔥 Racha actual: <b>'+streak+' días</b></p>');
+      missions.forEach(m=>{const d=daily[m.id]||{progress:0,claimed:false},pct=Math.min(100,Math.round(d.progress/m.goal*100));html+=tile(m.icon+' '+m.title,'<p>'+m.desc+'</p><div class="tech-meter"><span style="width:'+pct+'%"></span></div><p>'+d.progress+' / '+m.goal+' · Recompensa: '+m.reward+' 🪙</p><button class="tech-hub-action gold" data-claim-mission="'+m.id+'" '+(d.progress<m.goal||d.claimed?'disabled':'')+'>'+(d.claimed?'✓ RECLAMADA':d.progress>=m.goal?'RECLAMAR':'EN PROGRESO')+'</button>')});
+      html+='</div>';
+    }else if(activeTab==='profile'){
+      const xpInfo=xpToNext(xp),pct=Math.round(xpInfo.inside/xpInfo.need*100),ach=typeof getAchievements==='function'?Object.values(getAchievements()).length:0;
+      html='<div class="tech-hub-grid">'+tile('🏆 PILOTO TECH','<p>Nivel <b style="color:#ffcd00">'+levelX+'</b> · XP total: '+xp+'</p><div class="tech-meter"><span style="width:'+pct+'%"></span></div><p>'+xpInfo.inside+' / '+xpInfo.need+' XP para nivel '+(levelX+1)+'</p><p>🪙 Monedas: '+coins+' · 🏅 Logros clásicos: '+ach+'</p><p>☄️ Meteoritos: '+(meteorsDestroyed||0)+' · 🚀 Naves: '+(shipsDestroyed||0)+'</p>')+tile('🔥 COMBOS Y RÉCORDS','<p>Mejora tu multiplicador sin dejar pasar mucho tiempo entre bajas.</p><p>Récord: '+(Number(lsGet('techRunRecordV4',0))||0)+' puntos</p><p>Combo actual: x'+(combo||0)+'</p><span class="tech-pill">x5 +25 XP</span><span class="tech-pill">x10 +60 XP</span><span class="tech-pill">x20 +150 XP</span>')+'</div>';
+    }else if(activeTab==='shop'){
+      html='<div class="tech-tile" style="margin-bottom:10px"><h3>🛒 HANGAR COSMÉTICO</h3><p>Monedas disponibles: <b style="color:#ffcd00">'+coins+'</b>. Los cosméticos no alteran la dificultad.</p></div><div class="tech-hub-grid">';
+      shop.forEach(it=>{const owned=read('ownedCosmetics',[]).includes(it.id),equipped=cosmetics[it.type]===it.value;html+=tile(it.icon+' '+it.name,'<p>Precio: '+it.price+' 🪙</p><button class="tech-hub-action '+(equipped?'gold':'')+'" data-shop="'+it.id+'" '+(!owned&&coins<it.price?'disabled':'')+'>'+(equipped?'✓ EQUIPADO':owned?'EQUIPAR':'COMPRAR')+'</button>')});html+='</div>';
+    }else if(activeTab==='pass'){
+      html='<div class="tech-tile" style="margin-bottom:10px"><h3>🎁 PASE DE PROGRESO — TEMPORADA 01</h3><p>Gana XP jugando, sube de nivel y recoge recompensas. El progreso se guarda en este navegador.</p><div class="tech-meter"><span style="width:'+Math.min(100,levelX)+'%"></span></div><p>Nivel actual: '+levelX+' · Recompensas reclamadas: '+seasonClaims.length+'/'+rewards.length+'</p></div><div class="tech-hub-grid">';
+      rewards.forEach(r=>{const got=seasonClaims.includes(r.level),ready=levelX>=r.level;html+=tile('NIVEL '+r.level+' · '+r.label,'<p>'+(ready?'Desbloqueada':'Faltan '+(r.level-levelX)+' niveles')+'</p><button class="tech-hub-action '+(ready?'gold':'')+'" data-reward="'+r.level+'" '+(!ready||got?'disabled':'')+'>'+(got?'✓ RECLAMADA':ready?'RECLAMAR':'BLOQUEADA')+'</button>')});html+='</div>';
+    }else if(activeTab==='worlds'){
+      const worlds=[['1','Órbita','Campo de asteroides'],['2','Asteroides','Mayor presión de meteoros'],['3','Alien','Zona de flotas enemigas'],['4','Agujero','Gravedad extrema'],['5','Nebulosa','Niebla estelar'],['6','Neón','Luz eléctrica'],['7','Tóxico','Zona corrosiva'],['8','Vacío','Espacio profundo']];
+      html='<div class="tech-tile" style="margin-bottom:10px"><h3>🌌 CARTOGRAFÍA</h3><p>Selecciona un escenario para tu próxima partida. Los mundos disponibles usan los escenarios integrados del juego.</p></div><div class="tech-hub-grid">';worlds.forEach(w=>{html+=tile('🌠 '+w[0]+'. '+w[1],'<p>'+w[2]+'</p><button class="tech-hub-action '+(Number(selectedWorld)===Number(w[0])?'gold':'')+'" data-world-hub="'+w[0]+'">'+(Number(selectedWorld)===Number(w[0])?'✓ SELECCIONADO':'ELEGIR MUNDO')+'</button>')});html+='</div>';
+    }else{
+      const ev={ 'meteor-rush':{name:'LLUVIA DE METEOROS',desc:'Oleadas de rocas espaciales. Cada baja otorga +1 XP adicional.',bonus:'+1 XP por baja'},'boss-hunt':{name:'CAZA DE JEFES',desc:'Prioriza los jefes y consigue monedas extra al derrotarlos.',bonus:'Recompensas de jefe x2'},'coin-rain':{name:'LLUVIA DE MONEDAS',desc:'Las monedas recogidas valen el doble durante este evento.',bonus:'Monedas x2'} }[activeEvent]||{name:'ALERTA GALÁCTICA',desc:'Evento rotativo activo.',bonus:'Bonificación activa'};
+      html='<div class="tech-hub-grid">'+tile('🚨 EVENTO ACTIVO: '+ev.name,'<p>'+ev.desc+'</p><p><span class="tech-pill">'+ev.bonus+'</span></p><p>El evento rota diariamente y queda guardado en este navegador.</p>')+tile('👾 JEFES LEGENDARIOS','<p>Las oleadas de jefes ya están integradas: prepárate cuando aparezca la advertencia roja.</p><p>Derrotarlos otorga XP, monedas extra y avance de misiones.</p><button class="tech-hub-action" data-tab="daily">VER MISIONES</button>')+tile('🌩️ PRÓXIMOS DESAFÍOS','<p>Sobrevive a las fases, encadena combos y completa los objetivos diarios para desbloquear todas las recompensas.</p><p>Las funciones guardan el progreso en el almacenamiento local del navegador.</p>')+'</div>';
+    }
+    c.innerHTML=html;
+  }
+  function openHub(tab='daily'){activeTab=tab;renderHub();modal.classList.add('open')}
+  function closeHub(){modal.classList.remove('open')}
+  $('techHubClose').onclick=closeHub;modal.addEventListener('click',e=>{if(e.target===modal)closeHub();const tab=e.target.closest('[data-tab]');if(tab){activeTab=tab.dataset.tab;renderHub();return}const cm=e.target.closest('[data-claim-mission]');if(cm){claimMission(cm.dataset.claimMission);return}const rw=e.target.closest('[data-reward]');if(rw){const r=rewards.find(x=>x.level===Number(rw.dataset.reward));if(r)claimReward(r);return}const sh=e.target.closest('[data-shop]');if(sh){const it=shop.find(x=>x.id===sh.dataset.shop);if(!it)return;let owned=read('ownedCosmetics',[]);if(!owned.includes(it.id)){if(coins<it.price)return;coins-=it.price;lsSet('techCoinsV2',coins);owned.push(it.id);save('ownedCosmetics',owned)}cosmetics[it.type]=it.value;save('cosmetics',cosmetics);notify('Cosmético equipado: '+it.name);renderHub();return}const wh=e.target.closest('[data-world-hub]');if(wh){selectedWorld=Number(wh.dataset.world)||1;lsSet('techWorld',selectedWorld);renderHub();notify('Mundo '+selectedWorld+' seleccionado para la próxima partida')}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHub()});
+  function addNav(){const panel=$('startPanel');if(!panel||$('techFeatureNav'))return;const nav=document.createElement('div');nav.id='techFeatureNav';nav.className='tech-feature-nav';nav.innerHTML='<button class="tech-feature-btn" data-open="daily">🎯 MISIONES</button><button class="tech-feature-btn" data-open="profile">🏆 PERFIL / XP</button><button class="tech-feature-btn" data-open="shop">🛒 HANGAR</button><button class="tech-feature-btn" data-open="pass">🎁 PASE</button><button class="tech-feature-btn" data-open="worlds">🌌 MUNDOS</button><button class="tech-feature-btn" data-open="events">👾 EVENTOS</button>';nav.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openHub(b.dataset.open)});const start=$('startGame');if(start&&start.parentNode===panel)start.insertAdjacentElement('afterend',nav);else panel.appendChild(nav)}
+  // Rota eventos por día y aplica bonificaciones en los puntos de recogida/bajas.
+  if(read('eventDay','')!==localDay()){save('eventDay',localDay());save('event',activeEvent)}
+  const originalDestroy=typeof destroyEnemy==='function'?destroyEnemy:null;
+  if(originalDestroy){destroyEnemy=function(o,i){const beforeM=meteorsDestroyed||0,beforeS=shipsDestroyed||0;originalDestroy(o,i);const m=['meteor','explosive','magnetic','boss_meteor','fireball'].includes(o&&o.type);if(m){progress('meteors',Math.max(1,(meteorsDestroyed||0)-beforeM));grantXP(activeEvent==='meteor-rush'?4:3,'meteorito')}else{progress('ships',Math.max(1,(shipsDestroyed||0)-beforeS));grantXP(String(o&&o.type||'').startsWith('boss')?35:5,'nave enemiga');if(String(o&&o.type||'').startsWith('boss')){const extra=activeEvent==='boss-hunt'?120:60;coins+=extra;lsSet('techCoinsV2',coins);notify('👾 JEFE DERROTADO · +'+extra+' monedas');grantXP(50,'jefe legendario')}}};}
+  const originalDrawPlayer=typeof drawPlayer==='function'?drawPlayer:null;
+  if(originalDrawPlayer){drawPlayer=function(){if(!lowPower&&cosmetics.trail&&cosmetics.trail!=='blue'){const colors={cyan:'#00eaff',gold:'#ffcd00',rainbow:['#ff3355','#ffcd00','#00eaff','#bb66ff']};const col=colors[cosmetics.trail];if(Array.isArray(col)){for(let i=0;i<4;i++){ctx.fillStyle=col[i];ctx.globalAlpha=.25;ctx.beginPath();ctx.arc(player.x+(i-1.5)*3,player.y+player.size*1.2,2+i*.25,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1}else{ctx.save();ctx.globalAlpha=.45;ctx.fillStyle=col||'#00b7ff';ctx.beginPath();ctx.moveTo(player.x-player.size*.3,player.y+player.size*.65);ctx.lineTo(player.x,player.y+player.size*1.8+(Math.random()*5));ctx.lineTo(player.x+player.size*.3,player.y+player.size*.65);ctx.closePath();ctx.fill();ctx.restore()}}if(cosmetics.skin==='neon')shipSkin='cyan';else if(cosmetics.skin==='legendary')shipSkin='gold';originalDrawPlayer();if(cosmetics.skin==='neon'||cosmetics.skin==='legendary')shipSkin=lsGet('techShipSkin','white')||'white'};}
+  const originalLoop=typeof gameLoop==='function'?gameLoop:null;
+  if(originalLoop){gameLoop=function(ts){if(gameRunning&&!gamePaused){if(lastFrame&&ts>lastFrame){const dt=Math.min(100,ts-lastFrame)/1000;totalRunSeconds+=dt;if(totalRunSeconds<180){const survived=Math.min(dt,180-totalRunSeconds);totalRunSeconds+=survived;progress('survive',survived)}}lastFrame=ts;if(typeof coins==='number'&&coins>lastCoins){progress('coins',coins-lastCoins);if(activeEvent==='coin-rain'){const gain=coins-lastCoins;coins+=gain;lsSet('techCoinsV2',coins)}}lastCoins=coins;if(typeof powersCollected==='number'&&powersCollected>sessionPowerCount){progress('powers',powersCollected-sessionPowerCount);sessionPowerCount=powersCollected}if(typeof combo==='number'&&combo>=1&&!daily.combo.claimed){daily.combo.progress=Math.max(daily.combo.progress||0,Math.min(10,combo));save('daily',daily)}if(typeof combo==='number'&&combo>=10){if(!comboMilestones.includes(10)){comboMilestones.push(10);save('comboMilestones',comboMilestones);grantXP(60,'combo x10')}}if(typeof combo==='number'&&combo>=20&&!comboMilestones.includes(20)){comboMilestones.push(20);save('comboMilestones',comboMilestones);grantXP(150,'combo x20')} }return originalLoop(ts)}}
+  // Bonus de combo: el multiplicador premia las rachas sin cambiar la física del juego.
+  const originalCombo=typeof addScoreCombo==='function'?addScoreCombo:null;
+  if(originalCombo){addScoreCombo=function(points){const prev=combo||0;const result=originalCombo(points);if((combo||0)>=5&&prev<5)grantXP(25,'combo x5');return result}}
+  // Da XP al iniciar una sesión y conserva el evento y progreso local.
+  const originalStart=typeof startGame==='function'?startGame:null;
+  if(originalStart){startGame=function(){totalRunSeconds=0;lastFrame=0;sessionPowerCount=Number(powersCollected)||0;lastCoins=Number(coins)||0;originalStart();grantXP(5,'inicio de misión');closeHub()}}
+  // Los botones de acceso aparecen en el menú original y respetan su estética.
+  addNav();
+  // Actualiza el panel si otros scripts vuelven a dibujar el menú.
+  const observer=new MutationObserver(()=>addNav());observer.observe($('startPanel'),{childList:true});
+  // API para depuración y guardado simple, sin depender de servicios externos.
+  window.TECHRUN_EXPANSION={open:openHub,refresh:renderHub,getProgress:()=>({xp,level:levelX,streak,daily,cosmetics,coins})};
+})();
+
 </script>
 </body>
 </html>

@@ -420,6 +420,11 @@ let metaCoins=Number(lsGet("techCoins",0))||0;
 let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
 let upgAmmo=Number(lsGet("techUpgAmmo",0))||0;
 let upgLives=Number(lsGet("techUpgLives",0))||0;
+let upgDamage=Number(lsGet("techUpgDamage",0))||0;
+let upgShield=Number(lsGet("techUpgShield",0))||0;
+let upgKi=Number(lsGet("techUpgKi",0))||0;
+let upgCoins=Number(lsGet("techUpgCoins",0))||0;
+let upgCooldown=Number(lsGet("techUpgCool",0))||0;
 let lang=lsGet("techLang","es");
 /* ===== MISIONES DIARIAS (menú + progreso) ===== */
 let dailyDate=lsGet("techDailyDate","");
@@ -570,9 +575,167 @@ function showDailyMissionsMenu(){
   if(cl)cl.onclick=()=>{m.style.display="none"};
 }
 
+
+
+/* ===== TIENDA DE MEJORAS ===== */
+const UPGRADE_SHOP=[
+  {id:"speed",key:"upgSpeed",name:"Velocidad de nave",icon:"🚀",desc:"Te mueves más rápido en partida.",max:5,prices:[30,50,80,120,180]},
+  {id:"ammo",key:"upgAmmo",name:"Munición inicial",icon:"🔫",desc:"+20 balas al empezar por nivel.",max:5,prices:[25,45,70,100,150]},
+  {id:"lives",key:"upgLives",name:"Vidas extra",icon:"❤️",desc:"+1 vida al empezar (máx. 3 niveles).",max:3,prices:[50,100,180]},
+  {id:"damage",key:"upgDamage",name:"Daño de balas",icon:"💥",desc:"Más daño a enemigos y jefes.",max:5,prices:[40,70,110,160,220]},
+  {id:"shield",key:"upgShield",name:"Escudo inicial",icon:"🛡️",desc:"Empiezas con escudo activo.",max:4,prices:[35,60,95,140]},
+  {id:"ki",key:"upgKi",name:"Carga de KI",icon:"⚡",desc:"El KI se llena más rápido.",max:5,prices:[30,55,85,125,175]},
+  {id:"cool",key:"upgCool",name:"Cadencia de fuego",icon:"⏱️",desc:"Disparas con menos espera.",max:4,prices:[40,75,120,180]},
+  {id:"coins",key:"upgCoins",name:"Bonus monedas",icon:"🪙",desc:"Ganas más monedas al recogerlas.",max:3,prices:[60,110,180]}
+];
+function getUpgLevel(key){
+  const map={upgSpeed,upgAmmo,upgLives,upgDamage,upgShield,upgKi,upgCool,upgCoins};
+  return Number(map[key])||0;
+}
+function setUpgLevel(key,val){
+  val=Math.max(0,val|0);
+  if(key==="upgSpeed")upgSpeed=val;
+  else if(key==="upgAmmo")upgAmmo=val;
+  else if(key==="upgLives")upgLives=val;
+  else if(key==="upgDamage")upgDamage=val;
+  else if(key==="upgShield")upgShield=val;
+  else if(key==="upgKi")upgKi=val;
+  else if(key==="upgCool")upgCool=val;
+  else if(key==="upgCoins")upgCoins=val;
+  const lsMap={upgSpeed:"techUpgSpeed",upgAmmo:"techUpgAmmo",upgLives:"techUpgLives",upgDamage:"techUpgDamage",upgShield:"techUpgShield",upgKi:"techUpgKi",upgCool:"techUpgCool",upgCoins:"techUpgCoins"};
+  if(lsMap[key])lsSet(lsMap[key],val);
+}
+function buyUpgrade(id){
+  const item=UPGRADE_SHOP.find(u=>u.id===id);
+  if(!item)return false;
+  const lv=getUpgLevel(item.key);
+  if(lv>=item.max){alert("Mejora al máximo");return false}
+  const price=item.prices[lv]||9999;
+  if(coins<price){alert("Necesitas "+price+" monedas 🪙");return false}
+  coins-=price;lsSet("techCoinsV2",coins);
+  setUpgLevel(item.key,lv+1);
+  return true;
+}
+function showUpgradeShop(){
+  let m=document.getElementById("upgradeShopPanel");
+  if(!m){
+    m=document.createElement("div");m.id="upgradeShopPanel";m.className="game-panel";
+    m.style.cssText="display:none;z-index:64;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:16px 14px 18px";
+    (document.querySelector(".tech-game")||document.body).appendChild(m);
+  }
+  function render(){
+    let cards="";
+    UPGRADE_SHOP.forEach(u=>{
+      const lv=getUpgLevel(u.key);
+      const maxed=lv>=u.max;
+      const price=maxed?0:(u.prices[lv]||0);
+      const can= !maxed && coins>=price;
+      let btnLabel,btnStyle,act;
+      if(maxed){btnLabel="★ MÁXIMO";btnStyle="background:#333;color:#66FF88;border-color:#66FF88";act=""}
+      else if(can){btnLabel="MEJORAR · "+price+"🪙";btnStyle="background:linear-gradient(135deg,#0038A8,#FFCD00);color:#111;border-color:#fff";act=u.id}
+      else {btnLabel="🔒 "+price+"🪙";btnStyle="background:#222;color:#888;border-color:#444";act=""}
+      const dots=Array.from({length:u.max},(_,i)=>i<lv?"●":"○").join(" ");
+      cards+=`<div style="margin:8px 0;padding:12px;border-radius:12px;border:1px solid ${maxed?"rgba(100,255,136,.4)":"rgba(0,180,255,.3)"};background:rgba(0,15,40,.72)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-size:14px;color:#fff;font-weight:700">${u.icon} ${u.name}</span>
+          <span style="font-size:11px;color:#88CCFF">Nv.${lv}/${u.max}</span>
+        </div>
+        <p style="font-size:10px;color:#FFCD00;margin:4px 0;letter-spacing:2px">${dots}</p>
+        <p style="font-size:11px;color:#bbb;margin:4px 0 10px;line-height:1.35">${u.desc}</p>
+        <button type="button" class="game-btn shop-u-btn" data-upg="${act}" style="width:100%;margin:0;padding:8px;font-size:12px;${btnStyle}" ${act?"":"disabled"}>${btnLabel}</button>
+      </div>`;
+    });
+    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">⚙️ TIENDA DE MEJORAS</h2>
+    <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
+    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">Mejoras permanentes · se aplican en cada partida</p>
+    ${cards}
+    <button class="game-btn" id="closeUpgradeShop" style="width:100%;margin-top:12px">CERRAR</button>`;
+    m.querySelectorAll(".shop-u-btn").forEach(b=>{
+      const id=b.getAttribute("data-upg");
+      if(!id)return;
+      b.onclick=()=>{if(buyUpgrade(id)){render();try{if(typeof doVibrate==="function")doVibrate(15)}catch(e){}}};
+    });
+    const cl=document.getElementById("closeUpgradeShop");
+    if(cl)cl.onclick=()=>{m.style.display="none"};
+  }
+  render();
+  m.style.display="block";
+}
+
+const WEAPON_SHOP=[
+  {id:"basic",name:"Básica",price:0,icon:"🔫",desc:"Disparo simple estándar. Siempre disponible."},
+  {id:"double",name:"Doble cañón",price:40,icon:"🔫🔫",desc:"Dispara dos balas en paralelo."},
+  {id:"pierce",name:"Perforante",price:60,icon:"💉",desc:"Las balas atraviesan enemigos."},
+  {id:"spread",name:"Abanico",price:80,icon:"🌀",desc:"Tres balas en abanico."},
+  {id:"rapid",name:"Ráfaga",price:100,icon:"⚡",desc:"Cadencia alta, balas más rápidas."},
+  {id:"laser_gun",name:"Cañón láser",price:120,icon:"🔷",desc:"Disparo continuo tipo rayo (consume menos balas)."},
+  {id:"missile_gun",name:"Lanzamisiles",price:150,icon:"🚀",desc:"Cada disparo suelta un misil teledirigido."},
+  {id:"plasma",name:"Plasma",price:180,icon:"💚",desc:"Balas grandes de plasma con más daño."},
+  {id:"wave",name:"Onda",price:200,icon:"🌊",desc:"Disparo en forma de onda ancha."}
+];
+function buyWeapon(id){
+  const item=WEAPON_SHOP.find(w=>w.id===id);
+  if(!item)return false;
+  if(ownedWeapons.includes(id)){
+    currentWeapon=id;lsSet("techWeapon",id);return "equip";
+  }
+  if(coins<item.price){alert("Necesitas "+item.price+" monedas 🪙");return false}
+  coins-=item.price;ownedWeapons.push(id);
+  lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
+  currentWeapon=id;lsSet("techWeapon",id);
+  return "buy";
+}
+function showWeaponShop(){
+  let m=document.getElementById("weaponShopPanel");
+  if(!m){
+    m=document.createElement("div");m.id="weaponShopPanel";m.className="game-panel";
+    m.style.cssText="display:none;z-index:63;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:16px 14px 18px";
+    (document.querySelector(".tech-game")||document.body).appendChild(m);
+  }
+  function render(){
+    let cards="";
+    WEAPON_SHOP.forEach(w=>{
+      const owned=ownedWeapons.includes(w.id);
+      const eq=currentWeapon===w.id;
+      const canBuy=!owned&&coins>=w.price;
+      let btnLabel,btnStyle,btnAct;
+      if(eq){btnLabel="✓ EQUIPADA";btnStyle="background:#66FF88;color:#111;border-color:#fff";btnAct=""}
+      else if(owned){btnLabel="EQUIPAR";btnStyle="background:#0038A8;color:#fff;border-color:#FFCD00";btnAct=w.id}
+      else if(canBuy){btnLabel="COMPRAR · "+w.price+"🪙";btnStyle="background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;border-color:#fff";btnAct=w.id}
+      else {btnLabel="🔒 "+w.price+"🪙";btnStyle="background:#222;color:#888;border-color:#444";btnAct=""}
+      cards+=`<div style="margin:8px 0;padding:12px;border-radius:12px;border:1px solid ${eq?"rgba(100,255,136,.5)":"rgba(255,205,0,.28)"};background:${eq?"rgba(20,60,30,.55)":"rgba(0,15,40,.7)"}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span style="font-size:14px;color:#fff;font-weight:700">${w.icon} ${w.name}</span>
+          <span style="font-size:11px;color:#FFD700">${w.price?w.price+"🪙":"Gratis"}</span>
+        </div>
+        <p style="font-size:11px;color:#bbb;margin:6px 0 10px;line-height:1.35">${w.desc}</p>
+        <button type="button" class="game-btn shop-w-btn" data-buy="${btnAct}" style="width:100%;margin:0;padding:8px;font-size:12px;${btnStyle}" ${btnAct?"":"disabled"}>${btnLabel}</button>
+      </div>`;
+    });
+    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🛒 TIENDA DE ARMAS</h2>
+    <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
+    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">Compra y equipa armas permanentes</p>
+    ${cards}
+    <button class="game-btn" id="closeWeaponShop" style="width:100%;margin-top:12px">CERRAR</button>`;
+    m.querySelectorAll(".shop-w-btn").forEach(b=>{
+      const id=b.getAttribute("data-buy");
+      if(!id)return;
+      b.onclick=()=>{
+        const r=buyWeapon(id);
+        if(r){render();try{if(typeof doVibrate==="function")doVibrate(15)}catch(e){}}
+      };
+    });
+    const cl=document.getElementById("closeWeaponShop");
+    if(cl)cl.onclick=()=>{m.style.display="none";try{const box=document.getElementById("startExtras");if(box&&typeof renderStart==="function"){}}catch(e){}};
+  }
+  render();
+  m.style.display="block";
+}
+
 function addKi(n){
   if(ki>=kiMax){kiReady=true;return}
-  ki=Math.min(kiMax,ki+(n||5));
+  const bonus=1+((upgKi||0)*0.2);
+  ki=Math.min(kiMax,ki+Math.ceil((n||5)*bonus));
   if(ki>=kiMax){ki=kiMax;kiReady=true;scenarioMsg="⚡ KI LISTO (K)";scenarioTransition=45}
 }
 function useKiAttack(){
@@ -1216,6 +1379,8 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
+    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🛒 Tienda de armas · ${coins}🪙</button>
+    <button type="button" class="game-btn" id="btnUpgradeShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#00A0E9,#0038A8);color:#fff;border-color:#FFCD00;font-weight:700">⚙️ Tienda de mejoras</button>
     <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
@@ -1254,7 +1419,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
-      const prices={basic:0,double:40,pierce:60,spread:80};
+      const prices={basic:0,double:40,pierce:60,spread:80,rapid:100,laser_gun:120,missile_gun:150,plasma:180,wave:200};
       if(!ownedWeapons.includes(w)){
         if(coins<(prices[w]||0)){alert("Necesitas "+prices[w]+" monedas");return}
         coins-=prices[w];ownedWeapons.push(w);lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
@@ -1263,6 +1428,8 @@ if(startPanel&&!document.getElementById("startExtras")){
     });
     const bms=box.querySelector("#btnManualStart");if(bms)bms.onclick=()=>showUserManual();
     const bdm=box.querySelector("#btnDailyMissions");if(bdm)bdm.onclick=()=>showDailyMissionsMenu();
+    const bws=box.querySelector("#btnWeaponShop");if(bws)bws.onclick=()=>showWeaponShop();
+    const bus=box.querySelector("#btnUpgradeShop");if(bus)bus.onclick=()=>showUpgradeShop();
     const bl=box.querySelector("#btnLoadSave");
     if(bl)bl.onclick=()=>{
       const d=loadMidGame();
@@ -1726,7 +1893,8 @@ function shoot(){
   if(ammo<=0||laser>0)return;
   if(bullets.length>(isMobile()?18:24))return;
   const now=performance.now();
-  const cd=rapidFire>0?55:(isMobile()?120:shootCooldown);
+  const cdBase=Math.max(70,(isMobile()?120:shootCooldown)-((upgCool||0)*12));
+  const cd=rapidFire>0?Math.max(40,55-(upgCool||0)*3):cdBase;
   if(now-lastShot<cd)return;
   lastShot=now;
   try{playSfx("shoot")}catch(e){}
@@ -1736,6 +1904,30 @@ function shoot(){
   if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
   if(currentWeapon==="spread"&&has("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
   if(currentWeapon==="pierce"&&has("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
+  if(currentWeapon==="rapid"&&has("rapid")){
+    lastShot=now-Math.floor(cd*0.55);
+    if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.25,size:2.8*s,pierce:false});ammo--;return}
+  if(currentWeapon==="laser_gun"&&has("laser_gun")){
+    if(ammo<=0)return;
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.4,size:2.2*s,pierce:true});
+    if(Math.random()<.45)ammo--;
+    return}
+  if(currentWeapon==="missile_gun"&&has("missile_gun")){
+    if(ammo<=0)return;ammo--;
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false});
+    if(typeof fireMissile==="function")fireMissile();
+    return}
+  if(currentWeapon==="plasma"&&has("plasma")){
+    if(ammo<=0)return;ammo-=Math.min(2,ammo);
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp*0.95,size:5*s,pierce:true});
+    return}
+  if(currentWeapon==="wave"&&has("wave")){
+    for(let i=-2;i<=2;i++){
+      if(ammo<=0)break;
+      bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:2.8*s,pierce:false,vx:i*1.8,vy:-sp});
+      ammo--;
+    }
+    return}
 
 const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:pierce>0});ammo--};
 if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
@@ -3017,7 +3209,7 @@ function drawBullets(){
       const o=obstacles[j];
       if(Math.hypot(b.x-(o.x+o.size/2),b.y-(o.y+o.size/2))<o.size*.55+b.size){
         if(o.indestructible||o.type==="hard"){createExplosion(b.x,b.y,4,"150,150,150");if(!b.pierce)bullets.splice(i,1);break}
-        o.hp--;createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
+        o.hp-=(1+Math.floor((upgDamage||0)/2)+(b.size>4?1:0));createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
       }
     }
   }
@@ -3118,7 +3310,7 @@ ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
 
 if(p.type==="ammo"){ammo=Math.min(ammo+40,250);playSfx("power")}
-else if(p.type==="coin"){coins+=p.value||5;lsSet("techCoinsV2",coins);playSfx("power")}
+else if(p.type==="coin"){coins+=Math.floor((p.value||5)*(1+(upgCoins||0)*0.25));lsSet("techCoinsV2",coins);playSfx("power")}
 else if(powerMode==="manual"&&["hammer","nova","bomb","burst","shield","rapid","missile","laser","triple","pierce","reflect"].includes(p.type)){
   specialCharges=Math.min(9,specialCharges+1);powersCollected++;playSfx("power");
 }else if(p.type==="shield"){shield=320;specialCharges=Math.min(6,specialCharges+1);powersCollected++;playSfx("shield");if(!SFX.shield)playSfx("power")}
@@ -3438,8 +3630,9 @@ if(bazooka>0&&isShooting&&Math.random()<.06){bazooka--;fireBazooka()}
 const keyDrive=typeof keys!=="undefined"&&(keys.left||keys.right||keys.up||keys.down);
 /* Disparar también cuenta como control: no retrocede al mantener FIRE */
 const controlling=touchDriving||stickActive||canvasShootId!==null||keyDrive||isShooting||fireTouchId!==null;
+const spdUp=1+((upgSpeed||0)*0.06);
 const baseSmooth=stickActive||touchDriving?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34);
-const smooth=Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive||touchDriving?Math.max(sensPad,0.35):sensMouse)+0.15)));
+const smooth=Math.min(0.88,baseSmooth*spdUp*Math.max(1,Math.min(1.6,(stickActive||touchDriving?Math.max(sensPad,0.35):sensMouse)+0.15)));
 player.x+=(mouse.x-player.x)*smooth;player.y+=(mouse.y-player.y)*smooth;
 /* Solo al SOLTAR (ni mover ni disparar): retrocede */
 if(!controlling){
@@ -3561,7 +3754,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;ammo=100+(upgAmmo||0)*20;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
@@ -3569,7 +3762,8 @@ updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
 combo=0;comboTimer=0;comboMult=1;damageFlash=0;introTimer=120;
 const rec=Number(lsGet("techRunRecordV4",0))||0;
-ammo=100+(rec>=30?20:0);lives=1+(rec>=60?1:0);updateLivesUI();
+ammo=100+(upgAmmo||0)*20+(rec>=30?20:0);lives=1+(upgLives||0)+(rec>=60?1:0);if(lives>5)lives=5;updateLivesUI();
+if(upgShield>0)shield=80+upgShield*50;
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
 
 startBgMusic();

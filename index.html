@@ -423,10 +423,79 @@ let upgLives=Number(lsGet("techUpgLives",0))||0;
 let lang=lsGet("techLang","es");
 let dailyGoal=20, dailyDone=Number(lsGet("techDailyDone","0"))||0;
 let dailyDate=lsGet("techDailyDate","");
+let dailyType=lsGet("techDailyType","kills"); // kills|aliens|score|boss
+let dailyReward=Number(lsGet("techDailyReward","25"))||25;
+let dailyClaimed=lsGet("techDailyClaimed","0")==="1";
+let ki=0, kiMax=100, kiReady=false;
 (function resetDaily(){
   const d=new Date().toISOString().slice(0,10);
-  if(dailyDate!==d){dailyDate=d;dailyDone=0;lsSet("techDailyDate",d);lsSet("techDailyDone",0)}
+  if(dailyDate!==d){
+    dailyDate=d;dailyDone=0;dailyClaimed=false;
+    const types=["kills","aliens","score","boss"];
+    dailyType=types[Math.floor(Math.random()*types.length)];
+    const goals={kills:25,aliens:12,score:150,boss:1};
+    const rewards={kills:30,aliens:40,score:35,boss:50};
+    dailyGoal=goals[dailyType]||20;
+    dailyReward=rewards[dailyType]||25;
+    lsSet("techDailyDate",d);lsSet("techDailyDone",0);lsSet("techDailyClaimed","0");
+    lsSet("techDailyType",dailyType);lsSet("techDailyReward",dailyReward);lsSet("techDailyGoal",dailyGoal);
+  } else {
+    dailyGoal=Number(lsGet("techDailyGoal",dailyGoal))||dailyGoal;
+  }
 })();
+function dailyLabel(){
+  if(dailyType==="aliens")return "Aliens "+dailyDone+"/"+dailyGoal;
+  if(dailyType==="score")return "Pts "+Math.min(dailyDone,dailyGoal)+"/"+dailyGoal;
+  if(dailyType==="boss")return "Jefe "+dailyDone+"/"+dailyGoal;
+  return "Kills "+dailyDone+"/"+dailyGoal;
+}
+function progressDaily(kind, amount){
+  if(dailyClaimed)return;
+  amount=amount||1;
+  if(dailyType==="kills"&&(kind==="kill"||kind==="any")){dailyDone+=amount}
+  else if(dailyType==="aliens"&&kind==="alien"){dailyDone+=amount}
+  else if(dailyType==="score"&&kind==="score"){dailyDone=Math.max(dailyDone,amount)}
+  else if(dailyType==="boss"&&kind==="boss"){dailyDone+=amount}
+  else return;
+  if(dailyDone>dailyGoal)dailyDone=dailyGoal;
+  lsSet("techDailyDone",dailyDone);
+  if(dailyDone>=dailyGoal&&!dailyClaimed){
+    dailyClaimed=true;lsSet("techDailyClaimed","1");
+    coins+=dailyReward;lsSet("techCoinsV2",coins);
+    scenarioMsg="✅ Misión +"+dailyReward+"🪙";scenarioTransition=120;
+    unlockAch("daily","Misión diaria completada");
+  }
+}
+function addKi(n){
+  if(ki>=kiMax){kiReady=true;return}
+  ki=Math.min(kiMax,ki+(n||5));
+  if(ki>=kiMax){ki=kiMax;kiReady=true;scenarioMsg="⚡ KI LISTO (K)";scenarioTransition=45}
+}
+function useKiAttack(){
+  if(!gameRunning||gamePaused)return;
+  if(ki<kiMax){doVibrate(8);return}
+  ki=0;kiReady=false;doVibrate(30);
+  playSfx("nova");if(!SFX.nova)playSfx("explode");
+  scenarioMsg="💥 ATAQUE DE KI";scenarioTransition=60;
+  /* Onda de ki + ráfaga de balas */
+  const R=140*getScale();
+  createExplosion(player.x,player.y,R*.55,"255,220,50");
+  createExplosion(player.x,player.y-40,R*.4,"100,200,255");
+  for(let i=obstacles.length-1;i>=0;i--){
+    const o=obstacles[i],cx=o.x+o.size/2,cy=o.y+o.size/2;
+    if(Math.hypot(cx-player.x,cy-player.y)<R+o.size*.5){
+      if(o.indestructible||o.type==="hard")continue;
+      if(String(o.type).startsWith("boss")){o.hp-=15;if(o.hp<=0)destroyEnemy(o,i)}
+      else destroyEnemy(o,i);
+    }
+  }
+  enemyBullets=[];
+  const sp=12*getSpeedScale(),s=getScale();
+  for(let i=0;i<12;i++){
+    const ang=-Math.PI/2+(i-5.5)*0.1;
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.5*s,pierce:true,vx:Math.sin(ang)*sp*0.3,vy:-Math.cos(ang)*sp});
+  }
+}
 function getRanking(){try{return JSON.parse(lsGet("techRanking","[]"))||[]}catch(e){return []}}
 function pushRanking(sc){
   const list=getRanking();
@@ -1043,7 +1112,9 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
-    <h3>Misión ${dailyDone}/${dailyGoal} · TOP: ${rank}</h3>
+    <h3>📋 ${typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal)}${dailyClaimed?" ✅":""} · +${dailyReward}🪙</h3>
+    <p style="font-size:9px;color:#aaa;margin:2px 0 6px">${dailyType==="aliens"?"Destruye alienígenas":dailyType==="score"?"Alcanza puntuación":dailyType==="boss"?"Derrota un jefe":"Elimina enemigos"}</p>
+    <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
@@ -1109,7 +1180,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · Nave <b>Br7</b>";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · <b>K</b> ataque KI · Nave <b>Br7</b>";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
@@ -1250,7 +1321,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   window.addEventListener("touchend",function(e){if(stickId!==null)onStickEnd(e)},{passive:false});
 
   const spBtn=document.getElementById("touchSpecial");
-  function doSpecial(){ useSpecialPower(); }
+  function doSpecial(){ if(ki>=kiMax) useKiAttack(); else useSpecialPower(); }
   if(spBtn){
     spBtn.addEventListener("touchstart",e=>{e.preventDefault();doSpecial()},{passive:false});
     spBtn.addEventListener("mousedown",e=>{e.preventDefault();doSpecial()});
@@ -1308,6 +1379,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
 
 document.addEventListener("keydown",e=>{
 if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
+if((e.key==="k"||e.key==="K")&&gameRunning&&!gamePaused){useKiAttack();e.preventDefault()}
 if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="1"){setGokuForm("normal");e.preventDefault()}
   if(e.key==="2"){setGokuForm("ssj1");e.preventDefault()}
@@ -1418,6 +1490,23 @@ function createEnemy(etype,role){
 
 function createBoss(btype){
   const sc=getScale();
+  if(String(btype).startsWith("boss_alien")){
+    const size=Math.min(canvas.width*.34,100*sc);
+    const hpBase=38+Math.floor((waveCount||1)*4);
+    obstacles.push({
+      x:canvas.width/2-size/2,y:-size-20,size,speed:1.0*getSpeedScale(),
+      rotation:0,rotationSpeed:0,points:[],type:btype,
+      hp:hpBase,maxHp:hpBase,shootTimer:28,zigzag:0,zigzagDir:1,
+      baseY:58,arriving:true,spawnTimer:80,worldBoss:true
+    });
+    const names={
+      boss_alien_space:"JEFE ALIEN",boss_alien_ice:"JEFE HIELO",boss_alien_fire:"JEFE FUEGO",
+      boss_alien_crystal:"JEFE CRISTAL",boss_alien_halloween:"JEFE BRUJA",
+      boss_alien_neon:"JEFE NEÓN",boss_alien_toxic:"JEFE TÓXICO",boss_alien_void:"JEFE VACÍO"
+    };
+    scenarioMsg="👽 "+(names[btype]||"JEFE ALIEN");scenarioTransition=100;
+    return;
+  }
   if(btype==="megameteor"){
     const size=Math.min(canvas.width*.32,95*sc);
     obstacles.push({x:canvas.width/2-size/2,y:-size-20,size,speed:1.1*getSpeedScale(),rotation:0,rotationSpeed:.02,points:generateMeteorPoints(size),type:"boss_meteor",hp:30+level*5,maxHp:30+level*5,shootTimer:40,zigzag:0,zigzagDir:1,baseY:70,arriving:true,weak:[0,1.2,2.4]});
@@ -1465,8 +1554,21 @@ function spawnShipWave(){
 }
 
 function nextBossType(){
+  /* Jefe según mundo elegido */
+  const byWorld={
+    1:"boss_alien_space",
+    2:"boss_alien_ice",
+    3:"boss_alien_fire",
+    4:"boss_alien_crystal",
+    5:"boss_alien_halloween",
+    6:"boss_alien_neon",
+    7:"boss_alien_toxic",
+    8:"boss_alien_void"
+  };
+  const w=selectedWorld||1;
+  if(byWorld[w])return byWorld[w];
   const cycle=["megameteor","mothership","tentacle","livingbh"];
-  return cycle[Math.floor((level-1)/5)%cycle.length];
+  return cycle[Math.floor((waveCount||0)/4)%cycle.length];
 }
 
 function advanceLevel(){
@@ -1612,14 +1714,37 @@ function destroyEnemy(o,i){
     createExplosion(cx,cy,o.size*(String(o.type).startsWith("boss")?1.4:1),colors[o.type]||"255,100,50");
   }
   maybeSpawnPickup(cx,cy);
+  /* Aliens que se dividen en 2 pequeños */
+  const splitTypes=["alien","alien_flyer","alien_brute","creature","alien_eye"];
+  if(splitTypes.includes(o.type)&&!o.noSplit&&obstacles.length<(isMobile()?10:18)){
+    const sc=getScale();
+    for(let k=0;k<2;k++){
+      const sz=(7+Math.random()*3)*sc;
+      obstacles.push({
+        x:cx+(k?12:-12)-sz/2,y:cy-sz/2,size:sz,
+        speed:(1.8+Math.random()*0.4)*getProgressSpeed()*getSpeedScale(),
+        rotation:0,rotationSpeed:0,points:[],type:"alien_small",hp:1,maxHp:1,
+        shootTimer:20+Math.random()*30,zigzag:Math.random()*Math.PI*2,
+        zigzagDir:k?1:-1,baseY:Math.min(cy,canvas.height*0.3),arriving:false,
+        aimLine:0,teleTimer:0,swarmId:0,regroup:0,role:"top",noSplit:true
+      });
+    }
+  }
   if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="boss_meteor"||o.type==="fireball"){
     meteorsDestroyed++;
     doVibrate(o.type==="explosive"||o.type==="boss_meteor"?55:35);
-  } else shipsDestroyed++;
-  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45};
+    addKi(4);
+  } else {
+    shipsDestroyed++;
+    addKi(String(o.type).startsWith("boss")?25:6);
+  }
+  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
   addScoreCombo(pts[o.type]||2);
-  dailyDone++;lsSet("techDailyDone",dailyDone);
-  if(dailyDone>=dailyGoal)unlockAch("daily","Misión diaria completada");
+  const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)||String(o.type).startsWith("boss_alien");
+  progressDaily("kill",1);
+  if(isAlien)progressDaily("alien",1);
+  if(String(o.type).startsWith("boss"))progressDaily("boss",1);
+  progressDaily("score",score);
   obstacles.splice(i,1);
 }
 
@@ -2570,11 +2695,52 @@ function drawObstacle(o){
   } else if(String(o.type).startsWith("boss")){
     const s=o.size;
     let c0,c1,glow,label;
+    if(String(o.type).startsWith("boss_alien")){
+      /* Jefe alien del mundo */
+      const t=performance.now()/250;
+      let bodyCol="#44CC66", glow="#66FFAA", eyeCol="#FFEE00", label="ALIEN";
+      if(o.type==="boss_alien_ice"){bodyCol="#88CCFF";glow="#AAEEFF";eyeCol="#fff";label="HIELO"}
+      else if(o.type==="boss_alien_fire"){bodyCol="#FF6622";glow="#FFAA44";eyeCol="#FFEE00";label="FUEGO"}
+      else if(o.type==="boss_alien_crystal"){bodyCol="#66AAFF";glow="#AADDFF";eyeCol="#EEF";label="CRISTAL"}
+      else if(o.type==="boss_alien_halloween"){bodyCol="#FF8800";glow="#FFAA44";eyeCol="#111";label="BRUJA"}
+      else if(o.type==="boss_alien_neon"){bodyCol="#FF00AA";glow="#00FFCC";eyeCol="#0FF";label="NEÓN"}
+      else if(o.type==="boss_alien_toxic"){bodyCol="#88FF22";glow="#CCFF44";eyeCol="#111";label="TÓXICO"}
+      else if(o.type==="boss_alien_void"){bodyCol="#442266";glow="#AA66FF";eyeCol="#FF66FF";label="VACÍO"}
+      else {label="ESPACIO"}
+      ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?6:16;
+      // cabeza grande
+      const g=ctx.createRadialGradient(0,-s*.15,2,0,0,s*.85);
+      g.addColorStop(0,"#fff");g.addColorStop(.25,bodyCol);g.addColorStop(1,"#0a0a0a");
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,-s*.05,s*.7,s*.65,0,0,Math.PI*2);ctx.fill();
+      // ojos
+      ctx.fillStyle="#0a0a0a";
+      ctx.beginPath();ctx.ellipse(-s*.28,-s*.15,s*.2,s*.28,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(s*.28,-s*.15,s*.2,s*.28,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=eyeCol;
+      ctx.beginPath();ctx.arc(-s*.28,-s*.15,s*.08,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(s*.28,-s*.15,s*.08,0,Math.PI*2);ctx.fill();
+      // antenas
+      ctx.strokeStyle=glow;ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(-s*.2,-s*.6);ctx.lineTo(-s*.4,-s*1.05);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s*.2,-s*.6);ctx.lineTo(s*.4,-s*1.05);ctx.stroke();
+      ctx.fillStyle="#FF6688";
+      ctx.beginPath();ctx.arc(-s*.4,-s*1.05,s*.1,0,Math.PI*2);ctx.arc(s*.4,-s*1.05,s*.1,0,Math.PI*2);ctx.fill();
+      // tentáculos
+      ctx.strokeStyle=bodyCol;ctx.lineWidth=3;
+      for(let k=0;k<5;k++){
+        const ang=-0.9+k*0.45;const len=s*(0.7+Math.sin(t+k)*0.2);
+        ctx.beginPath();ctx.moveTo(Math.cos(ang)*s*.25,s*.45);
+        ctx.quadraticCurveTo(Math.cos(ang)*len*0.6,s*.45+len*0.5,Math.cos(ang)*len,s*.5+len);ctx.stroke();
+      }
+      ctx.shadowBlur=0;
+      const barW=s*1.6;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-18,barW,7);
+      ctx.fillStyle=o.hp>o.maxHp/2?"#66FF88":"#FF3333";ctx.fillRect(-barW/2,-s-18,barW*(o.hp/o.maxHp),7);
+      ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.15)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-24);
+    } else {
     if(o.type==="boss_mothership"){c0="#0a0a0a";c1="#333";glow="#666";label="NODRIZA"}
     else if(o.type==="boss_tentacle"){c0="#2a0040";c1="#8844CC";glow="#AA66FF";label="KRAKEN"}
     else if(o.type==="boss_bh"){c0="#000";c1="#220044";glow="#8800FF";label="AGUJERO"}
     else{c0="#441100";c1="#FF8844";glow="#FFAA44";label="METEORO"}
-    // mothership / bosses black-ish
     if(o.type==="boss_mothership"){c0="#050505";c1="#1a1a1a";glow="#444"}
     ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(0,s*.9,s*.6,s*.14,0,0,Math.PI*2);ctx.fill();
     const bodyG=ctx.createLinearGradient(-s*.6,0,s*.6,0);bodyG.addColorStop(0,c0);bodyG.addColorStop(.5,c1);bodyG.addColorStop(1,c0);
@@ -2588,6 +2754,7 @@ function drawObstacle(o){
     const barW=s*1.5;ctx.shadowBlur=0;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-16,barW,6);
     ctx.fillStyle=o.hp>o.maxHp/2?"#FFC107":"#FF3333";ctx.fillRect(-barW/2,-s-16,barW*(o.hp/o.maxHp),6);
     ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.16)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-22);
+    }
   } else if(["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)){
     /* ===== ALIENÍGENAS ===== */
     const s=o.size;
@@ -2721,7 +2888,9 @@ function updateLaser(){if(laser<=0)return;const bw=12*getScale();ctx.fillStyle="
 for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.abs(o.x+o.size/2-player.x)<o.size*.5+bw&&o.y<player.y){o.hp-=o.type&&String(o.type).startsWith("boss")?.1:.2;if(o.hp<=0)destroyEnemy(o,j)}}}
 function drawBullets(){
   for(let i=bullets.length-1;i>=0;i--){
-    const b=bullets[i];b.y-=b.speed;
+    const b=bullets[i];
+    if(b.vx!=null||b.vy!=null){b.x+=(b.vx||0);b.y+=(b.vy!=null?b.vy:-b.speed)}
+    else b.y-=b.speed;
     /* Bala láser del jugador (no bolita) */
     ctx.save();
     /* Balas negras con borde rojo */
@@ -2901,7 +3070,18 @@ else lab+=" · JEFE";
 ctx.fillText(lab,canvas.width/2,12);
 ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
 if(combo>1){ctx.fillStyle="#FFCD00";ctx.font=mob?"bold 11px Orbitron":"bold 13px Orbitron";ctx.fillText("COMBO x"+combo+" · "+comboMult.toFixed(2)+"x",canvas.width/2,44)}
-ctx.textAlign="right";ctx.fillStyle="#88CCFF";ctx.font="9px Share Tech Mono";ctx.fillText("Misión "+dailyDone+"/"+dailyGoal,canvas.width-8,28);ctx.textAlign="center";
+ctx.textAlign="right";ctx.fillStyle=dailyClaimed?"#66FF88":"#88CCFF";ctx.font="9px Share Tech Mono";
+ctx.fillText(typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal),canvas.width-8,28);
+/* Barra de KI */
+const kiW=mob?70:100,kiH=6,kiX=canvas.width-8-kiW,kiY=mob?36:34;
+ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(kiX-2,kiY-2,kiW+4,kiH+4);
+ctx.fillStyle="#222";ctx.fillRect(kiX,kiY,kiW,kiH);
+const kiPct=(typeof ki!=="undefined"?ki:0)/(typeof kiMax!=="undefined"?kiMax:100);
+ctx.fillStyle=kiPct>=1?"#FFD700":"#00C8FF";
+ctx.fillRect(kiX,kiY,kiW*kiPct,kiH);
+ctx.fillStyle=kiPct>=1?"#FFD700":"#88CCFF";ctx.font="bold 8px Orbitron";
+ctx.fillText(kiPct>=1?"KI LISTO (K)":"KI",kiX-4,kiY+kiH/2);
+ctx.textAlign="center";
 
 /* VIDAS van en HTML a la izquierda (TECH SYSTEM) */
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
@@ -3209,11 +3389,11 @@ for(let i=obstacles.length-1;i>=0;i--){
       o.x+=Math.sin(o.zigzag)*2.8*slow;
       if(o.x<5){o.x=5;o.zigzagDir=1}if(o.x+o.size>canvas.width-5){o.x=canvas.width-o.size-5;o.zigzagDir=-1}
       o.y=o.baseY+Math.sin(o.zigzag*.6)*14;
-      if(o.type==="boss_mothership"){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=100;if(obstacles.length<18)createEnemy(Math.random()>.5?"swarm":"hunter")}}
+      if(o.type==="boss_mothership"||String(o.type).startsWith("boss_alien")){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=String(o.type).startsWith("boss_alien")?70:100;if(obstacles.length<18)createEnemy(Math.random()>.5?"alien_small":"alien_flyer")}}
       if(o.type==="boss_meteor"&&Math.random()<.01){const sz=o.size*.25;obstacles.push({x:o.x+o.size/2,y:o.y+o.size,size:sz,speed:2*getSpeedScale(),vx:(Math.random()-.5)*3,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false})}
       if(o.type==="boss_bh"){const bx=o.x+o.size/2,by=o.y+o.size/2,br=o.size*1.8;const pd=Math.hypot(player.x-bx,player.y-by);if(invisible<=0&&pd<br&&pd>1){const ps=(1-pd/br)*2.2;player.x+=(bx-player.x)/pd*ps;player.y+=(by-player.y)/pd*ps;mouse.x=player.x;mouse.y=player.y}for(let j=obstacles.length-1;j>=0;j--){if(j===i)continue;const oo=obstacles[j];const ox=oo.x+oo.size/2,oy=oo.y+oo.size/2,od=Math.hypot(ox-bx,oy-by);if(od<br&&od>1&&!String(oo.type).startsWith("boss")){oo.x+=(bx-ox)/od*1.2;oo.y+=(by-oy)/od*1.2}}}
     }
-    o.shootTimer-=slow;if(!o.arriving&&o.shootTimer<=0){enemyShoot(o);o.shootTimer=o.type==="boss_mothership"?35:45}
+    o.shootTimer-=slow;if(!o.arriving&&o.shootTimer<=0){enemyShoot(o);o.shootTimer=o.type==="boss_mothership"?35:String(o.type).startsWith("boss_alien")?32:45}
   } else {
     // enemy AI: misiles, curvas, zigzag, reagrupar
     if(o.arriving){o.y+=o.speed*2.4*slow*frz;if(o.y>=o.baseY){o.y=o.baseY;o.arriving=false}}
@@ -3274,7 +3454,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

@@ -732,7 +732,8 @@ function showWeaponShop(){
     });
     m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🛒 TIENDA DE ARMAS</h2>
     <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
-    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">Compra y equipa armas permanentes</p>
+    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 4px">Solo para naves · Goku usa disparo normal</p>
+    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">En partida: botón 🔫 para cambiar arma</p>
     ${cards}
     <button class="game-btn" id="closeWeaponShop" style="width:100%;margin-top:12px">CERRAR</button>`;
     m.querySelectorAll(".shop-w-btn").forEach(b=>{
@@ -1231,6 +1232,52 @@ btnForms.onclick=()=>{
 };
 if(typeof updateGokuFormsUI==="function")updateGokuFormsUI();
 
+/* Mini menú de armas (solo naves, no Goku) */
+let showWeaponBar=true;
+const btnWeap=mk("btnWeaponMenu","🔫","Elegir arma","position:absolute;bottom:42px;left:8px;z-index:30;min-width:34px;height:28px;border:1px solid rgba(255,205,0,.5);border-radius:6px;background:rgba(0,20,50,.9);color:#FFCD00;font-size:12px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0 6px;box-shadow:0 0 8px rgba(0,0,0,.35)");
+let weapBar=document.getElementById("weaponSelectBar");
+if(!weapBar){
+  weapBar=document.createElement("div");
+  weapBar.id="weaponSelectBar";
+  weapBar.style.cssText="display:none;position:absolute;bottom:74px;left:8px;z-index:31;flex-direction:column;gap:4px;max-width:160px;padding:6px;border-radius:10px;background:rgba(0,10,30,.92);border:1px solid rgba(255,205,0,.35);";
+  (document.querySelector(".tech-game")||document.body).appendChild(weapBar);
+}
+const WEAPON_LABELS={basic:"Básica",double:"Doble",pierce:"Perfora",spread:"Abanico",rapid:"Ráfaga",laser_gun:"Láser",missile_gun:"Misil",plasma:"Plasma",wave:"Onda"};
+function updateWeaponMenuUI(){
+  const isGoku=shipModel==="goku";
+  const inGame=!!gameRunning;
+  const btn=document.getElementById("btnWeaponMenu");
+  const bar=document.getElementById("weaponSelectBar");
+  if(btn)btn.style.display=(inGame&&!isGoku)?"flex":"none";
+  if(!bar)return;
+  if(isGoku||!inGame){bar.style.display="none";return}
+  if(!showWeaponBar){bar.style.display="none";return}
+  if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
+  if(ownedWeapons.indexOf("basic")<0)ownedWeapons.unshift("basic");
+  bar.innerHTML="";
+  ownedWeapons.forEach(id=>{
+    const b=document.createElement("button");
+    b.type="button";
+    const eq=(currentWeapon===id);
+    b.textContent=(eq?"✓ ":"")+ (WEAPON_LABELS[id]||id);
+    b.style.cssText="width:100%;padding:6px 8px;border-radius:8px;border:1px solid "+(eq?"#FFCD00":"rgba(255,255,255,.2)")+";background:"+(eq?"linear-gradient(135deg,#FFCD00,#FF8800)":"rgba(0,40,80,.85)")+";color:"+(eq?"#111":"#fff")+";font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;cursor:pointer;text-align:left";
+    b.onclick=(e)=>{
+      if(e){e.preventDefault();e.stopPropagation()}
+      if(shipModel==="goku")return;
+      currentWeapon=id;
+      try{lsSet("techWeapon",id)}catch(err){}
+      updateWeaponMenuUI();
+      try{if(typeof doVibrate==="function")doVibrate(10)}catch(err){}
+    };
+    bar.appendChild(b);
+  });
+  bar.style.display="flex";
+}
+btnWeap.onclick=()=>{
+  showWeaponBar=!showWeaponBar;
+  updateWeaponMenuUI();
+};
+
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45;max-height:min(85vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
@@ -1415,6 +1462,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
       shipModel=b.getAttribute("data-model");lsSet("techShipModelV2",shipModel);renderStart();
       updateGokuFormsUI();
+      try{updateWeaponMenuUI()}catch(e){}
     });
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
       gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
@@ -1913,47 +1961,79 @@ function checkScenario(){
 function dropAmmoPack(){const s=16*getScale();pickups.push({x:Math.random()*Math.max(1,canvas.width-s),y:-s,type:"ammo",size:s,vy:(2+Math.random()*1.5)*getSpeedScale()})}
 function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack();if(Math.random()<.4)dropAmmoPack();lastAmmoDrop=ts}else if(ammo<=10&&ts-lastAmmoDrop>2500){dropAmmoPack();lastAmmoDrop=ts}}
 
-/* Disparo del jugador (respeta cooldown y munición) */
-let _lastMissileShot=0,_lastShootSfx=0;
+/* Disparo manual del jugador (como el original) */
+let _lastMissileShot=0;
 function shoot(){
-  try{
   if(!gameRunning||gamePaused)return;
-  if(ammo<=0||laser>0)return;
-  const maxB=isMobile()?12:20;
-  if(bullets.length>=maxB)return;
-  if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
-  var w=currentWeapon||"basic";
-  if(w!=="basic"&&ownedWeapons.indexOf(w)<0){w="basic";currentWeapon="basic"}
+  if(ammo<=0)return;
+  if(bullets.length>(isMobile()?16:28))return;
   const now=performance.now();
-  var cd=rapidFire>0?55:Math.max(100,(isMobile()?140:shootCooldown)-((upgCool||0)*8));
-  if(w==="rapid")cd=Math.max(70,cd*0.6);
-  else if(w==="missile_gun")cd=Math.max(220,cd*1.5);
-  else if(w==="wave"||w==="plasma")cd=Math.max(160,cd*1.2);
-  else if(w==="laser_gun")cd=Math.max(80,cd*0.7);
+  const cd=rapidFire>0?55:(isMobile()?120:shootCooldown);
   if(now-lastShot<cd)return;
   lastShot=now;
-  if(now-_lastShootSfx>120){_lastShootSfx=now;try{playSfx("shoot")}catch(e){}}
-  const sp=10.5*getSpeedScale(),s=getScale();
-  function pushB(ox,spd,sz,pier,vx,vy){
-    if(bullets.length>=maxB||ammo<=0)return false;
-    bullets.push({x:player.x+(ox||0),y:player.y-player.size,speed:spd||sp,size:(sz||3.2)*s,pierce:!!pier,vx:vx,vy:vy});
-    ammo--;return true;
-  }
-  if(w==="double"){pushB(-8);pushB(8);if(tripleShot>0){pushB(-16);pushB(16)}return}
-  if(w==="spread"){pushB(0,sp,3,false,-2.2,-sp);pushB(0,sp,3,false,0,-sp);pushB(0,sp,3,false,2.2,-sp);return}
-  if(w==="pierce"){pushB(0,sp,3.2,true);return}
-  if(w==="rapid"){pushB(0,sp*1.15,2.8,false);return}
-  if(w==="laser_gun"){pushB(0,sp*1.3,2.4,true);if(Math.random()<0.5)ammo++;return}
-  if(w==="missile_gun"){
-    pushB(0,sp,3,false);
-    if(missiles.length<(isMobile()?3:6)&&now-_lastMissileShot>320){_lastMissileShot=now;try{fireMissile()}catch(e){}}
+  try{playSfx("shoot")}catch(e){}
+  try{doVibrate(15,"shoot")}catch(e){}
+  const sp=10.5*getSpeedScale(), s=getScale();
+  /* Goku o sin arma especial → disparo normal */
+  let w="basic";
+  try{
+    if(shipModel!=="goku"&&currentWeapon&&Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(currentWeapon)>=0)
+      w=currentWeapon;
+  }catch(e){w="basic"}
+
+  const add=function(ox, pier){
+    if(ammo<=0)return;
+    bullets.push({x:player.x+(ox||0), y:player.y-player.size, speed:sp, size:3.2*s, pierce:!!pier});
+    ammo--;
+  };
+
+  if(w==="double"){
+    add(-8,false); add(8,false);
+    if(tripleShot>0){add(-16,false);add(16,false)}
     return;
   }
-  if(w==="plasma"){if(ammo>=1){ammo--;pushB(0,sp*0.95,4.2,true)}return}
-  if(w==="wave"){for(var i=-2;i<=2;i++)pushB(0,sp,2.5,false,i*1.6,-sp);return}
-  if(tripleShot>0){pushB(-12);pushB(0);pushB(12)}else pushB(0);
-  }catch(e){console.warn("shoot",e)}
+  if(w==="spread"){
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:-2.2,vy:-sp});ammo--;
+    if(ammo>0){bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:0,vy:-sp});ammo--}
+    if(ammo>0){bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:2.2,vy:-sp});ammo--}
+    return;
+  }
+  if(w==="pierce"){add(0,true);return}
+  if(w==="rapid"){
+    lastShot=now-Math.floor(cd*0.35);
+    add(0,false);return;
+  }
+  if(w==="laser_gun"){
+    bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.3,size:2.5*s,pierce:true});
+    if(Math.random()<0.55)ammo--;
+    return;
+  }
+  if(w==="missile_gun"){
+    add(0,false);
+    if(missiles.length<6&&now-_lastMissileShot>300){_lastMissileShot=now;try{fireMissile()}catch(e){}}
+    return;
+  }
+  if(w==="plasma"){
+    if(ammo>=1){ammo--;bullets.push({x:player.x,y:player.y-player.size,speed:sp*0.95,size:4.5*s,pierce:true})}
+    return;
+  }
+  if(w==="wave"){
+    for(let i=-2;i<=2;i++){
+      if(ammo<=0)break;
+      bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:2.6*s,pierce:false,vx:i*1.7,vy:-sp});
+      ammo--;
+    }
+    return;
+  }
+  /* básica */
+  if(tripleShot>0||pierce>0){
+    if(tripleShot>0){add(-12,pierce>0);add(0,pierce>0);add(12,pierce>0)}
+    else add(0,true);
+  } else {
+    add(0,false);
+  }
 }
+
 
 function enemyShoot(o){
   if(["meteor","explosive","magnetic","hard"].includes(o.type))return;
@@ -3212,7 +3292,7 @@ for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.abs(o.x+o.si
 function drawBullets(){
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];
-    if(b.vx!=null||b.vy!=null){b.x+=(b.vx||0);b.y+=(b.vy!=null?b.vy:-b.speed)}
+    if(typeof b.vx==="number"||typeof b.vy==="number"){b.x+=(b.vx||0);b.y+=(typeof b.vy==="number"?b.vy:-b.speed)}
     else b.y-=b.speed;
     /* Bala láser del jugador (no bolita) */
     ctx.save();
@@ -3778,8 +3858,10 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 ["weaponShopPanel","upgradeShopPanel","dailyMissionsPanel","userManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
-/* reset controles para no disparar solo al iniciar */
+/* controles limpios; el disparo es automático en partida */
 isShooting=false;stickActive=false;touchDriving=false;canvasShootId=null;fireTouchId=null;
+laser=0;
+
 if(!Array.isArray(ownedWeapons)||!ownedWeapons.length)ownedWeapons=["basic"];
 if(!currentWeapon||(currentWeapon!=="basic"&&ownedWeapons.indexOf(currentWeapon)<0)){currentWeapon="basic";try{lsSet("techWeapon","basic")}catch(e){}}
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
@@ -3797,12 +3879,19 @@ if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
 
 startBgMusic();
 
-lastSpawn=performance.now();lastShot=performance.now();lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;_lastShootSfx=0;
+lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;
+/* arma: Goku = básica; naves = equipada */
+if(shipModel==="goku"){/* sin cambio de arma */}
+else if(!currentWeapon||(currentWeapon!=="basic"&&(!Array.isArray(ownedWeapons)||ownedWeapons.indexOf(currentWeapon)<0)))currentWeapon="basic";
+showWeaponBar=true;
+try{updateWeaponMenuUI();updateGokuFormsUI()}catch(e){}
 initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop)}
 
 function endGame(){
 if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
+try{const wb=document.getElementById("weaponSelectBar");if(wb)wb.style.display="none";const bwm=document.getElementById("btnWeaponMenu");if(bwm)bwm.style.display="none"}catch(e){}
+
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();pushRanking(score);
 checkAchievements();
@@ -3826,6 +3915,7 @@ function goToStartMenu(){
   const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
   const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
   const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
+  try{const wb=document.getElementById("weaponSelectBar");if(wb)wb.style.display="none";const bwm=document.getElementById("btnWeaponMenu");if(bwm)bwm.style.display="none"}catch(e){}
   startPanel.style.display="block";
   setTimeout(drawShipPreview,50);
 }

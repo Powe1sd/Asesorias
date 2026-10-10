@@ -637,34 +637,47 @@ function toggleGokuOverlayMin(e){
   lsSet("techGokuOverlayMin", gokuOverlayMin ? "1" : "0");
   updateGokuFormsUI();
 }
+/* Escudo de fase SSJ: solo 1 vez por partida */
+let gokuFormShieldUsed=false;
+let gokuLastFormApplied=null;
 function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
+  /* Si es la misma fase otra vez, no volver a dar poderes */
+  if(gokuLastFormApplied===form)return;
+  gokuLastFormApplied=form;
+
+  const giveShield=function(amount){
+    if(gokuFormShieldUsed)return; /* solo un escudo por partida */
+    shield=Math.max(shield, amount);
+    gokuFormShieldUsed=true;
+  };
+
   if(form==="normal"){
-    shield=Math.max(shield,80);
+    giveShield(80);
     scenarioMsg="🥋 Goku Base";scenarioTransition=50;
   } else if(form==="ssj1"){
     rapidFire=Math.max(rapidFire,220);
-    shield=Math.max(shield,100);
+    giveShield(100);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 1";scenarioTransition=60;
     playSfx("power");
   } else if(form==="ssj2"){
     rapidFire=Math.max(rapidFire,320);
-    shield=Math.max(shield,140);
+    giveShield(140);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 2";scenarioTransition=70;
     playSfx("power");
   } else if(form==="ssj3"){
     rapidFire=Math.max(rapidFire,400);
     tripleShot=Math.max(tripleShot,280);
-    shield=Math.max(shield,180);
+    giveShield(180);
     specialCharges=Math.min(9,specialCharges+2);
     scenarioMsg="💥 SUPER SAIYAJIN 3";scenarioTransition=80;
     playSfx("power");
   } else if(form==="ssj4"){
     rapidFire=Math.max(rapidFire,450);
     pierce=Math.max(pierce,300);
-    shield=Math.max(shield,260);
+    giveShield(260);
     overdrive=Math.max(overdrive,200);
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="🔥 SUPER SAIYAJIN 4";scenarioTransition=90;
@@ -3027,7 +3040,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+gokuFormShieldUsed=false;gokuLastFormApplied=null;score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

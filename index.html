@@ -421,51 +421,155 @@ let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
 let upgAmmo=Number(lsGet("techUpgAmmo",0))||0;
 let upgLives=Number(lsGet("techUpgLives",0))||0;
 let lang=lsGet("techLang","es");
-let dailyGoal=20, dailyDone=Number(lsGet("techDailyDone","0"))||0;
+/* ===== MISIONES DIARIAS (menú + progreso) ===== */
 let dailyDate=lsGet("techDailyDate","");
-let dailyType=lsGet("techDailyType","kills"); // kills|aliens|score|boss
-let dailyReward=Number(lsGet("techDailyReward","25"))||25;
-let dailyClaimed=lsGet("techDailyClaimed","0")==="1";
+let dailyMissions=[]; // {id,type,goal,done,reward,claimed,title,desc}
+// compat HUD
+let dailyGoal=20, dailyDone=0, dailyType="kills", dailyReward=25, dailyClaimed=false;
 let ki=0, kiMax=100, kiReady=false;
+
+const DAILY_DEFS={
+  kills:{title:"Cazador espacial",desc:"Elimina enemigos (naves, meteoros o aliens)",goals:[20,30,40],rewards:[25,35,45],icon:"🎯"},
+  aliens:{title:"Caza alienígena",desc:"Destruye alienígenas",goals:[8,12,18],rewards:[30,40,55],icon:"👽"},
+  score:{title:"Puntuación estrella",desc:"Alcanza una puntuación en una partida",goals:[80,150,250],rewards:[30,40,50],icon:"⭐"},
+  boss:{title:"Cazador de jefes",desc:"Derrota jefes alien / nodriza",goals:[1,2,3],rewards:[40,60,80],icon:"👹"},
+  meteors:{title:"Rompe-meteoros",desc:"Destruye meteoritos",goals:[15,25,40],rewards:[25,35,50],icon:"☄️"},
+  combo:{title:"Maestro del combo",desc:"Consigue un combo alto",goals:[8,12,15],rewards:[30,45,60],icon:"🔥"}
+};
+
+function saveDailyMissions(){
+  try{lsSet("techDailyMissions",JSON.stringify(dailyMissions))}catch(e){}
+  // sync first active for HUD
+  const m=dailyMissions.find(x=>!x.claimed)||dailyMissions[0];
+  if(m){
+    dailyType=m.type;dailyGoal=m.goal;dailyDone=m.done;dailyReward=m.reward;dailyClaimed=!!m.claimed;
+  }
+  const allDone=dailyMissions.length&&dailyMissions.every(x=>x.claimed);
+  dailyClaimed=allDone;
+}
+function loadDailyMissions(){
+  try{
+    const arr=JSON.parse(lsGet("techDailyMissions","[]"));
+    if(Array.isArray(arr)&&arr.length){dailyMissions=arr;saveDailyMissions();return true}
+  }catch(e){}
+  return false;
+}
+function generateDailyMissions(){
+  const pool=Object.keys(DAILY_DEFS);
+  const picked=[];
+  while(picked.length<3){
+    const t=pool[Math.floor(Math.random()*pool.length)];
+    if(!picked.includes(t))picked.push(t);
+  }
+  dailyMissions=picked.map((t,i)=>{
+    const def=DAILY_DEFS[t];
+    const tier=Math.min(2,Math.floor(Math.random()*3));
+    return {
+      id:t+"_"+i,
+      type:t,
+      goal:def.goals[tier],
+      done:0,
+      reward:def.rewards[tier],
+      claimed:false,
+      title:def.title,
+      desc:def.desc,
+      icon:def.icon,
+      tier:tier+1
+    };
+  });
+  saveDailyMissions();
+}
 (function resetDaily(){
   const d=new Date().toISOString().slice(0,10);
   if(dailyDate!==d){
-    dailyDate=d;dailyDone=0;dailyClaimed=false;
-    const types=["kills","aliens","score","boss"];
-    dailyType=types[Math.floor(Math.random()*types.length)];
-    const goals={kills:25,aliens:12,score:150,boss:1};
-    const rewards={kills:30,aliens:40,score:35,boss:50};
-    dailyGoal=goals[dailyType]||20;
-    dailyReward=rewards[dailyType]||25;
-    lsSet("techDailyDate",d);lsSet("techDailyDone",0);lsSet("techDailyClaimed","0");
-    lsSet("techDailyType",dailyType);lsSet("techDailyReward",dailyReward);lsSet("techDailyGoal",dailyGoal);
+    dailyDate=d;
+    lsSet("techDailyDate",d);
+    generateDailyMissions();
+  } else if(!loadDailyMissions()){
+    generateDailyMissions();
   } else {
-    dailyGoal=Number(lsGet("techDailyGoal",dailyGoal))||dailyGoal;
+    saveDailyMissions();
   }
 })();
 function dailyLabel(){
-  if(dailyType==="aliens")return "Aliens "+dailyDone+"/"+dailyGoal;
-  if(dailyType==="score")return "Pts "+Math.min(dailyDone,dailyGoal)+"/"+dailyGoal;
-  if(dailyType==="boss")return "Jefe "+dailyDone+"/"+dailyGoal;
-  return "Kills "+dailyDone+"/"+dailyGoal;
+  const open=dailyMissions.filter(m=>!m.claimed).length;
+  const done=dailyMissions.filter(m=>m.claimed).length;
+  if(!dailyMissions.length)return "Misiones "+dailyDone+"/"+dailyGoal;
+  return "Misiones "+done+"/3"+(open?"":" ✅");
 }
 function progressDaily(kind, amount){
-  if(dailyClaimed)return;
   amount=amount||1;
-  if(dailyType==="kills"&&(kind==="kill"||kind==="any")){dailyDone+=amount}
-  else if(dailyType==="aliens"&&kind==="alien"){dailyDone+=amount}
-  else if(dailyType==="score"&&kind==="score"){dailyDone=Math.max(dailyDone,amount)}
-  else if(dailyType==="boss"&&kind==="boss"){dailyDone+=amount}
-  else return;
-  if(dailyDone>dailyGoal)dailyDone=dailyGoal;
-  lsSet("techDailyDone",dailyDone);
-  if(dailyDone>=dailyGoal&&!dailyClaimed){
-    dailyClaimed=true;lsSet("techDailyClaimed","1");
-    coins+=dailyReward;lsSet("techCoinsV2",coins);
-    scenarioMsg="✅ Misión +"+dailyReward+"🪙";scenarioTransition=120;
-    unlockAch("daily","Misión diaria completada");
-  }
+  let changed=false;
+  dailyMissions.forEach(m=>{
+    if(m.claimed)return;
+    let add=0;
+    if(m.type==="kills"&&(kind==="kill"||kind==="any"))add=amount;
+    else if(m.type==="aliens"&&kind==="alien")add=amount;
+    else if(m.type==="meteors"&&kind==="meteor")add=amount;
+    else if(m.type==="boss"&&kind==="boss")add=amount;
+    else if(m.type==="score"&&kind==="score"){m.done=Math.max(m.done,amount);changed=true;return}
+    else if(m.type==="combo"&&kind==="combo"){m.done=Math.max(m.done,amount);changed=true;return}
+    else return;
+    if(add){m.done=Math.min(m.goal,m.done+add);changed=true}
+  });
+  if(!changed)return;
+  // auto-claim completed
+  dailyMissions.forEach(m=>{
+    if(!m.claimed&&m.done>=m.goal){
+      m.claimed=true;m.done=m.goal;
+      coins+=m.reward;lsSet("techCoinsV2",coins);
+      scenarioMsg="✅ "+m.title+" +"+m.reward+"🪙";scenarioTransition=110;
+      unlockAch("daily","Misión diaria: "+m.title);
+    }
+  });
+  saveDailyMissions();
 }
+function showDailyMissionsMenu(){
+  let m=document.getElementById("dailyMissionsPanel");
+  if(!m){
+    m=document.createElement("div");m.id="dailyMissionsPanel";m.className="game-panel";
+    m.style.cssText="display:none;z-index:62;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:16px 14px 18px";
+    (document.querySelector(".tech-game")||document.body).appendChild(m);
+  }
+  const doneN=dailyMissions.filter(x=>x.claimed).length;
+  const totalRew=dailyMissions.reduce((a,x)=>a+(x.claimed?x.reward:0),0);
+  const pendingRew=dailyMissions.reduce((a,x)=>a+(x.claimed?0:x.reward),0);
+  let cards="";
+  dailyMissions.forEach((miss,idx)=>{
+    const pct=Math.min(100,Math.floor((miss.done/miss.goal)*100));
+    const done=miss.claimed||miss.done>=miss.goal;
+    const barCol=done?"#66FF88":"#FFCD00";
+    cards+=`<div style="margin:10px 0;padding:12px;border-radius:12px;border:1px solid ${done?"rgba(100,255,136,.45)":"rgba(255,205,0,.3)"};background:${done?"rgba(20,60,30,.55)":"rgba(0,20,50,.65)"}">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <span style="font-size:15px;color:#fff;font-weight:700">${miss.icon||"📋"} ${miss.title}</span>
+        <span style="font-size:11px;color:#FFCD00">+${miss.reward}🪙</span>
+      </div>
+      <p style="font-size:11px;color:#bbb;margin:6px 0 8px;line-height:1.35">${miss.desc}</p>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-bottom:4px">
+        <span>Progreso</span>
+        <span style="color:${done?"#66FF88":"#fff"}">${Math.min(miss.done,miss.goal)} / ${miss.goal}${done?" ✅":""}</span>
+      </div>
+      <div style="height:8px;border-radius:6px;background:rgba(0,0,0,.45);overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${barCol},#fff);border-radius:6px;transition:width .3s"></div>
+      </div>
+      <p style="font-size:9px;color:#888;margin-top:6px">Nivel ${miss.tier||1} · ${miss.type}</p>
+    </div>`;
+  });
+  if(!cards)cards='<p style="color:#aaa;text-align:center">No hay misiones. Reinicia el día.</p>';
+  m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:6px">📋 MISIONES DIARIAS</h2>
+  <p style="text-align:center;color:#FFCD00;font-size:12px;margin:0 0 4px">${dailyDate||new Date().toISOString().slice(0,10)}</p>
+  <p style="text-align:center;color:#ccc;font-size:11px;margin:0 0 12px">Completadas <b style="color:#66FF88">${doneN}/3</b> · Ganadas <b style="color:#FFD700">${totalRew}🪙</b> · Pendientes <b>${pendingRew}🪙</b></p>
+  <p style="text-align:center;color:#888;font-size:10px;margin:0 0 8px">Se renuevan cada día · Recompensa automática al completar</p>
+  ${cards}
+  <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,205,0,.25);text-align:center">
+    <p style="color:#aaa;font-size:11px;margin:4px 0">Monedas actuales: <b style="color:#FFD700">${coins}🪙</b></p>
+    <button class="game-btn" id="closeDailyMissions" style="width:100%;margin-top:10px">CERRAR</button>
+  </div>`;
+  m.style.display="block";
+  const cl=document.getElementById("closeDailyMissions");
+  if(cl)cl.onclick=()=>{m.style.display="none"};
+}
+
 function addKi(n){
   if(ki>=kiMax){kiReady=true;return}
   ki=Math.min(kiMax,ki+(n||5));
@@ -1112,8 +1216,8 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
-    <h3>📋 ${typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal)}${dailyClaimed?" ✅":""} · +${dailyReward}🪙</h3>
-    <p style="font-size:9px;color:#aaa;margin:2px 0 6px">${dailyType==="aliens"?"Destruye alienígenas":dailyType==="score"?"Alcanza puntuación":dailyType==="boss"?"Derrota un jefe":"Elimina enemigos"}</p>
+    <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
+    <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
@@ -1158,6 +1262,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       currentWeapon=w;lsSet("techWeapon",w);renderStart();
     });
     const bms=box.querySelector("#btnManualStart");if(bms)bms.onclick=()=>showUserManual();
+    const bdm=box.querySelector("#btnDailyMissions");if(bdm)bdm.onclick=()=>showDailyMissionsMenu();
     const bl=box.querySelector("#btnLoadSave");
     if(bl)bl.onclick=()=>{
       const d=loadMidGame();
@@ -1744,7 +1849,9 @@ function destroyEnemy(o,i){
   progressDaily("kill",1);
   if(isAlien)progressDaily("alien",1);
   if(String(o.type).startsWith("boss"))progressDaily("boss",1);
+  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball"||o.type==="boss_meteor")progressDaily("meteor",1);
   progressDaily("score",score);
+  if(typeof combo==="number")progressDaily("combo",combo);
   obstacles.splice(i,1);
 }
 

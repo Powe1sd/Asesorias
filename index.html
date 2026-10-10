@@ -367,7 +367,7 @@ let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
-let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
+let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));if(!Array.isArray(w)||!w.length)return['basic'];return w.filter(function(x){return typeof x==='string'&&x.length<20}).slice(0,8)}catch(e){return['basic']}})(),currentWeapon=(function(){var c=lsGet('techWeapon','basic')||'basic';var ok=['basic','double','pierce','spread','rapid','laser_gun','missile_gun','plasma','wave'];if(ok.indexOf(c)<0)c='basic';return c})();
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
@@ -674,16 +674,34 @@ const WEAPON_SHOP=[
   {id:"wave",name:"Onda",price:200,icon:"🌊",desc:"Disparo en forma de onda ancha."}
 ];
 function buyWeapon(id){
-  const item=WEAPON_SHOP.find(w=>w.id===id);
-  if(!item)return false;
-  if(ownedWeapons.includes(id)){
-    currentWeapon=id;lsSet("techWeapon",id);return "equip";
-  }
-  if(coins<item.price){alert("Necesitas "+item.price+" monedas 🪙");return false}
-  coins-=item.price;ownedWeapons.push(id);
-  lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
-  currentWeapon=id;lsSet("techWeapon",id);
-  return "buy";
+  try{
+    if(!id||typeof id!=="string")return false;
+    const item=WEAPON_SHOP.find(w=>w.id===id);
+    if(!item)return false;
+    if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
+    if(ownedWeapons.indexOf("basic")<0)ownedWeapons.unshift("basic");
+    if(ownedWeapons.indexOf(id)>=0){
+      currentWeapon=id;
+      try{lsSet("techWeapon",id)}catch(e){}
+      return "equip";
+    }
+    const price=Number(item.price)||0;
+    if(coins<price){try{alert("Necesitas "+price+" monedas 🪙")}catch(e){}return false}
+    coins=Math.max(0,(Number(coins)||0)-price);
+    ownedWeapons.push(id);
+    try{lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));lsSet("techWeapon",id)}catch(e){}
+    currentWeapon=id;
+    return "buy";
+  }catch(e){console.warn("buyWeapon",e);return false}
+}
+function equipWeapon(id){
+  try{
+    if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
+    if(id!=="basic"&&ownedWeapons.indexOf(id)<0)return false;
+    currentWeapon=id||"basic";
+    lsSet("techWeapon",currentWeapon);
+    return true;
+  }catch(e){currentWeapon="basic";return false}
 }
 function showWeaponShop(){
   let m=document.getElementById("weaponShopPanel");
@@ -720,9 +738,12 @@ function showWeaponShop(){
     m.querySelectorAll(".shop-w-btn").forEach(b=>{
       const id=b.getAttribute("data-buy");
       if(!id)return;
-      b.onclick=()=>{
-        const r=buyWeapon(id);
-        if(r){render();try{if(typeof doVibrate==="function")doVibrate(15)}catch(e){}}
+      b.onclick=(ev)=>{
+        try{
+          if(ev){ev.preventDefault();ev.stopPropagation()}
+          const r=buyWeapon(id);
+          if(r)render();
+        }catch(err){console.warn(err)}
       };
     });
     const cl=document.getElementById("closeWeaponShop");
@@ -1418,13 +1439,18 @@ if(startPanel&&!document.getElementById("startExtras")){
     });
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
-      const w=b.getAttribute("data-w");
-      const prices={basic:0,double:40,pierce:60,spread:80,rapid:100,laser_gun:120,missile_gun:150,plasma:180,wave:200};
-      if(!ownedWeapons.includes(w)){
-        if(coins<(prices[w]||0)){alert("Necesitas "+prices[w]+" monedas");return}
-        coins-=prices[w];ownedWeapons.push(w);lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
-      }
-      currentWeapon=w;lsSet("techWeapon",w);renderStart();
+      try{
+        const w=b.getAttribute("data-w")||"basic";
+        if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
+        if(ownedWeapons.indexOf(w)<0){
+          /* solo equipar si ya la tiene; si no, abrir tienda */
+          if(typeof showWeaponShop==="function")showWeaponShop();
+          return;
+        }
+        currentWeapon=w;
+        lsSet("techWeapon",w);
+        renderStart();
+      }catch(e){console.warn(e);currentWeapon="basic"}
     });
     const bms=box.querySelector("#btnManualStart");if(bms)bms.onclick=()=>showUserManual();
     const bdm=box.querySelector("#btnDailyMissions");if(bdm)bdm.onclick=()=>showDailyMissionsMenu();
@@ -1888,49 +1914,46 @@ function dropAmmoPack(){const s=16*getScale();pickups.push({x:Math.random()*Math
 function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack();if(Math.random()<.4)dropAmmoPack();lastAmmoDrop=ts}else if(ammo<=10&&ts-lastAmmoDrop>2500){dropAmmoPack();lastAmmoDrop=ts}}
 
 /* Disparo del jugador (respeta cooldown y munición) */
+let _lastMissileShot=0,_lastShootSfx=0;
 function shoot(){
+  try{
   if(!gameRunning||gamePaused)return;
   if(ammo<=0||laser>0)return;
-  if(bullets.length>(isMobile()?18:24))return;
+  const maxB=isMobile()?12:20;
+  if(bullets.length>=maxB)return;
+  if(!Array.isArray(ownedWeapons))ownedWeapons=["basic"];
+  var w=currentWeapon||"basic";
+  if(w!=="basic"&&ownedWeapons.indexOf(w)<0){w="basic";currentWeapon="basic"}
   const now=performance.now();
-  const cdBase=Math.max(70,(isMobile()?120:shootCooldown)-((upgCool||0)*12));
-  const cd=rapidFire>0?Math.max(40,55-(upgCool||0)*3):cdBase;
+  var cd=rapidFire>0?55:Math.max(100,(isMobile()?140:shootCooldown)-((upgCool||0)*8));
+  if(w==="rapid")cd=Math.max(70,cd*0.6);
+  else if(w==="missile_gun")cd=Math.max(220,cd*1.5);
+  else if(w==="wave"||w==="plasma")cd=Math.max(160,cd*1.2);
+  else if(w==="laser_gun")cd=Math.max(80,cd*0.7);
   if(now-lastShot<cd)return;
   lastShot=now;
-  try{playSfx("shoot")}catch(e){}
-  doVibrate(20,"shoot");
+  if(now-_lastShootSfx>120){_lastShootSfx=now;try{playSfx("shoot")}catch(e){}}
   const sp=10.5*getSpeedScale(),s=getScale();
-  const has=w=>Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(w)>=0;
-  if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
-  if(currentWeapon==="spread"&&has("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
-  if(currentWeapon==="pierce"&&has("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
-  if(currentWeapon==="rapid"&&has("rapid")){
-    lastShot=now-Math.floor(cd*0.55);
-    if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.25,size:2.8*s,pierce:false});ammo--;return}
-  if(currentWeapon==="laser_gun"&&has("laser_gun")){
-    if(ammo<=0)return;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.4,size:2.2*s,pierce:true});
-    if(Math.random()<.45)ammo--;
-    return}
-  if(currentWeapon==="missile_gun"&&has("missile_gun")){
-    if(ammo<=0)return;ammo--;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false});
-    if(typeof fireMissile==="function")fireMissile();
-    return}
-  if(currentWeapon==="plasma"&&has("plasma")){
-    if(ammo<=0)return;ammo-=Math.min(2,ammo);
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp*0.95,size:5*s,pierce:true});
-    return}
-  if(currentWeapon==="wave"&&has("wave")){
-    for(let i=-2;i<=2;i++){
-      if(ammo<=0)break;
-      bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:2.8*s,pierce:false,vx:i*1.8,vy:-sp});
-      ammo--;
-    }
-    return}
-
-const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:pierce>0});ammo--};
-if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
+  function pushB(ox,spd,sz,pier,vx,vy){
+    if(bullets.length>=maxB||ammo<=0)return false;
+    bullets.push({x:player.x+(ox||0),y:player.y-player.size,speed:spd||sp,size:(sz||3.2)*s,pierce:!!pier,vx:vx,vy:vy});
+    ammo--;return true;
+  }
+  if(w==="double"){pushB(-8);pushB(8);if(tripleShot>0){pushB(-16);pushB(16)}return}
+  if(w==="spread"){pushB(0,sp,3,false,-2.2,-sp);pushB(0,sp,3,false,0,-sp);pushB(0,sp,3,false,2.2,-sp);return}
+  if(w==="pierce"){pushB(0,sp,3.2,true);return}
+  if(w==="rapid"){pushB(0,sp*1.15,2.8,false);return}
+  if(w==="laser_gun"){pushB(0,sp*1.3,2.4,true);if(Math.random()<0.5)ammo++;return}
+  if(w==="missile_gun"){
+    pushB(0,sp,3,false);
+    if(missiles.length<(isMobile()?3:6)&&now-_lastMissileShot>320){_lastMissileShot=now;try{fireMissile()}catch(e){}}
+    return;
+  }
+  if(w==="plasma"){if(ammo>=1){ammo--;pushB(0,sp*0.95,4.2,true)}return}
+  if(w==="wave"){for(var i=-2;i<=2;i++)pushB(0,sp,2.5,false,i*1.6,-sp);return}
+  if(tripleShot>0){pushB(-12);pushB(0);pushB(12)}else pushB(0);
+  }catch(e){console.warn("shoot",e)}
+}
 
 function enemyShoot(o){
   if(["meteor","explosive","magnetic","hard"].includes(o.type))return;
@@ -2120,6 +2143,7 @@ function fireBazooka(){
 }
 function fireMissile(){
   if(!gameRunning||gamePaused)return;
+  if(missiles.length>(isMobile()?5:8))return;
   const s=getScale();
   missiles.push({x:player.x,y:player.y-player.size,vx:0,vy:-6*getSpeedScale(),size:5*s,life:240});
 }
@@ -3752,7 +3776,12 @@ function startGame(){
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
+["weaponShopPanel","upgradeShopPanel","dailyMissionsPanel","userManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
+/* reset controles para no disparar solo al iniciar */
+isShooting=false;stickActive=false;touchDriving=false;canvasShootId=null;fireTouchId=null;
+if(!Array.isArray(ownedWeapons)||!ownedWeapons.length)ownedWeapons=["basic"];
+if(!currentWeapon||(currentWeapon!=="basic"&&ownedWeapons.indexOf(currentWeapon)<0)){currentWeapon="basic";try{lsSet("techWeapon","basic")}catch(e){}}
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
 score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;ammo=100+(upgAmmo||0)*20;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
@@ -3768,7 +3797,7 @@ if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
 
 startBgMusic();
 
-lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();
+lastSpawn=performance.now();lastShot=performance.now();lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;_lastShootSfx=0;
 initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop)}
 
 function endGame(){

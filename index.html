@@ -230,7 +230,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 </div>
 <div class="game-help"></div>
 <div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
-  <button type="button" class="goku-min-btn" id="gokuMinBtn" title="Minimizar / mostrar fases">▾</button>
+  <button type="button" class="goku-min-btn" id="gokuMinBtn" title="Minimizar / mostrar fases"></button>
   <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
   <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
   <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
@@ -628,7 +628,7 @@ function updateGokuFormsUI(){
       btn.classList.toggle("active", btn.getAttribute("data-form")===gokuForm);
     });
     const mb=document.getElementById("gokuMinBtn");
-    if(mb) mb.textContent = gokuOverlayMin ? "▴" : "▾";
+    if(mb) mb.textContent = "";
   }
 }
 function toggleGokuOverlayMin(e){

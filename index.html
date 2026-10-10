@@ -368,6 +368,7 @@ let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
+let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
@@ -602,7 +603,8 @@ function showUserManual(){
 
 
 function updateGokuFormsUI(){
-  const show = shipModel==="goku";
+  const isGoku = shipModel==="goku";
+  const show = isGoku && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
   ["gokuForms","gokuFormsOverlay"].forEach(id=>{
     const wrap=document.getElementById(id);
     if(!wrap)return;
@@ -611,7 +613,7 @@ function updateGokuFormsUI(){
       /* touch pad: solo móvil */
       wrap.style.display = show ? "flex" : "none";
     } else {
-      /* overlay sobre el canvas: visible siempre que Goku esté elegido */
+      /* overlay sobre el canvas */
       wrap.style.display = show ? "flex" : "none";
     }
     wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
@@ -619,6 +621,22 @@ function updateGokuFormsUI(){
       btn.classList.toggle("active", f===gokuForm);
     });
   });
+  /* Mostrar botón solo si la nave es Goku */
+  const btn=document.getElementById("btnToggleForms");
+  if(btn){
+    btn.style.display = isGoku ? "flex" : "none";
+    syncFormsBtn();
+  }
+}
+function syncFormsBtn(){
+  const b=document.getElementById("btnToggleForms");
+  if(!b)return;
+  const open = typeof showGokuFormsBar==="undefined" || showGokuFormsBar;
+  b.innerHTML = open ? "▼" : "▶";
+  b.title = open ? "Ocultar transformaciones" : "Mostrar transformaciones";
+  b.style.background = open ? "rgba(0,20,50,.9)" : "rgba(255,205,0,.9)";
+  b.style.color = open ? "#FFCD00" : "#111";
+  b.style.borderColor = open ? "rgba(255,205,0,.5)" : "#fff";
 }
 function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
@@ -846,6 +864,16 @@ const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;t
 btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
 const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
+/* Cuadro para ocultar / mostrar barra de transformaciones Goku */
+const btnForms=mk("btnToggleForms","▼","Ocultar transformaciones","position:absolute;bottom:42px;left:50%;transform:translateX(-50%);z-index:30;width:34px;height:28px;border:1px solid rgba(255,205,0,.5);border-radius:6px;background:rgba(0,20,50,.9);color:#FFCD00;font-size:12px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;box-shadow:0 0 8px rgba(0,0,0,.35)");
+btnForms.onclick=()=>{
+  showGokuFormsBar=!showGokuFormsBar;
+  lsSet("techShowForms",showGokuFormsBar?"1":"0");
+  updateGokuFormsUI();
+  try{if(typeof doVibrate==="function")doVibrate(12)}catch(e){}
+};
+if(typeof updateGokuFormsUI==="function")updateGokuFormsUI();
+
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45;max-height:min(85vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
@@ -1371,6 +1399,10 @@ function createEnemy(etype,role){
   else if(etype==="thief"){size=(11+Math.random()*4)*sc;hp=2;spd=1.7}
   else if(etype==="teleport"){size=(12+Math.random()*4)*sc;hp=3;spd=1.4}
   else if(etype==="creature"||etype==="alien"){size=(16+Math.random()*6)*sc;hp=5;spd=1.3}
+  else if(etype==="alien_small"){size=(9+Math.random()*4)*sc;hp=2;spd=2.0}
+  else if(etype==="alien_flyer"){size=(12+Math.random()*5)*sc;hp=3;spd=1.7}
+  else if(etype==="alien_brute"){size=(20+Math.random()*8)*sc;hp=8;spd=1.0}
+  else if(etype==="alien_eye"){size=(14+Math.random()*5)*sc;hp=4;spd=1.4}
   else if(etype==="bigship"){size=(14+Math.random()*8)*sc;hp=4+Math.floor(level/2);spd=1.3}
   else{size=(10+Math.random()*6)*sc;hp=2+Math.floor(level/3);spd=1.5}
   const topY=18+Math.random()*48;
@@ -1405,9 +1437,11 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  let poolTop=["hunter","hunter","ship","sniper","kamikaze"];
-  if(waveCount>=1)poolTop.push("ship","hunter");
-  if(scenario>=3)poolTop.push("alien","teleport");
+  let poolTop=["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
+  if(waveCount>=1)poolTop.push("ship","hunter","alien","alien_flyer");
+  if(waveCount>=2)poolTop.push("alien_eye","alien","teleport");
+  if(waveCount>=3||scenario>=3)poolTop.push("alien_brute","alien","creature");
+  if(scenario>=3)poolTop.push("alien","alien_flyer","teleport");
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     createEnemy(poolTop[Math.floor(Math.random()*poolTop.length)],"top");
@@ -1418,6 +1452,15 @@ function spawnShipWave(){
       createEnemy("bigship","top");
       scenarioMsg="⚠ NAVE PESADA ENTRÓ";scenarioTransition=80;
     },nTop*650+400);
+  }
+  /* Oleada extra de alienígenas cada 4 oleadas */
+  if(waveCount>0&&waveCount%4===0){
+    setTimeout(()=>{
+      if(!gameRunning||gamePaused||phase!=="ships")return;
+      const aliens=["alien","alien_flyer","alien_eye","alien_brute","alien_small"];
+      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(aliens[Math.floor(Math.random()*aliens.length)],"top");
+      scenarioMsg="👽 INVASIÓN ALIEN";scenarioTransition=90;
+    },nTop*650+900);
   }
 }
 
@@ -1504,10 +1547,18 @@ function enemyShoot(o){
   } else if(o.type==="bigship"){
     enemyBullets.push({x:cx-7,y:cy,vx:vx-.25,vy:vy,size:3.2*s});
     enemyBullets.push({x:cx+7,y:cy,vx:vx+.25,vy:vy,size:3.2*s});
-  } else if(o.type==="swarm"){
+  } else if(o.type==="swarm"||o.type==="alien_small"){
     enemyBullets.push({x:cx,y:cy,vx:vx*.85,vy:vy*.85,size:2.4*s});
+  } else if(o.type==="alien"||o.type==="creature"||o.type==="alien_flyer"){
+    /* plasma verde */
+    enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.4*s,alien:true});
+  } else if(o.type==="alien_eye"){
+    enemyBullets.push({x:cx,y:cy,vx:vx*1.1,vy:vy*1.1,size:3.8*s,alien:true});
+  } else if(o.type==="alien_brute"){
+    enemyBullets.push({x:cx-6,y:cy,vx:vx-.2,vy:vy,size:3.6*s,alien:true});
+    enemyBullets.push({x:cx+6,y:cy,vx:vx+.2,vy:vy,size:3.6*s,alien:true});
   } else {
-    /* ship, hunter, kamikaze, teleport, alien, etc. TODAS disparan */
+    /* ship, hunter, kamikaze, teleport, etc. */
     enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.1*s});
   }
 }
@@ -2537,11 +2588,108 @@ function drawObstacle(o){
     const barW=s*1.5;ctx.shadowBlur=0;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-16,barW,6);
     ctx.fillStyle=o.hp>o.maxHp/2?"#FFC107":"#FF3333";ctx.fillRect(-barW/2,-s-16,barW*(o.hp/o.maxHp),6);
     ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.16)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-22);
+  } else if(["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)){
+    /* ===== ALIENÍGENAS ===== */
+    const s=o.size;
+    const t=performance.now()/200;
+    ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,s*.9,s*.5,s*.12,0,0,Math.PI*2);ctx.fill();
+    if(o.type==="alien_small"){
+      /* Pequeño verdoso con antenas */
+      ctx.shadowColor="#66FF88";ctx.shadowBlur=isMobile()?0:10;
+      const g=ctx.createRadialGradient(0,-s*.1,1,0,0,s*.7);
+      g.addColorStop(0,"#AAFFAA");g.addColorStop(.5,"#33AA55");g.addColorStop(1,"#0a3018");
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.45,s*.55,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="#88FFAA";ctx.lineWidth=1;ctx.stroke();
+      // ojos
+      ctx.fillStyle="#111";ctx.beginPath();ctx.arc(-s*.15,-s*.1,s*.1,0,Math.PI*2);ctx.arc(s*.15,-s*.1,s*.1,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#FFEE00";ctx.beginPath();ctx.arc(-s*.15,-s*.1,s*.04,0,Math.PI*2);ctx.arc(s*.15,-s*.1,s*.04,0,Math.PI*2);ctx.fill();
+      // antenas
+      ctx.strokeStyle="#66FF88";ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(-s*.1,-s*.45);ctx.lineTo(-s*.25,-s*.8);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s*.1,-s*.45);ctx.lineTo(s*.25,-s*.8);ctx.stroke();
+      ctx.fillStyle="#FF6688";ctx.beginPath();ctx.arc(-s*.25,-s*.8,s*.08,0,Math.PI*2);ctx.arc(s*.25,-s*.8,s*.08,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="alien_flyer"){
+      /* Volador con alas membranadas */
+      ctx.shadowColor="#44FFAA";ctx.shadowBlur=isMobile()?0:12;
+      // alas
+      const flap=Math.sin(t*2)*.15;
+      ctx.fillStyle="rgba(80,255,160,.45)";
+      ctx.beginPath();ctx.ellipse(-s*.7,s*.05,s*.55,s*.25+flap, -0.3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(s*.7,s*.05,s*.55,s*.25+flap, 0.3,0,Math.PI*2);ctx.fill();
+      // cuerpo
+      const g=ctx.createRadialGradient(0,-s*.1,1,0,0,s*.6);
+      g.addColorStop(0,"#88FFCC");g.addColorStop(.5,"#22AA66");g.addColorStop(1,"#0a2818");
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.4,s*.55,0,0,Math.PI*2);ctx.fill();
+      // ojo central
+      ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(0,-s*.08,s*.18,s*.2,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#FF3355";ctx.beginPath();ctx.arc(0,-s*.08,s*.07,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.03,-s*.12,s*.03,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="alien_brute"){
+      /* Bruto grande y corpulento */
+      ctx.shadowColor="#AAFF44";ctx.shadowBlur=isMobile()?0:12;
+      const g=ctx.createRadialGradient(-s*.1,-s*.2,2,0,0,s*.85);
+      g.addColorStop(0,"#CCFF66");g.addColorStop(.4,"#66AA22");g.addColorStop(1,"#1a3008");
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.moveTo(0,-s*.7);ctx.lineTo(s*.55,-s*.2);ctx.lineTo(s*.5,s*.5);ctx.lineTo(s*.2,s*.75);
+      ctx.lineTo(-s*.2,s*.75);ctx.lineTo(-s*.5,s*.5);ctx.lineTo(-s*.55,-s*.2);ctx.closePath();ctx.fill();
+      // brazos
+      ctx.fillStyle="#44AA22";
+      ctx.beginPath();ctx.ellipse(-s*.65,s*.1,s*.2,s*.35,-0.4,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(s*.65,s*.1,s*.2,s*.35,0.4,0,Math.PI*2);ctx.fill();
+      // ojos
+      ctx.fillStyle="#111";ctx.beginPath();ctx.arc(-s*.18,-s*.25,s*.12,0,Math.PI*2);ctx.arc(s*.18,-s*.25,s*.12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#FFEE00";ctx.beginPath();ctx.arc(-s*.18,-s*.25,s*.05,0,Math.PI*2);ctx.arc(s*.18,-s*.25,s*.05,0,Math.PI*2);ctx.fill();
+      // boca
+      ctx.strokeStyle="#1a3008";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(-s*.15,s*.05);ctx.lineTo(0,s*.2);ctx.lineTo(s*.15,s*.05);ctx.stroke();
+    } else if(o.type==="alien_eye"){
+      /* Un solo ojo flotante */
+      ctx.shadowColor="#FF66AA";ctx.shadowBlur=isMobile()?0:14;
+      const g=ctx.createRadialGradient(0,0,1,0,0,s*.7);
+      g.addColorStop(0,"#FFEEFF");g.addColorStop(.35,"#CC66AA");g.addColorStop(.7,"#662244");g.addColorStop(1,"#1a0810");
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.6,s*.55,0,0,Math.PI*2);ctx.fill();
+      // iris
+      ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(0,0,s*.28,s*.32,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#FF2244";ctx.beginPath();ctx.arc(0,0,s*.12,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.06,-s*.08,s*.05,0,Math.PI*2);ctx.fill();
+      // tentáculos inferiores
+      ctx.strokeStyle="rgba(200,80,140,.7)";ctx.lineWidth=2;
+      for(let k=0;k<4;k++){
+        const ang=-0.6+k*0.4;const len=s*(.5+Math.sin(t+k)*.15);
+        ctx.beginPath();ctx.moveTo(Math.cos(ang)*s*.3,s*.4);
+        ctx.quadraticCurveTo(Math.cos(ang)*len*.7,s*.4+len*.5,Math.cos(ang)*len,s*.4+len);ctx.stroke();
+      }
+    } else {
+      /* alien / creature clásico: cabeza grande + cuerpo */
+      ctx.shadowColor="#66FFAA";ctx.shadowBlur=isMobile()?0:12;
+      // cabeza ovalada
+      const g=ctx.createRadialGradient(0,-s*.25,1,0,-s*.1,s*.7);
+      g.addColorStop(0,"#BBFFDD");g.addColorStop(.4,"#44CC88");g.addColorStop(1,"#0a3020");
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,-s*.15,s*.55,s*.5,0,0,Math.PI*2);ctx.fill();
+      // cuerpo
+      ctx.fillStyle="#33AA66";
+      ctx.beginPath();ctx.moveTo(-s*.3,s*.2);ctx.lineTo(s*.3,s*.2);ctx.lineTo(s*.25,s*.7);ctx.lineTo(-s*.25,s*.7);ctx.closePath();ctx.fill();
+      // ojos negros grandes
+      ctx.fillStyle="#0a0a0a";
+      ctx.beginPath();ctx.ellipse(-s*.2,-s*.2,s*.16,s*.22,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(s*.2,-s*.2,s*.16,s*.22,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#66FFAA";
+      ctx.beginPath();ctx.arc(-s*.18,-s*.22,s*.05,0,Math.PI*2);ctx.arc(s*.22,-s*.22,s*.05,0,Math.PI*2);ctx.fill();
+      // antenas
+      ctx.strokeStyle="#88FFBB";ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(-s*.15,-s*.55);ctx.lineTo(-s*.3,-s*.9);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s*.15,-s*.55);ctx.lineTo(s*.3,-s*.9);ctx.stroke();
+      ctx.fillStyle="#FF6688";
+      ctx.beginPath();ctx.arc(-s*.3,-s*.9,s*.09,0,Math.PI*2);ctx.arc(s*.3,-s*.9,s*.09,0,Math.PI*2);ctx.fill();
+    }
+    ctx.shadowBlur=0;
+    const barW=s*1.2;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-12,barW,3);
+    ctx.fillStyle=o.hp>o.maxHp/2?"#66FF88":"#FF3333";ctx.fillRect(-barW/2,-s-12,barW*(o.hp/o.maxHp),3);
   } else {
-    // regular enemies
+    // regular enemies (naves)
     const s=o.size;
     let c0,c1,wing,glow;
-    /* Naves enemigas negras */
     if(o.type==="hunter"){c0="#0a0a0a";c1="#2a2a2a";wing="#111";glow="#CE1126"}
     else if(o.type==="sniper"){c0="#0d0d0d";c1="#333";wing="#1a1a1a";glow="#FF4444"}
     else if(o.type==="turret"){c0="#111";c1="#3a3a3a";wing="#222";glow="#888"}
@@ -2549,7 +2697,6 @@ function drawObstacle(o){
     else if(o.type==="swarm"){c0="#0a0a0a";c1="#252525";wing="#151515";glow="#FF6644"}
     else if(o.type==="thief"){c0="#0c0c0c";c1="#2c2c2c";wing="#181818";glow="#FF6688"}
     else if(o.type==="teleport"){c0="#0a0a12";c1="#1a1a28";wing="#12121a";glow="#AA66FF"}
-    else if(o.type==="creature"||o.type==="alien"){c0="#0a0f0a";c1="#1a221a";wing="#121812";glow="#66FFAA"}
     else if(o.type==="bigship"){c0="#050505";c1="#222";wing="#0e0e0e";glow="#CE1126"}
     else{c0="#0a0a0a";c1="#2a2a2a";wing="#151515";glow="#CE1126"}
     ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,s*.95,s*.55,s*.12,0,0,Math.PI*2);ctx.fill();
@@ -2652,9 +2799,11 @@ function updateEnemyBullets(){
     /* Proyectil enemigo afilado (no bolita) */
     const ang=Math.atan2(b.vy,b.vx);
     ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ang);
-    ctx.shadowColor="#FF3355";ctx.shadowBlur=isMobile()?0:5;
+    const isAlien=!!b.alien;
+    ctx.shadowColor=isAlien?"#44FF88":"#FF3355";ctx.shadowBlur=isMobile()?0:5;
     const eg=ctx.createLinearGradient(-8,0,8,0);
-    eg.addColorStop(0,"rgba(255,50,80,0)");eg.addColorStop(.4,"#FF2244");eg.addColorStop(1,"#FFD0D8");
+    if(isAlien){eg.addColorStop(0,"rgba(50,255,120,0)");eg.addColorStop(.4,"#22CC66");eg.addColorStop(1,"#CCFFDD")}
+    else{eg.addColorStop(0,"rgba(255,50,80,0)");eg.addColorStop(.4,"#FF2244");eg.addColorStop(1,"#FFD0D8")}
     ctx.fillStyle=eg;
     ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-5,-2.6);ctx.lineTo(-3,0);ctx.lineTo(-5,2.6);ctx.closePath();ctx.fill();
     ctx.fillStyle="#FFF";ctx.fillRect(-2,-1,5,2);
@@ -2758,7 +2907,7 @@ ctx.textAlign="right";ctx.fillStyle="#88CCFF";ctx.font="9px Share Tech Mono";ctx
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);ctx.fillStyle="#FFD700";ctx.font="bold 11px Orbitron";ctx.fillText("🪙 "+coins,10,canvas.height-32);
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
+const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */

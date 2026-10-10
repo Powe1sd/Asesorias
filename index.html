@@ -127,32 +127,53 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 }
 .touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
-  background:#020b22;padding:8px 12px 6px;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  background:#020b22;padding:6px 10px 4px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   width:100%;height:100%;box-sizing:border-box;
 }
+/* PC fullscreen: juego casi a pantalla completa, sin touch pad */
 .tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{
-  height:min(78vh,calc(100vh - 140px));width:min(98vw,1100px);max-width:100%;flex-shrink:0;
-  border-radius:12px;
+  height:min(92vh,calc(100vh - 28px));width:min(98vw,1200px);max-width:100%;flex-shrink:0;
+  border-radius:10px;
 }
 .tech-game-section:fullscreen .touch-pad,
 .tech-game-section:-webkit-full-screen .touch-pad{
-  display:block!important;width:min(98vw,1100px);margin:8px auto 0;flex-shrink:0;
+  display:none!important;
 }
-.tech-game-section:fullscreen .touch-pad-inner{
-  padding:10px 14px;gap:12px;
+/* Móvil en fullscreen: juego más bajo + touch pad visible */
+@media(max-width:900px){
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game{
+    height:min(58vh,calc(100vh - 160px));width:min(98vw,900px);
+  }
+  .tech-game-section:fullscreen .touch-pad,
+  .tech-game-section:-webkit-full-screen .touch-pad{
+    display:block!important;width:min(98vw,900px);margin:6px auto 0;flex-shrink:0;
+  }
+  .tech-game-section:fullscreen .touch-pad-inner{
+    padding:8px 12px;gap:8px;
+  }
 }
-/* Selector de fases Goku en touch pad */
-.goku-forms{display:none;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:6px;width:100%}
+/* Selector fases Goku: flotante sobre el juego (PC y móvil) */
+.goku-forms-overlay{
+  display:none;position:absolute;bottom:42px;left:50%;transform:translateX(-50%);
+  z-index:25;justify-content:center;gap:5px;flex-wrap:wrap;pointer-events:auto;
+  background:rgba(0,0,0,.55);padding:5px 8px;border-radius:12px;border:1px solid rgba(255,205,0,.3);
+}
+.goku-forms-overlay.show{display:flex}
+.goku-forms{display:none;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
 .goku-forms.show{display:flex}
 .goku-form-btn{
-  min-width:52px;padding:6px 8px;border-radius:10px;border:1px solid rgba(255,205,0,.45);
-  background:rgba(0,30,70,.85);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;
+  min-width:48px;padding:5px 7px;border-radius:9px;border:1px solid rgba(255,205,0,.45);
+  background:rgba(0,30,70,.9);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;
   cursor:pointer;touch-action:manipulation;
 }
-.goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 12px rgba(255,205,0,.5)}
+.goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 10px rgba(255,205,0,.5)}
 .goku-form-btn:active{transform:scale(.95)}
-.tech-game-section:fullscreen .goku-forms{display:flex}
+@media(max-width:900px){
+  .tech-game-section:fullscreen .goku-forms{display:flex}
+  .goku-forms-overlay{bottom:8px}
+}
 
 #configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
 #configPanel .game-btn{position:sticky;bottom:0;margin-top:12px}
@@ -196,6 +217,13 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 <button class="game-btn game-btn-blue" id="continueGame">↓ CONTINUAR</button>
 </div>
 <div class="game-help"></div>
+<div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
+  <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
+  <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
+  <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
+  <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
+  <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
+</div>
 </div>
 
 <div class="touch-pad" id="touchPad" aria-label="Controles táctiles">
@@ -216,6 +244,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   </div>
   <div class="goku-forms" id="gokuForms" aria-label="Fases de Goku">
     <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
+    <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
     <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
     <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
     <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
@@ -373,7 +402,7 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|goku
-let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj2|ssj3|ssj4
+let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
@@ -565,26 +594,38 @@ function showUserManual(){
 
 
 function updateGokuFormsUI(){
-  const wrap=document.getElementById("gokuForms");
-  if(!wrap)return;
   const show = shipModel==="goku";
-  wrap.classList.toggle("show", show);
-  wrap.style.display = show ? "flex" : "none";
-  wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
-    const f=btn.getAttribute("data-form");
-    btn.classList.toggle("active", f===gokuForm);
+  ["gokuForms","gokuFormsOverlay"].forEach(id=>{
+    const wrap=document.getElementById(id);
+    if(!wrap)return;
+    wrap.classList.toggle("show", show);
+    if(id==="gokuForms"){
+      /* touch pad: solo móvil */
+      wrap.style.display = show ? "flex" : "none";
+    } else {
+      /* overlay sobre el canvas: visible siempre que Goku esté elegido */
+      wrap.style.display = show ? "flex" : "none";
+    }
+    wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
+      const f=btn.getAttribute("data-form");
+      btn.classList.toggle("active", f===gokuForm);
+    });
   });
 }
 function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
-  // Poderes al cambiar de fase
   if(form==="normal"){
-    // Base: poco escudo
     shield=Math.max(shield,80);
     scenarioMsg="🥋 Goku Base";scenarioTransition=50;
+  } else if(form==="ssj1"){
+    rapidFire=Math.max(rapidFire,220);
+    shield=Math.max(shield,100);
+    specialCharges=Math.min(9,specialCharges+1);
+    scenarioMsg="⚡ SUPER SAIYAJIN 1";scenarioTransition=60;
+    playSfx("power");
   } else if(form==="ssj2"){
     rapidFire=Math.max(rapidFire,320);
-    shield=Math.max(shield,120);
+    shield=Math.max(shield,140);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 2";scenarioTransition=70;
     playSfx("power");
@@ -607,7 +648,7 @@ function applyGokuFormPower(form){
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!["normal","ssj2","ssj3","ssj4"].includes(form))return;
+  if(!["normal","ssj1","ssj2","ssj3","ssj4"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
   updateGokuFormsUI();
@@ -746,13 +787,16 @@ function onFS(){
   btnExit.style.display=fs?"block":"none";
   btnFS.style.display=fs?"none":"block";
   const tp=document.getElementById("touchPad");
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints>0) || window.innerWidth<=900;
   if(tp){
-    if(fs){
+    if(fs && isTouchDevice){
+      /* Solo móvil: mostrar touch pad en fullscreen */
       tp.classList.add("show-fs");
-      tp.style.cssText="display:block!important;width:min(96vw,900px);margin:10px auto 0;";
+      tp.style.cssText="display:block!important;width:min(98vw,900px);margin:6px auto 0;";
     } else {
+      /* PC: sin touch pad, juego a pantalla completa */
       tp.classList.remove("show-fs");
-      tp.style.cssText="";
+      tp.style.cssText = fs ? "display:none!important;" : "";
     }
   }
   setTimeout(()=>{resizeCanvas();updateGokuFormsUI()},150);
@@ -893,6 +937,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <h3>⚡ Fase de Goku</h3>
       <div class="diff-btns">
         <button type="button" data-gform="normal" class="${gokuForm==="normal"?"active":""}">Normal</button>
+        <button type="button" data-gform="ssj1" class="${gokuForm==="ssj1"?"active":""}">SSJ1</button>
         <button type="button" data-gform="ssj2" class="${gokuForm==="ssj2"?"active":""}">SSJ2</button>
         <button type="button" data-gform="ssj3" class="${gokuForm==="ssj3"?"active":""}">SSJ3</button>
         <button type="button" data-gform="ssj4" class="${gokuForm==="ssj4"?"active":""}">SSJ4</button>
@@ -994,7 +1039,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-4</b> fases · Nave <b>Br7</b>";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-5</b> fases · Nave <b>Br7</b>";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
@@ -1149,15 +1194,17 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     tpm.addEventListener("touchstart",tog,{passive:false});tpm.addEventListener("click",tog);
   }
   /* Fases Goku en touch pad */
-  const gf=document.getElementById("gokuForms");
-  if(gf){
-    gf.querySelectorAll(".goku-form-btn").forEach(btn=>{
+  function wireGokuBtns(root){
+    if(!root)return;
+    root.querySelectorAll(".goku-form-btn").forEach(btn=>{
       const go=e=>{e.preventDefault();e.stopPropagation();setGokuForm(btn.getAttribute("data-form"))};
       btn.addEventListener("touchstart",go,{passive:false});
       btn.addEventListener("click",go);
     });
-    updateGokuFormsUI();
   }
+  wireGokuBtns(document.getElementById("gokuForms"));
+  wireGokuBtns(document.getElementById("gokuFormsOverlay"));
+  updateGokuFormsUI();
 
   function fireDown(e){
     if(e){e.preventDefault();e.stopPropagation()}
@@ -1193,9 +1240,10 @@ document.addEventListener("keydown",e=>{
 if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
 if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="1"){setGokuForm("normal");e.preventDefault()}
-  if(e.key==="2"){setGokuForm("ssj2");e.preventDefault()}
-  if(e.key==="3"){setGokuForm("ssj3");e.preventDefault()}
-  if(e.key==="4"){setGokuForm("ssj4");e.preventDefault()}
+  if(e.key==="2"){setGokuForm("ssj1");e.preventDefault()}
+  if(e.key==="3"){setGokuForm("ssj2");e.preventDefault()}
+  if(e.key==="4"){setGokuForm("ssj3");e.preventDefault()}
+  if(e.key==="5"){setGokuForm("ssj4");e.preventDefault()}
 }
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
@@ -1993,6 +2041,8 @@ function drawShipModel(g,s,model,skin,label){
       auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#11aaff"; eyeGlow="#FFD700";
     } else if(form==="ssj2"){
       auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.28; eyeCol="#11aaff"; eyeGlow="#FFD700";
+    } else if(form==="ssj1"){
+      auraCol="#FFD700"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.24; eyeCol="#11aaff"; eyeGlow="#FFD700";
     } else {
       // normal (Base)
       auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111"; eyeGlow="#88ccff";
@@ -2000,11 +2050,10 @@ function drawShipModel(g,s,model,skin,label){
 
     // Aura de fondo
     g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?8:18;
-    g.fillStyle=auraCol.replace(")",","+auraAlpha+")").replace("rgb","rgba").replace("#","");
-    // fallback aura
     if(form==="ssj4") g.fillStyle="rgba(255,40,0,.32)";
     else if(form==="ssj3") g.fillStyle="rgba(255,220,50,.30)";
     else if(form==="ssj2") g.fillStyle="rgba(255,230,80,.26)";
+    else if(form==="ssj1") g.fillStyle="rgba(255,215,0,.22)";
     else g.fillStyle="rgba(100,180,255,.14)";
     g.beginPath();g.ellipse(0,-s*.1,s*1.2,s*1.6,0,0,Math.PI*2);g.fill();
     if(form==="ssj3"||form==="ssj4"){
@@ -2028,6 +2077,22 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.38,-s*.45);g.lineTo(-s*.5,-s*.8);
       g.lineTo(-s*.28,-s*.7);g.lineTo(-s*.35,-s*1.05);g.lineTo(-s*.22,-s*.85);
       g.closePath();g.fill();g.stroke();
+    } else if(form==="ssj1"){
+      // SSJ1: cabello dorado clásico (picos medios)
+      g.beginPath();
+      g.moveTo(0,-s*1.55);
+      g.lineTo(s*.16,-s*1.05);g.lineTo(s*.35,-s*1.35);g.lineTo(s*.26,-s*.88);
+      g.lineTo(s*.55,-s*1.1);g.lineTo(s*.4,-s*.62);
+      g.lineTo(s*.68,-s*.75);g.lineTo(s*.45,-s*.38);
+      g.lineTo(s*.52,-s*.12);g.lineTo(s*.22,-s*.2);
+      g.lineTo(0,-s*.16);
+      g.lineTo(-s*.22,-s*.2);g.lineTo(-s*.52,-s*.12);
+      g.lineTo(-s*.45,-s*.38);g.lineTo(-s*.68,-s*.75);
+      g.lineTo(-s*.4,-s*.62);g.lineTo(-s*.55,-s*1.1);
+      g.lineTo(-s*.26,-s*.88);g.lineTo(-s*.35,-s*1.35);g.lineTo(-s*.16,-s*1.05);
+      g.closePath();g.fill();g.stroke();
+      g.fillStyle="#FFE44D";
+      g.beginPath();g.moveTo(0,-s*1.6);g.lineTo(s*.1,-s*1.15);g.lineTo(-s*.1,-s*1.15);g.closePath();g.fill();
     } else if(form==="ssj2"){
       // SSJ2: picos dorados más agresivos + rayos
       g.beginPath();
@@ -2179,7 +2244,7 @@ function drawShipModel(g,s,model,skin,label){
     g.shadowBlur=0;
 
     // Etiqueta fase
-    const formLabel = {normal:"BASE",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[form]||"";
+    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[form]||"";
     if(label || formLabel){
       const nm=String(label||"").slice(0,8);
       const fs=Math.max(7, Math.min(s*0.4, s*0.85/Math.max(2,(nm.length||4)*0.35)));
@@ -2254,7 +2319,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

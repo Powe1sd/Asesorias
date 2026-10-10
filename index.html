@@ -205,6 +205,20 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   #startPanel{padding-bottom:24px!important}
   #startExtras{padding-bottom:8px}
 }
+
+/* Optimización de rendimiento para celulares */
+@media (max-width: 900px), (pointer: coarse) {
+  body::before { animation: none !important; }
+  .game-panel {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .tech-game { box-shadow: none !important; }
+  .touch-move-pad, .touch-fire, .touch-util {
+    box-shadow: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -230,7 +244,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 </div>
 <div class="game-help"></div>
 <div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
-  <button type="button" class="goku-min-btn" id="gokuMinBtn" title="Minimizar / mostrar fases">▾</button>
+  <button type="button" class="goku-min-btn" id="gokuMinBtn" title="Minimizar / mostrar fases"></button>
   <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
   <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
   <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
@@ -628,7 +642,7 @@ function updateGokuFormsUI(){
       btn.classList.toggle("active", btn.getAttribute("data-form")===gokuForm);
     });
     const mb=document.getElementById("gokuMinBtn");
-    if(mb) mb.textContent = gokuOverlayMin ? "▴" : "▾";
+    if(mb) mb.textContent = "";
   }
 }
 function toggleGokuOverlayMin(e){
@@ -637,47 +651,34 @@ function toggleGokuOverlayMin(e){
   lsSet("techGokuOverlayMin", gokuOverlayMin ? "1" : "0");
   updateGokuFormsUI();
 }
-/* Escudo de fase SSJ: solo 1 vez por partida */
-let gokuFormShieldUsed=false;
-let gokuLastFormApplied=null;
 function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
-  /* Si es la misma fase otra vez, no volver a dar poderes */
-  if(gokuLastFormApplied===form)return;
-  gokuLastFormApplied=form;
-
-  const giveShield=function(amount){
-    if(gokuFormShieldUsed)return; /* solo un escudo por partida */
-    shield=Math.max(shield, amount);
-    gokuFormShieldUsed=true;
-  };
-
   if(form==="normal"){
-    giveShield(80);
+    shield=Math.max(shield,80);
     scenarioMsg="🥋 Goku Base";scenarioTransition=50;
   } else if(form==="ssj1"){
     rapidFire=Math.max(rapidFire,220);
-    giveShield(100);
+    shield=Math.max(shield,100);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 1";scenarioTransition=60;
     playSfx("power");
   } else if(form==="ssj2"){
     rapidFire=Math.max(rapidFire,320);
-    giveShield(140);
+    shield=Math.max(shield,140);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 2";scenarioTransition=70;
     playSfx("power");
   } else if(form==="ssj3"){
     rapidFire=Math.max(rapidFire,400);
     tripleShot=Math.max(tripleShot,280);
-    giveShield(180);
+    shield=Math.max(shield,180);
     specialCharges=Math.min(9,specialCharges+2);
     scenarioMsg="💥 SUPER SAIYAJIN 3";scenarioTransition=80;
     playSfx("power");
   } else if(form==="ssj4"){
     rapidFire=Math.max(rapidFire,450);
     pierce=Math.max(pierce,300);
-    giveShield(260);
+    shield=Math.max(shield,260);
     overdrive=Math.max(overdrive,200);
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="🔥 SUPER SAIYAJIN 4";scenarioTransition=90;
@@ -1103,8 +1104,10 @@ function getSpeedScale(){
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  const w=Math.max(1,Math.floor(r.width));
-  const h=Math.max(1,Math.floor(r.height));
+  const mobileDevice = ('ontouchstart' in window) || /Mobi|Android|iPhone/i.test(navigator.userAgent||'');
+  const quality = mobileDevice ? 0.78 : 1;
+  const w=Math.max(1,Math.floor(r.width * quality));
+  const h=Math.max(1,Math.floor(r.height * quality));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
   player.size=Math.max(13,Math.min(20,17*getScale()));
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}
@@ -3040,7 +3043,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-gokuFormShieldUsed=false;gokuLastFormApplied=null;score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

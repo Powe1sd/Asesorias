@@ -360,7 +360,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
    ========================================================= */
 
 const canvas=document.getElementById("gameCanvas");
-const ctx=canvas.getContext("2d");
+const ctx=canvas.getContext("2d",{alpha:false,desynchronized:true});
+if(ctx){ctx.imageSmoothingEnabled=true;}
 const startPanel=document.getElementById("startPanel");
 const gameOverPanel=document.getElementById("gameOverPanel");
 const startButton=document.getElementById("startGame");
@@ -768,15 +769,29 @@ function applyAudioVolumes(){
     if(SFX.bg){ SFX.bg.volume = audioMuted ? 0 : volMusic; SFX.bg.loop = true; }
   }catch(e){}
 }
+const _sfxPools=Object.create(null);
 function playSfx(key){
   try{
     if(audioMuted) return;
-    const a = SFX[key];
-    if(!a || !a.src) return;
-    const n = a.cloneNode ? a.cloneNode() : a;
-    n.volume = volSfx;
-    const p = n.play();
-    if(p && p.catch) p.catch(()=>{});
+    const source=SFX[key];
+    if(!source || !source.src) return;
+    let pool=_sfxPools[key];
+    if(!pool) pool=_sfxPools[key]=[];
+    let node=pool.find(a=>a.paused||a.ended);
+    /* Reutilizar voces evita crear y destruir objetos de audio repetidamente en móviles. */
+    if(!node && pool.length<3){
+      node=source.cloneNode(true);
+      node.preload="auto";
+      pool.push(node);
+    }
+    if(!node){
+      node=pool[0];
+      for(const candidate of pool){if(candidate.currentTime>node.currentTime)node=candidate;}
+    }
+    node.volume=volSfx;
+    try{node.currentTime=0;}catch(e){}
+    const promise=node.play();
+    if(promise&&promise.catch)promise.catch(()=>{});
   }catch(e){}
 }
 function startBgMusic(){
@@ -1088,9 +1103,15 @@ else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performanc
 /* Escala visual según tamaño del canvas (naves, meteoritos) */
 function getScale(){return Math.min(canvas.width,canvas.height)/400}
 /* Detecta móvil/touch para bajar velocidad y límites */
-function isMobile(){return canvas.width<700||('ontouchstart' in window)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'')}
 let _mobCache=null,_mobCacheT=0;
-function mob(){const t=performance.now();if(_mobCache!==null&&t-_mobCacheT<1000)return _mobCache;_mobCache=isMobile();_mobCacheT=t;return _mobCache}
+function isMobile(){
+  const now=performance.now();
+  if(_mobCache!==null && now-_mobCacheT<1000) return _mobCache;
+  _mobCache=(canvas.width<700)||('ontouchstart' in window)||((navigator.maxTouchPoints||0)>0)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'');
+  _mobCacheT=now;
+  return _mobCache;
+}
+function mob(){return isMobile()}
 function getProgressSpeed(){
   const base=1 + Math.min(1.15, waveCount*0.07 + score*0.002);
   return base*(typeof diffSpeedMult==="function"?diffSpeedMult():1);
@@ -1102,12 +1123,12 @@ function getSpeedScale(){
   return Math.min(1.25,Math.max(0.85,s));
 }
 function resizeCanvas(){
+  _mobCache=null;
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  const mobileDevice = ('ontouchstart' in window) || /Mobi|Android|iPhone/i.test(navigator.userAgent||'');
-  const quality = mobileDevice ? 0.78 : 1;
-  const w=Math.max(1,Math.floor(r.width * quality));
-  const h=Math.max(1,Math.floor(r.height * quality));
+  /* Calidad completa también en celular: no reducir resolución del canvas. */
+  const w=Math.max(1,Math.floor(r.width));
+  const h=Math.max(1,Math.floor(r.height));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
   player.size=Math.max(13,Math.min(20,17*getScale()));
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}

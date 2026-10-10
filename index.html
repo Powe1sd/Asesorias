@@ -223,6 +223,10 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
   <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
   <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
+  <button type="button" class="goku-form-btn" data-form="bru">Bru</button>
+  <button type="button" class="goku-form-btn" data-form="golden">Golden</button>
+  <button type="button" class="goku-form-btn" data-form="ultra">Ultra</button>
+  <button type="button" class="goku-form-btn" data-form="superdios">S.Dios</button>
 </div>
 </div>
 
@@ -248,6 +252,10 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
     <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
     <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
+    <button type="button" class="goku-form-btn" data-form="bru">Bru</button>
+    <button type="button" class="goku-form-btn" data-form="golden">Golden</button>
+    <button type="button" class="goku-form-btn" data-form="ultra">Ultra</button>
+    <button type="button" class="goku-form-btn" data-form="superdios">S.Dios</button>
   </div>
 </div>
 </section>
@@ -402,7 +410,7 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|goku
-let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4
+let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
@@ -644,11 +652,41 @@ function applyGokuFormPower(form){
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="🔥 SUPER SAIYAJIN 4";scenarioTransition=90;
     playSfx("nova");if(!SFX.nova)playSfx("power");
+  } else if(form==="bru"){
+    rapidFire=Math.max(rapidFire,380);
+    shield=Math.max(shield,200);
+    pierce=Math.max(pierce,200);
+    specialCharges=Math.min(9,specialCharges+2);
+    scenarioMsg="💪 FASE BRU";scenarioTransition=75;
+    playSfx("power");
+  } else if(form==="golden"){
+    rapidFire=Math.max(rapidFire,480);
+    tripleShot=Math.max(tripleShot,300);
+    shield=Math.max(shield,280);
+    specialCharges=Math.min(9,specialCharges+3);
+    scenarioMsg="✨ GOLDEN DIOS";scenarioTransition=85;
+    playSfx("nova");if(!SFX.nova)playSfx("power");
+  } else if(form==="ultra"){
+    rapidFire=Math.max(rapidFire,420);
+    shield=Math.max(shield,300);
+    barrier=Math.max(barrier,280);
+    specialCharges=Math.min(9,specialCharges+2);
+    scenarioMsg="🟣 FASE ULTRA";scenarioTransition=80;
+    playSfx("power");
+  } else if(form==="superdios"){
+    rapidFire=Math.max(rapidFire,500);
+    pierce=Math.max(pierce,360);
+    shield=Math.max(shield,340);
+    overdrive=Math.max(overdrive,280);
+    tripleShot=Math.max(tripleShot,320);
+    specialCharges=Math.min(9,specialCharges+4);
+    scenarioMsg="👑 SUPER DIOS";scenarioTransition=100;
+    playSfx("nova");if(!SFX.nova)playSfx("power");
   }
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!["normal","ssj1","ssj2","ssj3","ssj4"].includes(form))return;
+  if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
   updateGokuFormsUI();
@@ -941,6 +979,10 @@ if(startPanel&&!document.getElementById("startExtras")){
         <button type="button" data-gform="ssj2" class="${gokuForm==="ssj2"?"active":""}">SSJ2</button>
         <button type="button" data-gform="ssj3" class="${gokuForm==="ssj3"?"active":""}">SSJ3</button>
         <button type="button" data-gform="ssj4" class="${gokuForm==="ssj4"?"active":""}">SSJ4</button>
+        <button type="button" data-gform="bru" class="${gokuForm==="bru"?"active":""}">Bru</button>
+        <button type="button" data-gform="golden" class="${gokuForm==="golden"?"active":""}">Golden Dios</button>
+        <button type="button" data-gform="ultra" class="${gokuForm==="ultra"?"active":""}">Ultra</button>
+        <button type="button" data-gform="superdios" class="${gokuForm==="superdios"?"active":""}">Super Dios</button>
       </div>
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
@@ -1039,7 +1081,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-5</b> fases · Nave <b>Br7</b>";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · Nave <b>Br7</b>";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
@@ -1244,6 +1286,10 @@ if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="3"){setGokuForm("ssj2");e.preventDefault()}
   if(e.key==="4"){setGokuForm("ssj3");e.preventDefault()}
   if(e.key==="5"){setGokuForm("ssj4");e.preventDefault()}
+  if(e.key==="6"){setGokuForm("bru");e.preventDefault()}
+  if(e.key==="7"){setGokuForm("golden");e.preventDefault()}
+  if(e.key==="8"){setGokuForm("ultra");e.preventDefault()}
+  if(e.key==="9"){setGokuForm("superdios");e.preventDefault()}
 }
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
@@ -2031,21 +2077,29 @@ function drawShipModel(g,s,model,skin,label){
   }else if(model==="delta"){
     g.moveTo(0,-s-4);g.lineTo(s*.85,s*.65);g.lineTo(0,s*.35);g.lineTo(-s*.85,s*.65);g.closePath();
   }else if(model==="goku"){
-    /* ===== GOKU por fases: normal | ssj2 | ssj3 | ssj4 ===== */
+    /* ===== GOKU por fases: normal|ssj1-4|bru|golden|ultra|superdios ===== */
     const form = (typeof gokuForm!=="undefined" && gokuForm) ? gokuForm : "normal";
     // Colores de aura / cabello según fase
-    let auraCol, hairCol, hairStroke, auraAlpha, eyeCol, eyeGlow;
+    let auraCol, hairCol, hairStroke, auraAlpha, eyeCol;
     if(form==="ssj4"){
-      auraCol="#FF2200"; hairCol="#1a0a05"; hairStroke="#4a2010"; auraAlpha=0.35; eyeCol="#FFEE00"; eyeGlow="#FF4400";
+      auraCol="#FF2200"; hairCol="#1a0a05"; hairStroke="#4a2010"; auraAlpha=0.35; eyeCol="#111";
     } else if(form==="ssj3"){
-      auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#11aaff"; eyeGlow="#FFD700";
+      auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#111";
     } else if(form==="ssj2"){
-      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.28; eyeCol="#11aaff"; eyeGlow="#FFD700";
+      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.28; eyeCol="#111";
     } else if(form==="ssj1"){
-      auraCol="#FFD700"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.24; eyeCol="#11aaff"; eyeGlow="#FFD700";
+      auraCol="#FFD700"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.24; eyeCol="#111";
+    } else if(form==="bru"){
+      auraCol="#FF6644"; hairCol="#2a1510"; hairStroke="#5a3020"; auraAlpha=0.30; eyeCol="#111";
+    } else if(form==="golden"){
+      auraCol="#FFD700"; hairCol="#FFE44D"; hairStroke="#C9A227"; auraAlpha=0.40; eyeCol="#111";
+    } else if(form==="ultra"){
+      auraCol="#AA66FF"; hairCol="#1a1028"; hairStroke="#4a3080"; auraAlpha=0.34; eyeCol="#111";
+    } else if(form==="superdios"){
+      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#FFAA00"; auraAlpha=0.45; eyeCol="#111";
     } else {
       // normal (Base)
-      auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111"; eyeGlow="#88ccff";
+      auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111";
     }
 
     // Aura de fondo
@@ -2054,11 +2108,19 @@ function drawShipModel(g,s,model,skin,label){
     else if(form==="ssj3") g.fillStyle="rgba(255,220,50,.30)";
     else if(form==="ssj2") g.fillStyle="rgba(255,230,80,.26)";
     else if(form==="ssj1") g.fillStyle="rgba(255,215,0,.22)";
+    else if(form==="bru") g.fillStyle="rgba(255,80,40,.28)";
+    else if(form==="golden") g.fillStyle="rgba(255,215,0,.38)";
+    else if(form==="ultra") g.fillStyle="rgba(140,80,255,.30)";
+    else if(form==="superdios") g.fillStyle="rgba(255,230,100,.42)";
     else g.fillStyle="rgba(100,180,255,.14)";
     g.beginPath();g.ellipse(0,-s*.1,s*1.2,s*1.6,0,0,Math.PI*2);g.fill();
-    if(form==="ssj3"||form==="ssj4"){
-      g.fillStyle=form==="ssj4"?"rgba(255,80,0,.15)":"rgba(255,255,150,.12)";
+    if(form==="ssj3"||form==="ssj4"||form==="golden"||form==="superdios"){
+      g.fillStyle=(form==="ssj4")?"rgba(255,80,0,.15)":(form==="superdios"||form==="golden")?"rgba(255,220,80,.18)":"rgba(255,255,150,.12)";
       g.beginPath();g.ellipse(0,-s*.15,s*1.45,s*1.85,0,0,Math.PI*2);g.fill();
+    }
+    if(form==="superdios"){
+      g.fillStyle="rgba(255,215,0,.12)";
+      g.beginPath();g.ellipse(0,-s*.2,s*1.65,s*2.05,0,0,Math.PI*2);g.fill();
     }
     g.shadowBlur=0;
 
@@ -2078,7 +2140,6 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.28,-s*.7);g.lineTo(-s*.35,-s*1.05);g.lineTo(-s*.22,-s*.85);
       g.closePath();g.fill();g.stroke();
     } else if(form==="ssj1"){
-      // SSJ1: cabello dorado clásico (picos medios)
       g.beginPath();
       g.moveTo(0,-s*1.55);
       g.lineTo(s*.16,-s*1.05);g.lineTo(s*.35,-s*1.35);g.lineTo(s*.26,-s*.88);
@@ -2094,7 +2155,6 @@ function drawShipModel(g,s,model,skin,label){
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.6);g.lineTo(s*.1,-s*1.15);g.lineTo(-s*.1,-s*1.15);g.closePath();g.fill();
     } else if(form==="ssj2"){
-      // SSJ2: picos dorados más agresivos + rayos
       g.beginPath();
       g.moveTo(0,-s*1.75);
       g.lineTo(s*.18,-s*1.2);g.lineTo(s*.4,-s*1.55);g.lineTo(s*.3,-s*.98);
@@ -2109,11 +2169,9 @@ function drawShipModel(g,s,model,skin,label){
       g.closePath();g.fill();g.stroke();
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.82);g.lineTo(s*.12,-s*1.3);g.lineTo(-s*.12,-s*1.3);g.closePath();g.fill();
-      // chispas SSJ2
       g.strokeStyle="rgba(255,255,180,.7)";g.lineWidth=1.2;
       for(let k=0;k<4;k++){const a=-1.2+k*0.7;g.beginPath();g.moveTo(Math.cos(a)*s*.6,Math.sin(a)*s*.9-s*.2);g.lineTo(Math.cos(a)*s*1.1,Math.sin(a)*s*1.3-s*.3);g.stroke()}
     } else if(form==="ssj3"){
-      // SSJ3: cabello muy largo hacia abajo
       g.beginPath();
       g.moveTo(0,-s*1.85);
       g.lineTo(s*.2,-s*1.25);g.lineTo(s*.42,-s*1.6);g.lineTo(s*.32,-s*1.0);
@@ -2132,8 +2190,61 @@ function drawShipModel(g,s,model,skin,label){
       g.closePath();g.fill();g.stroke();
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.92);g.lineTo(s*.14,-s*1.35);g.lineTo(-s*.14,-s*1.35);g.closePath();g.fill();
+    } else if(form==="bru"){
+      // Bru: cabello oscuro salvaje + mechones rojos
+      g.beginPath();
+      g.moveTo(0,-s*1.65);
+      g.lineTo(s*.2,-s*1.1);g.lineTo(s*.45,-s*1.4);g.lineTo(s*.32,-s*.9);
+      g.lineTo(s*.68,-s*1.15);g.lineTo(s*.48,-s*.55);
+      g.lineTo(s*.8,-s*.7);g.lineTo(s*.5,-s*.28);
+      g.lineTo(s*.58,-s*.08);g.lineTo(s*.25,-s*.18);
+      g.lineTo(0,-s*.14);
+      g.lineTo(-s*.25,-s*.18);g.lineTo(-s*.58,-s*.08);
+      g.lineTo(-s*.5,-s*.28);g.lineTo(-s*.8,-s*.7);
+      g.lineTo(-s*.48,-s*.55);g.lineTo(-s*.68,-s*1.15);
+      g.lineTo(-s*.32,-s*.9);g.lineTo(-s*.45,-s*1.4);g.lineTo(-s*.2,-s*1.1);
+      g.closePath();g.fill();g.stroke();
+      g.fillStyle="#CE1126";
+      g.beginPath();g.moveTo(s*.1,-s*1.55);g.lineTo(s*.28,-s*1.15);g.lineTo(s*.12,-s*1.1);g.closePath();g.fill();
+      g.beginPath();g.moveTo(-s*.1,-s*1.55);g.lineTo(-s*.28,-s*1.15);g.lineTo(-s*.12,-s*1.1);g.closePath();g.fill();
+    } else if(form==="golden"||form==="superdios"){
+      // Golden / Super Dios: cabello dorado radiante
+      g.beginPath();
+      g.moveTo(0,-s*1.9);
+      g.lineTo(s*.18,-s*1.25);g.lineTo(s*.42,-s*1.65);g.lineTo(s*.3,-s*1.0);
+      g.lineTo(s*.65,-s*1.35);g.lineTo(s*.48,-s*.7);
+      g.lineTo(s*.85,-s*.95);g.lineTo(s*.55,-s*.4);
+      g.lineTo(s*.7,-s*.08);g.lineTo(s*.28,-s*.18);
+      g.lineTo(0,-s*.14);
+      g.lineTo(-s*.28,-s*.18);g.lineTo(-s*.7,-s*.08);
+      g.lineTo(-s*.55,-s*.4);g.lineTo(-s*.85,-s*.95);
+      g.lineTo(-s*.48,-s*.7);g.lineTo(-s*.65,-s*1.35);
+      g.lineTo(-s*.3,-s*1.0);g.lineTo(-s*.42,-s*1.65);g.lineTo(-s*.18,-s*1.25);
+      g.closePath();g.fill();g.stroke();
+      g.fillStyle="#FFF8C0";
+      g.beginPath();g.moveTo(0,-s*1.98);g.lineTo(s*.14,-s*1.4);g.lineTo(-s*.14,-s*1.4);g.closePath();g.fill();
+      if(form==="superdios"){
+        g.strokeStyle="rgba(255,240,150,.85)";g.lineWidth=1.4;
+        for(let k=0;k<6;k++){const a=-1.4+k*0.55;g.beginPath();g.moveTo(Math.cos(a)*s*.5,Math.sin(a)*s*.85-s*.25);g.lineTo(Math.cos(a)*s*1.25,Math.sin(a)*s*1.45-s*.35);g.stroke()}
+      }
+    } else if(form==="ultra"){
+      // Ultra: cabello violeta / oscuro alto
+      g.beginPath();
+      g.moveTo(0,-s*1.7);
+      g.lineTo(s*.2,-s*1.15);g.lineTo(s*.4,-s*1.45);g.lineTo(s*.3,-s*.95);
+      g.lineTo(s*.6,-s*1.2);g.lineTo(s*.45,-s*.65);
+      g.lineTo(s*.72,-s*.8);g.lineTo(s*.48,-s*.35);
+      g.lineTo(s*.55,-s*.1);g.lineTo(s*.22,-s*.18);
+      g.lineTo(0,-s*.14);
+      g.lineTo(-s*.22,-s*.18);g.lineTo(-s*.55,-s*.1);
+      g.lineTo(-s*.48,-s*.35);g.lineTo(-s*.72,-s*.8);
+      g.lineTo(-s*.45,-s*.65);g.lineTo(-s*.6,-s*1.2);
+      g.lineTo(-s*.3,-s*.95);g.lineTo(-s*.4,-s*1.45);g.lineTo(-s*.2,-s*1.15);
+      g.closePath();g.fill();g.stroke();
+      g.fillStyle="#7B61FF";
+      g.beginPath();g.moveTo(0,-s*1.78);g.lineTo(s*.1,-s*1.25);g.lineTo(-s*.1,-s*1.25);g.closePath();g.fill();
     } else {
-      // SSJ4: cabello negro/rojo salvaje + pelaje
+      // SSJ4 fallback
       g.fillStyle="#1a0805";
       g.beginPath();
       g.moveTo(0,-s*1.7);
@@ -2148,44 +2259,33 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.35,-s*.9);g.lineTo(-s*.48,-s*1.4);g.lineTo(-s*.22,-s*1.15);
       g.closePath();g.fill();
       g.strokeStyle="#8B2500";g.stroke();
-      // mechones rojos
       g.fillStyle="#8B0000";
       g.beginPath();g.moveTo(s*.15,-s*1.5);g.lineTo(s*.35,-s*1.1);g.lineTo(s*.2,-s*1.05);g.closePath();g.fill();
       g.beginPath();g.moveTo(-s*.15,-s*1.5);g.lineTo(-s*.35,-s*1.1);g.lineTo(-s*.2,-s*1.05);g.closePath();g.fill();
     }
 
-    // === CARA ===
-    const skinCol = form==="ssj4" ? "#C45A3A" : "#F5C9A0";
+    // === CARA mejorada ===
+    const skinCol = form==="ssj4" ? "#C45A3A" : (form==="ultra" ? "#E8D0B8" : (form==="superdios"||form==="golden") ? "#FFE8C8" : "#F5C9A0");
     g.fillStyle=skinCol;
-    g.beginPath();g.ellipse(0,-s*.05,s*.32,s*.36,0,0,Math.PI*2);g.fill();
+    g.beginPath();g.ellipse(0,-s*.05,s*.34,s*.38,0,0,Math.PI*2);g.fill();
     g.strokeStyle=form==="ssj4"?"#8B3A20":"#C48A5A";g.lineWidth=Math.max(0.8,s*.04);g.stroke();
 
-    // Ojos
-    if(form==="normal"){
-      g.fillStyle="#111";
-      g.beginPath();g.ellipse(-s*.12,-s*.08,s*.07,s*.09,0,0,Math.PI*2);g.fill();
-      g.beginPath();g.ellipse(s*.12,-s*.08,s*.07,s*.09,0,0,Math.PI*2);g.fill();
-      g.fillStyle="#fff";
-      g.beginPath();g.arc(-s*.1,-s*.11,s*.025,0,Math.PI*2);g.fill();
-      g.beginPath();g.arc(s*.14,-s*.11,s*.025,0,Math.PI*2);g.fill();
-    } else {
-      // ojos de combate / SSJ
-      g.fillStyle=eyeCol;
-      g.beginPath();g.ellipse(-s*.12,-s*.08,s*.08,s*.1,0,0,Math.PI*2);g.fill();
-      g.beginPath();g.ellipse(s*.12,-s*.08,s*.08,s*.1,0,0,Math.PI*2);g.fill();
-      g.fillStyle="#fff";
-      g.beginPath();g.arc(-s*.1,-s*.12,s*.03,0,Math.PI*2);g.fill();
-      g.beginPath();g.arc(s*.14,-s*.12,s*.03,0,Math.PI*2);g.fill();
-      if(form==="ssj4"){
-        g.strokeStyle="#FFEE00";g.lineWidth=1;
-        g.beginPath();g.ellipse(-s*.12,-s*.08,s*.1,s*.12,0,0,Math.PI*2);g.stroke();
-        g.beginPath();g.ellipse(s*.12,-s*.08,s*.1,s*.12,0,0,Math.PI*2);g.stroke();
-      }
-    }
+    // Ojos negros (mejorados)
+    g.fillStyle="#0a0a0a";
+    g.beginPath();g.ellipse(-s*.12,-s*.08,s*.075,s*.095,0,0,Math.PI*2);g.fill();
+    g.beginPath();g.ellipse(s*.12,-s*.08,s*.075,s*.095,0,0,Math.PI*2);g.fill();
+    // brillo sutil
+    g.fillStyle="rgba(255,255,255,.55)";
+    g.beginPath();g.arc(-s*.1,-s*.11,s*.022,0,Math.PI*2);g.fill();
+    g.beginPath();g.arc(s*.14,-s*.11,s*.022,0,Math.PI*2);g.fill();
+    // cejas
+    g.strokeStyle="#1a1a1a";g.lineWidth=Math.max(1.2,s*.06);
+    g.beginPath();g.moveTo(-s*.2,-s*.18);g.lineTo(-s*.04,-s*.2);g.stroke();
+    g.beginPath();g.moveTo(s*.2,-s*.18);g.lineTo(s*.04,-s*.2);g.stroke();
 
     // Boca
     g.strokeStyle="#333";g.lineWidth=Math.max(1,s*.05);
-    g.beginPath();g.moveTo(-s*.08,s*.08);g.quadraticCurveTo(0,s*.16,s*.08,s*.08);g.stroke();
+    g.beginPath();g.moveTo(-s*.08,s*.1);g.quadraticCurveTo(0,s*.18,s*.08,s*.1);g.stroke();
 
     // Pelaje pecho SSJ4
     if(form==="ssj4"){
@@ -2193,8 +2293,22 @@ function drawShipModel(g,s,model,skin,label){
       g.beginPath();g.ellipse(0,s*.28,s*.28,s*.18,0,0,Math.PI*2);g.fill();
     }
 
-    // === CUERPO (gi naranja) ===
-    g.fillStyle="#E67E22";
+    // === CUERPO: camisa ROJA + pantalón (todas las fases base/SSJ) ===
+    // Colores de ropa
+    let shirtCol="#CE1126", shirtStroke="#8B0000", undershirt="#FFCD00", beltCol="#1A1A1A", pantsCol="#8B0000";
+    if(form==="bru"){
+      shirtCol="#AA1111"; shirtStroke="#660000"; undershirt="#FFAA00"; beltCol="#222"; pantsCol="#6B0000";
+    } else if(form==="golden"){
+      shirtCol="#CE1126"; shirtStroke="#8B0000"; undershirt="#FFD700"; beltCol="#1A1A1A"; pantsCol="#8B0000";
+    } else if(form==="ultra"){
+      shirtCol="#CE1126"; shirtStroke="#8B0000"; undershirt="#7B61FF"; beltCol="#2a1a40"; pantsCol="#8B0000";
+    } else if(form==="superdios"){
+      // Super Dios: cuerpo de oro
+      shirtCol="#FFD700"; shirtStroke="#C9A227"; undershirt="#FFF8C0"; beltCol="#B8860B"; pantsCol="#DAA520";
+    }
+
+    // Camisa / gi
+    g.fillStyle=shirtCol;
     g.beginPath();
     g.moveTo(-s*.38,s*.15);
     g.lineTo(s*.38,s*.15);
@@ -2205,35 +2319,49 @@ function drawShipModel(g,s,model,skin,label){
     g.lineTo(-s*.42,s*.55);
     g.closePath();
     g.fill();
-    g.strokeStyle="#C0392B";g.lineWidth=Math.max(0.8,s*.04);g.stroke();
+    g.strokeStyle=shirtStroke;g.lineWidth=Math.max(0.8,s*.04);g.stroke();
 
-    // Camiseta azul / cuello
-    g.fillStyle="#2980B9";
+    // Cuello / camiseta interior
+    g.fillStyle=undershirt;
     g.beginPath();g.moveTo(-s*.18,s*.12);g.lineTo(s*.18,s*.12);g.lineTo(s*.15,s*.28);g.lineTo(-s*.15,s*.28);g.closePath();g.fill();
 
     // Cinturón
-    g.fillStyle="#1A5276";
+    g.fillStyle=beltCol;
     g.fillRect(-s*.28,s*.48,s*.56,s*.08);
 
-    // Brazos
-    g.fillStyle="#E67E22";
+    // Brazos (mismo color camisa)
+    g.fillStyle=shirtCol;
     g.beginPath();g.ellipse(-s*.48,s*.32,s*.12,s*.22,-0.4,0,Math.PI*2);g.fill();
     g.beginPath();g.ellipse(s*.48,s*.32,s*.12,s*.22,0.4,0,Math.PI*2);g.fill();
     g.fillStyle=skinCol;
     g.beginPath();g.arc(-s*.55,s*.48,s*.09,0,Math.PI*2);g.fill();
     g.beginPath();g.arc(s*.55,s*.48,s*.09,0,Math.PI*2);g.fill();
 
-    // Piernas / botas
-    g.fillStyle="#1A5276";
+    // Piernas / pantalón
+    g.fillStyle=pantsCol;
     g.beginPath();g.moveTo(-s*.22,s*.68);g.lineTo(-s*.28,s*.95);g.lineTo(-s*.08,s*.95);g.lineTo(-s*.05,s*.68);g.closePath();g.fill();
     g.beginPath();g.moveTo(s*.22,s*.68);g.lineTo(s*.28,s*.95);g.lineTo(s*.08,s*.95);g.lineTo(s*.05,s*.68);g.closePath();g.fill();
+    // botas
+    g.fillStyle="#111";
+    g.fillRect(-s*.3,s*.9,s*.24,s*.1);
+    g.fillRect(s*.06,s*.9,s*.24,s*.1);
+
+    // Aura dorada extra Super Dios (cuerpo metálico)
+    if(form==="superdios"){
+      g.strokeStyle="rgba(255,240,150,.5)";g.lineWidth=1.5;
+      g.beginPath();g.ellipse(0,s*.35,s*.48,s*.55,0,0,Math.PI*2);g.stroke();
+    }
 
     // Propulsor / aura inferior
     const fl=7+Math.random()*6;
     g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?4:12;
     const thr=g.createLinearGradient(0,s*.9,0,s*.9+fl);
-    if(form==="ssj4"){
+    if(form==="ssj4"||form==="bru"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FF6644");thr.addColorStop(.6,"#FF2200");thr.addColorStop(1,"rgba(180,0,0,0)");
+    } else if(form==="ultra"){
+      thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#CCAAFF");thr.addColorStop(.7,"#6633AA");thr.addColorStop(1,"rgba(40,0,80,0)");
+    } else if(form==="golden"||form==="superdios"){
+      thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FFF8C0");thr.addColorStop(.55,"#FFD700");thr.addColorStop(1,"rgba(180,120,0,0)");
     } else if(form==="normal"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#88CCFF");thr.addColorStop(.7,"#3366AA");thr.addColorStop(1,"rgba(0,50,120,0)");
     } else {
@@ -2244,7 +2372,7 @@ function drawShipModel(g,s,model,skin,label){
     g.shadowBlur=0;
 
     // Etiqueta fase
-    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[form]||"";
+    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"BRU",golden:"GOLDEN",ultra:"ULTRA",superdios:"S.DIOS"}[form]||"";
     if(label || formLabel){
       const nm=String(label||"").slice(0,8);
       const fs=Math.max(7, Math.min(s*0.4, s*0.85/Math.max(2,(nm.length||4)*0.35)));
@@ -2319,7 +2447,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

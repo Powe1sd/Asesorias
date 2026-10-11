@@ -411,8 +411,24 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic");
-let ownedShipModels=(function(){try{var a=JSON.parse(lsGet("techOwnedModels",'["classic","fighter","goku"]'));if(!Array.isArray(a)||!a.length)return["classic","fighter","goku"];if(a.indexOf("classic")<0)a.unshift("classic");if(a.indexOf("fighter")<0)a.push("fighter");if(a.indexOf("goku")<0)a.push("goku");return a}catch(e){return["classic","fighter","goku"]}})();
-let ownedShipSkins=(function(){try{var a=JSON.parse(lsGet("techOwnedSkins",'["white","black"]'));if(!Array.isArray(a)||!a.length)return["white","black"];if(a.indexOf("white")<0)a.unshift("white");if(a.indexOf("black")<0)a.push("black");return a}catch(e){return["white","black"]}})();
+let ownedShipModels=(function(){
+  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku"];
+  try{
+    var a=JSON.parse(lsGet("techOwnedModels",JSON.stringify(free)));
+    if(!Array.isArray(a)||!a.length)a=free.slice();
+    free.forEach(function(id){if(a.indexOf(id)<0)a.push(id)});
+    return a;
+  }catch(e){return free.slice()}
+})();
+let ownedShipSkins=(function(){
+  var free=["white","black","gold","cyan","crimson","violet","lime","steel","orange"];
+  try{
+    var a=JSON.parse(lsGet("techOwnedSkins",JSON.stringify(free)));
+    if(!Array.isArray(a)||!a.length)a=free.slice();
+    free.forEach(function(id){if(a.indexOf(id)<0)a.push(id)});
+    return a;
+  }catch(e){return free.slice()}
+})();
 let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
@@ -582,38 +598,42 @@ function showDailyMissionsMenu(){
 
 /* ===== TIENDA DE NAVES Y SKINS ===== */
 const SHIP_MODEL_SHOP=[
+  /* 7 originales gratis */
   {id:"classic",name:"Clásica",price:0,icon:"🚀",desc:"Nave Br7 original. Gratis."},
   {id:"fighter",name:"Cazadora",price:0,icon:"✈️",desc:"Caza ligera estándar. Gratis."},
-  {id:"interceptor",name:"Interceptor",price:6000,icon:"⚡",desc:"Perfil afilado y ágil."},
-  {id:"heavy",name:"Pesada",price:6500,icon:"🛡️",desc:"Casco ancho y resistente."},
-  {id:"stealth",name:"Sigilo",price:7000,icon:"🌑",desc:"Silueta triangular furtiva."},
-  {id:"wing",name:"Ala X",price:7500,icon:"✖️",desc:"Alas extendidas estilo X."},
-  {id:"needle",name:"Aguja",price:8000,icon:"📍",desc:"Ultra delgada y rápida."},
-  {id:"delta",name:"Delta",price:8500,icon:"🔺",desc:"Ala delta de combate."},
-  {id:"phoenix",name:"Fénix",price:9000,icon:"🔥",desc:"Forma de ave de fuego."},
-  {id:"blade",name:"Cuchilla",price:10000,icon:"🗡️",desc:"Perfil de hoja cortante."},
-  {id:"cruiser",name:"Crucero",price:11000,icon:"🛸",desc:"Nave ancha de escolta."},
+  {id:"interceptor",name:"Interceptor",price:0,icon:"⚡",desc:"Perfil afilado y ágil. Gratis."},
+  {id:"heavy",name:"Pesada",price:0,icon:"🛡️",desc:"Casco ancho y resistente. Gratis."},
+  {id:"stealth",name:"Sigilo",price:0,icon:"🌑",desc:"Silueta triangular furtiva. Gratis."},
+  {id:"wing",name:"Ala X",price:0,icon:"✖️",desc:"Alas extendidas estilo X. Gratis."},
+  {id:"needle",name:"Aguja",price:0,icon:"📍",desc:"Ultra delgada y rápida. Gratis."},
+  /* 6 distintas de pago → total 13 naves */
+  {id:"delta",name:"Delta",price:6000,icon:"🔺",desc:"Ala delta de combate."},
+  {id:"phoenix",name:"Fénix",price:7000,icon:"🔥",desc:"Forma de ave de fuego."},
+  {id:"blade",name:"Cuchilla",price:8500,icon:"🗡️",desc:"Perfil de hoja cortante."},
+  {id:"cruiser",name:"Crucero",price:10000,icon:"🛸",desc:"Nave ancha de escolta."},
   {id:"arrow",name:"Flecha",price:12000,icon:"➤",desc:"Punta de flecha supersónica."},
-  {id:"viper",name:"Víbora",price:14000,icon:"🐍",desc:"Curvas agresivas de caza."},
-  {id:"titan",name:"Titán",price:16000,icon:"🗿",desc:"Acorazado pesado elite."},
+  {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
+  /* personaje especial */
   {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
+  /* colores originales gratis */
   {id:"white",name:"Blanca",price:0,icon:"⬜",desc:"Skin básica. Gratis."},
   {id:"black",name:"Negra",price:0,icon:"⬛",desc:"Skin oscura. Gratis."},
-  {id:"gold",name:"Oro",price:6000,icon:"🟨",desc:"Acabado dorado brillante."},
-  {id:"cyan",name:"Cian",price:6500,icon:"🟦",desc:"Azul neón espacial."},
-  {id:"crimson",name:"Carmesí",price:7000,icon:"🟥",desc:"Rojo intenso de combate."},
-  {id:"violet",name:"Violeta",price:7500,icon:"🟪",desc:"Púrpura galáctico."},
-  {id:"lime",name:"Lima",price:8000,icon:"🟩",desc:"Verde tóxico brillante."},
-  {id:"steel",name:"Acero",price:8500,icon:"⚙️",desc:"Gris metálico militar."},
-  {id:"orange",name:"Naranja",price:9000,icon:"🟧",desc:"Naranja de alerta."},
-  {id:"pink",name:"Rosa",price:9500,icon:"💗",desc:"Rosa neón futurista."},
-  {id:"ice",name:"Hielo",price:10000,icon:"🧊",desc:"Azul glaciar cristalino."},
-  {id:"toxic",name:"Tóxico",price:11000,icon:"☢️",desc:"Verde radioactivo."},
-  {id:"shadow",name:"Sombra",price:12000,icon:"🕶️",desc:"Negro con brillo violeta."},
-  {id:"solar",name:"Solar",price:14000,icon:"☀️",desc:"Rojo-dorado de estrella."},
-  {id:"prism",name:"Prisma",price:16000,icon:"💎",desc:"Cromado multicolor."}
+  {id:"gold",name:"Oro",price:0,icon:"🟨",desc:"Acabado dorado. Gratis."},
+  {id:"cyan",name:"Cian",price:0,icon:"🟦",desc:"Azul neón. Gratis."},
+  {id:"crimson",name:"Carmesí",price:0,icon:"🟥",desc:"Rojo de combate. Gratis."},
+  {id:"violet",name:"Violeta",price:0,icon:"🟪",desc:"Púrpura galáctico. Gratis."},
+  {id:"lime",name:"Lima",price:0,icon:"🟩",desc:"Verde brillante. Gratis."},
+  {id:"steel",name:"Acero",price:0,icon:"⚙️",desc:"Gris metálico. Gratis."},
+  {id:"orange",name:"Naranja",price:0,icon:"🟧",desc:"Naranja de alerta. Gratis."},
+  /* skins premium */
+  {id:"pink",name:"Rosa",price:6000,icon:"💗",desc:"Rosa neón futurista."},
+  {id:"ice",name:"Hielo",price:7000,icon:"🧊",desc:"Azul glaciar cristalino."},
+  {id:"toxic",name:"Tóxico",price:8500,icon:"☢️",desc:"Verde radioactivo."},
+  {id:"shadow",name:"Sombra",price:10000,icon:"🕶️",desc:"Negro con brillo violeta."},
+  {id:"solar",name:"Solar",price:12000,icon:"☀️",desc:"Rojo-dorado de estrella."},
+  {id:"prism",name:"Prisma",price:15000,icon:"💎",desc:"Cromado multicolor."}
 ];
 function buyShipModel(id){
   try{
@@ -668,7 +688,7 @@ function showShipShop(tab){
     m.innerHTML=`<h2 style="text-align:center;font-size:20px;margin:0 0 6px">🚀 TIENDA DE NAVES</h2>
     <p style="text-align:center;color:#FFD700;font-size:13px;margin:0 0 8px">🪙 ${coins}</p>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button type="button" class="game-btn tab-ship" data-tab="models" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="models"?"background:#FFCD00;color:#111":""}">14 Modelos</button>
+      <button type="button" class="game-btn tab-ship" data-tab="models" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="models"?"background:#FFCD00;color:#111":""}">13 Modelos</button>
       <button type="button" class="game-btn tab-ship" data-tab="skins" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="skins"?"background:#FFCD00;color:#111":""}">Skins</button>
     </div>
     ${cards}
@@ -1519,7 +1539,7 @@ if(startPanel&&!document.getElementById("startExtras")){
         return '<button type="button" data-model="'+id+'" class="'+(shipModel===id?"active":"")+'">'+lb+'</button>';
       }).join("")}
     </div>
-    <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · 14 modelos + skins</button>
+    <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · 13 modelos + skins</button>
     <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
       <h3>⚡ Fase de Goku</h3>
       <div class="diff-btns">

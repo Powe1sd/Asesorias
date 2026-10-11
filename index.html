@@ -241,6 +241,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
       <button type="button" class="touch-util" id="touchPause">⏸</button>
       <button type="button" class="touch-util" id="touchPowerMode" title="Poderes auto/manual">AUTO</button>
       <button type="button" class="touch-util" id="touchSpecial">⚡</button>
+      <button type="button" class="touch-util" id="touchGenki" title="Genkidama" style="border-color:rgba(100,180,255,.7);color:#88CCFF;display:none">🌍</button>
     </div>
     <div class="touch-col">
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
@@ -429,7 +430,7 @@ let ownedShipSkins=(function(){
     return a;
   }catch(e){return free.slice()}
 })();
-let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios
+let gokuForm=(function(){var f=lsGet("techGokuForm","normal")||"normal";if(f==="ssjgod")f="normal";return f})();
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
@@ -866,7 +867,7 @@ function showWeaponShop(){
         <button type="button" class="game-btn shop-w-btn" data-buy="${btnAct}" style="width:100%;margin:0;padding:8px;font-size:12px;${btnStyle}" ${btnAct?"":"disabled"}>${btnLabel}</button>
       </div>`;
     });
-    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🛒 TIENDA DE ARMAS</h2>
+    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🔫 TIENDA DE ARMAS</h2>
     <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
     <p style="text-align:center;color:#888;font-size:10px;margin:0 0 4px">Solo para naves · Goku usa disparo normal</p>
     <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">En partida: botón 🔫 para cambiar arma</p>
@@ -890,20 +891,85 @@ function showWeaponShop(){
   m.style.display="block";
 }
 
+/* Bolitas de energía que orbitan a Goku mientras carga Genkidama */
+let kiChargeOrbs=[];
 function addKi(n){
-  if(ki>=kiMax){kiReady=true;return}
+  if(ki>=kiMax){kiReady=true;try{if(typeof updateGenkiTouchBtn==="function")updateGenkiTouchBtn()}catch(e){}return}
+  const was=ki;
   const bonus=1+((upgKi||0)*0.2);
   ki=Math.min(kiMax,ki+Math.ceil((n||5)*bonus));
-  if(ki>=kiMax){ki=kiMax;kiReady=true;scenarioMsg="⚡ KI LISTO (K)";scenarioTransition=45}
+  /* Solo con Goku: bolitas al cargar */
+  if(shipModel==="goku"&&ki>was){
+    const need=Math.min(3, Math.ceil((ki-was)/8));
+    for(let i=0;i<need;i++){
+      if(kiChargeOrbs.length>14)break;
+      kiChargeOrbs.push({
+        ang:Math.random()*Math.PI*2,
+        dist:28+Math.random()*22,
+        r:3+Math.random()*3,
+        life:90+Math.random()*40,
+        spd:0.04+Math.random()*0.03
+      });
+    }
+  }
+  if(ki>=kiMax){
+    ki=kiMax;kiReady=true;
+    scenarioMsg=shipModel==="goku"?"🌍 GENKIDAMA LISTA":"⚡ KI LISTO (K)";
+    scenarioTransition=45;
+  }
+  try{if(typeof updateGenkiTouchBtn==="function")updateGenkiTouchBtn()}catch(e){}
+}
+function updateKiChargeOrbs(){
+  if(shipModel!=="goku"||!gameRunning){kiChargeOrbs=[];return}
+  for(let i=kiChargeOrbs.length-1;i>=0;i--){
+    const o=kiChargeOrbs[i];
+    o.ang+=o.spd;o.life--;
+    const x=player.x+Math.cos(o.ang)*o.dist;
+    const y=player.y+Math.sin(o.ang)*o.dist*0.7-8;
+    ctx.save();
+    ctx.shadowColor="#66CCFF";ctx.shadowBlur=8;
+    const g=ctx.createRadialGradient(x,y,0.5,x,y,o.r);
+    g.addColorStop(0,"#fff");g.addColorStop(.4,"#66B0FF");g.addColorStop(1,"rgba(0,80,200,0)");
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,o.r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    if(o.life<=0)kiChargeOrbs.splice(i,1);
+  }
+  /* Si KI listo, más brillo de orbes estables */
+  if(ki>=kiMax){
+    for(let i=0;i<5;i++){
+      const ang=performance.now()/400+i*(Math.PI*2/5);
+      const x=player.x+Math.cos(ang)*36;
+      const y=player.y+Math.sin(ang)*28-10;
+      ctx.save();ctx.shadowColor="#FFD700";ctx.shadowBlur=10;
+      ctx.fillStyle="rgba(255,220,100,.7)";ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+  }
 }
 function useKiAttack(){
   if(!gameRunning||gamePaused)return;
   if(ki<kiMax){doVibrate(8);return}
   ki=0;kiReady=false;doVibrate(30);
+  const s=getScale();
+  /* Goku: GENKIDAMA (bola de energía grande) */
+  if(shipModel==="goku"){
+    try{playGokuShoot()}catch(e){}
+    try{playSfx("nova")}catch(e){}
+    scenarioMsg="🌍 GENKIDAMA";scenarioTransition=90;
+    const ballR=22*s;
+    bullets.push({
+      x:player.x, y:player.y-player.size*1.2,
+      speed:6.5*getSpeedScale(), size:ballR,
+      pierce:true, ki:true, genkidama:true,
+      kiCol:{core:"#FFFFFF",mid:"#66B0FF",outer:"#0044AA",glow:"#88CCFF"},
+      life:200
+    });
+    createExplosion(player.x,player.y-30,40*s,"100,180,255");
+    return;
+  }
   playSfx("nova");if(!SFX.nova)playSfx("explode");
   scenarioMsg="💥 ATAQUE DE KI";scenarioTransition=60;
-  /* Onda de ki + ráfaga de balas */
-  const R=140*getScale();
+  const R=140*s;
   createExplosion(player.x,player.y,R*.55,"255,220,50");
   createExplosion(player.x,player.y-40,R*.4,"100,200,255");
   for(let i=obstacles.length-1;i>=0;i--){
@@ -915,7 +981,7 @@ function useKiAttack(){
     }
   }
   enemyBullets=[];
-  const sp=12*getSpeedScale(),s=getScale();
+  const sp=12*getSpeedScale();
   for(let i=0;i<12;i++){
     const ang=-Math.PI/2+(i-5.5)*0.1;
     bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.5*s,pierce:true,vx:Math.sin(ang)*sp*0.3,vy:-Math.cos(ang)*sp});
@@ -1076,7 +1142,7 @@ function showUserManual(){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;color:#ccc;line-height:1.4;margin-bottom:8px">
     <div style="background:rgba(0,30,60,.5);padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.25)">
       <b style="color:#FFCD00">PC</b><br>
-      Mouse · mover<br>Clic / Espacio · disparar<br><b>G</b> poder · <b>P</b> pausa<br><b>K</b> ataque KI<br>Goku: teclas <b>1-9</b>
+      Mouse · mover<br>Clic / Espacio · disparar<br><b>G</b> poder · <b>P</b> pausa<br><b>K</b> ataque KI<br>Goku: teclas <b>1-0</b>
     </div>
     <div style="background:rgba(0,30,60,.5);padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.25)">
       <b style="color:#FFCD00">MÓVIL</b><br>
@@ -1719,7 +1785,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
-    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🛒 Tienda de armas · ${coins}🪙</button>
+    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🔫 Tienda de armas · ${coins}🪙</button>
     <button type="button" class="game-btn" id="btnUpgradeShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#00A0E9,#0038A8);color:#fff;border-color:#FFCD00;font-weight:700">⚙️ Tienda de mejoras</button>
     <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
@@ -1803,7 +1869,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · <b>P</b> pausa · Goku <b>1-9</b> · <b>K</b> KI · 📖 Manual";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · <b>P</b> pausa · Goku <b>1-0</b> · <b>K</b> KI · 📖 Manual";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
@@ -1944,11 +2010,25 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   window.addEventListener("touchend",function(e){if(stickId!==null)onStickEnd(e)},{passive:false});
 
   const spBtn=document.getElementById("touchSpecial");
-  function doSpecial(){ if(ki>=kiMax) useKiAttack(); else useSpecialPower(); }
+  function doSpecial(){ if(shipModel==="goku"&&ki>=kiMax) useKiAttack(); else useSpecialPower(); }
   if(spBtn){
     spBtn.addEventListener("touchstart",e=>{e.preventDefault();doSpecial()},{passive:false});
     spBtn.addEventListener("mousedown",e=>{e.preventDefault();doSpecial()});
   }
+  const genkiBtn=document.getElementById("touchGenki");
+  function doGenki(){ if(shipModel==="goku") useKiAttack(); }
+  if(genkiBtn){
+    genkiBtn.addEventListener("touchstart",e=>{e.preventDefault();doGenki()},{passive:false});
+    genkiBtn.addEventListener("mousedown",e=>{e.preventDefault();doGenki()});
+  }
+  window.updateGenkiTouchBtn=function(){
+    const b=document.getElementById("touchGenki");
+    if(!b)return;
+    const show=shipModel==="goku"&&gameRunning;
+    b.style.display=show?"block":"none";
+    if(ki>=kiMax){b.style.background="rgba(0,120,200,.85)";b.style.color="#FFD700";b.style.boxShadow="0 0 12px rgba(100,200,255,.6)";b.textContent="🌍 LISTO"}
+    else {b.style.background="rgba(0,40,90,.7)";b.style.color="#88CCFF";b.style.boxShadow="none";b.textContent="🌍 "+Math.floor((ki/kiMax)*100)+"%"}
+  };
   const tpause=document.getElementById("touchPause");
   if(tpause){tpause.addEventListener("touchstart",e=>{e.preventDefault();if(gameRunning)togglePause()},{passive:false});tpause.addEventListener("click",()=>{if(gameRunning)togglePause()})}
   const tpm=document.getElementById("touchPowerMode");
@@ -2013,7 +2093,7 @@ if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="7"){setGokuForm("golden");e.preventDefault()}
   if(e.key==="8"){setGokuForm("ultra");e.preventDefault()}
   if(e.key==="9"){setGokuForm("superdios");e.preventDefault()}
-}
+  }
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
 if(e.key===" "||e.code==="Space"){e.preventDefault();if(!gamePaused&&gameRunning){isShooting=true;if(!e.repeat)shoot()}}
@@ -2055,7 +2135,35 @@ function applyGravity(obj,x,y,mult){
 }
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
+/* Villanos DBZ solo con Goku (caen como meteoros) */
+function createGokuVillain(){
+  if(obstacles.length>(isMobile()?7:14))return;
+  const sc=getScale();
+  const pool=["db_saiba","db_soldier","db_soldier","db_monster","db_frieza","db_cell","db_monster"];
+  const etype=pool[Math.floor(Math.random()*pool.length)];
+  let size,spd,label;
+  /* HP 1 como meteoritos: mueren de un golpe */
+  if(etype==="db_saiba"){size=(11+Math.random()*3)*sc;spd=2.2;label="SAIBAMAN"}
+  else if(etype==="db_soldier"){size=(12+Math.random()*4)*sc;spd=1.9;label="SOLDADO"}
+  else if(etype==="db_monster"){size=(14+Math.random()*5)*sc;spd=1.6;label="MONSTRUO"}
+  else if(etype==="db_frieza"){size=(13+Math.random()*4)*sc;spd=1.7;label="FREEZER"}
+  else {size=(14+Math.random()*5)*sc;spd=1.5;label="CELL"}
+  const spread=canvas.width*0.4;
+  let mx=player.x+(Math.random()-0.5)*spread*2;
+  mx=Math.max(size,Math.min(canvas.width-size,mx));
+  if(Math.random()<0.3) mx=Math.random()*Math.max(1,canvas.width-size);
+  obstacles.push({
+    x:mx-size/2,y:-size-12,size,
+    speed:(2.0+Math.random()*1.5)*getProgressSpeed()*getSpeedScale(),
+    vx:(Math.random()-0.5)*1.3, rotation:0, rotationSpeed:0, points:[],
+    type:etype, hp:1, maxHp:1, shootTimer:30+Math.random()*50,
+    zigzag:Math.random()*Math.PI*2, zigzagDir:Math.random()>0.5?1:-1,
+    baseY:0, arriving:false, label:label, dbVillain:true
+  });
+}
 function createMeteor(kind){
+  /* Con Goku: villanos en vez de meteoritos */
+  if(shipModel==="goku"){createGokuVillain();return}
   if(obstacles.length>(isMobile()?6:12))return;
   const sc=getScale();
   const isHard=kind==="hard";
@@ -2099,6 +2207,11 @@ function createEnemy(etype,role){
   else if(etype==="alien_brute"){size=(20+Math.random()*8)*sc;hp=8;spd=1.0}
   else if(etype==="alien_eye"){size=(14+Math.random()*5)*sc;hp=4;spd=1.4}
   else if(etype==="bigship"){size=(14+Math.random()*8)*sc;hp=4+Math.floor(level/2);spd=1.3}
+  else if(etype==="db_saiba"){size=(10+Math.random()*4)*sc;hp=1;spd=2.0}
+  else if(etype==="db_soldier"){size=(12+Math.random()*5)*sc;hp=1;spd=1.6}
+  else if(etype==="db_monster"){size=(15+Math.random()*6)*sc;hp=1;spd=1.3}
+  else if(etype==="db_frieza"){size=(14+Math.random()*5)*sc;hp=1;spd=1.4}
+  else if(etype==="db_cell"){size=(16+Math.random()*6)*sc;hp=1;spd=1.2}
   else{size=(10+Math.random()*6)*sc;hp=2+Math.floor(level/3);spd=1.5}
   const topY=18+Math.random()*48;
   obstacles.push({
@@ -2149,7 +2262,7 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  let poolTop=["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
+  let poolTop=shipModel==="goku"?["db_saiba","db_soldier","db_monster","db_frieza","db_cell","db_soldier","db_monster"]:["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
   if(waveCount>=1)poolTop.push("ship","hunter","alien","alien_flyer");
   if(waveCount>=2)poolTop.push("alien_eye","alien","teleport");
   if(waveCount>=3||scenario>=3)poolTop.push("alien_brute","alien","creature");
@@ -2359,7 +2472,7 @@ function shoot(){
       superdios:{core:"#FFFFFF",mid:"#FFE066",outer:"#FFAA00",glow:"#FFEE88"}
     };
     const col=kiCols[form]||kiCols.normal;
-    const r=(form==="superdios"||form==="ssj3"?7:form==="ssj4"||form==="golden"?6.5:5.5)*s;
+    const r=(form==="superdios"?4.2:form==="ssj3"||form==="ssj4"?3.8:3.2)*s;
     const fireKi=function(ox){
       if(ammo<=0)return;
       bullets.push({
@@ -2412,6 +2525,14 @@ function enemyShoot(o){
   } else if(o.type==="alien_brute"){
     enemyBullets.push({x:cx-6,y:cy,vx:vx-.2,vy:vy,size:3.6*s,alien:true});
     enemyBullets.push({x:cx+6,y:cy,vx:vx+.2,vy:vy,size:3.6*s,alien:true});
+  } else if(String(o.type).startsWith("db_")){
+    /* Poderes de villanos: bolas de energía de colores */
+    const col=o.type==="db_frieza"?"#FF66AA":o.type==="db_cell"?"#66FF88":o.type==="db_monster"?"#FFAA44":o.type==="db_soldier"?"#CCAAFF":"#88FF44";
+    enemyBullets.push({x:cx,y:cy,vx:vx*0.9,vy:vy*0.95,size:4*s,alien:true,dbPower:true,color:col});
+    if(o.type==="db_frieza"||o.type==="db_cell"){
+      enemyBullets.push({x:cx,y:cy,vx:vx*0.7-0.4,vy:vy*0.85,size:3.2*s,alien:true,dbPower:true,color:col});
+      enemyBullets.push({x:cx,y:cy,vx:vx*0.7+0.4,vy:vy*0.85,size:3.2*s,alien:true,dbPower:true,color:col});
+    }
   } else {
     /* ship, hunter, kamikaze, teleport, etc. */
     enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.1*s});
@@ -2491,9 +2612,9 @@ function destroyEnemy(o,i){
     shipsDestroyed++;
     addKi(String(o.type).startsWith("boss")?25:6);
   }
-  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
+  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48,db_saiba:3,db_soldier:4,db_monster:6,db_frieza:8,db_cell:10};
   addScoreCombo(pts[o.type]||2);
-  const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)||String(o.type).startsWith("boss_alien");
+  const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature","db_saiba","db_soldier","db_monster","db_frieza","db_cell"].includes(o.type)||String(o.type).startsWith("boss_alien");
   progressDaily("kill",1);
   if(isAlien)progressDaily("alien",1);
   if(String(o.type).startsWith("boss"))progressDaily("boss",1);
@@ -3308,24 +3429,7 @@ function drawShipModel(g,s,model,skin,label){
       g.beginPath();g.ellipse(0,s*.35,s*.48,s*.55,0,0,Math.PI*2);g.stroke();
     }
 
-    // Propulsor / aura inferior
-    const fl=7+Math.random()*6;
-    g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?4:12;
-    const thr=g.createLinearGradient(0,s*.9,0,s*.9+fl);
-    if(form==="ssj4"||form==="bru"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FF6644");thr.addColorStop(.6,"#FF2200");thr.addColorStop(1,"rgba(180,0,0,0)");
-    } else if(form==="ultra"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#CCAAFF");thr.addColorStop(.7,"#6633AA");thr.addColorStop(1,"rgba(40,0,80,0)");
-    } else if(form==="golden"||form==="superdios"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FFF8C0");thr.addColorStop(.55,"#FFD700");thr.addColorStop(1,"rgba(180,120,0,0)");
-    } else if(form==="normal"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#88CCFF");thr.addColorStop(.7,"#3366AA");thr.addColorStop(1,"rgba(0,50,120,0)");
-    } else {
-      thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#FFEE66");thr.addColorStop(.7,"#FF8800");thr.addColorStop(1,"rgba(255,100,0,0)");
-    }
-    g.fillStyle=thr;
-    g.beginPath();g.moveTo(-s*.25,s*.92);g.lineTo(0,s*.92+fl);g.lineTo(s*.25,s*.92);g.closePath();g.fill();
-    g.shadowBlur=0;
+    /* Sin propulsor: Goku flota con aura de ki (ya dibujada arriba) */
 
     // Etiqueta fase
     const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"BRU",golden:"GOLDEN",ultra:"ULTRA",superdios:"S.DIOS"}[form]||"";
@@ -3471,6 +3575,91 @@ function drawObstacle(o){
         ctx.beginPath();ctx.arc(o.size*.1,-o.size*.2,o.size*.12,0,Math.PI*2);ctx.fill();
       }
       o.rotation=(o.rotation||0)+(o.rotationSpeed||.05);
+    }
+  } else if(String(o.type).startsWith("db_")){
+    /* Villanos DBZ mejorados (solo Goku) */
+    const s=o.size, t=o.type;
+    let body="#44AA44", glow="#88FF88", eye="#FFEE00", skin="#88CC66", accent="#226622";
+    if(t==="db_soldier"){body="#6B4C9A";glow="#D4B0FF";skin="#E8B88A";eye="#fff";accent="#3A2060"}
+    else if(t==="db_monster"){body="#5A3820";glow="#FFBB55";skin="#A07840";eye="#FF3300";accent="#2A1808"}
+    else if(t==="db_frieza"){body="#F5F0F8";glow="#FF77BB";skin="#FFFFFF";eye="#CE1126";accent="#FF66AA"}
+    else if(t==="db_cell"){body="#1A9944";glow="#77FF99";skin="#0D5520";eye="#FFEE00";accent="#0A3310"}
+    else {body="#55AA33";glow="#AAFF66";skin="#77CC44";eye="#111";accent="#226611"}
+    ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?6:12;
+    /* piernas */
+    ctx.fillStyle=accent;
+    ctx.beginPath();ctx.ellipse(-s*.18,s*.42,s*.14,s*.28,0.15,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*.18,s*.42,s*.14,s*.28,-0.15,0,Math.PI*2);ctx.fill();
+    /* torso */
+    const g=ctx.createRadialGradient(-s*.12,-s*.15,1,0,s*.05,s*.65);
+    g.addColorStop(0,skin);g.addColorStop(.45,body);g.addColorStop(1,accent);
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.ellipse(0,s*.02,s*.38,s*.48,0,0,Math.PI*2);ctx.fill();
+    /* hombros */
+    ctx.beginPath();ctx.ellipse(-s*.38,s*.0,s*.16,s*.14,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*.38,s*.0,s*.16,s*.14,0,0,Math.PI*2);ctx.fill();
+    /* cabeza */
+    ctx.beginPath();ctx.ellipse(0,-s*.38,s*.30,s*.34,0,0,Math.PI*2);ctx.fill();
+    if(t==="db_frieza"){
+      ctx.fillStyle="#fff";
+      ctx.beginPath();ctx.moveTo(-s*.18,-s*.55);ctx.lineTo(-s*.48,-s*1.0);ctx.lineTo(-s*.02,-s*.62);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(s*.18,-s*.55);ctx.lineTo(s*.48,-s*1.0);ctx.lineTo(s*.02,-s*.62);ctx.closePath();ctx.fill();
+      ctx.fillStyle="#FF66AA";
+      ctx.beginPath();ctx.ellipse(0,-s*.22,s*.16,s*.1,0,0,Math.PI*2);ctx.fill();
+      /* cola */
+      ctx.strokeStyle="#FF88CC";ctx.lineWidth=Math.max(2,s*.1);
+      ctx.beginPath();ctx.moveTo(0,s*.4);ctx.quadraticCurveTo(s*.5,s*.6,s*.35,s*.9);ctx.stroke();
+    } else if(t==="db_cell"){
+      ctx.fillStyle="rgba(0,0,0,.4)";
+      ctx.beginPath();ctx.ellipse(-s*.14,-s*.08,s*.1,s*.16,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(s*.14,s*.12,s*.12,s*.1,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#BBFFDD";
+      ctx.beginPath();ctx.moveTo(0,-s*.72);ctx.lineTo(s*.14,-s*.42);ctx.lineTo(-s*.14,-s*.42);ctx.closePath();ctx.fill();
+      /* alas pequeñas */
+      ctx.fillStyle="rgba(40,120,60,.55)";
+      ctx.beginPath();ctx.moveTo(-s*.3,-s*.1);ctx.lineTo(-s*.7,-s*.35);ctx.lineTo(-s*.45,s*.15);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(s*.3,-s*.1);ctx.lineTo(s*.7,-s*.35);ctx.lineTo(s*.45,s*.15);ctx.closePath();ctx.fill();
+    } else if(t==="db_saiba"){
+      ctx.fillStyle="#1A6611";
+      ctx.beginPath();ctx.ellipse(0,-s*.58,s*.22,s*.14,0,0,Math.PI*2);ctx.fill();
+      /* antenas */
+      ctx.strokeStyle="#33AA22";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(-s*.1,-s*.55);ctx.lineTo(-s*.2,-s*.85);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(s*.1,-s*.55);ctx.lineTo(s*.2,-s*.85);ctx.stroke();
+    } else if(t==="db_soldier"){
+      /* casco */
+      ctx.fillStyle="#4A3080";
+      ctx.beginPath();ctx.ellipse(0,-s*.48,s*.28,s*.18,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#FFCD00";
+      ctx.fillRect(-s*.08,-s*.52,s*.16,s*.06);
+    } else if(t==="db_monster"){
+      /* cuernos monstruo */
+      ctx.fillStyle="#3A2010";
+      ctx.beginPath();ctx.moveTo(-s*.2,-s*.5);ctx.lineTo(-s*.35,-s*.95);ctx.lineTo(-s*.05,-s*.55);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(s*.2,-s*.5);ctx.lineTo(s*.35,-s*.95);ctx.lineTo(s*.05,-s*.55);ctx.closePath();ctx.fill();
+      /* boca */
+      ctx.fillStyle="#220000";
+      ctx.beginPath();ctx.ellipse(0,-s*.22,s*.12,s*.08,0,0,Math.PI*2);ctx.fill();
+    }
+    /* ojos */
+    ctx.fillStyle="#0a0a0a";
+    ctx.beginPath();ctx.ellipse(-s*.11,-s*.40,s*.09,s*.11,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*.11,-s*.40,s*.09,s*.11,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=eye;
+    ctx.beginPath();ctx.arc(-s*.11,-s*.40,s*.04,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(s*.11,-s*.40,s*.04,0,Math.PI*2);ctx.fill();
+    /* brazos */
+    ctx.strokeStyle=body;ctx.lineWidth=Math.max(2.5,s*.14);ctx.lineCap="round";
+    ctx.beginPath();ctx.moveTo(-s*.32,s*.05);ctx.lineTo(-s*.58,s*.38);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(s*.32,s*.05);ctx.lineTo(s*.58,s*.38);ctx.stroke();
+    /* manos / esferas de poder */
+    ctx.fillStyle=glow;ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(-s*.6,s*.42,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(s*.6,s*.42,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    if(o.label){
+      ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(7,s*.15)}px Orbitron`;
+      ctx.textAlign="center";ctx.fillText(o.label,0,-s*.95);
     }
   } else if(String(o.type).startsWith("boss")){
     const s=o.size;
@@ -3670,6 +3859,7 @@ function drawBullets(){
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];
     if(!b||typeof b.x!=="number"||typeof b.y!=="number"||isNaN(b.x)||isNaN(b.y)){bullets.splice(i,1);continue}
+    if(b.genkidama&&b.life!=null){b.life--;if(b.life<=0){createExplosion(b.x,b.y,30,"100,180,255");bullets.splice(i,1);continue}}
     if(b.homing){
       let tx=b.x,ty=b.y-80;
       if(obstacles.length){let best=1e9;for(let oi=0;oi<obstacles.length;oi++){const o=obstacles[oi];const d=Math.hypot((o.x+o.size/2)-b.x,(o.y+o.size/2)-b.y);if(d<best){best=d;tx=o.x+o.size/2;ty=o.y+o.size/2}}}
@@ -3719,7 +3909,8 @@ function drawBullets(){
       const o=obstacles[j];
       if(Math.hypot(b.x-(o.x+o.size/2),b.y-(o.y+o.size/2))<o.size*.55+b.size){
         if(o.indestructible||o.type==="hard"){createExplosion(b.x,b.y,4,"150,150,150");if(!b.pierce)bullets.splice(i,1);break}
-        o.hp-=(1+Math.floor((upgDamage||0)/2)+(b.size>4?1:0));createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
+        const dmg=b.genkidama?(12+Math.floor((upgDamage||0))):(1+Math.floor((upgDamage||0)/2)+(b.size>4?1:0));
+        o.hp-=dmg;createExplosion(b.x,b.y,b.genkidama?28:7,b.genkidama?"100,180,255":"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
       }
     }
   }
@@ -4185,8 +4376,9 @@ for(let i=obstacles.length-1;i>=0;i--){
   // gravity on objects
   applyGravity(o,o.x+o.size/2,o.y+o.size/2,.6);
 
-  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball"){
+  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball"||o.dbVillain){
     o.y+=o.speed*slow;o.x+=(o.vx||0)*slow;
+
     if(scenario>=4&&Math.random()<.01)o.vx=(o.vx||0)+(Math.random()-.5)*1.5;
     if(o.type==="magnetic"&&invisible<=0){
       const d=Math.hypot(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2));
@@ -4249,12 +4441,12 @@ for(let i=obstacles.length-1;i>=0;i--){
     else if(shield>0||lives>1){createExplosion(o.x+o.size/2,o.y+o.size/2,o.size,"0,200,255");if(!String(o.type).startsWith("boss"))obstacles.splice(i,1);else o.hp-=2;hitPlayer(o.x,o.y);if(!gameRunning)return}
     else{endGame();return}
   }
-  if((o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball")&&o.y>canvas.height+40)obstacles.splice(i,1);
+  if((o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball"||o.dbVillain)&&o.y>canvas.height+40)obstacles.splice(i,1);
   if((o.type==="hunter"||o.type==="kamikaze")&&(o.y>canvas.height+50||o.x<-50||o.x>canvas.width+50))obstacles.splice(i,1);
 }
 updateTraps();updateExtraTraps();if(!gameRunning)return;
 updateLaser();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunning)return;
-updatePickups();updateExplosions();updateLightning();updateAllies();updateDrones();drawPlayer();updateParticles();drawWarning();drawHUD();
+updatePickups();updateExplosions();updateLightning();updateAllies();updateDrones();drawPlayer();try{updateKiChargeOrbs()}catch(e){}try{if(typeof updateGenkiTouchBtn==="function")updateGenkiTouchBtn()}catch(e){}updateParticles();drawWarning();drawHUD();
 animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
@@ -4296,6 +4488,8 @@ if(shipModel==="goku"){/* sin cambio de arma */}
 else if(!currentWeapon||(currentWeapon!=="basic"&&(!Array.isArray(ownedWeapons)||ownedWeapons.indexOf(currentWeapon)<0)))currentWeapon="basic";
 showWeaponBar=true;
 try{updateWeaponMenuUI();updateGokuFormsUI()}catch(e){}
+try{if(typeof updateGenkiTouchBtn==="function")updateGenkiTouchBtn()}catch(e){}
+kiChargeOrbs=[];
 initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop)}
 
 function endGame(){

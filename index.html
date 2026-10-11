@@ -900,9 +900,9 @@ function addKi(n){
   ki=Math.min(kiMax,ki+Math.ceil((n||5)*bonus));
   /* Solo con Goku: bolitas al cargar */
   if(shipModel==="goku"&&ki>was){
-    const need=Math.min(3, Math.ceil((ki-was)/8));
+    const need=Math.min(isMobile()?1:2, Math.ceil((ki-was)/10));
     for(let i=0;i<need;i++){
-      if(kiChargeOrbs.length>14)break;
+      if(kiChargeOrbs.length>(isMobile()?6:10))break;
       kiChargeOrbs.push({
         ang:Math.random()*Math.PI*2,
         dist:28+Math.random()*22,
@@ -921,28 +921,22 @@ function addKi(n){
 }
 function updateKiChargeOrbs(){
   if(shipModel!=="goku"||!gameRunning){kiChargeOrbs=[];return}
+  const mob=typeof isMobile==="function"&&isMobile();
   for(let i=kiChargeOrbs.length-1;i>=0;i--){
     const o=kiChargeOrbs[i];
     o.ang+=o.spd;o.life--;
     const x=player.x+Math.cos(o.ang)*o.dist;
     const y=player.y+Math.sin(o.ang)*o.dist*0.7-8;
-    ctx.save();
-    ctx.shadowColor="#66CCFF";ctx.shadowBlur=8;
-    const g=ctx.createRadialGradient(x,y,0.5,x,y,o.r);
-    g.addColorStop(0,"#fff");g.addColorStop(.4,"#66B0FF");g.addColorStop(1,"rgba(0,80,200,0)");
-    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,o.r,0,Math.PI*2);ctx.fill();
-    ctx.restore();
+    ctx.fillStyle="rgba(100,180,255,.75)";
+    ctx.beginPath();ctx.arc(x,y,o.r,0,Math.PI*2);ctx.fill();
     if(o.life<=0)kiChargeOrbs.splice(i,1);
   }
-  /* Si KI listo, más brillo de orbes estables */
-  if(ki>=kiMax){
-    for(let i=0;i<5;i++){
-      const ang=performance.now()/400+i*(Math.PI*2/5);
-      const x=player.x+Math.cos(ang)*36;
-      const y=player.y+Math.sin(ang)*28-10;
-      ctx.save();ctx.shadowColor="#FFD700";ctx.shadowBlur=10;
-      ctx.fillStyle="rgba(255,220,100,.7)";ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
-      ctx.restore();
+  if(ki>=kiMax&&!mob){
+    for(let i=0;i<4;i++){
+      const ang=performance.now()/400+i*(Math.PI*2/4);
+      const x=player.x+Math.cos(ang)*34;
+      const y=player.y+Math.sin(ang)*26-10;
+      ctx.fillStyle="rgba(255,220,100,.65)";ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fill();
     }
   }
 }
@@ -1709,7 +1703,7 @@ if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-p
 pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:13px;margin:8px 0 4px">${CREDITS.name}</p><p style="color:#ddd;font-size:11px;margin:4px 0">✉ ${CREDITS.email}</p><p style="color:#888;font-size:10px;margin:4px 0 10px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:12px">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
-<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
+<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">INICIO</button>`;
 gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
 c.innerHTML=`<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p><p style="color:#ccc;font-size:11px;margin:4px 0">✉ ${CREDITS.email}</p><p style="color:#777;font-size:10px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:6px">Controles en 📖 Manual · Nave <b style="color:#FFCD00">Br7</b></p>`;
@@ -2162,9 +2156,8 @@ function createGokuVillain(){
   });
 }
 function createMeteor(kind){
-  /* Con Goku: villanos en vez de meteoritos */
-  if(shipModel==="goku"){createGokuVillain();return}
-  if(obstacles.length>(isMobile()?6:12))return;
+  /* Goku también destruye solo meteoritos */
+  if(obstacles.length>(isMobile()?5:10))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const isFire=kind==="fireball";
@@ -2191,7 +2184,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype,role){
-  if(obstacles.length>(isMobile()?10:18))return;
+  if(obstacles.length>(isMobile()?8:14))return;
   const sc=getScale();
   let size,hp,spd;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -2262,7 +2255,7 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  let poolTop=shipModel==="goku"?["db_saiba","db_soldier","db_monster","db_frieza","db_cell","db_soldier","db_monster"]:["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
+  let poolTop=["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
   if(waveCount>=1)poolTop.push("ship","hunter","alien","alien_flyer");
   if(waveCount>=2)poolTop.push("alien_eye","alien","teleport");
   if(waveCount>=3||scenario>=3)poolTop.push("alien_brute","alien","creature");
@@ -2360,7 +2353,7 @@ function shoot(){
     try{if(typeof updateEmergencyAmmo==="function")updateEmergencyAmmo(performance.now())}catch(e){}
     return;
   }
-  const maxB=isMobile()?22:36;
+  const maxB=isMobile()?14:28;
   while(bullets.length>=maxB) bullets.shift();
   const now=performance.now();
   let cd=rapidFire>0?48:(isMobile()?100:Math.max(85,Number(shootCooldown)||180));
@@ -2503,7 +2496,7 @@ function shoot(){
 
 function enemyShoot(o){
   if(["meteor","explosive","magnetic","hard"].includes(o.type))return;
-  if(enemyBullets.length>(isMobile()?22:36))return;
+  if(enemyBullets.length>(isMobile()?14:28))return;
   const s=getScale(),cx=o.x+o.size/2,cy=o.y+o.size*.85;
   const dx=player.x-cx, dy=player.y-cy, dist=Math.hypot(dx,dy)||1;
   const speed=(4.2+Math.random()*1.8+level*.1)*getSpeedScale()*(isMobile()?0.9:1);
@@ -2541,7 +2534,7 @@ function enemyShoot(o){
 
 function createExplosion(x,y,size,color){
   if(size>=8)playSfx("explode"); /* SONIDO EXPLOSIÓN METEORO/ENEMIGO */
-  if(explosions.length>(isMobile()?6:12))explosions.splice(0,isMobile()?4:6);
+  if(explosions.length>(isMobile()?4:10))explosions.splice(0,isMobile()?3:5);
   const n=isMobile()?1:Math.min(3,2+Math.floor(size/10));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*2.5;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*2.5,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
 }
@@ -3874,7 +3867,7 @@ function drawBullets(){
       /* Bolitas de energía de Goku */
       const col=b.kiCol||{core:"#fff",mid:"#4DA6FF",outer:"#0066CC",glow:"#66CCFF"};
       const rr=Math.max(4,b.size||6);
-      ctx.shadowColor=col.glow;ctx.shadowBlur=isMobile()?8:14;
+      ctx.shadowColor=col.glow;ctx.shadowBlur=isMobile()?0:8;
       const grd=ctx.createRadialGradient(b.x-rr*.25,b.y-rr*.25,rr*.1,b.x,b.y,rr);
       grd.addColorStop(0,col.core);
       grd.addColorStop(0.35,col.mid);
@@ -4507,7 +4500,7 @@ const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br
 extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">🪙 Monedas: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:6px">TOP 5</p><p style="color:#ddd;font-size:11px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0">📤 COMPARTIR</button>'
-  +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">🏠 INICIO</button>'
+  +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">INICIO</button>'
   +'</div>';
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
 const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;

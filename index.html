@@ -157,22 +157,32 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 /* Selector fases Goku: flotante sobre el juego (PC y móvil) */
 .goku-forms-overlay{
   display:none;position:absolute;bottom:42px;left:50%;transform:translateX(-50%);
-  z-index:25;justify-content:center;gap:5px;flex-wrap:wrap;pointer-events:auto;
-  background:rgba(0,0,0,.55);padding:5px 8px;border-radius:12px;border:1px solid rgba(255,205,0,.3);
+  z-index:25;justify-content:center;gap:6px;flex-wrap:wrap;pointer-events:auto;
+  width:min(96%,620px);box-sizing:border-box;
+  background:rgba(0,0,0,.82);padding:8px 10px;border-radius:12px;
+  border:1px solid rgba(255,205,0,.7);box-shadow:0 0 14px rgba(255,205,0,.18);
 }
 .goku-forms-overlay.show{display:flex}
 .goku-forms{display:none;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
 .goku-forms.show{display:flex}
 .goku-form-btn{
-  min-width:48px;padding:5px 7px;border-radius:9px;border:1px solid rgba(255,205,0,.45);
-  background:rgba(0,30,70,.9);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;
-  cursor:pointer;touch-action:manipulation;
+  min-width:52px;min-height:34px;padding:7px 10px;border-radius:9px;border:1px solid rgba(255,205,0,.75);
+  background:rgba(0,30,70,.96);color:#FFE36B;font-family:Orbitron,sans-serif;font-size:12px;font-weight:800;
+  text-shadow:0 1px 2px #000;cursor:pointer;touch-action:manipulation;
+}
+.goku-forms-overlay .goku-form-btn[data-form="ssj1"],
+.goku-forms-overlay .goku-form-btn[data-form="ssj2"],
+.goku-forms-overlay .goku-form-btn[data-form="ssj3"]{
+  font-size:clamp(13px,3.4vw,16px);min-width:62px;min-height:38px;
+  color:#fff7bd;background:linear-gradient(135deg,rgba(118,73,0,.98),rgba(20,35,75,.98));
+  border:1px solid #FFCD00;box-shadow:inset 0 0 8px rgba(255,205,0,.16);
 }
 .goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 10px rgba(255,205,0,.5)}
 .goku-form-btn:active{transform:scale(.95)}
 @media(max-width:900px){
-  .tech-game-section:fullscreen .goku-forms{display:flex}
-  .goku-forms-overlay{bottom:8px}
+  .goku-forms-overlay{bottom:8px;width:min(98%,620px);padding:6px;gap:5px}
+  .goku-forms-overlay .goku-form-btn{font-size:11px;min-height:32px;padding:6px 8px}
+  .goku-forms-overlay .goku-form-btn[data-form="ssj1"], .goku-forms-overlay .goku-form-btn[data-form="ssj2"], .goku-forms-overlay .goku-form-btn[data-form="ssj3"]{font-size:14px;min-height:36px}
 }
 
 #configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
@@ -356,17 +366,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
     </div>
   </div>
-  <div class="goku-forms" id="gokuForms" aria-label="Fases de Goku">
-    <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
-    <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
-    <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
-    <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
-    <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
-    <button type="button" class="goku-form-btn" data-form="bru">Bru</button>
-    <button type="button" class="goku-form-btn" data-form="golden">Golden</button>
-    <button type="button" class="goku-form-btn" data-form="ultra">Ultra</button>
-    <button type="button" class="goku-form-btn" data-form="superdios">S.Dios</button>
-  </div>
+
 </div>
 </section>
 
@@ -521,11 +521,13 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic");
+if(shipModel==="gogeta"){shipModel="goku";lsSet("techShipModelV2","goku");}
 let ownedShipModels=(function(){
-  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku","gogeta"];
+  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku"];
   try{
     var a=JSON.parse(lsGet("techOwnedModels",JSON.stringify(free)));
     if(!Array.isArray(a)||!a.length)a=free.slice();
+    a=a.filter(function(id){return id!=="gogeta"});
     free.forEach(function(id){if(a.indexOf(id)<0)a.push(id)});
     return a;
   }catch(e){return free.slice()}
@@ -724,8 +726,7 @@ const SHIP_MODEL_SHOP=[
   {id:"arrow",name:"Flecha",price:12000,icon:"➤",desc:"Punta de flecha supersónica."},
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personaje especial */
-  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."},
-  {id:"gogeta",name:"Brian7",price:0,icon:"🔥",desc:"Guerrero fusionado. Gratis."}
+  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -1274,22 +1275,15 @@ function showUserManual(){
 function updateGokuFormsUI(){
   const isGoku = shipModel==="goku";
   const show = isGoku && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
-  ["gokuForms","gokuFormsOverlay"].forEach(id=>{
-    const wrap=document.getElementById(id);
-    if(!wrap)return;
+  const wrap=document.getElementById("gokuFormsOverlay");
+  if(wrap){
     wrap.classList.toggle("show", show);
-    if(id==="gokuForms"){
-      /* touch pad: solo móvil */
-      wrap.style.display = show ? "flex" : "none";
-    } else {
-      /* overlay sobre el canvas */
-      wrap.style.display = show ? "flex" : "none";
-    }
+    wrap.style.display=show?"flex":"none";
     wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
       const f=btn.getAttribute("data-form");
       btn.classList.toggle("active", f===gokuForm);
     });
-  });
+  }
   /* Mostrar botón solo si la nave es Goku */
   const btn=document.getElementById("btnToggleForms");
   if(btn){
@@ -2154,7 +2148,6 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
       btn.addEventListener("click",go);
     });
   }
-  wireGokuBtns(document.getElementById("gokuForms"));
   wireGokuBtns(document.getElementById("gokuFormsOverlay"));
   updateGokuFormsUI();
 
@@ -3290,7 +3283,7 @@ function drawShipModel(g,s,model,skin,label){
   }else if(model==="titan"){
     g.moveTo(0,-s);g.lineTo(s*.5,-s*.2);g.lineTo(s*.7,s*.35);g.lineTo(s*.4,s*.8);g.lineTo(0,s*.65);
     g.lineTo(-s*.4,s*.8);g.lineTo(-s*.7,s*.35);g.lineTo(-s*.5,-s*.2);g.closePath();
-  }else if(model==="goku"||model==="gogeta"){
+  }else if(model==="goku"){
     /* Goku más realista (equilibrado en rendimiento) */
     const form = (typeof gokuForm!=="undefined" && gokuForm) ? gokuForm : "normal";
     const mob = (typeof isMobile==="function"&&isMobile()) || (typeof lowPower!=="undefined"&&lowPower);
@@ -3547,13 +3540,13 @@ function drawShipPreview(){
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<30;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   /* Centrar mejor naves altas (Goku muñeco) */
-  const shipScale = (shipModel==="goku"||shipModel==="gogeta") ? 24 : 30;
-  const yOff = (shipModel==="goku"||shipModel==="gogeta") ? 12 : 6;
+  const shipScale = (shipModel==="goku") ? 24 : 30;
+  const yOff = (shipModel==="goku") ? 12 : 6;
   g.save();g.translate(W/2,H/2+yOff);
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",gogeta:"Brian7",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||""),gogeta:"Brian7"};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

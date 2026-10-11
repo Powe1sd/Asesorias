@@ -190,7 +190,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 #startPanel::-webkit-scrollbar-thumb{background:#fff;border-radius:4px}
 #startPanel .diff-btns{margin:6px 0}
 @media(max-width:600px){
-  #startPanel{padding-bottom:24px!important}
+  #startPanel{padding-bottom:16px!important}#startExtras h3{font-size:11px;margin:6px 0 4px}#startExtras .diff-btns button{padding:6px 8px;font-size:10px}
   #startExtras{padding-bottom:8px}
 }
 </style>
@@ -943,25 +943,30 @@ function showUserManual(){
     m.style.cssText="display:none;z-index:60;max-height:90%;overflow-y:auto;text-align:left;width:min(420px,94%)";
     (document.querySelector(".tech-game")||document.body).appendChild(m);
   }
-  m.innerHTML=`<h2 style="text-align:center;font-size:22px">📖 MANUAL Br7</h2>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">CONTROLES PC</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5">• Mouse: mover nave<br>• Clic / Espacio: disparar<br>• <b>G</b>: activar poder (modo manual)<br>• <b>P</b>: pausar / reanudar<br>• ⚙: configuración</p>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">CONTROLES MÓVIL</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5">• Stick: mover<br>• FIRE: disparar<br>• ⚡: poder manual<br>• AUTO/MANUAL: modo poderes<br>• ⏸: pausa</p>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">PODERES</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5"><b>Automático:</b> al coger un poder se activa solo.<br><b>Manual:</b> se guardan (cargas) y se usan con <b>G</b> o ⚡ de forma aleatoria.<br>Empiezas con 3 cargas.</p>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">MONEDAS Y ARMAS</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5">Recoge monedas 🪙 en el mapa. En el menú de inicio puedes comprar armas (doble, perforante, misil).</p>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">JUEGO</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5">Oleadas de meteoritos y naves. Esquiva, dispara, sube de puntuación. Escenarios cambian al avanzar. Comparte tu récord al terminar.</p>
-  <p style="color:#FFCD00;font-size:12px;margin:8px 0 4px">NAVES</p>
-  <p style="font-size:11px;color:#ccc;line-height:1.5">Elige diseño y color en el inicio. Algunos se desbloquean con récord.</p>
-  <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:center">
-    <p style="color:#FFCD00;font-size:13px;margin:4px 0">Brayhan Estiven Coy Rubio</p>
-    <p style="color:#ddd;font-size:12px;margin:4px 0">📞 3052076713</p>
-    <p style="color:#ddd;font-size:11px;margin:4px 0">✉ brayan32455415@gmail.com</p>
+  m.innerHTML=`<h2 style="text-align:center;font-size:20px;margin:0 0 8px">📖 MANUAL Br7</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;color:#ccc;line-height:1.4;margin-bottom:8px">
+    <div style="background:rgba(0,30,60,.5);padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.25)">
+      <b style="color:#FFCD00">PC</b><br>
+      Mouse · mover<br>Clic / Espacio · disparar<br><b>G</b> poder · <b>P</b> pausa<br><b>K</b> ataque KI<br>Goku: teclas <b>1-9</b>
+    </div>
+    <div style="background:rgba(0,30,60,.5);padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.25)">
+      <b style="color:#FFCD00">MÓVIL</b><br>
+      Zona MOVER · nave<br>FIRE · disparar<br>⚡ poder · ⏸ pausa<br>AUTO/MAN · poderes<br>🔫 armas (solo naves)
+    </div>
   </div>
-  <button class="game-btn" id="closeManual" style="width:100%;margin-top:12px">CERRAR</button>`;
+  <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px;text-align:center">🎮 MANDO / GAMEPAD</p>
+  <div style="text-align:center;margin:4px 0 8px;transform:scale(0.72);transform-origin:top center;height:58px;overflow:hidden">${typeof PS_LOGO_HTML!=="undefined"?PS_LOGO_HTML:""}</div>
+  <p style="font-size:10px;color:#aaa;text-align:center;margin:0 0 8px;line-height:1.35">Stick izq. · mover · Botones · disparar / especial · Start · pausa</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;color:#ccc;line-height:1.35">
+    <div style="background:rgba(0,20,40,.55);padding:7px;border-radius:8px"><b style="color:#FFCD00">Poderes</b><br>Auto: se activan solos<br>Manual: G o ⚡ (cargas)</div>
+    <div style="background:rgba(0,20,40,.55);padding:7px;border-radius:8px"><b style="color:#FFCD00">Tiendas</b><br>Armas desde 6.000🪙<br>Mejoras permanentes<br>Solo naves usan armas</div>
+    <div style="background:rgba(0,20,40,.55);padding:7px;border-radius:8px"><b style="color:#FFCD00">Goku</b><br>Fases 1-9 · KI con K<br>Disparo siempre básico</div>
+    <div style="background:rgba(0,20,40,.55);padding:7px;border-radius:8px"><b style="color:#FFCD00">Misiones</b><br>3 diarias · monedas<br>Jefes por mundo</div>
+  </div>
+  <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,205,0,.25);text-align:center;font-size:10px;color:#aaa">
+    <b style="color:#FFCD00">Brayhan Estiven Coy Rubio</b><br>📞 3052076713 · ✉ brayan32455415@gmail.com
+  </div>
+  <button class="game-btn" id="closeManual" style="width:100%;margin-top:10px;padding:8px">CERRAR</button>`;
   m.style.display="block";
   document.getElementById("closeManual").onclick=()=>{m.style.display="none"};
 }
@@ -1366,13 +1371,13 @@ document.getElementById("closeConfig").onclick=()=>{
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
-pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:14px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:12px;margin:6px 0 2px">✉ ${CREDITS.email}</p><p style="color:#ddd;font-size:12px;margin:4px 0">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
+pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:13px;margin:8px 0 4px">${CREDITS.name}</p><p style="color:#ddd;font-size:11px;margin:4px 0">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p><p style="color:#888;font-size:10px;margin:4px 0 10px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:12px">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
 <button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
 gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
-c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:6px 0 2px">📞 ${CREDITS.phone}</p><p style="color:#ccc;font-size:11px;margin:2px 0 6px">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
+c.innerHTML=`<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p><p style="color:#ccc;font-size:11px;margin:4px 0">📞 ${CREDITS.phone} · ✉ ${CREDITS.email}</p><p style="color:#777;font-size:10px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:6px">Controles en 📖 Manual · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
 
 if(startPanel&&!document.getElementById("startExtras")){
@@ -1397,7 +1402,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="7" class="${selectedWorld===7?"active":""}">7 Tóxico</button>
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
-    <canvas id="shipPreview" width="240" height="150" style="width:100%;max-width:260px;height:150px;display:block;margin:10px auto;border-radius:14px;border:1px solid rgba(255,205,0,.35);background:#000;box-shadow:0 0 18px rgba(255,205,0,.12)"></canvas>
+    <canvas id="shipPreview" width="200" height="110" style="width:100%;max-width:200px;height:100px;display:block;margin:6px auto;border-radius:10px;border:1px solid rgba(255,205,0,.35);background:#000"></canvas>
     <h3>🚀 Modelo de nave</h3>
     <div class="diff-btns">
       <button type="button" data-model="classic" class="${shipModel==="classic"?"active":""}">Clásica</button>
@@ -1533,7 +1538,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · <b>K</b> ataque KI · Nave <b>Br7</b>";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · <b>P</b> pausa · Goku <b>1-9</b> · <b>K</b> KI · 📖 Manual";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");

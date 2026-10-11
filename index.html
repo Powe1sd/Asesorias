@@ -400,7 +400,7 @@ document.addEventListener("touchstart",function _unlockVib(){
   try{ const fn=navigator.vibrate||navigator.webkitVibrate; if(fn) fn.call(navigator,1); }catch(e){}
 },{passive:true,once:true});
 
-const CREDITS={name:"Brayhan Estiven Coy Rubio",phone:"3052076713",email:"brayan32455415@gmail.com",label:"Desarrollo · TECH"};
+const CREDITS={name:"Brayhan Rubio",phone:"",email:"brayan32455415@gmail.com",label:"Desarrollo · TECH"};
 
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
@@ -410,7 +410,9 @@ let lowPower=lsGet("techLowPower","0")==="1";
 let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
-let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|goku
+let shipModel=lsGet("techShipModelV2","classic");
+let ownedShipModels=(function(){try{var a=JSON.parse(lsGet("techOwnedModels",'["classic","fighter","goku"]'));if(!Array.isArray(a)||!a.length)return["classic","fighter","goku"];if(a.indexOf("classic")<0)a.unshift("classic");if(a.indexOf("fighter")<0)a.push("fighter");if(a.indexOf("goku")<0)a.push("goku");return a}catch(e){return["classic","fighter","goku"]}})();
+let ownedShipSkins=(function(){try{var a=JSON.parse(lsGet("techOwnedSkins",'["white","black"]'));if(!Array.isArray(a)||!a.length)return["white","black"];if(a.indexOf("white")<0)a.unshift("white");if(a.indexOf("black")<0)a.push("black");return a}catch(e){return["white","black"]}})();
 let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
@@ -576,6 +578,114 @@ function showDailyMissionsMenu(){
 }
 
 
+
+
+/* ===== TIENDA DE NAVES Y SKINS ===== */
+const SHIP_MODEL_SHOP=[
+  {id:"classic",name:"Clásica",price:0,icon:"🚀",desc:"Nave Br7 original. Gratis."},
+  {id:"fighter",name:"Cazadora",price:0,icon:"✈️",desc:"Caza ligera estándar. Gratis."},
+  {id:"interceptor",name:"Interceptor",price:6000,icon:"⚡",desc:"Perfil afilado y ágil."},
+  {id:"heavy",name:"Pesada",price:6500,icon:"🛡️",desc:"Casco ancho y resistente."},
+  {id:"stealth",name:"Sigilo",price:7000,icon:"🌑",desc:"Silueta triangular furtiva."},
+  {id:"wing",name:"Ala X",price:7500,icon:"✖️",desc:"Alas extendidas estilo X."},
+  {id:"needle",name:"Aguja",price:8000,icon:"📍",desc:"Ultra delgada y rápida."},
+  {id:"delta",name:"Delta",price:8500,icon:"🔺",desc:"Ala delta de combate."},
+  {id:"phoenix",name:"Fénix",price:9000,icon:"🔥",desc:"Forma de ave de fuego."},
+  {id:"blade",name:"Cuchilla",price:10000,icon:"🗡️",desc:"Perfil de hoja cortante."},
+  {id:"cruiser",name:"Crucero",price:11000,icon:"🛸",desc:"Nave ancha de escolta."},
+  {id:"arrow",name:"Flecha",price:12000,icon:"➤",desc:"Punta de flecha supersónica."},
+  {id:"viper",name:"Víbora",price:14000,icon:"🐍",desc:"Curvas agresivas de caza."},
+  {id:"titan",name:"Titán",price:16000,icon:"🗿",desc:"Acorazado pesado elite."},
+  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."}
+];
+const SHIP_SKIN_SHOP=[
+  {id:"white",name:"Blanca",price:0,icon:"⬜",desc:"Skin básica. Gratis."},
+  {id:"black",name:"Negra",price:0,icon:"⬛",desc:"Skin oscura. Gratis."},
+  {id:"gold",name:"Oro",price:6000,icon:"🟨",desc:"Acabado dorado brillante."},
+  {id:"cyan",name:"Cian",price:6500,icon:"🟦",desc:"Azul neón espacial."},
+  {id:"crimson",name:"Carmesí",price:7000,icon:"🟥",desc:"Rojo intenso de combate."},
+  {id:"violet",name:"Violeta",price:7500,icon:"🟪",desc:"Púrpura galáctico."},
+  {id:"lime",name:"Lima",price:8000,icon:"🟩",desc:"Verde tóxico brillante."},
+  {id:"steel",name:"Acero",price:8500,icon:"⚙️",desc:"Gris metálico militar."},
+  {id:"orange",name:"Naranja",price:9000,icon:"🟧",desc:"Naranja de alerta."},
+  {id:"pink",name:"Rosa",price:9500,icon:"💗",desc:"Rosa neón futurista."},
+  {id:"ice",name:"Hielo",price:10000,icon:"🧊",desc:"Azul glaciar cristalino."},
+  {id:"toxic",name:"Tóxico",price:11000,icon:"☢️",desc:"Verde radioactivo."},
+  {id:"shadow",name:"Sombra",price:12000,icon:"🕶️",desc:"Negro con brillo violeta."},
+  {id:"solar",name:"Solar",price:14000,icon:"☀️",desc:"Rojo-dorado de estrella."},
+  {id:"prism",name:"Prisma",price:16000,icon:"💎",desc:"Cromado multicolor."}
+];
+function buyShipModel(id){
+  try{
+    const item=SHIP_MODEL_SHOP.find(x=>x.id===id);if(!item)return false;
+    if(!Array.isArray(ownedShipModels))ownedShipModels=["classic","fighter","goku"];
+    if(ownedShipModels.indexOf(id)>=0){shipModel=id;lsSet("techShipModelV2",id);return "equip"}
+    if(coins<(item.price||0)){alert("Necesitas "+item.price+" monedas 🪙");return false}
+    coins-=item.price;ownedShipModels.push(id);
+    lsSet("techCoinsV2",coins);lsSet("techOwnedModels",JSON.stringify(ownedShipModels));
+    shipModel=id;lsSet("techShipModelV2",id);return "buy";
+  }catch(e){return false}
+}
+function buyShipSkin(id){
+  try{
+    const item=SHIP_SKIN_SHOP.find(x=>x.id===id);if(!item)return false;
+    if(!Array.isArray(ownedShipSkins))ownedShipSkins=["white","black"];
+    if(ownedShipSkins.indexOf(id)>=0){shipSkin=id;lsSet("techShipSkin",id);return "equip"}
+    if(coins<(item.price||0)){alert("Necesitas "+item.price+" monedas 🪙");return false}
+    coins-=item.price;ownedShipSkins.push(id);
+    lsSet("techCoinsV2",coins);lsSet("techOwnedSkins",JSON.stringify(ownedShipSkins));
+    shipSkin=id;lsSet("techShipSkin",id);return "buy";
+  }catch(e){return false}
+}
+function showShipShop(tab){
+  tab=tab||"models";
+  let m=document.getElementById("shipShopPanel");
+  if(!m){
+    m=document.createElement("div");m.id="shipShopPanel";m.className="game-panel";
+    m.style.cssText="display:none;z-index:65;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:14px 12px 16px";
+    (document.querySelector(".tech-game")||document.body).appendChild(m);
+  }
+  function render(t){
+    tab=t||tab;
+    const list=tab==="skins"?SHIP_SKIN_SHOP:SHIP_MODEL_SHOP;
+    const owned=tab==="skins"?ownedShipSkins:ownedShipModels;
+    const current=tab==="skins"?shipSkin:shipModel;
+    let cards="";
+    list.forEach(item=>{
+      const has=owned.indexOf(item.id)>=0;
+      const eq=current===item.id;
+      let btnLabel,btnStyle,act;
+      if(eq){btnLabel="✓ EQUIPADA";btnStyle="background:#66FF88;color:#111;border-color:#fff";act=""}
+      else if(has){btnLabel="EQUIPAR";btnStyle="background:#0038A8;color:#fff;border-color:#FFCD00";act=item.id}
+      else if(coins>=(item.price||0)){btnLabel="COMPRAR · "+(item.price?item.price+"🪙":"Gratis");btnStyle="background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;border-color:#fff";act=item.id}
+      else {btnLabel="🔒 "+item.price+"🪙";btnStyle="background:#222;color:#888;border-color:#444";act=""}
+      cards+=`<div style="margin:6px 0;padding:10px;border-radius:10px;border:1px solid ${eq?"rgba(100,255,136,.45)":"rgba(255,205,0,.25)"};background:${eq?"rgba(20,60,30,.5)":"rgba(0,15,40,.7)"}">
+        <div style="display:flex;justify-content:space-between;gap:6px"><span style="color:#fff;font-weight:700;font-size:13px">${item.icon} ${item.name}</span><span style="color:#FFD700;font-size:11px">${item.price?item.price+"🪙":"Gratis"}</span></div>
+        <p style="font-size:10px;color:#bbb;margin:4px 0 8px">${item.desc}</p>
+        <button type="button" class="game-btn ship-shop-btn" data-buy="${act}" style="width:100%;margin:0;padding:7px;font-size:11px;${btnStyle}" ${act?"":"disabled"}>${btnLabel}</button>
+      </div>`;
+    });
+    m.innerHTML=`<h2 style="text-align:center;font-size:20px;margin:0 0 6px">🚀 TIENDA DE NAVES</h2>
+    <p style="text-align:center;color:#FFD700;font-size:13px;margin:0 0 8px">🪙 ${coins}</p>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <button type="button" class="game-btn tab-ship" data-tab="models" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="models"?"background:#FFCD00;color:#111":""}">14 Modelos</button>
+      <button type="button" class="game-btn tab-ship" data-tab="skins" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="skins"?"background:#FFCD00;color:#111":""}">Skins</button>
+    </div>
+    ${cards}
+    <button class="game-btn" id="closeShipShop" style="width:100%;margin-top:10px;padding:8px">CERRAR</button>`;
+    m.querySelectorAll(".tab-ship").forEach(b=>b.onclick=()=>render(b.getAttribute("data-tab")));
+    m.querySelectorAll(".ship-shop-btn").forEach(b=>{
+      const id=b.getAttribute("data-buy");if(!id)return;
+      b.onclick=()=>{
+        const r=tab==="skins"?buyShipSkin(id):buyShipModel(id);
+        if(r){render(tab);try{drawShipPreview()}catch(e){}try{if(typeof renderStart==="function"){}}catch(e){}}
+      };
+    });
+    const cl=document.getElementById("closeShipShop");
+    if(cl)cl.onclick=()=>{m.style.display="none";try{const box=document.getElementById("startExtras");if(box){const ev=new Event("refresh");}}catch(e){}};
+  }
+  render(tab);m.style.display="block";
+}
 
 /* ===== TIENDA DE MEJORAS ===== */
 const UPGRADE_SHOP=[
@@ -858,7 +968,7 @@ function makeScoreCard(){
   g.fillText("Dificultad: "+String(difficulty).toUpperCase(),W/2,490);
   g.fillStyle="rgba(255,255,255,.12)";g.fillRect(80,530,W-160,2);
   /* crédito casi invisible */
-  g.fillStyle="rgba(255,205,0,.28)";g.font="9px Share Tech Mono,monospace";g.fillText("Brayhan Estiven Coy Rubio · TECH",W/2,600);
+  g.fillStyle="rgba(255,205,0,.28)";g.font="9px Share Tech Mono,monospace";g.fillText("Brayhan Rubio · TECH",W/2,600);
   g.fillStyle="#CE1126";g.font="bold 20px Orbitron,Arial,sans-serif";g.fillText("Jesucristo",W/2,700);
   g.fillStyle="#666";g.font="14px Share Tech Mono,monospace";g.fillText(new Date().toLocaleString(),W/2,760);
   return cv;
@@ -963,7 +1073,7 @@ function showUserManual(){
     <div style="background:rgba(0,20,40,.55);padding:7px;border-radius:8px"><b style="color:#FFCD00">Misiones</b><br>3 diarias · monedas<br>Jefes por mundo</div>
   </div>
   <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,205,0,.25);text-align:center;font-size:10px;color:#aaa">
-    <b style="color:#FFCD00">Brayhan Estiven Coy Rubio</b><br>📞 3052076713 · ✉ brayan32455415@gmail.com
+    <b style="color:#FFCD00">Brayhan Rubio</b><br>✉ brayan32455415@gmail.com
   </div>
   <button class="game-btn" id="closeManual" style="width:100%;margin-top:10px;padding:8px">CERRAR</button>`;
   m.style.display="block";
@@ -1370,13 +1480,13 @@ document.getElementById("closeConfig").onclick=()=>{
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
-pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:13px;margin:8px 0 4px">${CREDITS.name}</p><p style="color:#ddd;font-size:11px;margin:4px 0">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p><p style="color:#888;font-size:10px;margin:4px 0 10px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:12px">▶ CONTINUAR</button>
+pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:13px;margin:8px 0 4px">${CREDITS.name}</p><p style="color:#ddd;font-size:11px;margin:4px 0">✉ ${CREDITS.email}</p><p style="color:#888;font-size:10px;margin:4px 0 10px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:12px">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
 <button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
 gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
-c.innerHTML=`<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p><p style="color:#ccc;font-size:11px;margin:4px 0">📞 ${CREDITS.phone} · ✉ ${CREDITS.email}</p><p style="color:#777;font-size:10px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:6px">Controles en 📖 Manual · Nave <b style="color:#FFCD00">Br7</b></p>`;
+c.innerHTML=`<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p><p style="color:#ccc;font-size:11px;margin:4px 0">✉ ${CREDITS.email}</p><p style="color:#777;font-size:10px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:6px">Controles en 📖 Manual · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
 
 if(startPanel&&!document.getElementById("startExtras")){
@@ -1402,18 +1512,14 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
     <canvas id="shipPreview" width="200" height="110" style="width:100%;max-width:200px;height:100px;display:block;margin:6px auto;border-radius:10px;border:1px solid rgba(255,205,0,.35);background:#000"></canvas>
-    <h3>🚀 Modelo de nave</h3>
+    <h3>🚀 Nave equipada: <span style="color:#FFCD00">${({classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku"}[shipModel]||shipModel)}</span> · ${shipSkin}</h3>
     <div class="diff-btns">
-      <button type="button" data-model="classic" class="${shipModel==="classic"?"active":""}">Clásica</button>
-      <button type="button" data-model="fighter" class="${shipModel==="fighter"?"active":""}">Cazadora</button>
-      <button type="button" data-model="interceptor" class="${shipModel==="interceptor"?"active":""}">Interceptor</button>
-      <button type="button" data-model="heavy" class="${shipModel==="heavy"?"active":""}">Pesada</button>
-      <button type="button" data-model="stealth" class="${shipModel==="stealth"?"active":""}">Sigilo</button>
-      <button type="button" data-model="wing" class="${shipModel==="wing"?"active":""}">Ala X</button>
-      <button type="button" data-model="needle" class="${shipModel==="needle"?"active":""}">Aguja</button>
-      <button type="button" data-model="delta" class="${shipModel==="delta"?"active":""}">Delta</button>
-      <button type="button" data-model="goku" class="${shipModel==="goku"?"active":""}">⚡ Goku</button>
+      ${(Array.isArray(ownedShipModels)?ownedShipModels:["classic","fighter","goku"]).map(id=>{
+        const lb={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"⚡Goku"}[id]||id;
+        return '<button type="button" data-model="'+id+'" class="'+(shipModel===id?"active":"")+'">'+lb+'</button>';
+      }).join("")}
     </div>
+    <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · 14 modelos + skins</button>
     <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
       <h3>⚡ Fase de Goku</h3>
       <div class="diff-btns">
@@ -1433,17 +1539,12 @@ if(startPanel&&!document.getElementById("startExtras")){
     <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
       style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
     <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
-    <h3>🎨 Color</h3>
+    <h3>🎨 Skin</h3>
     <div class="diff-btns">
-      <button type="button" data-skin="white" class="${shipSkin==="white"?"active":""}">Blanca</button>
-      <button type="button" data-skin="black" class="${shipSkin==="black"?"active":""}">Negra</button>
-      <button type="button" data-skin="gold" class="${shipSkin==="gold"?"active":""}">Oro</button>
-      <button type="button" data-skin="cyan" class="${shipSkin==="cyan"?"active":""}">Cian</button>
-      <button type="button" data-skin="crimson" class="${shipSkin==="crimson"?"active":""}">Carmesí</button>
-      <button type="button" data-skin="violet" class="${shipSkin==="violet"?"active":""}">Violeta</button>
-      <button type="button" data-skin="lime" class="${shipSkin==="lime"?"active":""}">Lima</button>
-      <button type="button" data-skin="steel" class="${shipSkin==="steel"?"active":""}">Acero</button>
-      <button type="button" data-skin="orange" class="${shipSkin==="orange"?"active":""}">Naranja</button>
+      ${(Array.isArray(ownedShipSkins)?ownedShipSkins:["white","black"]).map(id=>{
+        const lb={white:"Blanca",black:"Negra",gold:"Oro",cyan:"Cian",crimson:"Carmesí",violet:"Violeta",lime:"Lima",steel:"Acero",orange:"Naranja",pink:"Rosa",ice:"Hielo",toxic:"Tóxico",shadow:"Sombra",solar:"Solar",prism:"Prisma"}[id]||id;
+        return '<button type="button" data-skin="'+id+'" class="'+(shipSkin===id?"active":"")+'">'+lb+'</button>';
+      }).join("")}
     </div>
     <h3>🪙 Monedas: ${coins}</h3>
     <div class="diff-btns">
@@ -1468,13 +1569,18 @@ if(startPanel&&!document.getElementById("startExtras")){
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
     box.querySelectorAll("[data-skin]").forEach(b=>b.onclick=()=>{
-      shipSkin=b.getAttribute("data-skin");lsSet("techShipSkin",shipSkin);renderStart();
+      const id=b.getAttribute("data-skin");
+      if(!Array.isArray(ownedShipSkins)||ownedShipSkins.indexOf(id)<0){if(typeof showShipShop==="function")showShipShop("skins");return}
+      shipSkin=id;lsSet("techShipSkin",shipSkin);renderStart();
     });
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
-      shipModel=b.getAttribute("data-model");lsSet("techShipModelV2",shipModel);renderStart();
+      const id=b.getAttribute("data-model");
+      if(!Array.isArray(ownedShipModels)||ownedShipModels.indexOf(id)<0){if(typeof showShipShop==="function")showShipShop("models");return}
+      shipModel=id;lsSet("techShipModelV2",shipModel);renderStart();
       updateGokuFormsUI();
       try{updateWeaponMenuUI()}catch(e){}
     });
+    const bss=box.querySelector("#btnShipShop");if(bss)bss.onclick=()=>showShipShop("models");
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
       gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
       updateGokuFormsUI();
@@ -2664,6 +2770,12 @@ function getShipColors(skin){
   if(skin==="lime")return{a:"#0a2200",b:"#88FF44",c:"#226600",stroke:"#CCFF88"};
   if(skin==="steel")return{a:"#222",b:"#99AABB",c:"#445566",stroke:"#CCDDEE"};
   if(skin==="orange")return{a:"#331500",b:"#FF8800",c:"#994400",stroke:"#FFCC88"};
+  if(skin==="pink")return{a:"#330022",b:"#FF66AA",c:"#880044",stroke:"#FFBBDD"};
+  if(skin==="ice")return{a:"#0a2030",b:"#AADDFF",c:"#4488AA",stroke:"#EEFFFF"};
+  if(skin==="toxic")return{a:"#1a3300",b:"#CCFF00",c:"#668800",stroke:"#EEFF88"};
+  if(skin==="shadow")return{a:"#050508",b:"#2a1040",c:"#0a0a12",stroke:"#AA66FF"};
+  if(skin==="solar")return{a:"#441100",b:"#FFAA00",c:"#CE1126",stroke:"#FFE088"};
+  if(skin==="prism")return{a:"#224466",b:"#EEF5FF",c:"#88AACC",stroke:"#FF66CC"};
   return{a:"#f5f5f5",b:"#ffffff",c:"#c8c8c8",stroke:"#CE1126"};
 }
 /** Dibuja modelo de nave en un context 2D centrado en 0,0 */
@@ -2700,6 +2812,24 @@ function drawShipModel(g,s,model,skin,label){
     g.moveTo(0,-s-8);g.lineTo(s*.12,s*.2);g.lineTo(s*.18,s*.7);g.lineTo(0,s*.45);g.lineTo(-s*.18,s*.7);g.lineTo(-s*.12,s*.2);g.closePath();
   }else if(model==="delta"){
     g.moveTo(0,-s-4);g.lineTo(s*.85,s*.65);g.lineTo(0,s*.35);g.lineTo(-s*.85,s*.65);g.closePath();
+  }else if(model==="phoenix"){
+    g.moveTo(0,-s-6);g.lineTo(s*.2,-s*.2);g.lineTo(s*1.1,s*.1);g.lineTo(s*.35,s*.25);g.lineTo(s*.4,s*.7);g.lineTo(0,s*.45);
+    g.lineTo(-s*.4,s*.7);g.lineTo(-s*.35,s*.25);g.lineTo(-s*1.1,s*.1);g.lineTo(-s*.2,-s*.2);g.closePath();
+  }else if(model==="blade"){
+    g.moveTo(0,-s-8);g.lineTo(s*.08,-s*.1);g.lineTo(s*.55,s*.3);g.lineTo(s*.15,s*.25);g.lineTo(s*.2,s*.7);g.lineTo(0,s*.4);
+    g.lineTo(-s*.2,s*.7);g.lineTo(-s*.15,s*.25);g.lineTo(-s*.55,s*.3);g.lineTo(-s*.08,-s*.1);g.closePath();
+  }else if(model==="cruiser"){
+    g.moveTo(0,-s);g.lineTo(s*.4,-s*.4);g.lineTo(s*.65,s*.1);g.lineTo(s*.5,s*.65);g.lineTo(0,s*.55);
+    g.lineTo(-s*.5,s*.65);g.lineTo(-s*.65,s*.1);g.lineTo(-s*.4,-s*.4);g.closePath();
+  }else if(model==="arrow"){
+    g.moveTo(0,-s-7);g.lineTo(s*.35,s*.15);g.lineTo(s*.15,s*.2);g.lineTo(s*.2,s*.7);g.lineTo(0,s*.5);
+    g.lineTo(-s*.2,s*.7);g.lineTo(-s*.15,s*.2);g.lineTo(-s*.35,s*.15);g.closePath();
+  }else if(model==="viper"){
+    g.moveTo(0,-s-5);g.lineTo(s*.18,-s*.25);g.lineTo(s*.75,s*.35);g.lineTo(s*.25,s*.15);g.lineTo(s*.35,s*.7);g.lineTo(0,s*.4);
+    g.lineTo(-s*.35,s*.7);g.lineTo(-s*.25,s*.15);g.lineTo(-s*.75,s*.35);g.lineTo(-s*.18,-s*.25);g.closePath();
+  }else if(model==="titan"){
+    g.moveTo(0,-s);g.lineTo(s*.5,-s*.2);g.lineTo(s*.7,s*.35);g.lineTo(s*.4,s*.8);g.lineTo(0,s*.65);
+    g.lineTo(-s*.4,s*.8);g.lineTo(-s*.7,s*.35);g.lineTo(-s*.5,-s*.2);g.closePath();
   }else if(model==="goku"){
     /* ===== GOKU por fases: normal|ssj1-4|bru|golden|ultra|superdios ===== */
     const form = (typeof gokuForm!=="undefined" && gokuForm) ? gokuForm : "normal";
@@ -3071,7 +3201,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
@@ -3908,7 +4038,7 @@ function startGame(){
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
-["weaponShopPanel","upgradeShopPanel","dailyMissionsPanel","userManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
+["weaponShopPanel","upgradeShopPanel","dailyMissionsPanel","userManual","shipShopPanel"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 /* controles limpios; el disparo es automático en partida */
 isShooting=false;stickActive=false;touchDriving=false;canvasShootId=null;fireTouchId=null;
@@ -3933,6 +4063,8 @@ startBgMusic();
 
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;
 /* arma: Goku = básica; naves = equipada */
+if(!Array.isArray(ownedShipModels)||ownedShipModels.indexOf(shipModel)<0){shipModel="classic";lsSet("techShipModelV2","classic")}
+if(!Array.isArray(ownedShipSkins)||ownedShipSkins.indexOf(shipSkin)<0){shipSkin="white";lsSet("techShipSkin","white")}
 if(shipModel==="goku"){/* sin cambio de arma */}
 else if(!currentWeapon||(currentWeapon!=="basic"&&(!Array.isArray(ownedWeapons)||ownedWeapons.indexOf(currentWeapon)<0)))currentWeapon="basic";
 showWeaponBar=true;

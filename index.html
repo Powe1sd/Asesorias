@@ -367,7 +367,7 @@ let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
-let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));if(!Array.isArray(w)||!w.length)return['basic'];return w.filter(function(x){return typeof x==='string'&&x.length<20}).slice(0,16)}catch(e){return['basic']}})(),currentWeapon=(function(){var c=lsGet('techWeapon','basic')||'basic';var ok=['basic','double','pierce','spread','rapid','laser_gun','missile_gun','plasma','wave','triple_gun','homing','shotgun','rail','flak','vortex','hyper'];if(ok.indexOf(c)<0)c='basic';return c})();
+let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));if(!Array.isArray(w)||!w.length)return['basic'];return w.filter(function(x){return typeof x==='string'&&x.length<20&&x!=='flak'}).slice(0,16)}catch(e){return['basic']}})(),currentWeapon=(function(){var c=lsGet('techWeapon','basic')||'basic';var ok=['basic','double','pierce','spread','rapid','laser_gun','missile_gun','plasma','wave','triple_gun','homing','shotgun','rail','vortex','hyper'];if(ok.indexOf(c)<0)c='basic';return c})();
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
@@ -676,7 +676,6 @@ const WEAPON_SHOP=[
   {id:"homing",name:"Teledirigida",price:13000,icon:"🎯",desc:"Balas que buscan enemigos cercanos."},
   {id:"shotgun",name:"Escopeta",price:14000,icon:"💥",desc:"Ráfaga corta de 5 proyectiles."},
   {id:"rail",name:"Railgun",price:16000,icon:"🟪",desc:"Disparo pesado perforante y potente."},
-  {id:"flak",name:"Flak",price:18000,icon:"✳️",desc:"Proyectiles que se abren en mini-balas."},
   {id:"vortex",name:"Vórtice",price:20000,icon:"🌪️",desc:"Espiral de balas alrededor del disparo."},
   {id:"hyper",name:"Hyper Beam",price:25000,icon:"✨",desc:"Rayo doble perforante de alto daño."}
 ];
@@ -1254,7 +1253,7 @@ if(!weapBar){
   weapBar.style.cssText="display:none;position:absolute;bottom:74px;left:8px;z-index:31;flex-direction:column;gap:4px;max-width:160px;padding:6px;border-radius:10px;background:rgba(0,10,30,.92);border:1px solid rgba(255,205,0,.35);";
   (document.querySelector(".tech-game")||document.body).appendChild(weapBar);
 }
-const WEAPON_LABELS={basic:"Básica",double:"Doble",pierce:"Perfora",spread:"Abanico",rapid:"Ráfaga",laser_gun:"Láser",missile_gun:"Misil",plasma:"Plasma",wave:"Onda",triple_gun:"Triple",homing:"Homing",shotgun:"Escopeta",rail:"Rail",flak:"Flak",vortex:"Vórtice",hyper:"Hyper"};
+const WEAPON_LABELS={basic:"Básica",double:"Doble",pierce:"Perfora",spread:"Abanico",rapid:"Ráfaga",laser_gun:"Láser",missile_gun:"Misil",plasma:"Plasma",wave:"Onda",triple_gun:"Triple",homing:"Homing",shotgun:"Escopeta",rail:"Rail",vortex:"Vórtice",hyper:"Hyper"};
 function updateWeaponMenuUI(){
   const isGoku=shipModel==="goku";
   const inGame=!!gameRunning;
@@ -2055,11 +2054,6 @@ function shoot(){
     if(ammo<=0)return;
     bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.5,size:4*s,pierce:true});
     ammo-=Math.min(2,ammo);return;
-  }
-  if(w==="flak"){
-    if(ammo<=0)return;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.5*s,pierce:false,flak:true,life:28});
-    ammo--;return;
   }
   if(w==="vortex"){
     for(let i=0;i<6;i++){
@@ -3351,16 +3345,7 @@ function drawBullets(){
       if(b.life!=null){b.life--;if(b.life<=0){bullets.splice(i,1);continue}}
     } else if(typeof b.vx==="number"||typeof b.vy==="number"){b.x+=(b.vx||0);b.y+=(typeof b.vy==="number"?b.vy:-b.speed)}
     else b.y-=b.speed;
-    if(b.flak&&b.life!=null){
-      b.life--;
-      if(b.life<=0){
-        for(let k=-2;k<=2;k++){
-          if(bullets.length>40)break;
-          bullets.push({x:b.x,y:b.y,speed:b.speed*0.8,size:2*getScale(),pierce:false,vx:k*1.2,vy:-b.speed*0.8});
-        }
-        bullets.splice(i,1);continue;
-      }
-    }
+
     /* Bala láser del jugador (no bolita) */
     ctx.save();
     /* Balas negras con borde rojo */

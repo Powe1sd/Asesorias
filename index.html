@@ -2251,7 +2251,7 @@ function maybeSpawnPickup(x,y){
   if(r<.07){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
   /* pool de poderes especiales (hammer, chrono, barrier, stormbolt, bazooka, etc.) */
   if(r<.55){
-    const pool=["ammo","hammer","shield","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka"];
+    const pool=["ammo","hammer","shield","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","barrier","stormbolt","bazooka"];
     const type=pool[Math.floor(Math.random()*pool.length)];
     pickups.push({x,y,type,size:s,vy:1.5});
   }
@@ -3602,8 +3602,8 @@ function updateEnemyBullets(){
   }
 }
 
-function updatePickups(){const labels={ammo:"+40",coin:"🪙",shield:"S",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",invisible:"👻",drone:"🛸",freeze:"❄",chrono:"⏱",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀"};
-const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",invisible:"#CCAAFF",drone:"#88DDFF",freeze:"#AADDFF",chrono:"#FFE066",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844"};
+function updatePickups(){const labels={ammo:"+40",coin:"🪙",shield:"S",rapid:"R",triple:"3",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",invisible:"👻",drone:"🛸",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀"};
+const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",rapid:"#00FF88",triple:"#66CCFF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF4488",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",invisible:"#CCAAFF",drone:"#88DDFF",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844"};
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];
 if(magnet>0){const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=(dx/d)*2.5;p.y+=(dy/d)*2.5}
 p.y+=p.vy;
@@ -3692,7 +3692,7 @@ ctx.textAlign="center";
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);ctx.fillStyle="#FFD700";ctx.font="bold 11px Orbitron";ctx.fillText("🪙 "+coins,10,canvas.height-32);
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
+const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
@@ -3919,7 +3919,7 @@ if(introTimer>0){
   ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+18);
 }
 
-if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;
+if(shield>0)shield--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;slowMo=0;freezeEnemies=0;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;
 if(comboTimer>0){comboTimer--}else{combo=0;comboMult=1}
 if(damageFlash>0)damageFlash--;
 if(introTimer>0)introTimer--;
@@ -3977,7 +3977,7 @@ if(level>=1&&ts-lastTrapSpawn>Math.max(isMobile()?3500:2600,isMobile()?5500:4500
 /* Lento suave (no para el juego): 0.75 en vez de 0.4 */
 const slow=1; /* sin ralentizar */
 for(let i=obstacles.length-1;i>=0;i--){
-  const o=obstacles[i];const frz=freezeEnemies>0?0.28:1;
+  const o=obstacles[i];const frz=1;/* sin ralentizar (chrono/freeze quitados) */
   // gravity on objects
   applyGravity(o,o.x+o.size/2,o.y+o.size/2,.6);
 

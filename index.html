@@ -4495,3 +4495,79 @@ document.addEventListener("keydown",function(e){
 </script>
 </body>
 </html>
+
+/* Ajuste solicitado: área de juego móvil más larga y mejor uso de pantalla completa */
+@media (max-width: 900px) {
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
+    height: clamp(330px, 56svh, 500px) !important;
+    min-height: 330px !important;
+  }
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .touch-pad {
+    width: 100%;
+    max-width: 100%;
+    margin: 5px auto 5px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .touch-pad-inner {
+    width: 100%;
+    min-height: 104px;
+    padding: 8px 10px;
+  }
+  .tech-game-section:fullscreen,
+  .tech-game-section:-webkit-full-screen {
+    height: 100svh !important;
+    min-height: 100svh !important;
+    overflow-y: auto !important;
+    justify-content: flex-start !important;
+    padding: max(4px, env(safe-area-inset-top)) 5px max(4px, env(safe-area-inset-bottom)) !important;
+    gap: 0 !important;
+  }
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game {
+    height: min(54svh, calc(100svh - 190px)) !important;
+    min-height: 250px !important;
+    width: 100% !important;
+    flex-shrink: 0;
+  }
+  .tech-game-section:fullscreen .touch-pad,
+  .tech-game-section:-webkit-full-screen .touch-pad {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 5px auto 0 !important;
+    padding: 0 2px !important;
+    flex-shrink: 0;
+  }
+  .tech-game-section:fullscreen .touch-pad-inner,
+  .tech-game-section:-webkit-full-screen .touch-pad-inner {
+    min-height: 100px;
+    padding: 7px 8px !important;
+    gap: 6px !important;
+  }
+  .tech-game-section:fullscreen .goku-forms,
+  .tech-game-section:-webkit-full-screen .goku-forms {
+    display: flex !important;
+    margin-top: 4px !important;
+    padding: 0 2px !important;
+    gap: 3px !important;
+  }
+  .tech-game-section:fullscreen .goku-form-btn,
+  .tech-game-section:-webkit-full-screen .goku-form-btn {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 5px 2px !important;
+    font-size: clamp(7px, 2vw, 10px) !important;
+  }
+}
+@media (max-width: 380px) {
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
+    height: clamp(310px, 54svh, 420px) !important;
+    min-height: 310px !important;
+  }
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game {
+    height: min(49svh, calc(100svh - 185px)) !important;
+    min-height: 225px !important;
+  }
+}

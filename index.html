@@ -193,6 +193,42 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   #startPanel{padding-bottom:16px!important}#startExtras h3{font-size:11px;margin:6px 0 4px}#startExtras .diff-btns button{padding:6px 8px;font-size:10px}
   #startExtras{padding-bottom:8px}
 }
+
+
+/* Ajuste móvil compacto: juego y controles principales visibles juntos al abrir */
+@media (max-width: 900px){
+  .tech-game-section{margin:5px auto 4px;padding:0 6px;}
+  .tech-game{height:clamp(260px,43svh,390px);min-height:0;border-radius:13px;}
+  .touch-pad{margin:4px auto 4px;padding:0 4px;}
+  .touch-pad-inner{gap:6px;padding:6px 7px;border-radius:14px;}
+  .touch-move-pad{width:clamp(76px,23vw,108px);height:clamp(66px,16svh,88px);border-radius:13px;}
+  .touch-move-hint{font-size:9px;letter-spacing:.5px;}
+  .touch-mid{gap:4px;}
+  .touch-util{min-width:42px;height:29px;padding:0 7px;font-size:9px;border-radius:8px;}
+  .touch-fire{width:clamp(64px,19vw,78px);height:clamp(64px,19vw,78px);font-size:10px;}
+  .goku-forms{margin:3px auto 0;padding:0 3px;gap:4px;max-width:100%;}
+  .goku-form-btn{min-width:0;flex:1 1 16%;padding:5px 3px;font-size:8px;border-radius:7px;}
+  .game-top{left:8px;right:100px;top:5px;}
+  .game-title{font-size:10px;}
+  .game-score{font-size:9px;}
+  .game-help{bottom:5px;font-size:8px;}
+}
+@media (max-width: 380px){
+  .tech-game{height:clamp(245px,40svh,330px);}
+  .touch-pad-inner{padding:5px;gap:4px;}
+  .touch-move-pad{width:76px;height:66px;}
+  .touch-fire{width:62px;height:62px;}
+  .touch-util{min-width:38px;height:27px;font-size:8px;padding:0 5px;}
+  .goku-form-btn{flex-basis:17%;font-size:7px;padding:4px 2px;}
+}
+/* En móvil a pantalla completa se reserva altura para poderes y fases */
+@media(max-width:900px){
+  .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{justify-content:flex-start;gap:0;padding:4px 5px;}
+  .tech-game-section:fullscreen .tech-game,.tech-game-section:-webkit-full-screen .tech-game{height:min(44svh,calc(100svh - 205px));min-height:220px;width:100%;}
+  .tech-game-section:fullscreen .touch-pad,.tech-game-section:-webkit-full-screen .touch-pad{margin:4px auto 0;width:100%;}
+  .tech-game-section:fullscreen .touch-pad-inner,.tech-game-section:-webkit-full-screen .touch-pad-inner{padding:5px 7px;gap:5px;}
+}
+
 </style>
 </head>
 <body>
@@ -413,7 +449,7 @@ let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic");
 let ownedShipModels=(function(){
-  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku"];
+  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku","gogeta"];
   try{
     var a=JSON.parse(lsGet("techOwnedModels",JSON.stringify(free)));
     if(!Array.isArray(a)||!a.length)a=free.slice();
@@ -431,7 +467,7 @@ let ownedShipSkins=(function(){
   }catch(e){return free.slice()}
 })();
 let gokuForm=(function(){var f=lsGet("techGokuForm","normal")||"normal";if(f==="ssjgod")f="normal";return f})();
-let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
+let shipName=(lsGet("techShipName","Brian7")||"Brian7").slice(0,10);
 
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
 
@@ -615,7 +651,8 @@ const SHIP_MODEL_SHOP=[
   {id:"arrow",name:"Flecha",price:12000,icon:"➤",desc:"Punta de flecha supersónica."},
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personaje especial */
-  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."}
+  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."},
+  {id:"gogeta",name:"Gogeta",price:0,icon:"🔥",desc:"Guerrero fusionado. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -689,7 +726,7 @@ function showShipShop(tab){
     m.innerHTML=`<h2 style="text-align:center;font-size:20px;margin:0 0 6px">🚀 TIENDA DE NAVES</h2>
     <p style="text-align:center;color:#FFD700;font-size:13px;margin:0 0 8px">🪙 ${coins}</p>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button type="button" class="game-btn tab-ship" data-tab="models" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="models"?"background:#FFCD00;color:#111":""}">13 Modelos</button>
+      <button type="button" class="game-btn tab-ship" data-tab="models" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="models"?"background:#FFCD00;color:#111":""}">14 Modelos</button>
       <button type="button" class="game-btn tab-ship" data-tab="skins" style="flex:1;margin:0;padding:8px;font-size:11px;${tab==="skins"?"background:#FFCD00;color:#111":""}">Skins</button>
     </div>
     ${cards}
@@ -1813,12 +1850,12 @@ if(startPanel&&!document.getElementById("startExtras")){
     if(sni){
       sni.onclick=e=>e.stopPropagation();
       sni.oninput=()=>{
-        shipName=(sni.value||"Br7").slice(0,10);
+        shipName=(sni.value||"Brian7").slice(0,10);
         lsSet("techShipName",shipName);
         drawShipPreview();
       };
       sni.onchange=()=>{
-        shipName=(sni.value||"Br7").slice(0,10)||"Br7";
+        shipName=(sni.value||"Brian7").slice(0,10)||"Brian7";
         lsSet("techShipName",shipName);
         drawShipPreview();
       };
@@ -2780,6 +2817,14 @@ function spawnTrap(){
   if(traps.length>(isMobile()?2:5))return;
   const s=getScale();
   const roll=Math.random();
+  /* Tres trampas láser nuevas: diagonal, barrido y ráfaga triple */
+  if(roll>.90){
+    const kind=Math.random();
+    if(kind<.34) traps.push({type:"laserDiag",x:Math.random()>.5?0:canvas.width,y:0,dir:Math.random()>.5?1:-1,life:130,warning:42});
+    else if(kind<.67) traps.push({type:"laserSweep",x:canvas.width*.5,y:canvas.height*.38,life:170,warning:45,angle:Math.random()*Math.PI});
+    else traps.push({type:"laserBurst",y:canvas.height*(.25+Math.random()*.45),life:155,warning:45,gapX:canvas.width*(.25+Math.random()*.5)});
+    return;
+  }
   /* Láseres vertical / horizontal / cruz (mitad de pantalla) */
   if(roll<.07)traps.push({type:"comet",x:20+Math.random()*(canvas.width-40),y:-30,size:14*s,vx:(Math.random()-.5)*2.5,vy:(2.2+Math.random()*1.5)*getSpeedScale(),trail:[]});
   else if(roll<.13)traps.push({type:"grid",x:0,y:canvas.height*(.3+Math.random()*.35),life:160,warning:40,gap:70*s});
@@ -2834,6 +2879,33 @@ function updateTraps(){
       else{ctx.shadowColor="#FF6600";ctx.shadowBlur=isMobile()?0:10;ctx.strokeStyle="rgba(255,80,30,.9)";ctx.lineWidth=5*getScale();
         ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,canvas.height);ctx.moveTo(0,cy);ctx.lineTo(canvas.width,cy);ctx.stroke();ctx.shadowBlur=0;
         if(invisible<=0&&(Math.abs(player.x-cx)<player.size||Math.abs(player.y-cy)<player.size)){hitPlayer(player.x,player.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="laserDiag"){
+      t.life--;t.warning--;
+      const x1=t.x, y1=0, x2=t.x===0?canvas.width:0, y2=canvas.height;
+      if(t.warning>0){ctx.strokeStyle="rgba(255,70,220,.55)";ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([])}
+      else{ctx.save();ctx.shadowColor="#FF36D8";ctx.shadowBlur=isMobile()?0:12;ctx.strokeStyle="rgba(255,55,210,.88)";ctx.lineWidth=5*getScale();ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+        const dx=x2-x1,dy=y2-y1,len=dx*dx+dy*dy,u=Math.max(0,Math.min(1,((player.x-x1)*dx+(player.y-y1)*dy)/len)),px=x1+u*dx,py=y1+u*dy;
+        if(invisible<=0&&Math.hypot(player.x-px,player.y-py)<player.size+4*getScale()){hitPlayer(player.x,player.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="laserSweep"){
+      t.life--;t.warning--;t.angle+=.012;
+      const cx=t.x,cy=t.y,len=Math.max(canvas.width,canvas.height),dx=Math.cos(t.angle)*len,dy=Math.sin(t.angle)*len;
+      ctx.strokeStyle=t.warning>0?"rgba(255,205,0,.45)":"rgba(255,50,50,.9)";ctx.lineWidth=t.warning>0?2:5*getScale();
+      if(t.warning>0)ctx.setLineDash([7,6]);else{ctx.shadowColor="#FF3344";ctx.shadowBlur=isMobile()?0:10}
+      ctx.beginPath();ctx.moveTo(cx-dx,cy-dy);ctx.lineTo(cx+dx,cy+dy);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;
+      if(t.warning<=0&&invisible<=0){const u=Math.max(0,Math.min(1,((player.x-cx)*dx+(player.y-cy)*dy)/(dx*dx+dy*dy||1))),px=cx+u*dx,py=cy+u*dy;if(Math.hypot(player.x-px,player.y-py)<player.size+4*getScale()){hitPlayer(player.x,player.y);if(!gameRunning)return}}
+      if(t.life<=0)traps.splice(i,1);
+    }
+    else if(t.type==="laserBurst"){
+      t.life--;t.warning--;
+      const ys=[t.y-18*getScale(),t.y,t.y+18*getScale()];
+      ctx.lineWidth=t.warning>0?2:4*getScale();ctx.strokeStyle=t.warning>0?"rgba(255,150,50,.5)":"rgba(255,70,30,.9)";
+      if(t.warning>0)ctx.setLineDash([6,6]);else{ctx.shadowColor="#FF5522";ctx.shadowBlur=isMobile()?0:9}
+      ys.forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()});ctx.setLineDash([]);ctx.shadowBlur=0;
+      if(t.warning<=0&&invisible<=0&&ys.some(y=>Math.abs(player.y-y)<player.size+3*getScale())&&Math.abs(player.x-t.gapX)>34*getScale()){hitPlayer(player.x,player.y);if(!gameRunning)return}
       if(t.life<=0)traps.splice(i,1);
     }
     else if(t.type==="electric"){
@@ -3145,7 +3217,7 @@ function drawShipModel(g,s,model,skin,label){
   }else if(model==="titan"){
     g.moveTo(0,-s);g.lineTo(s*.5,-s*.2);g.lineTo(s*.7,s*.35);g.lineTo(s*.4,s*.8);g.lineTo(0,s*.65);
     g.lineTo(-s*.4,s*.8);g.lineTo(-s*.7,s*.35);g.lineTo(-s*.5,-s*.2);g.closePath();
-  }else if(model==="goku"){
+  }else if(model==="goku"||model==="gogeta"){
     /* Goku más realista (equilibrado en rendimiento) */
     const form = (typeof gokuForm!=="undefined" && gokuForm) ? gokuForm : "normal";
     const mob = (typeof isMobile==="function"&&isMobile()) || (typeof lowPower!=="undefined"&&lowPower);
@@ -3192,7 +3264,18 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.48,-s*.85);g.lineTo(-s*.62,-s*1.4);
       g.lineTo(-s*.32,-s*1.1);g.lineTo(-s*.42,-s*1.7);g.lineTo(-s*.2,-s*1.35);
       g.closePath();
-    } else if(form==="ssj4"||form==="bru"){
+    } else if(form==="ssj4"){
+      /* SSJ4: cabello oscuro, más alto y con picos marcados tipo SSJ2 */
+      g.moveTo(0,-s*1.82);
+      g.lineTo(s*.13,-s*1.38);g.lineTo(s*.34,-s*1.66);g.lineTo(s*.29,-s*1.17);
+      g.lineTo(s*.53,-s*1.43);g.lineTo(s*.43,-s*.98);g.lineTo(s*.68,-s*1.12);
+      g.lineTo(s*.52,-s*.56);g.lineTo(s*.61,-s*.2);g.lineTo(s*.28,-s*.2);
+      g.lineTo(0,-s*.14);
+      g.lineTo(-s*.28,-s*.2);g.lineTo(-s*.61,-s*.2);g.lineTo(-s*.52,-s*.56);
+      g.lineTo(-s*.68,-s*1.12);g.lineTo(-s*.43,-s*.98);g.lineTo(-s*.53,-s*1.43);
+      g.lineTo(-s*.29,-s*1.17);g.lineTo(-s*.34,-s*1.66);g.lineTo(-s*.13,-s*1.38);
+      g.closePath();
+    } else if(form==="bru"){
       g.moveTo(0,-s*1.5);
       g.lineTo(s*.2,-s*1.1);g.lineTo(s*.4,-s*1.35);g.lineTo(s*.32,-s*.9);
       g.lineTo(s*.58,-s*1.1);g.lineTo(s*.42,-s*.55);
@@ -3245,8 +3328,8 @@ function drawShipModel(g,s,model,skin,label){
     g.beginPath();g.ellipse(s*.34,-s*.05,s*.08,s*.12,0,0,Math.PI*2);g.fill();
     /* ojos */
     g.fillStyle="#fff";
-    g.beginPath();g.ellipse(-s*.12,-s*.06,s*.1,s*.12,0,0,Math.PI*2);g.fill();
-    g.beginPath();g.ellipse(s*.12,-s*.06,s*.1,s*.12,0,0,Math.PI*2);g.fill();
+    g.beginPath();g.ellipse(-s*.12,-s*.055,s*.09,s*.09,0,0,Math.PI*2);g.fill();
+    g.beginPath();g.ellipse(s*.12,-s*.055,s*.09,s*.09,0,0,Math.PI*2);g.fill();
     g.fillStyle=irisCol;
     g.beginPath();g.ellipse(-s*.12,-s*.05,s*.055,s*.07,0,0,Math.PI*2);g.fill();
     g.beginPath();g.ellipse(s*.12,-s*.05,s*.055,s*.07,0,0,Math.PI*2);g.fill();
@@ -3258,9 +3341,9 @@ function drawShipModel(g,s,model,skin,label){
     g.beginPath();g.arc(-s*.1,-s*.08,s*.015,0,Math.PI*2);g.fill();
     g.beginPath();g.arc(s*.14,-s*.08,s*.015,0,Math.PI*2);g.fill();
     /* cejas */
-    g.strokeStyle=hairCol;g.lineWidth=Math.max(1.2,s*.06);g.lineCap="round";
-    g.beginPath();g.moveTo(-s*.22,-s*.2);g.lineTo(-s*.04,-s*.22);g.stroke();
-    g.beginPath();g.moveTo(s*.22,-s*.2);g.lineTo(s*.04,-s*.22);g.stroke();
+    g.strokeStyle=hairCol;g.lineWidth=Math.max(.8,s*.032);g.lineCap="round";
+    g.beginPath();g.moveTo(-s*.22,-s*.205);g.quadraticCurveTo(-s*.13,-s*.235,-s*.045,-s*.205);g.stroke();
+    g.beginPath();g.moveTo(s*.22,-s*.205);g.quadraticCurveTo(s*.13,-s*.235,s*.045,-s*.205);g.stroke();
     /* boca */
     g.strokeStyle="#C07050";g.lineWidth=Math.max(1,s*.04);
     g.beginPath();g.arc(0,s*.12,s*.08,0.15,Math.PI-0.15);g.stroke();
@@ -3277,13 +3360,17 @@ function drawShipModel(g,s,model,skin,label){
     g.moveTo(-s*.4,s*.32);g.lineTo(s*.4,s*.32);
     g.lineTo(s*.38,s*.72);g.lineTo(0,s*.78);g.lineTo(-s*.38,s*.72);
     g.closePath();g.fill();
+    /* SSJ4 lleva camisa roja; las otras fases conservan el gi habitual */
+    if(form==="ssj4"){
+      giG.addColorStop(0,"#F13A32");
+    }
     /* abertura gi (azul) */
-    g.fillStyle="#0038A8";
+    g.fillStyle=form==="ssj4"?"#7A241B":"#0038A8";
     g.beginPath();g.moveTo(-s*.06,s*.35);g.lineTo(s*.06,s*.35);g.lineTo(s*.08,s*.72);g.lineTo(-s*.08,s*.72);g.closePath();g.fill();
     /* cinturón */
-    g.fillStyle="#0038A8";
+    g.fillStyle=form==="ssj4"?"#5A2A17":"#0038A8";
     g.fillRect(-s*.36,s*.68,s*.72,s*.1);
-    g.fillStyle="#002266";
+    g.fillStyle=form==="ssj4"?"#3B1C12":"#002266";
     g.fillRect(-s*.08,s*.68,s*.16,s*.12);
 
     /* brazos */
@@ -3297,16 +3384,22 @@ function drawShipModel(g,s,model,skin,label){
     g.beginPath();g.arc(-s*.55,s*.72,s*.1,0,Math.PI*2);g.fill();
     g.beginPath();g.arc(s*.55,s*.72,s*.1,0,Math.PI*2);g.fill();
     /* muñequeras */
-    g.fillStyle="#0038A8";
+    g.fillStyle=form==="ssj4"?"#7A241B":"#0038A8";
     g.fillRect(-s*.58,s*.58,s*.16,s*.08);
     g.fillRect(s*.42,s*.58,s*.16,s*.08);
 
-    /* piernas / pantalón */
-    g.fillStyle="#0038A8";
+    /* piernas / pantalón: marrón en SSJ4 */
+    g.fillStyle=form==="ssj4"?"#754321":"#0038A8";
     g.beginPath();g.moveTo(-s*.32,s*.78);g.lineTo(-s*.34,s*1.05);g.lineTo(-s*.08,s*1.05);g.lineTo(-s*.06,s*.78);g.closePath();g.fill();
     g.beginPath();g.moveTo(s*.32,s*.78);g.lineTo(s*.34,s*1.05);g.lineTo(s*.08,s*1.05);g.lineTo(s*.06,s*.78);g.closePath();g.fill();
+    /* sombras del pantalón SSJ4 para dar algo más de volumen */
+    if(form==="ssj4"){
+      g.strokeStyle="#4A2918";g.lineWidth=Math.max(1,s*.045);
+      g.beginPath();g.moveTo(-s*.25,s*.82);g.lineTo(-s*.23,s*1.0);g.stroke();
+      g.beginPath();g.moveTo(s*.25,s*.82);g.lineTo(s*.23,s*1.0);g.stroke();
+    }
     /* botas */
-    g.fillStyle="#1a1a1a";
+    g.fillStyle=form==="ssj4"?"#3A2117":"#1a1a1a";
     g.beginPath();g.ellipse(-s*.21,s*1.08,s*.16,s*.08,0,0,Math.PI*2);g.fill();
     g.beginPath();g.ellipse(s*.21,s*1.08,s*.16,s*.08,0,0,Math.PI*2);g.fill();
     g.fillStyle="#CE1126";
@@ -3381,13 +3474,13 @@ function drawShipPreview(){
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<30;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   /* Centrar mejor naves altas (Goku muñeco) */
-  const shipScale = shipModel==="goku" ? 24 : 30;
-  const yOff = shipModel==="goku" ? 12 : 6;
+  const shipScale = (shipModel==="goku"||shipModel==="gogeta") ? 24 : 30;
+  const yOff = (shipModel==="goku"||shipModel==="gogeta") ? 12 : 6;
   g.save();g.translate(W/2,H/2+yOff);
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",gogeta:"Gogeta · Brian7",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||""),gogeta:"Gogeta · Brian7"};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

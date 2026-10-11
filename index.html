@@ -230,6 +230,79 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 }
 
 </style>
+
+<style id="mobile-main-and-touchpad-size-fix">
+/* Reajuste visible: pantalla de juego más grande y Touch Pad más amplio en móviles */
+@media (max-width: 900px) {
+  .tech-game-section {
+    width: 100% !important; max-width: none !important;
+    margin: 4px auto 10px !important; padding: 0 3px !important;
+    box-sizing: border-box !important;
+  }
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
+    width: 100% !important;
+    height: clamp(460px, 72svh, 760px) !important;
+    min-height: 460px !important; max-height: none !important;
+    flex: 0 0 auto !important;
+  }
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .touch-pad {
+    display: block !important; width: 100% !important; max-width: none !important;
+    margin: 10px auto 14px !important; padding: 0 !important;
+  }
+  .touch-pad-inner {
+    width: 100% !important; min-height: 164px !important;
+    box-sizing: border-box !important; padding: 16px 12px !important;
+    gap: 12px !important; border-radius: 18px !important;
+  }
+  .touch-move-pad {
+    width: clamp(112px, 30vw, 154px) !important;
+    height: clamp(108px, 23svh, 148px) !important;
+  }
+  .touch-fire {
+    width: clamp(88px, 24vw, 116px) !important;
+    height: clamp(88px, 24vw, 116px) !important;
+    font-size: 13px !important;
+  }
+  .touch-col, .touch-mid { gap: 9px !important; }
+  .touch-util { min-width: 58px !important; min-height: 42px !important; padding: 0 10px !important; font-size: 10px !important; }
+  .touch-special { width: clamp(74px, 19vw, 92px) !important; height: clamp(74px, 19vw, 92px) !important; }
+  .goku-forms { display:flex !important; flex-wrap:wrap !important; gap: 7px !important; margin-top: 10px !important; }
+  .goku-form-btn { padding: 9px 6px !important; font-size: clamp(10px, 2.8vw, 13px) !important; min-height: 36px !important; }
+  .tech-game-section:fullscreen, .tech-game-section:-webkit-full-screen {
+    width: 100vw !important; height: 100svh !important; min-height: 100svh !important;
+    overflow-y: auto !important; justify-content: flex-start !important; gap: 0 !important;
+    padding: max(5px, env(safe-area-inset-top)) 3px max(8px, env(safe-area-inset-bottom)) !important;
+    box-sizing: border-box !important;
+  }
+  .tech-game-section:fullscreen .tech-game, .tech-game-section:-webkit-full-screen .tech-game {
+    width: 100% !important; height: min(68svh, 760px) !important;
+    min-height: 390px !important; max-height: none !important; flex: 0 0 auto !important;
+  }
+  .tech-game-section:fullscreen .touch-pad, .tech-game-section:-webkit-full-screen .touch-pad {
+    display: block !important; width: 100% !important; max-width: none !important;
+    margin: 10px auto 0 !important; padding: 0 !important; flex-shrink: 0 !important;
+  }
+  .tech-game-section:fullscreen .touch-pad-inner, .tech-game-section:-webkit-full-screen .touch-pad-inner {
+    min-height: 155px !important; padding: 14px 9px !important; gap: 8px !important;
+  }
+  .tech-game-section:fullscreen .touch-move-pad, .tech-game-section:-webkit-full-screen .touch-move-pad {
+    width: clamp(104px, 28vw, 140px) !important; height: clamp(98px, 20svh, 128px) !important;
+  }
+  .tech-game-section:fullscreen .touch-fire, .tech-game-section:-webkit-full-screen .touch-fire {
+    width: clamp(84px, 22vw, 106px) !important; height: clamp(84px, 22vw, 106px) !important;
+  }
+}
+@media (max-width: 380px) {
+  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
+    height: clamp(430px, 70svh, 650px) !important; min-height: 430px !important;
+  }
+  .touch-pad-inner { padding: 12px 6px !important; gap: 6px !important; }
+  .touch-move-pad { width: 104px !important; height: 100px !important; }
+  .touch-fire { width: 82px !important; height: 82px !important; }
+  .touch-util { min-width: 50px !important; min-height: 38px !important; padding: 0 6px !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -652,7 +725,7 @@ const SHIP_MODEL_SHOP=[
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personaje especial */
   {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje especial. Gratis."},
-  {id:"gogeta",name:"Gogeta",price:0,icon:"🔥",desc:"Guerrero fusionado. Gratis."}
+  {id:"gogeta",name:"Brian7",price:0,icon:"🔥",desc:"Guerrero fusionado. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -3480,7 +3553,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",gogeta:"Gogeta · Brian7",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||""),gogeta:"Gogeta · Brian7"};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",gogeta:"Brian7",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||""),gogeta:"Brian7"};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
@@ -4495,79 +4568,3 @@ document.addEventListener("keydown",function(e){
 </script>
 </body>
 </html>
-
-/* Ajuste solicitado: área de juego móvil más larga y mejor uso de pantalla completa */
-@media (max-width: 900px) {
-  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
-    height: clamp(330px, 56svh, 500px) !important;
-    min-height: 330px !important;
-  }
-  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .touch-pad {
-    width: 100%;
-    max-width: 100%;
-    margin: 5px auto 5px;
-    padding-left: 4px;
-    padding-right: 4px;
-  }
-  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .touch-pad-inner {
-    width: 100%;
-    min-height: 104px;
-    padding: 8px 10px;
-  }
-  .tech-game-section:fullscreen,
-  .tech-game-section:-webkit-full-screen {
-    height: 100svh !important;
-    min-height: 100svh !important;
-    overflow-y: auto !important;
-    justify-content: flex-start !important;
-    padding: max(4px, env(safe-area-inset-top)) 5px max(4px, env(safe-area-inset-bottom)) !important;
-    gap: 0 !important;
-  }
-  .tech-game-section:fullscreen .tech-game,
-  .tech-game-section:-webkit-full-screen .tech-game {
-    height: min(54svh, calc(100svh - 190px)) !important;
-    min-height: 250px !important;
-    width: 100% !important;
-    flex-shrink: 0;
-  }
-  .tech-game-section:fullscreen .touch-pad,
-  .tech-game-section:-webkit-full-screen .touch-pad {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 5px auto 0 !important;
-    padding: 0 2px !important;
-    flex-shrink: 0;
-  }
-  .tech-game-section:fullscreen .touch-pad-inner,
-  .tech-game-section:-webkit-full-screen .touch-pad-inner {
-    min-height: 100px;
-    padding: 7px 8px !important;
-    gap: 6px !important;
-  }
-  .tech-game-section:fullscreen .goku-forms,
-  .tech-game-section:-webkit-full-screen .goku-forms {
-    display: flex !important;
-    margin-top: 4px !important;
-    padding: 0 2px !important;
-    gap: 3px !important;
-  }
-  .tech-game-section:fullscreen .goku-form-btn,
-  .tech-game-section:-webkit-full-screen .goku-form-btn {
-    min-width: 0 !important;
-    flex: 1 1 0 !important;
-    padding: 5px 2px !important;
-    font-size: clamp(7px, 2vw, 10px) !important;
-  }
-}
-@media (max-width: 380px) {
-  .tech-game-section:not(:fullscreen):not(:-webkit-full-screen) .tech-game {
-    height: clamp(310px, 54svh, 420px) !important;
-    min-height: 310px !important;
-  }
-  .tech-game-section:fullscreen .tech-game,
-  .tech-game-section:-webkit-full-screen .tech-game {
-    height: min(49svh, calc(100svh - 185px)) !important;
-    min-height: 225px !important;
-  }
-}

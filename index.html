@@ -1284,15 +1284,33 @@ function applyAudioVolumes(){
     if(SFX.bg){ SFX.bg.volume = audioMuted ? 0 : volMusic; SFX.bg.loop = true; }
   }catch(e){}
 }
+const _sfxPools={};
 function playSfx(key){
   try{
     if(audioMuted) return;
-    const a = SFX[key];
-    if(!a || !a.src) return;
-    const n = a.cloneNode ? a.cloneNode() : a;
-    n.volume = volSfx;
-    const p = n.play();
-    if(p && p.catch) p.catch(()=>{});
+    const base = SFX[key];
+    if(!base) return;
+    /* Pool rotativo: siempre suena en secuencia, sin agotar el audio del navegador */
+    if(!_sfxPools[key]){_sfxPools[key]=[];_sfxPools[key]._i=0}
+    const pool=_sfxPools[key];
+    while(pool.length<6){
+      try{ pool.push(base.cloneNode()); }catch(e){ break; }
+    }
+    if(!pool.length){
+      try{ base.currentTime=0; base.volume=volSfx; base.play().catch(()=>{}); }catch(e){}
+      return;
+    }
+    pool._i=(pool._i+1)%pool.length;
+    const n=pool[pool._i];
+    try{
+      n.pause();
+      n.currentTime=0;
+      n.volume=Math.max(0,Math.min(1,volSfx||0.8));
+      const p=n.play();
+      if(p&&p.catch) p.catch(()=>{ try{ n.currentTime=0; n.play().catch(()=>{}); }catch(e){} });
+    }catch(e){
+      try{ base.currentTime=0; base.volume=volSfx; base.play().catch(()=>{}); }catch(e2){}
+    }
   }catch(e){}
 }
 function startBgMusic(){
@@ -1707,7 +1725,7 @@ canvas.addEventListener("mousemove",e=>{
   mouse.x=player.x+(tx-player.x)*k;
   mouse.y=player.y+(ty-player.y)*k;
 });
-canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting=true;shoot()}});
+canvas.addEventListener("mousedown",()=>{try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.play().then(()=>{SFX.shoot.pause();SFX.shoot.currentTime=0}).catch(()=>{})}}catch(e){}if(!gamePaused&&gameRunning){isShooting=true;shoot()}});
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
 window.addEventListener("mouseup",()=>{isShooting=false});
@@ -2103,13 +2121,15 @@ let _lastMissileShot=0;
 function shoot(){
   if(!gameRunning||gamePaused)return;
   if(ammo<=0)return;
-  if(bullets.length>(isMobile()?16:28))return;
+  const maxB=isMobile()?20:32;
+  /* si hay demasiadas balas, quita las más viejas en vez de dejar de disparar */
+  while(bullets.length>=maxB) bullets.shift();
   const now=performance.now();
-  const cd=rapidFire>0?55:(isMobile()?120:shootCooldown);
+  const cd=rapidFire>0?50:(isMobile()?110:Math.max(90,shootCooldown||200));
   if(now-lastShot<cd)return;
   lastShot=now;
   try{playSfx("shoot")}catch(e){}
-  try{doVibrate(15,"shoot")}catch(e){}
+  try{doVibrate(12,"shoot")}catch(e){}
   const sp=10.5*getSpeedScale(), s=getScale();
   /* Goku o sin arma especial → disparo normal */
   let w="basic";
@@ -3487,6 +3507,7 @@ for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.abs(o.x+o.si
 function drawBullets(){
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];
+    if(!b||typeof b.x!=="number"||typeof b.y!=="number"||isNaN(b.x)||isNaN(b.y)){bullets.splice(i,1);continue}
     if(b.homing){
       let tx=b.x,ty=b.y-80;
       if(obstacles.length){let best=1e9;for(let oi=0;oi<obstacles.length;oi++){const o=obstacles[oi];const d=Math.hypot((o.x+o.size/2)-b.x,(o.y+o.size/2)-b.y);if(d<best){best=d;tx=o.x+o.size/2;ty=o.y+o.size/2}}}
@@ -4080,6 +4101,7 @@ if(upgShield>0)shield=80+upgShield*50;
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
 
 startBgMusic();
+try{if(SFX.shoot){const u=SFX.shoot.cloneNode();u.volume=0;u.play().then(()=>{u.pause()}).catch(()=>{})}}catch(e){}
 
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;
 /* arma: Goku = básica; naves = equipada */

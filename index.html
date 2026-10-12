@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
+#shipNameInput{box-sizing:border-box;min-height:42px;letter-spacing:1.2px;text-transform:uppercase;outline:none;box-shadow:inset 0 0 12px rgba(0,160,255,.10),0 0 10px rgba(255,205,0,.08);transition:border-color .18s,box-shadow .18s,transform .18s}
+#shipNameInput::placeholder{color:#8da7c7;opacity:1;font-size:11px;letter-spacing:1.4px;text-transform:uppercase}
+#shipNameInput:focus{border-color:#00d9ff!important;box-shadow:0 0 0 2px rgba(0,217,255,.16),0 0 18px rgba(0,217,255,.24),inset 0 0 12px rgba(0,217,255,.08);transform:translateY(-1px)}
+
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:#000;font-family:'Orbitron',sans-serif;color:#fff;overflow-x:hidden;min-height:100vh;-webkit-tap-highlight-color:transparent}
@@ -730,7 +734,7 @@ const SHIP_MODEL_SHOP=[
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personajes especiales */
   {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje protegido con clave de acceso."},
-  {id:"usuario",name:"Usuario (feito)",price:0,icon:"😵",desc:"Personaje cómico que lanza únicamente poderes. Gratis."}
+  {id:"usuario",name:"Usuario",price:0,icon:"😵",desc:"Personaje con disparo normal y balas estándar. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -753,8 +757,8 @@ const SHIP_SKIN_SHOP=[
 ];
 function requireGokuAccess(){
   if(lsGet("techGokuAccess","0")==="1")return true;
-  const entered=window.prompt("🔐 Goku está protegido. Escribe la clave de acceso:");
-  if(entered==="6736"){lsSet("techGokuAccess","1");return true;}
+  const entered=window.prompt("🔐 Goku está bloqueado. Introduce el código para desbloquearlo:");
+  if(entered==="3637"){lsSet("techGokuAccess","1");return true;}
   if(entered!==null)alert("Clave incorrecta. Goku sigue bloqueado.");
   return false;
 }
@@ -1713,7 +1717,7 @@ if(!weapBar){
 }
 const WEAPON_LABELS={basic:"Básica",double:"Doble",pierce:"Perfora",spread:"Abanico",rapid:"Ráfaga",laser_gun:"Láser",missile_gun:"Misil",plasma:"Plasma",wave:"Onda",triple_gun:"Triple",homing:"Homing",shotgun:"Escopeta",rail:"Rail",vortex:"Vórtice",hyper:"Hyper"};
 function updateWeaponMenuUI(){
-  const isGoku=shipModel==="goku"||shipModel==="usuario";
+  const isGoku=shipModel==="goku";
   const inGame=!!gameRunning;
   const btn=document.getElementById("btnWeaponMenu");
   const bar=document.getElementById("weaponSelectBar");
@@ -1732,7 +1736,7 @@ function updateWeaponMenuUI(){
     b.style.cssText="width:100%;padding:6px 8px;border-radius:8px;border:1px solid "+(eq?"#FFCD00":"rgba(255,255,255,.2)")+";background:"+(eq?"linear-gradient(135deg,#FFCD00,#FF8800)":"rgba(0,40,80,.85)")+";color:"+(eq?"#111":"#fff")+";font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;cursor:pointer;text-align:left";
     b.onclick=(e)=>{
       if(e){e.preventDefault();e.stopPropagation()}
-      if(shipModel==="goku"||shipModel==="usuario")return;
+      if(shipModel==="goku")return;
       currentWeapon=id;
       try{lsSet("techWeapon",id)}catch(err){}
       updateWeaponMenuUI();
@@ -1860,14 +1864,14 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
     <canvas id="shipPreview" width="200" height="110" style="width:100%;max-width:200px;height:100px;display:block;margin:6px auto;border-radius:10px;border:1px solid rgba(255,205,0,.35);background:#000"></canvas>
-    <h3>🚀 Personaje/nave: <span style="color:#FFCD00">${({classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku",usuario:"Usuario (feito)"}[shipModel]||shipModel)}</span> · ${shipSkin}</h3>
+    <h3>🚀 Personaje/nave: <span style="color:#FFCD00">${({classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku",usuario:"Usuario"}[shipModel]||shipModel)}</span> · ${shipSkin}</h3>
     <div class="diff-btns">
       ${(Array.isArray(ownedShipModels)?ownedShipModels:["classic","fighter","goku","usuario"]).map(id=>{
-        const lb={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"🔐 Goku",usuario:"😵 Usuario (feito)"}[id]||id;
+        const lb={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"🔐 Goku",usuario:"👤 Usuario"}[id]||id;
         return '<button type="button" data-model="'+id+'" class="'+(shipModel===id?"active":"")+'">'+lb+'</button>';
       }).join("")}
     </div>
-    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso · 😵 Usuario solo lanza poderes</p>
+    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso · 👤 Usuario dispara balas normales</p>
     <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · modelos + personajes + skins</button>
     <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
       <h3>⚡ Fase de Goku</h3>
@@ -1886,7 +1890,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
     <h3>✏️ Nombre de la nave</h3>
-    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
+    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="✦ ESCRIBE TU NOMBRE ✦"
       style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
     <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
     <h3>🎨 Skin</h3>
@@ -2480,16 +2484,7 @@ let _lastMissileShot=0;
 let _usuarioPowerNext=0;
 function shoot(){
   if(!gameRunning||gamePaused)return;
-  /* Usuario no dispara balas: lanza poderes especiales en secuencia con pausa corta. */
-  if(shipModel==="usuario"){
-    const nowPower=performance.now();
-    if(nowPower>=_usuarioPowerNext){
-      if(specialCharges<=0)specialCharges=1;
-      useSpecialPower();
-      _usuarioPowerNext=nowPower+850;
-    }
-    return;
-  }
+  /* Usuario ahora dispara balas normales como una nave estándar. */
   if(ammo<=0){
     /* pide munición sin bloquear el sistema de disparo */
     try{if(typeof updateEmergencyAmmo==="function")updateEmergencyAmmo(performance.now())}catch(e){}
@@ -3611,7 +3606,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",usuario:"Usuario (feito)",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",ssjblue:"SSJ Blue",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",usuario:"Usuario",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",ssjblue:"SSJ Blue",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

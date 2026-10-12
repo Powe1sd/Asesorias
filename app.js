@@ -334,6 +334,30 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   .goku-pin-key{height:46px}
 }
 
+
+#pausePanel{
+  max-height:min(88vh,560px)!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  text-align:center;
+}
+#pausePanel label,#pausePanel p,#pausePanel select,#pausePanel input{
+  font-size:inherit;
+}
+#pausePanel .game-btn{font-size:13px;padding:10px 14px}
+@media(max-width:600px){
+  #pausePanel{width:94%!important;max-width:94%!important;padding:14px 12px 20px!important}
+  #pausePanel h2{font-size:20px!important}
+  .game-score{font-size:11px!important}
+  .game-score span{font-size:12px!important;color:#FFCD00}
+  /* campos de texto legibles en móvil */
+  input[type="text"],input[type="password"],input[type="number"],select{
+    font-size:16px!important; /* evita zoom iOS y se lee bien */
+    min-height:40px;
+  }
+  #shipNameInput{font-size:16px!important;padding:10px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1487,11 +1511,59 @@ document.getElementById("closeConfig").onclick=()=>{
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
-pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:14px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:12px;margin:6px 0 2px">✉ ${CREDITS.email}</p><p style="color:#ddd;font-size:12px;margin:4px 0">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
-<button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
-<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
-<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
-gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
+pp.style.cssText="display:none;z-index:50;max-height:min(88vh,560px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;width:min(360px,94%);padding:16px 14px 18px";
+pp.innerHTML=`<h2 style="margin-bottom:6px;font-size:22px">⏸ PAUSA</h2>
+<p style="color:#FFCD00;font-size:12px;margin:6px 0 2px">${CREDITS.name}</p>
+<p style="color:#aaa;font-size:10px;margin:2px 0 8px">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p>
+<button class="game-btn" id="resumeGame" style="margin-top:6px;width:100%">▶ CONTINUAR</button>
+<button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0;width:100%">🔄 REINICIAR</button>
+<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0;width:100%">💾 GUARDAR</button>
+<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;width:100%;background:#0038A8;color:#fff">🏠 INICIO</button>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:left">
+  <h3 style="color:#FFCD00;font-size:13px;margin:0 0 8px;text-align:center">⚙ CONFIGURACIÓN</h3>
+  <p style="color:#ccc;font-size:10px;margin:4px 0 2px">Sensibilidad touch · <span id="pauseSensPadVal">${Number(sensPad).toFixed(2)}x</span></p>
+  <input type="range" id="pauseSensPad" min="0" max="2" step="0.01" value="${sensPad}" style="width:100%;accent-color:#00A0E9">
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Música · <span id="pauseVolMusicVal">${Math.round(volMusic*100)}%</span></p>
+  <input type="range" id="pauseVolMusic" min="0" max="1" step="0.01" value="${volMusic}" style="width:100%;accent-color:#CE1126">
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Efectos · <span id="pauseVolSfxVal">${Math.round(volSfx*100)}%</span></p>
+  <input type="range" id="pauseVolSfx" min="0" max="1" step="0.01" value="${volSfx}" style="width:100%;accent-color:#FFCD00">
+  <label style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseLowPower" ${lowPower?"checked":""} style="accent-color:#00C8FF"> Bajo consumo (más FPS)
+  </label>
+  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseMute" ${audioMuted?"checked":""} style="accent-color:#CE1126"> Silenciar audio
+  </label>
+  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseVibrate" ${vibrateOn?"checked":""} style="accent-color:#FFCD00"> Vibración
+  </label>
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Poderes al recoger</p>
+  <select id="pausePowerMode" style="width:100%;padding:7px;border-radius:6px;background:#111;color:#fff;border:1px solid #444;font-size:11px">
+    <option value="auto" ${powerMode==="auto"?"selected":""}>Automático</option>
+    <option value="manual" ${powerMode==="manual"?"selected":""}>Manual (G / ⚡)</option>
+  </select>
+  <button type="button" class="game-btn" id="pauseOpenFullCfg" style="width:100%;margin-top:10px;padding:8px;font-size:12px">⚙ Más opciones</button>
+</div>`;
+gameBox.appendChild(pp);
+function wirePauseControls(){
+  const psp=document.getElementById("pauseSensPad"), pspv=document.getElementById("pauseSensPadVal");
+  if(psp){psp.value=sensPad;psp.oninput=()=>{sensPad=Number(psp.value);if(pspv)pspv.textContent=sensPad.toFixed(2)+"x";lsSet("techSensPadV7",sensPad)}}
+  const pvm=document.getElementById("pauseVolMusic"), pvmv=document.getElementById("pauseVolMusicVal");
+  if(pvm){pvm.value=volMusic;pvm.oninput=()=>{setMusicVolume(Number(pvm.value));if(pvmv)pvmv.textContent=Math.round(volMusic*100)+"%";lsSet("techVolMusicV3",volMusic)}}
+  const pvs=document.getElementById("pauseVolSfx"), pvsv=document.getElementById("pauseVolSfxVal");
+  if(pvs){pvs.value=volSfx;pvs.oninput=()=>{setSfxVolume(Number(pvs.value));if(pvsv)pvsv.textContent=Math.round(volSfx*100)+"%";lsSet("techVolSfxV3",volSfx)}}
+  const plp=document.getElementById("pauseLowPower");
+  if(plp){plp.checked=!!lowPower;plp.onchange=()=>{lowPower=plp.checked;lsSet("techLowPower",lowPower?"1":"0");resizeCanvas()}}
+  const pmu=document.getElementById("pauseMute");
+  if(pmu){pmu.checked=!!audioMuted;pmu.onchange=()=>{audioMuted=pmu.checked;lsSet("techAudioMuted",audioMuted?"1":"0");if(audioMuted){if(SFX.bg)SFX.bg.volume=0}else applyAudioVolumes()}}
+  const pvb=document.getElementById("pauseVibrate");
+  if(pvb){pvb.checked=!!vibrateOn;pvb.onchange=()=>{vibrateOn=pvb.checked;lsSet("techVibrate",vibrateOn?"1":"0")}}
+  const ppm=document.getElementById("pausePowerMode");
+  if(ppm){ppm.value=powerMode;ppm.onchange=()=>{powerMode=ppm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
+  const pof=document.getElementById("pauseOpenFullCfg");
+  if(pof)pof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
+}
+wirePauseControls();
+document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
 c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:6px 0 2px">📞 ${CREDITS.phone}</p><p style="color:#ccc;font-size:11px;margin:2px 0 6px">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
@@ -1721,13 +1793,31 @@ const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · 
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
-if(gamePaused){if(pp)pp.style.display="block";if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame);if(SFX.bg){try{SFX.bg.volume=Math.min(volMusic,0.04)}catch(e){}}}
+if(gamePaused){
+  if(pp){
+    pp.style.display="block";
+    /* refrescar valores de config al abrir */
+    try{
+      const psp=document.getElementById("pauseSensPad"),pspv=document.getElementById("pauseSensPadVal");
+      if(psp){psp.value=sensPad;if(pspv)pspv.textContent=Number(sensPad).toFixed(2)+"x"}
+      const pvm=document.getElementById("pauseVolMusic"),pvmv=document.getElementById("pauseVolMusicVal");
+      if(pvm){pvm.value=volMusic;if(pvmv)pvmv.textContent=Math.round(volMusic*100)+"%"}
+      const pvs=document.getElementById("pauseVolSfx"),pvsv=document.getElementById("pauseVolSfxVal");
+      if(pvs){pvs.value=volSfx;if(pvsv)pvsv.textContent=Math.round(volSfx*100)+"%"}
+      const plp=document.getElementById("pauseLowPower");if(plp)plp.checked=!!lowPower;
+      const pmu=document.getElementById("pauseMute");if(pmu)pmu.checked=!!audioMuted;
+      const pvb=document.getElementById("pauseVibrate");if(pvb)pvb.checked=!!vibrateOn;
+      const ppm=document.getElementById("pausePowerMode");if(ppm)ppm.value=powerMode;
+    }catch(e){}
+  }
+  if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame);if(SFX.bg){try{SFX.bg.volume=Math.min(volMusic,0.04)}catch(e){}}
+}
 else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}animationFrame=requestAnimationFrame(gameLoop)}}
 
 /* Escala visual según tamaño del canvas (naves, meteoritos) */
 function getScale(){const cw=canvas.clientWidth||canvas.width,ch=canvas.clientHeight||canvas.height;return Math.min(cw,ch)/400}
 /* Detecta móvil/touch para bajar velocidad y límites */
-function isMobile(){return canvas.width<700||('ontouchstart' in window)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'')}
+function isMobile(){const cw=canvas.clientWidth||canvas.width;return cw<700||('ontouchstart' in window)||(navigator.maxTouchPoints>0)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'')}
 let _mobCache=null,_mobCacheT=0;
 function mob(){const t=performance.now();if(_mobCache!==null&&t-_mobCacheT<1000)return _mobCache;_mobCache=isMobile();_mobCacheT=t;return _mobCache}
 function getProgressSpeed(){
@@ -1742,9 +1832,10 @@ function getSpeedScale(){
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  /* Alta calidad: casi 1:1. Solo -20% en bajo consumo móvil */
-  const dpr=Math.min(window.devicePixelRatio||1, isMobile()?1.25:2);
-  const baseScale=isMobile()?(lowPower?0.80:1.0):1.0;
+  /* Móvil: -20% zoom (más campo visible) + alta calidad con DPR */
+  const mobile=isMobile();
+  const dpr=Math.min(window.devicePixelRatio||1, mobile?(lowPower?1.5:2):2);
+  const baseScale=mobile?0.80:1.0; /* -20% zoom en celular */
   const renderScale=baseScale;
   const w=Math.max(1,Math.floor(r.width*renderScale*dpr));
   const h=Math.max(1,Math.floor(r.height*renderScale*dpr));

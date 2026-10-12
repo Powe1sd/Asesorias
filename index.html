@@ -16,11 +16,11 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game-section{width:100%;max-width:1200px;margin:25px auto 10px;padding:0 25px}
 .tech-game{position:relative;width:100%;height:420px;overflow:hidden;border-radius:18px;background:#000;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 24px rgba(255,255,255,.08);touch-action:none}
 .tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:1}
-#gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(0)}
 .game-top{position:absolute;top:8px;left:44px;right:150px;display:flex;flex-direction:column;align-items:flex-start;z-index:12;pointer-events:none;gap:2px}
-.game-title{color:#fff;font-weight:800;font-size:13px;letter-spacing:1px;text-shadow:0 0 10px rgba(255,255,255,.6);white-space:nowrap}
-.game-score{font-family:'Share Tech Mono',monospace;font-size:12px;text-align:left;line-height:1.4;color:#ddd;text-shadow:0 1px 3px #000}
-.game-score span{color:#fff;font-weight:bold}
+.game-title{color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;text-shadow:0 0 8px rgba(255,255,255,.5);white-space:nowrap}
+.game-score{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:left;line-height:1.45;color:#eee;text-shadow:0 0 6px rgba(0,0,0,.9),0 1px 2px #000;letter-spacing:.3px}
+.game-score span{color:#FFCD00;font-weight:800;font-size:14px;text-shadow:0 0 8px rgba(255,205,0,.45)}
 .game-help{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(255,255,255,.55);font-family:'Share Tech Mono',monospace;font-size:12px;pointer-events:none;white-space:nowrap}
 .game-panel{position:absolute;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;max-width:90%;max-height:92%;padding:20px 16px;text-align:center;background:rgba(0,0,0,.96);border:1px solid rgba(255,255,255,.3);border-radius:15px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .game-panel h2{font-size:30px;margin-bottom:12px;background:linear-gradient(90deg,#FFCD00,#fff,#FFCD00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:0 0 20px rgba(255,205,0,.25)}
@@ -61,7 +61,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .mini-triangle{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #CE1126;animation:colorCycle 5s infinite linear}
 @keyframes colorCycle{0%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}33%{border-left-color:#FFCD00;filter:drop-shadow(0 0 10px #FFCD00)}66%{border-left-color:#0038A8;filter:drop-shadow(0 0 10px #0038A8)}100%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}}
 .floating-name{position:fixed;bottom:12px;right:14px;font-size:.8rem;color:#CE1126;z-index:50}
-@media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:min(78vh,520px);min-height:420px}.game-top{left:42px;right:140px;top:8px}.game-title{font-size:11px}.game-score{font-size:10px;text-align:left}.game-help{font-size:9px}.game-panel{width:94%;max-width:94%;padding:14px 12px;max-height:95%}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
+@media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:min(78vh,520px);min-height:420px}.game-top{left:42px;right:140px;top:8px}.game-title{font-size:10px}.game-score{font-size:11px;text-align:left}.game-score span{font-size:12px}.game-help{font-size:9px}.game-panel{width:94%;max-width:94%;padding:14px 12px;max-height:95%}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
 
 
 .touch-pad{display:none;max-width:1200px;margin:10px auto 18px;padding:0 10px;user-select:none;-webkit-user-select:none}
@@ -228,6 +228,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
     image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
   .tech-game-section {
     -webkit-overflow-scrolling: touch;
@@ -332,6 +334,30 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @media(max-width:900px){
   .goku-pin-card{box-shadow:none}
   .goku-pin-key{height:46px}
+}
+
+
+#pausePanel{
+  max-height:min(88vh,560px)!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  text-align:center;
+}
+#pausePanel label,#pausePanel p,#pausePanel select,#pausePanel input{
+  font-size:inherit;
+}
+#pausePanel .game-btn{font-size:13px;padding:10px 14px}
+@media(max-width:600px){
+  #pausePanel{width:94%!important;max-width:94%!important;padding:14px 12px 20px!important}
+  #pausePanel h2{font-size:20px!important}
+  .game-score{font-size:11px!important}
+  .game-score span{font-size:12px!important;color:#FFCD00}
+  /* campos de texto legibles en móvil */
+  input[type="text"],input[type="password"],input[type="number"],select{
+    font-size:16px!important; /* evita zoom iOS y se lee bien */
+    min-height:40px;
+  }
+  #shipNameInput{font-size:16px!important;padding:10px!important}
 }
 
 </style>
@@ -1487,11 +1513,59 @@ document.getElementById("closeConfig").onclick=()=>{
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
-pp.innerHTML=`<h2 style="margin-bottom:8px">⏸ PAUSA</h2><p style="color:#FFCD00;font-size:14px;margin:10px 0 4px">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ddd;font-size:12px;margin:6px 0 2px">✉ ${CREDITS.email}</p><p style="color:#ddd;font-size:12px;margin:4px 0">📞 ${CREDITS.phone}</p><p style="color:#888;font-size:11px;margin:4px 0 14px">${CREDITS.label}</p><small style="color:#aaa">P = pausar · Flechas / mando · Espacio</small><br><button class="game-btn" id="resumeGame" style="margin-top:14px">▶ CONTINUAR</button>
-<button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0">🔄 REINICIAR</button>
-<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0">💾 GUARDAR</button>
-<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;background:#0038A8;color:#fff">🏠 INICIO</button>`;
-gameBox.appendChild(pp);document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
+pp.style.cssText="display:none;z-index:50;max-height:min(88vh,560px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;width:min(360px,94%);padding:16px 14px 18px";
+pp.innerHTML=`<h2 style="margin-bottom:6px;font-size:22px">⏸ PAUSA</h2>
+<p style="color:#FFCD00;font-size:12px;margin:6px 0 2px">${CREDITS.name}</p>
+<p style="color:#aaa;font-size:10px;margin:2px 0 8px">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p>
+<button class="game-btn" id="resumeGame" style="margin-top:6px;width:100%">▶ CONTINUAR</button>
+<button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0;width:100%">🔄 REINICIAR</button>
+<button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0;width:100%">💾 GUARDAR</button>
+<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;width:100%;background:#0038A8;color:#fff">🏠 INICIO</button>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:left">
+  <h3 style="color:#FFCD00;font-size:13px;margin:0 0 8px;text-align:center">⚙ CONFIGURACIÓN</h3>
+  <p style="color:#ccc;font-size:10px;margin:4px 0 2px">Sensibilidad touch · <span id="pauseSensPadVal">${Number(sensPad).toFixed(2)}x</span></p>
+  <input type="range" id="pauseSensPad" min="0" max="2" step="0.01" value="${sensPad}" style="width:100%;accent-color:#00A0E9">
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Música · <span id="pauseVolMusicVal">${Math.round(volMusic*100)}%</span></p>
+  <input type="range" id="pauseVolMusic" min="0" max="1" step="0.01" value="${volMusic}" style="width:100%;accent-color:#CE1126">
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Efectos · <span id="pauseVolSfxVal">${Math.round(volSfx*100)}%</span></p>
+  <input type="range" id="pauseVolSfx" min="0" max="1" step="0.01" value="${volSfx}" style="width:100%;accent-color:#FFCD00">
+  <label style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseLowPower" ${lowPower?"checked":""} style="accent-color:#00C8FF"> Bajo consumo (más FPS)
+  </label>
+  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseMute" ${audioMuted?"checked":""} style="accent-color:#CE1126"> Silenciar audio
+  </label>
+  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+    <input type="checkbox" id="pauseVibrate" ${vibrateOn?"checked":""} style="accent-color:#FFCD00"> Vibración
+  </label>
+  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Poderes al recoger</p>
+  <select id="pausePowerMode" style="width:100%;padding:7px;border-radius:6px;background:#111;color:#fff;border:1px solid #444;font-size:11px">
+    <option value="auto" ${powerMode==="auto"?"selected":""}>Automático</option>
+    <option value="manual" ${powerMode==="manual"?"selected":""}>Manual (G / ⚡)</option>
+  </select>
+  <button type="button" class="game-btn" id="pauseOpenFullCfg" style="width:100%;margin-top:10px;padding:8px;font-size:12px">⚙ Más opciones</button>
+</div>`;
+gameBox.appendChild(pp);
+function wirePauseControls(){
+  const psp=document.getElementById("pauseSensPad"), pspv=document.getElementById("pauseSensPadVal");
+  if(psp){psp.value=sensPad;psp.oninput=()=>{sensPad=Number(psp.value);if(pspv)pspv.textContent=sensPad.toFixed(2)+"x";lsSet("techSensPadV7",sensPad)}}
+  const pvm=document.getElementById("pauseVolMusic"), pvmv=document.getElementById("pauseVolMusicVal");
+  if(pvm){pvm.value=volMusic;pvm.oninput=()=>{setMusicVolume(Number(pvm.value));if(pvmv)pvmv.textContent=Math.round(volMusic*100)+"%";lsSet("techVolMusicV3",volMusic)}}
+  const pvs=document.getElementById("pauseVolSfx"), pvsv=document.getElementById("pauseVolSfxVal");
+  if(pvs){pvs.value=volSfx;pvs.oninput=()=>{setSfxVolume(Number(pvs.value));if(pvsv)pvsv.textContent=Math.round(volSfx*100)+"%";lsSet("techVolSfxV3",volSfx)}}
+  const plp=document.getElementById("pauseLowPower");
+  if(plp){plp.checked=!!lowPower;plp.onchange=()=>{lowPower=plp.checked;lsSet("techLowPower",lowPower?"1":"0");resizeCanvas()}}
+  const pmu=document.getElementById("pauseMute");
+  if(pmu){pmu.checked=!!audioMuted;pmu.onchange=()=>{audioMuted=pmu.checked;lsSet("techAudioMuted",audioMuted?"1":"0");if(audioMuted){if(SFX.bg)SFX.bg.volume=0}else applyAudioVolumes()}}
+  const pvb=document.getElementById("pauseVibrate");
+  if(pvb){pvb.checked=!!vibrateOn;pvb.onchange=()=>{vibrateOn=pvb.checked;lsSet("techVibrate",vibrateOn?"1":"0")}}
+  const ppm=document.getElementById("pausePowerMode");
+  if(ppm){ppm.value=powerMode;ppm.onchange=()=>{powerMode=ppm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
+  const pof=document.getElementById("pauseOpenFullCfg");
+  if(pof)pof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
+}
+wirePauseControls();
+document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
 c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:6px 0 2px">📞 ${CREDITS.phone}</p><p style="color:#ccc;font-size:11px;margin:2px 0 6px">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
 startPanel.appendChild(c)}
@@ -1587,6 +1661,30 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
+    <h3>⚙ Configuración</h3>
+    <div style="padding:8px 4px;border:1px solid rgba(255,205,0,.25);border-radius:10px;background:rgba(0,15,40,.55);margin:6px 0 10px">
+      <p style="color:#FFCD00;font-size:10px;margin:4px 0 2px">Sensibilidad touch / mando · <span id="startSensPadVal">${Number(sensPad).toFixed(2)}x</span></p>
+      <input type="range" id="startSensPad" min="0" max="2" step="0.01" value="${sensPad}" style="width:96%;accent-color:#00A0E9">
+      <p style="color:#FFCD00;font-size:10px;margin:8px 0 2px">Música · <span id="startVolMusicVal">${Math.round(volMusic*100)}%</span></p>
+      <input type="range" id="startVolMusic" min="0" max="1" step="0.01" value="${volMusic}" style="width:96%;accent-color:#CE1126">
+      <p style="color:#FFCD00;font-size:10px;margin:8px 0 2px">Efectos · <span id="startVolSfxVal">${Math.round(volSfx*100)}%</span></p>
+      <input type="range" id="startVolSfx" min="0" max="1" step="0.01" value="${volSfx}" style="width:96%;accent-color:#FFCD00">
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;color:#ddd;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="startLowPower" ${lowPower?"checked":""} style="accent-color:#00C8FF"> Bajo consumo (más FPS)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="startMute" ${audioMuted?"checked":""} style="accent-color:#CE1126"> Silenciar audio
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
+        <input type="checkbox" id="startVibrate" ${vibrateOn?"checked":""} style="accent-color:#FFCD00"> Vibración
+      </label>
+      <p style="color:#888;font-size:9px;margin:6px 0 2px">Poderes al recoger</p>
+      <select id="startPowerMode" style="width:96%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444;font-size:11px">
+        <option value="auto" ${powerMode==="auto"?"selected":""}>Automático</option>
+        <option value="manual" ${powerMode==="manual"?"selected":""}>Manual (G / ⚡)</option>
+      </select>
+      <button type="button" class="game-btn" id="btnOpenFullConfig" style="width:100%;margin-top:10px;padding:8px;font-size:12px">⚙ Más opciones</button>
+    </div>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
@@ -1641,6 +1739,23 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
       selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
     });
+    /* Config en menú inicio */
+    const ssp=box.querySelector("#startSensPad"), sspv=box.querySelector("#startSensPadVal");
+    if(ssp)ssp.oninput=()=>{sensPad=Number(ssp.value);if(sspv)sspv.textContent=sensPad.toFixed(2)+"x";lsSet("techSensPadV7",sensPad)};
+    const svm=box.querySelector("#startVolMusic"), svmv=box.querySelector("#startVolMusicVal");
+    if(svm)svm.oninput=()=>{setMusicVolume(Number(svm.value));if(svmv)svmv.textContent=Math.round(volMusic*100)+"%";lsSet("techVolMusicV3",volMusic)};
+    const svs=box.querySelector("#startVolSfx"), svsv=box.querySelector("#startVolSfxVal");
+    if(svs)svs.oninput=()=>{setSfxVolume(Number(svs.value));if(svsv)svsv.textContent=Math.round(volSfx*100)+"%";lsSet("techVolSfxV3",volSfx)};
+    const slp=box.querySelector("#startLowPower");
+    if(slp)slp.onchange=()=>{lowPower=slp.checked;lsSet("techLowPower",lowPower?"1":"0");resizeCanvas()};
+    const smu=box.querySelector("#startMute");
+    if(smu)smu.onchange=()=>{audioMuted=smu.checked;lsSet("techAudioMuted",audioMuted?"1":"0");if(audioMuted){if(SFX.bg)SFX.bg.volume=0}else applyAudioVolumes()};
+    const svb=box.querySelector("#startVibrate");
+    if(svb)svb.onchange=()=>{vibrateOn=svb.checked;lsSet("techVibrate",vibrateOn?"1":"0")};
+    const spm=box.querySelector("#startPowerMode");
+    if(spm)spm.onchange=()=>{powerMode=spm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"};
+    const bof=box.querySelector("#btnOpenFullConfig");
+    if(bof)bof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
@@ -1680,13 +1795,44 @@ const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · 
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
-if(gamePaused){if(pp)pp.style.display="block";if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame);if(SFX.bg){try{SFX.bg.volume=Math.min(volMusic,0.04)}catch(e){}}}
+if(gamePaused){
+  if(pp){
+    pp.style.display="block";
+    /* refrescar valores de config al abrir */
+    try{
+      const psp=document.getElementById("pauseSensPad"),pspv=document.getElementById("pauseSensPadVal");
+      if(psp){psp.value=sensPad;if(pspv)pspv.textContent=Number(sensPad).toFixed(2)+"x"}
+      const pvm=document.getElementById("pauseVolMusic"),pvmv=document.getElementById("pauseVolMusicVal");
+      if(pvm){pvm.value=volMusic;if(pvmv)pvmv.textContent=Math.round(volMusic*100)+"%"}
+      const pvs=document.getElementById("pauseVolSfx"),pvsv=document.getElementById("pauseVolSfxVal");
+      if(pvs){pvs.value=volSfx;if(pvsv)pvsv.textContent=Math.round(volSfx*100)+"%"}
+      const plp=document.getElementById("pauseLowPower");if(plp)plp.checked=!!lowPower;
+      const pmu=document.getElementById("pauseMute");if(pmu)pmu.checked=!!audioMuted;
+      const pvb=document.getElementById("pauseVibrate");if(pvb)pvb.checked=!!vibrateOn;
+      const ppm=document.getElementById("pausePowerMode");if(ppm)ppm.value=powerMode;
+    }catch(e){}
+  }
+  if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame);if(SFX.bg){try{SFX.bg.volume=Math.min(volMusic,0.04)}catch(e){}}
+}
 else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}animationFrame=requestAnimationFrame(gameLoop)}}
 
 /* Escala visual según tamaño del canvas (naves, meteoritos) */
-function getScale(){return Math.min(canvas.width,canvas.height)/400}
+function getScale(){
+  /* Escala en píxeles del buffer (CSS × DPR) → nítido en pantallas HD/Retina */
+  const css=Math.min(canvas.clientWidth||400, canvas.clientHeight||400);
+  const dpr=(canvas.clientWidth>0)?(canvas.width/canvas.clientWidth):1;
+  return (css/400)*dpr;
+}
+/* Píxeles CSS → buffer (textos nítidos en HD) */
+function px(n){
+  const dpr=(canvas.clientWidth>0)?(canvas.width/Math.max(1,canvas.clientWidth)):1;
+  return Math.max(1, n*dpr);
+}
+function dpr(){
+  return (canvas.clientWidth>0)?(canvas.width/Math.max(1,canvas.clientWidth)):1;
+}
 /* Detecta móvil/touch para bajar velocidad y límites */
-function isMobile(){return canvas.width<700||('ontouchstart' in window)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'')}
+function isMobile(){const cw=canvas.clientWidth||canvas.width;return cw<700||('ontouchstart' in window)||(navigator.maxTouchPoints>0)||/Mobi|Android|iPhone/i.test(navigator.userAgent||'')}
 let _mobCache=null,_mobCacheT=0;
 function mob(){const t=performance.now();if(_mobCache!==null&&t-_mobCacheT<1000)return _mobCache;_mobCache=isMobile();_mobCacheT=t;return _mobCache}
 function getProgressSpeed(){
@@ -1694,18 +1840,34 @@ function getProgressSpeed(){
   return base*(typeof diffSpeedMult==="function"?diffSpeedMult():1);
 }
 function getSpeedScale(){
-  const h=Math.max(canvas.height,1);
+  const h=Math.max(canvas.clientHeight||(canvas.height/((canvas.clientWidth>0)?(canvas.width/canvas.clientWidth):1)),1);
   const s=h/400;
   return Math.min(1.25,Math.max(0.85,s));
 }
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
-  /* Tamaño normal de pantalla (como antes) */
-  const renderScale=isMobile()?(lowPower?0.52:0.62):1; /* menos píxeles = más FPS */
-  const w=Math.max(1,Math.floor(r.width*renderScale));
-  const h=Math.max(1,Math.floor(r.height*renderScale));
-  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
-  player.size=Math.max(10,Math.min(15,12.5*getScale())); /* más alejada / pequeña */
+  const cssW=Math.max(1,Math.floor(r.width));
+  const cssH=Math.max(1,Math.floor(r.height));
+  /* HD real: buffer = CSS × devicePixelRatio (nunca por debajo de 1×) */
+  const mobile=isMobile();
+  let dpr=window.devicePixelRatio||1;
+  if(mobile) dpr=Math.min(Math.max(dpr,1), lowPower?1.75:2.5);
+  else dpr=Math.min(Math.max(dpr,1), 2.5);
+  const w=Math.max(1,Math.floor(cssW*dpr));
+  const h=Math.max(1,Math.floor(cssH*dpr));
+  if(canvas.width!==w||canvas.height!==h){
+    canvas.width=w;
+    canvas.height=h;
+  }
+  /* CSS exacto → el navegador no reescala con blur */
+  canvas.style.width=cssW+"px";
+  canvas.style.height=cssH+"px";
+  try{
+    ctx.imageSmoothingEnabled=true;
+    ctx.imageSmoothingQuality="high";
+  }catch(e){}
+  /* nave pequeña / alejada (zoom visual, sin bajar resolución) */
+  player.size=Math.max(10,Math.min(14,11*getScale()));
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}
   initStars()
 }
@@ -3551,7 +3713,7 @@ p.y+=p.vy;
 /* Solo icono/texto, sin fondo de color */
 ctx.shadowColor=colors[p.type]||"#FFCD00";ctx.shadowBlur=10;
 ctx.fillStyle=colors[p.type]||"#FFCD00";
-ctx.font=`bold ${Math.max(12,p.size*.7)}px Orbitron`;ctx.textAlign="center";ctx.textBaseline="middle";
+ctx.font=`bold ${Math.max(isMobile()?9:11,p.size*(isMobile()?.5:.65))}px Orbitron`;ctx.textAlign="center";ctx.textBaseline="middle";
 ctx.fillText(labels[p.type]||"?",p.x,p.y);
 ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
@@ -3584,57 +3746,56 @@ function updateExplosions(){for(let i=explosions.length-1;i>=0;i--){const e=expl
 function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.y+=p.speed;p.opacity-=.03;ctx.fillStyle=`rgba(${p.color},${p.opacity})`;ctx.fillRect(p.x,p.y,p.size,p.size);if(p.opacity<=0)particles.splice(i,1)}}
 function checkCollision(o){return Math.hypot(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2))<player.size*.85+o.size*.45}
 
-function drawWarning(){if(phase!=="warning")return;const a=.5+Math.sin(performance.now()/120)*.4;ctx.fillStyle=`rgba(206,17,38,${a*.25})`;ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${Math.min(24,canvas.width*.05)}px Orbitron`;ctx.textAlign="center";
+function drawWarning(){if(phase!=="warning")return;const a=.5+Math.sin(performance.now()/120)*.4;const P=(typeof px==="function")?px:(n=>n);
+ctx.fillStyle=`rgba(206,17,38,${a*.25})`;ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${P(Math.min(22,(canvas.clientWidth||400)*.05))}px Orbitron`;ctx.textAlign="center";
 const msg=(waveCount>0&&waveCount%4===0)?"⚠ JEFE APROXIMÁNDOSE ⚠":"⚠ OLEADA "+(waveCount+1)+" ⚠";
-ctx.fillText(msg,canvas.width/2,canvas.height/2-10);
-ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font="14px Share Tech Mono";ctx.fillText(Math.ceil(phaseTimer/60)+" s",canvas.width/2,canvas.height/2+22)}
+ctx.fillText(msg,canvas.width/2,canvas.height/2-P(10));
+ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font=P(13)+"px Share Tech Mono";ctx.fillText(Math.ceil(phaseTimer/60)+" s",canvas.width/2,canvas.height/2+P(22))}
 
 function drawHUD(){
-const mob=canvas.width<500;
-/* Barra superior corta: PUNTOS/RÉCORD van en HTML a la izquierda de TECH SYSTEM */
-const padR=mob?8:130;
-ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,canvas.width,mob?40:36);
-/* Nombre de la nave bien visible en pantalla */
+const mob=(canvas.clientWidth||canvas.width)<500;
+const P=(typeof px==="function")?px:(n=>n);
+/* Barras en coords de buffer (HD nítido) */
+ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,canvas.width,P(mob?32:30));
 ctx.textAlign="center";ctx.textBaseline="middle";
-ctx.font=mob?"bold 14px Orbitron":"bold 16px Orbitron";
+ctx.font="bold "+P(mob?10:12)+"px Orbitron";
 ctx.fillStyle="#CE1126";
-ctx.strokeStyle="rgba(0,0,0,.7)";ctx.lineWidth=3;
+ctx.strokeStyle="rgba(0,0,0,.75)";ctx.lineWidth=P(2);
 const nm=String(shipName||"Br7");
-ctx.strokeText("🚀 "+nm,canvas.width/2,mob?14:12);
+ctx.strokeText("🚀 "+nm,canvas.width/2,P(mob?12:11));
 ctx.fillStyle="#FFCD00";
-ctx.fillText("🚀 "+nm,canvas.width/2,mob?14:12);
-ctx.font=mob?"bold 9px Orbitron":"bold 11px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
-ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,8,18);
-ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.75)";ctx.font=mob?"9px Share Tech Mono":"10px Share Tech Mono";
+ctx.fillText("🚀 "+nm,canvas.width/2,P(mob?12:11));
+ctx.font="bold "+P(mob?8:9)+"px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
+ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,P(8),P(16));
+ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.85)";ctx.font=P(mob?8:9)+"px Share Tech Mono";
 const scenNames={1:"ÓRBITA",2:"ASTEROIDES",3:"ALIEN",4:"AGUJERO"};
 let lab=scenNames[scenario]+" · O"+(waveCount+1);
 if(phase==="meteors")lab+=" · "+Math.ceil(phaseTimer/60)+"s";
 else if(phase==="warning")lab+=" · ALERTA";
 else if(phase==="ships")lab+=" · NAVES";
 else lab+=" · JEFE";
-ctx.fillText(lab,canvas.width/2,12);
-ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
-if(combo>1){ctx.fillStyle="#FFCD00";ctx.font=mob?"bold 11px Orbitron":"bold 13px Orbitron";ctx.fillText("COMBO x"+combo+" · "+comboMult.toFixed(2)+"x",canvas.width/2,44)}
-ctx.textAlign="right";ctx.fillStyle=dailyClaimed?"#66FF88":"#88CCFF";ctx.font="9px Share Tech Mono";
-ctx.fillText(typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal),canvas.width-8,28);
-/* Barra de KI */
-const kiW=mob?70:100,kiH=6,kiX=canvas.width-8-kiW,kiY=mob?36:34;
-ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(kiX-2,kiY-2,kiW+4,kiH+4);
+ctx.fillText(lab,canvas.width/2,P(12));
+ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,P(26));
+if(combo>1){ctx.fillStyle="#FFCD00";ctx.font="bold "+P(mob?9:11)+"px Orbitron";ctx.fillText("COMBO x"+combo+" · "+comboMult.toFixed(2)+"x",canvas.width/2,P(38))}
+ctx.textAlign="right";ctx.fillStyle=dailyClaimed?"#66FF88":"#88CCFF";ctx.font=P(9)+"px Share Tech Mono";
+ctx.fillText(typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal),canvas.width-P(8),P(26));
+const kiW=P(mob?70:100),kiH=P(6),kiX=canvas.width-P(8)-kiW,kiY=P(mob?34:32);
+ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(kiX-P(2),kiY-P(2),kiW+P(4),kiH+P(4));
 ctx.fillStyle="#222";ctx.fillRect(kiX,kiY,kiW,kiH);
 const kiPct=(typeof ki!=="undefined"?ki:0)/(typeof kiMax!=="undefined"?kiMax:100);
 ctx.fillStyle=kiPct>=1?"#FFD700":"#00C8FF";
 ctx.fillRect(kiX,kiY,kiW*kiPct,kiH);
-ctx.fillStyle=kiPct>=1?"#FFD700":"#88CCFF";ctx.font="bold 8px Orbitron";
-ctx.fillText(kiPct>=1?"KI LISTO (K)":"KI",kiX-4,kiY+kiH/2);
+ctx.fillStyle=kiPct>=1?"#FFD700":"#88CCFF";ctx.font="bold "+P(8)+"px Orbitron";
+ctx.fillText(kiPct>=1?"KI LISTO (K)":"KI",kiX-P(4),kiY+kiH/2);
 ctx.textAlign="center";
 
-/* VIDAS van en HTML a la izquierda (TECH SYSTEM) */
-ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
-ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);ctx.fillStyle="#FFD700";ctx.font="bold 11px Orbitron";ctx.fillText("🪙 "+coins,10,canvas.height-32);
-if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
-ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
+ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-P(28),canvas.width,P(28));
+ctx.textAlign="left";ctx.font="bold "+P(10)+"px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,P(8),canvas.height-P(10));ctx.fillStyle="#FFD700";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("🪙 "+coins,P(8),canvas.height-P(22));
+if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-P(10))}
+const pows=[];if(shield>0)pows.push(["ESC","#00C8FF"]);if(rapidFire>0)pows.push(["RAP","#00FF88"]);if(tripleShot>0)pows.push(["TRI","#66CCFF"]);if(laser>0)pows.push(["LAS","#00FFFF"]);if(pierce>0)pows.push(["PER","#AADD00"]);if(invisible>0)pows.push(["FAN","#CCAAFF"]);if(magnet>0)pows.push(["IMA","#FFAA00"]);if(missilePower>0)pows.push(["MIS","#FF8800"]);if(allyPower>0)pows.push(["ALI","#44FFAA"]);if(overdrive>0)pows.push(["TUR","#FF2244"]);if(nova>0)pows.push(["NOV","#FFAA00"]);if(reflect>0)pows.push(["REF","#66FFEE"]);if(burst>0)pows.push(["RAF","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["POD "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRN","#88DDFF"]);if(freezeEnemies>0)pows.push(["HIE","#AADDFF"]);if(barrier>0)pows.push(["BAR","#66CCFF"]);if(bazooka>0)pows.push(["BAZ","#FF8844"]);
+ctx.font="bold "+P(8)+"px Share Tech Mono";ctx.textAlign="left";let hx=P(78);pows.forEach(([lab,col])=>{ctx.fillStyle=col;ctx.fillText(lab,hx,canvas.height-P(10));hx+=P(36)})
+}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
 function drawSpaceBG(){
@@ -3850,7 +4011,9 @@ function drawSpaceBG(){
 /* Bucle principal cada frame: mover, dibujar, colisiones */
 function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
-ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
+ctx.clearRect(0,0,canvas.width,canvas.height);
+try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high"}catch(e){}
+drawSpaceBG();
 /* mob-no-shadow: las GPUs móviles odian shadowBlur */
 if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColor="transparent"}catch(e){}}
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}

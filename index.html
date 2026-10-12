@@ -202,12 +202,10 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     text-rendering: optimizeSpeed;
   }
   body::before {
+    display: none !important;
     animation: none !important;
-    background-image: radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1px);
-    background-size: 110px 110px;
-    will-change: auto;
-    transform: none !important;
-    opacity: .65;
+    background: none !important;
+    content: none !important;
   }
   .mini-triangle { animation: none !important; filter: none !important; }
   * { scroll-behavior: auto !important; }
@@ -268,15 +266,72 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   #content { content-visibility: auto; }
 }
 @media (max-width: 600px) {
-  body::before {
-    background-size: 130px 130px;
-    opacity: 0.55;
-  }
+  body::before { display: none !important; }
   .tech-game { border-radius: 8px; }
   .cyber-hero { padding: 28px 14px 16px; }
   .data-grid { gap: 14px; padding: 18px 12px 30px; }
   .data-card { padding: 16px; }
   .contact-section { margin-bottom: 28px; padding: 18px 12px 0; }
+}
+
+
+/* === Modal acceso Goku (PIN bacano) === */
+#gokuAccessModal{
+  display:none;position:absolute;inset:0;z-index:80;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.82);
+  padding:12px;
+}
+#gokuAccessModal.show{display:flex}
+.goku-pin-card{
+  width:min(320px,94%);
+  background:linear-gradient(165deg,#050b18 0%,#0a1530 45%,#120818 100%);
+  border:1px solid rgba(255,205,0,.45);
+  border-radius:18px;
+  padding:22px 18px 16px;
+  text-align:center;
+  box-shadow:0 0 0 1px rgba(206,17,38,.25),0 12px 40px rgba(0,0,0,.65);
+}
+.goku-pin-card h2{
+  font-size:18px;margin:0 0 4px;
+  background:linear-gradient(90deg,#FFCD00,#fff,#FFCD00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.goku-pin-sub{color:#8899aa;font-size:11px;font-family:'Share Tech Mono',monospace;margin:0 0 14px}
+.goku-pin-dots{display:flex;gap:12px;justify-content:center;margin:10px 0 16px}
+.goku-pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(255,205,0,.55);
+  background:transparent;transition:background .12s,box-shadow .12s,border-color .12s;
+}
+.goku-pin-dot.filled{
+  background:#FFCD00;border-color:#fff;
+  box-shadow:0 0 10px rgba(255,205,0,.7);
+}
+.goku-pin-dot.error{border-color:#CE1126;background:#CE1126;box-shadow:0 0 12px rgba(206,17,38,.6)}
+.goku-pin-dot.ok{border-color:#66FF88;background:#66FF88;box-shadow:0 0 12px rgba(100,255,136,.6)}
+.goku-pin-pad{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto 12px;
+}
+.goku-pin-key{
+  height:48px;border-radius:12px;border:1px solid rgba(0,180,255,.35);
+  background:rgba(0,40,90,.55);color:#fff;
+  font-family:Orbitron,sans-serif;font-weight:700;font-size:18px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.goku-pin-key:active{background:rgba(255,205,0,.35);color:#111;border-color:#FFCD00}
+.goku-pin-key.wide{grid-column:span 1}
+.goku-pin-key.danger{border-color:rgba(206,17,38,.5);color:#FF8899;font-size:13px}
+.goku-pin-key.ok-key{border-color:rgba(100,255,136,.45);color:#88FFAA;font-size:13px}
+.goku-pin-msg{min-height:18px;font-size:11px;color:#FF6688;font-family:'Share Tech Mono',monospace;margin:4px 0 8px}
+.goku-pin-close{
+  margin-top:4px;width:100%;padding:10px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);
+  color:#ccc;font-family:Orbitron,sans-serif;font-size:12px;cursor:pointer;
+}
+@media(max-width:900px){
+  .goku-pin-card{box-shadow:none}
+  .goku-pin-key{height:46px}
 }
 
 </style>
@@ -520,16 +575,108 @@ function tryUnlockGoku(code){
   }
   return false;
 }
-function promptGokuAccess(){
-  const code=window.prompt("🔒 Acceso Goku — introduce la clave:");
-  if(code===null)return false;
-  if(tryUnlockGoku(code)){
-    try{if(typeof doVibrate==="function")doVibrate(20)}catch(e){}
-    if(typeof scenarioMsg!=="undefined"){scenarioMsg="🔓 Goku desbloqueado";scenarioTransition=70}
-    return true;
+let _gokuPinCb=null;
+function ensureGokuAccessModal(){
+  let m=document.getElementById("gokuAccessModal");
+  if(m)return m;
+  const host=document.querySelector(".tech-game")||document.body;
+  m=document.createElement("div");
+  m.id="gokuAccessModal";
+  m.innerHTML=`
+    <div class="goku-pin-card" role="dialog" aria-label="Acceso Goku">
+      <h2>🔒 ACCESO GOKU</h2>
+      <p class="goku-pin-sub">Protocolo Saiyan · PIN de 4 dígitos</p>
+      <div class="goku-pin-dots" id="gokuPinDots">
+        <span class="goku-pin-dot" data-i="0"></span>
+        <span class="goku-pin-dot" data-i="1"></span>
+        <span class="goku-pin-dot" data-i="2"></span>
+        <span class="goku-pin-dot" data-i="3"></span>
+      </div>
+      <p class="goku-pin-msg" id="gokuPinMsg"></p>
+      <div class="goku-pin-pad" id="gokuPinPad">
+        <button type="button" class="goku-pin-key" data-k="1">1</button>
+        <button type="button" class="goku-pin-key" data-k="2">2</button>
+        <button type="button" class="goku-pin-key" data-k="3">3</button>
+        <button type="button" class="goku-pin-key" data-k="4">4</button>
+        <button type="button" class="goku-pin-key" data-k="5">5</button>
+        <button type="button" class="goku-pin-key" data-k="6">6</button>
+        <button type="button" class="goku-pin-key" data-k="7">7</button>
+        <button type="button" class="goku-pin-key" data-k="8">8</button>
+        <button type="button" class="goku-pin-key" data-k="9">9</button>
+        <button type="button" class="goku-pin-key danger" data-k="del">⌫</button>
+        <button type="button" class="goku-pin-key" data-k="0">0</button>
+        <button type="button" class="goku-pin-key ok-key" data-k="ok">OK</button>
+      </div>
+      <button type="button" class="goku-pin-close" id="gokuPinCancel">CANCELAR</button>
+    </div>`;
+  host.appendChild(m);
+  let pin="";
+  const dots=()=>m.querySelectorAll(".goku-pin-dot");
+  const msg=()=>document.getElementById("gokuPinMsg");
+  function paint(state){
+    dots().forEach((d,i)=>{
+      d.classList.remove("filled","error","ok");
+      if(state==="error")d.classList.add("error");
+      else if(state==="ok")d.classList.add("ok");
+      else if(i<pin.length)d.classList.add("filled");
+    });
   }
-  alert("❌ Clave incorrecta. Goku permanece bloqueado.");
-  return false;
+  function resetPin(){pin="";paint();const el=msg();if(el)el.textContent=""}
+  function submit(){
+    if(pin.length<4){const el=msg();if(el)el.textContent="Ingresa 4 dígitos";return}
+    if(tryUnlockGoku(pin)){
+      paint("ok");
+      const el=msg();if(el){el.style.color="#66FF88";el.textContent="✓ Acceso concedido"}
+      try{if(typeof doVibrate==="function")doVibrate(25)}catch(e){}
+      if(typeof scenarioMsg!=="undefined"){scenarioMsg="🔓 Goku desbloqueado";scenarioTransition=70}
+      setTimeout(()=>{
+        m.classList.remove("show");
+        const cb=_gokuPinCb;_gokuPinCb=null;
+        if(typeof cb==="function")cb(true);
+        try{
+          if(typeof renderStart==="function"){
+            const box=document.getElementById("startExtras");
+            if(box){/* re-render menu */}
+          }
+        }catch(e){}
+      },380);
+    } else {
+      paint("error");
+      const el=msg();if(el){el.style.color="#FF6688";el.textContent="✗ Clave incorrecta"}
+      try{if(typeof doVibrate==="function")doVibrate(40)}catch(e){}
+      setTimeout(()=>{pin="";paint();},450);
+    }
+  }
+  m.querySelector("#gokuPinPad").addEventListener("click",e=>{
+    const btn=e.target.closest("[data-k]");if(!btn)return;
+    const k=btn.getAttribute("data-k");
+    if(k==="del"){pin=pin.slice(0,-1);paint();return}
+    if(k==="ok"){submit();return}
+    if(pin.length>=4)return;
+    pin+=k;paint();
+    if(pin.length===4)setTimeout(submit,90);
+  });
+  m.querySelector("#gokuPinCancel").onclick=()=>{
+    m.classList.remove("show");
+    const cb=_gokuPinCb;_gokuPinCb=null;
+    if(typeof cb==="function")cb(false);
+  };
+  m.addEventListener("click",e=>{if(e.target===m){m.querySelector("#gokuPinCancel").click()}});
+  return m;
+}
+function promptGokuAccess(cb){
+  /* Modal PIN bacano (sin window.prompt) */
+  const m=ensureGokuAccessModal();
+  _gokuPinCb=typeof cb==="function"?cb:null;
+  m.classList.add("show");
+  const msg=document.getElementById("gokuPinMsg");
+  if(msg){msg.textContent="";msg.style.color="#FF6688"}
+  m.querySelectorAll(".goku-pin-dot").forEach(d=>d.classList.remove("filled","error","ok"));
+  /* compat: si se llama sin callback (código viejo), no bloquea síncrono */
+  return !!gokuUnlocked;
+}
+function promptGokuAccessAsync(){
+  return new Promise(resolve=>promptGokuAccess(resolve));
 }
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
@@ -1080,7 +1227,14 @@ function applyGokuFormPower(form){
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!gokuUnlocked){promptGokuAccess();if(!gokuUnlocked)return}
+  if(!gokuUnlocked){
+    promptGokuAccess(ok=>{
+      if(!ok)return;
+      if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
+      gokuForm=form;lsSet("techGokuForm",form);updateGokuFormsUI();applyGokuFormPower(form);
+    });
+    return;
+  }
   if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
@@ -1394,12 +1548,9 @@ if(startPanel&&!document.getElementById("startExtras")){
       </div>
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
       `:`
-      <p style="font-size:11px;color:#FF6688;margin:6px 0">Goku bloqueado. Introduce la clave para usar el personaje y sus fases.</p>
-      <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:8px 0">
-        <input id="gokuCodeInput" type="password" inputmode="numeric" maxlength="8" placeholder="Clave" style="width:110px;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.5);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center">
-        <button type="button" class="game-btn" id="btnUnlockGoku" style="margin:0;padding:8px 14px">🔓 DESBLOQUEAR</button>
-      </div>
-      <p style="font-size:9px;color:#888;margin:2px 0 6px">Sin clave Goku está bloqueado por completo (incluida fase Normal)</p>
+      <p style="font-size:11px;color:#FF6688;margin:6px 0">Goku bloqueado · se requiere PIN de acceso</p>
+      <button type="button" class="game-btn" id="btnUnlockGoku" style="width:100%;margin:8px 0;padding:12px;background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;border-color:#fff;font-weight:800">🔒 ABRIR TERMINAL DE ACCESO</button>
+      <p style="font-size:9px;color:#888;margin:2px 0 6px">Sin clave no se puede usar Goku (ni fase Normal)</p>
       `}
     </div>
     <h3>✏️ Nombre de la nave</h3>
@@ -1444,32 +1595,34 @@ if(startPanel&&!document.getElementById("startExtras")){
     });
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
       const m=b.getAttribute("data-model");
-      if(m==="goku"){
-        if(!gokuUnlocked){
-          if(!promptGokuAccess()){
-            /* clave incorrecta o cancelada: Goku (también Normal) bloqueado */
-            return;
-          }
-        }
+      if(m==="goku"&&!gokuUnlocked){
+        promptGokuAccess(ok=>{
+          if(!ok)return;
+          shipModel="goku";lsSet("techShipModelV2","goku");renderStart();updateGokuFormsUI();
+        });
+        return;
       }
       shipModel=m;lsSet("techShipModelV2",shipModel);renderStart();
       updateGokuFormsUI();
     });
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
-      if(!gokuUnlocked){if(!promptGokuAccess())return}
+      if(!gokuUnlocked){
+        promptGokuAccess(ok=>{
+          if(!ok)return;
+          gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();updateGokuFormsUI();
+        });
+        return;
+      }
       gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
       updateGokuFormsUI();
     });
     const btnUg=box.querySelector("#btnUnlockGoku");
-    const codeIn=box.querySelector("#gokuCodeInput");
     if(btnUg){
-      const doUnlock=()=>{
-        const v=codeIn?codeIn.value:"";
-        if(tryUnlockGoku(v)){renderStart();updateGokuFormsUI()}
-        else alert("❌ Clave incorrecta");
+      btnUg.onclick=()=>{
+        promptGokuAccess(ok=>{
+          if(ok){renderStart();updateGokuFormsUI()}
+        });
       };
-      btnUg.onclick=doUnlock;
-      if(codeIn)codeIn.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();doUnlock()}};
     }
     const sni=box.querySelector("#shipNameInput");
     if(sni){
@@ -1548,7 +1701,7 @@ function getSpeedScale(){
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  const renderScale=isMobile()?0.78:1;
+  const renderScale=isMobile()?(lowPower?0.62:0.72):1;
   const w=Math.max(1,Math.floor(r.width*renderScale));
   const h=Math.max(1,Math.floor(r.height*renderScale));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
@@ -3695,6 +3848,8 @@ function drawSpaceBG(){
 function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
 ctx.clearRect(0,0,canvas.width,canvas.height);drawSpaceBG();
+/* mob-no-shadow: las GPUs móviles odian shadowBlur */
+if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColor="transparent"}catch(e){}}
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
 if(introTimer>0){
   const a=Math.min(1,introTimer/40);

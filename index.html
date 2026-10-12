@@ -8,10 +8,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-#shipNameInput{box-sizing:border-box;min-height:42px;letter-spacing:1.2px;text-transform:uppercase;outline:none;box-shadow:inset 0 0 12px rgba(0,160,255,.10),0 0 10px rgba(255,205,0,.08);transition:border-color .18s,box-shadow .18s,transform .18s}
-#shipNameInput::placeholder{color:#8da7c7;opacity:1;font-size:11px;letter-spacing:1.4px;text-transform:uppercase}
-#shipNameInput:focus{border-color:#00d9ff!important;box-shadow:0 0 0 2px rgba(0,217,255,.16),0 0 18px rgba(0,217,255,.24),inset 0 0 12px rgba(0,217,255,.08);transform:translateY(-1px)}
-
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:#000;font-family:'Orbitron',sans-serif;color:#fff;overflow-x:hidden;min-height:100vh;-webkit-tap-highlight-color:transparent}
@@ -526,7 +522,7 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic");
-if(shipModel==="goku" && lsGet("techGokuAccess","0")!=="1"){shipModel="classic";lsSet("techShipModelV2","classic");}
+if(shipModel==="goku" && lsGet("techGokuAccessV2","0")!=="1"){shipModel="classic";lsSet("techShipModelV2","classic");}
 if(shipModel==="gogeta"){shipModel="goku";lsSet("techShipModelV2","goku");}
 let ownedShipModels=(function(){
   var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku","usuario"];
@@ -734,7 +730,7 @@ const SHIP_MODEL_SHOP=[
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personajes especiales */
   {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje protegido con clave de acceso."},
-  {id:"usuario",name:"Usuario",price:0,icon:"😵",desc:"Personaje con disparo normal y balas estándar. Gratis."}
+  {id:"usuario",name:"Usuario",price:0,icon:"😵",desc:"Dispara balas normales; los poderes se activan manualmente al seleccionarlos. Gratis."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -755,11 +751,42 @@ const SHIP_SKIN_SHOP=[
   {id:"solar",name:"Solar",price:12000,icon:"☀️",desc:"Rojo-dorado de estrella."},
   {id:"prism",name:"Prisma",price:15000,icon:"💎",desc:"Cromado multicolor."}
 ];
+function showGokuAccessPanel(onSuccess){
+  if(lsGet("techGokuAccessV2","0")==="1"){if(typeof onSuccess==="function")onSuccess();return;}
+  let p=document.getElementById("gokuAccessPanel");
+  if(!p){
+    p=document.createElement("div");p.id="gokuAccessPanel";p.className="game-panel";
+    p.style.cssText="z-index:9999;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,94%);padding:20px 16px;box-sizing:border-box";
+    (document.querySelector(".tech-game")||document.body).appendChild(p);
+  }
+  p.innerHTML=`<h2 style="font-size:23px">🔐 DESBLOQUEAR GOKU</h2>
+    <p style="font-size:12px">Escribe el código para desbloquear y seleccionar a Goku.</p>
+    <label for="gokuAccessCode" style="display:block;text-align:left;color:#FFCD00;font-size:11px;margin:10px 0 5px">CÓDIGO DE ACCESO</label>
+    <input id="gokuAccessCode" type="text" inputmode="numeric" autocomplete="off" maxlength="8" spellcheck="false" aria-label="Campo de texto para validar el código de Goku" placeholder="Escribe aquí el código"
+      style="display:block;width:100%;padding:12px;border-radius:9px;border:1px solid #FFCD00;background:#080f20;color:#fff;font:16px 'Share Tech Mono',monospace;text-align:center;letter-spacing:3px;box-sizing:border-box">
+    <p id="gokuAccessError" style="display:none;color:#ff6b6b;font-size:11px;margin-top:8px">Código incorrecto. Inténtalo otra vez.</p>
+    <button type="button" class="game-btn" id="gokuAccessSubmit" style="width:100%;margin:12px 0 0">DESBLOQUEAR Y SELECCIONAR</button>
+    <button type="button" class="game-btn game-btn-blue" id="gokuAccessCancel" style="width:100%;margin:8px 0 0">CANCELAR</button>`;
+  p.style.display="block";
+  const input=p.querySelector("#gokuAccessCode");
+  const submit=()=>{
+    if(input.value.trim()==="3637"){
+      lsSet("techGokuAccessV2","1");
+      if(!ownedShipModels.includes("goku"))ownedShipModels.push("goku");
+      lsSet("techOwnedModels",JSON.stringify(ownedShipModels));
+      p.style.display="none";
+      if(typeof onSuccess==="function")onSuccess();
+      else {shipModel="goku";lsSet("techShipModelV2","goku");if(typeof renderStart==="function")renderStart();updateGokuFormsUI();}
+    }else{p.querySelector("#gokuAccessError").style.display="block";input.value="";input.focus();}
+  };
+  p.querySelector("#gokuAccessSubmit").onclick=submit;
+  input.onkeydown=e=>{if(e.key==="Enter")submit()};
+  p.querySelector("#gokuAccessCancel").onclick=()=>{p.style.display="none"};
+  setTimeout(()=>input.focus(),50);
+}
 function requireGokuAccess(){
-  if(lsGet("techGokuAccess","0")==="1")return true;
-  const entered=window.prompt("🔐 Goku está bloqueado. Introduce el código para desbloquearlo:");
-  if(entered==="3637"){lsSet("techGokuAccess","1");return true;}
-  if(entered!==null)alert("Clave incorrecta. Goku sigue bloqueado.");
+  if(lsGet("techGokuAccessV2","0")==="1")return true;
+  showGokuAccessPanel();
   return false;
 }
 function buyShipModel(id){
@@ -800,7 +827,7 @@ function showShipShop(tab){
     const current=tab==="skins"?shipSkin:shipModel;
     let cards="";
     list.forEach(item=>{
-      const has=owned.indexOf(item.id)>=0;
+      const has=owned.indexOf(item.id)>=0 || (tab==="models"&&item.id==="goku"&&lsGet("techGokuAccessV2","0")!=="1");
       const eq=current===item.id;
       let btnLabel,btnStyle,act;
       if(eq){btnLabel="✓ EQUIPADA";btnStyle="background:#66FF88;color:#111;border-color:#fff";act=""}
@@ -825,6 +852,10 @@ function showShipShop(tab){
     m.querySelectorAll(".ship-shop-btn").forEach(b=>{
       const id=b.getAttribute("data-buy");if(!id)return;
       b.onclick=()=>{
+        if(tab==="models"&&id==="goku"&&lsGet("techGokuAccessV2","0")!=="1"){
+          showGokuAccessPanel(()=>{shipModel="goku";lsSet("techShipModelV2","goku");m.style.display="none";if(typeof renderStart==="function")renderStart();updateGokuFormsUI();});
+          return;
+        }
         const r=tab==="skins"?buyShipSkin(id):buyShipModel(id);
         if(r){render(tab);try{drawShipPreview()}catch(e){}try{if(typeof renderStart==="function"){}}catch(e){}}
       };
@@ -1291,21 +1322,25 @@ function showUserManual(){
 
 
 function updateGokuFormsUI(){
-  const isGoku = shipModel==="goku";
-  const show = isGoku && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
+  const isGoku = shipModel==="goku" && lsGet("techGokuAccessV2","0")==="1";
+  const phaseMenu=document.getElementById("gokuFormMenu");
+  if(phaseMenu)phaseMenu.style.display=isGoku && !gameRunning?"block":"none";
+  /* El selector flotante solo se muestra durante la partida, nunca encima del menú.
+     En el menú se elige la transformación desde #gokuFormMenu. */
+  const show = isGoku && gameRunning && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
   const wrap=document.getElementById("gokuFormsOverlay");
   if(wrap){
-    wrap.classList.toggle("show", show);
+    wrap.classList.toggle("show", !!show);
     wrap.style.display=show?"flex":"none";
     wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
       const f=btn.getAttribute("data-form");
       btn.classList.toggle("active", f===gokuForm);
     });
   }
-  /* Mostrar botón solo si la nave es Goku */
+  /* El control flotante también se oculta en el menú y para otros personajes. */
   const btn=document.getElementById("btnToggleForms");
   if(btn){
-    btn.style.display = isGoku ? "flex" : "none";
+    btn.style.display = (isGoku && gameRunning) ? "flex" : "none";
     syncFormsBtn();
   }
 }
@@ -1717,7 +1752,7 @@ if(!weapBar){
 }
 const WEAPON_LABELS={basic:"Básica",double:"Doble",pierce:"Perfora",spread:"Abanico",rapid:"Ráfaga",laser_gun:"Láser",missile_gun:"Misil",plasma:"Plasma",wave:"Onda",triple_gun:"Triple",homing:"Homing",shotgun:"Escopeta",rail:"Rail",vortex:"Vórtice",hyper:"Hyper"};
 function updateWeaponMenuUI(){
-  const isGoku=shipModel==="goku";
+  const isGoku=shipModel==="goku"||shipModel==="usuario";
   const inGame=!!gameRunning;
   const btn=document.getElementById("btnWeaponMenu");
   const bar=document.getElementById("weaponSelectBar");
@@ -1736,7 +1771,7 @@ function updateWeaponMenuUI(){
     b.style.cssText="width:100%;padding:6px 8px;border-radius:8px;border:1px solid "+(eq?"#FFCD00":"rgba(255,255,255,.2)")+";background:"+(eq?"linear-gradient(135deg,#FFCD00,#FF8800)":"rgba(0,40,80,.85)")+";color:"+(eq?"#111":"#fff")+";font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;cursor:pointer;text-align:left";
     b.onclick=(e)=>{
       if(e){e.preventDefault();e.stopPropagation()}
-      if(shipModel==="goku")return;
+      if(shipModel==="goku"||shipModel==="usuario")return;
       currentWeapon=id;
       try{lsSet("techWeapon",id)}catch(err){}
       updateWeaponMenuUI();
@@ -1871,9 +1906,9 @@ if(startPanel&&!document.getElementById("startExtras")){
         return '<button type="button" data-model="'+id+'" class="'+(shipModel===id?"active":"")+'">'+lb+'</button>';
       }).join("")}
     </div>
-    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso · 👤 Usuario dispara balas normales</p>
+    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso · 😵 Usuario solo lanza poderes</p>
     <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · modelos + personajes + skins</button>
-    <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
+    <div id="gokuFormMenu" style="display:${shipModel==="goku" && lsGet("techGokuAccessV2","0")==="1"?"block":"none"}">
       <h3>⚡ Fase de Goku</h3>
       <div class="diff-btns">
         <button type="button" data-gform="normal" class="${gokuForm==="normal"?"active":""}">Normal</button>
@@ -1890,7 +1925,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
     <h3>✏️ Nombre de la nave</h3>
-    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="✦ ESCRIBE TU NOMBRE ✦"
+    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
       style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
     <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
     <h3>🎨 Skin</h3>
@@ -1929,15 +1964,21 @@ if(startPanel&&!document.getElementById("startExtras")){
     });
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
       const id=b.getAttribute("data-model");
+      if(id==="goku"&&lsGet("techGokuAccessV2","0")!=="1"){
+        showGokuAccessPanel(()=>{shipModel="goku";lsSet("techShipModelV2","goku");renderStart();updateGokuFormsUI();try{updateWeaponMenuUI()}catch(e){}});
+        return;
+      }
       if(!Array.isArray(ownedShipModels)||ownedShipModels.indexOf(id)<0){if(typeof showShipShop==="function")showShipShop("models");return}
-      if(id==="goku"&&!requireGokuAccess())return;
       shipModel=id;lsSet("techShipModelV2",shipModel);renderStart();
       updateGokuFormsUI();
       try{updateWeaponMenuUI()}catch(e){}
     });
     const bss=box.querySelector("#btnShipShop");if(bss)bss.onclick=()=>showShipShop("models");
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
-      gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
+      const form=b.getAttribute("data-gform");
+      const valid=["normal","ssj1","ssj2","ssj3","ssj4","ssjblue","bru","golden","ultra","superdios"];
+      if(shipModel!=="goku"||lsGet("techGokuAccessV2","0")!=="1"||!valid.includes(form))return;
+      gokuForm=form;lsSet("techGokuForm",gokuForm);renderStart();
       updateGokuFormsUI();
     });
     const sni=box.querySelector("#shipNameInput");
@@ -2484,7 +2525,7 @@ let _lastMissileShot=0;
 let _usuarioPowerNext=0;
 function shoot(){
   if(!gameRunning||gamePaused)return;
-  /* Usuario ahora dispara balas normales como una nave estándar. */
+  /* Usuario dispara balas normales; los poderes solo se activan con su control/selección manual. */
   if(ammo<=0){
     /* pide munición sin bloquear el sistema de disparo */
     try{if(typeof updateEmergencyAmmo==="function")updateEmergencyAmmo(performance.now())}catch(e){}
@@ -2505,7 +2546,7 @@ function shoot(){
   /* Goku o sin arma especial → disparo normal */
   let w="basic";
   try{
-    if(shipModel!=="goku"&&currentWeapon&&Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(currentWeapon)>=0)
+    if(shipModel!=="goku"&&shipModel!=="usuario"&&currentWeapon&&Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(currentWeapon)>=0)
       w=currentWeapon;
   }catch(e){w="basic"}
 
@@ -4538,7 +4579,12 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
-if(shipModel==="goku"&&!requireGokuAccess()){shipModel="classic";lsSet("techShipModelV2","classic");return;}
+if(shipModel==="goku"&&!requireGokuAccess()){shipModel="classic";lsSet("techShipModelV2","classic");renderStart();updateGokuFormsUI();return;}
+/* Validar la transformación guardada antes de iniciar: evita valores rotos o fases vacías. */
+const validGokuForms=["normal","ssj1","ssj2","ssj3","ssj4","ssjblue","bru","golden","ultra","superdios"];
+if(!validGokuForms.includes(gokuForm))gokuForm="normal";
+if(shipModel!=="goku")gokuForm="normal";
+lsSet("techGokuForm",gokuForm);
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
@@ -4569,10 +4615,10 @@ try{if(SFX.shoot){SFX.shoot.load&&SFX.shoot.load()}}catch(e){}
 try{if(SFX.shoot){const u=SFX.shoot.cloneNode();u.volume=0;u.play().then(()=>{u.pause()}).catch(()=>{})}}catch(e){}
 
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();_lastMissileShot=0;
-/* arma: Goku = básica; naves = equipada */
+/* arma: Goku y Usuario = balas básicas; naves normales = arma equipada */
 if(!Array.isArray(ownedShipModels)||ownedShipModels.indexOf(shipModel)<0){shipModel="classic";lsSet("techShipModelV2","classic")}
 if(!Array.isArray(ownedShipSkins)||ownedShipSkins.indexOf(shipSkin)<0){shipSkin="white";lsSet("techShipSkin","white")}
-if(shipModel==="goku"||shipModel==="usuario"){/* personajes especiales: poderes, no armas */}
+if(shipModel==="goku"||shipModel==="usuario"){/* personajes especiales: balas básicas; poderes manuales */}
 else if(!currentWeapon||(currentWeapon!=="basic"&&(!Array.isArray(ownedWeapons)||ownedWeapons.indexOf(currentWeapon)<0)))currentWeapon="basic";
 showWeaponBar=true;
 try{updateWeaponMenuUI();updateGokuFormsUI()}catch(e){}

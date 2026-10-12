@@ -524,12 +524,13 @@ let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic");
 if(shipModel==="goku" && lsGet("techGokuAccessV2","0")!=="1"){shipModel="classic";lsSet("techShipModelV2","classic");}
 if(shipModel==="gogeta"){shipModel="goku";lsSet("techShipModelV2","goku");}
+if(shipModel==="usuario"){shipModel="classic";lsSet("techShipModelV2","classic");}
 let ownedShipModels=(function(){
-  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku","usuario"];
+  var free=["classic","fighter","interceptor","heavy","stealth","wing","needle","goku"];
   try{
     var a=JSON.parse(lsGet("techOwnedModels",JSON.stringify(free)));
     if(!Array.isArray(a)||!a.length)a=free.slice();
-    a=a.filter(function(id){return id!=="gogeta"});
+    a=a.filter(function(id){return id!=="gogeta"&&id!=="usuario"});
     free.forEach(function(id){if(a.indexOf(id)<0)a.push(id)});
     return a;
   }catch(e){return free.slice()}
@@ -729,8 +730,7 @@ const SHIP_MODEL_SHOP=[
   {id:"arrow",name:"Flecha",price:12000,icon:"➤",desc:"Punta de flecha supersónica."},
   {id:"viper",name:"Víbora",price:15000,icon:"🐍",desc:"Curvas agresivas de caza."},
   /* personajes especiales */
-  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje protegido con clave de acceso."},
-  {id:"usuario",name:"Usuario",price:0,icon:"😵",desc:"Dispara balas normales; los poderes se activan manualmente al seleccionarlos. Gratis."}
+  {id:"goku",name:"Goku",price:0,icon:"⚡",desc:"Personaje protegido con clave de acceso."}
 ];
 const SHIP_SKIN_SHOP=[
   /* colores originales gratis */
@@ -793,7 +793,7 @@ function buyShipModel(id){
   try{
     if(id==="goku"&&!requireGokuAccess())return false;
     const item=SHIP_MODEL_SHOP.find(x=>x.id===id);if(!item)return false;
-    if(!Array.isArray(ownedShipModels))ownedShipModels=["classic","fighter","goku","usuario"];
+    if(!Array.isArray(ownedShipModels))ownedShipModels=["classic","fighter","goku"];
     if(ownedShipModels.indexOf(id)>=0){shipModel=id;lsSet("techShipModelV2",id);return "equip"}
     if(coins<(item.price||0)){alert("Necesitas "+item.price+" monedas 🪙");return false}
     coins-=item.price;ownedShipModels.push(id);
@@ -1899,14 +1899,14 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
     <canvas id="shipPreview" width="200" height="110" style="width:100%;max-width:200px;height:100px;display:block;margin:6px auto;border-radius:10px;border:1px solid rgba(255,205,0,.35);background:#000"></canvas>
-    <h3>🚀 Personaje/nave: <span style="color:#FFCD00">${({classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku",usuario:"Usuario"}[shipModel]||shipModel)}</span> · ${shipSkin}</h3>
+    <h3>🚀 Personaje/nave: <span style="color:#FFCD00">${({classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku"}[shipModel]||shipModel)}</span> · ${shipSkin}</h3>
     <div class="diff-btns">
-      ${(Array.isArray(ownedShipModels)?ownedShipModels:["classic","fighter","goku","usuario"]).map(id=>{
-        const lb={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"🔐 Goku",usuario:"👤 Usuario"}[id]||id;
+      ${(Array.isArray(ownedShipModels)?ownedShipModels:["classic","fighter","goku"]).map(id=>{
+        const lb={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"🔐 Goku"}[id]||id;
         return '<button type="button" data-model="'+id+'" class="'+(shipModel===id?"active":"")+'">'+lb+'</button>';
       }).join("")}
     </div>
-    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso · 😵 Usuario solo lanza poderes</p>
+    <p style="font-size:10px;color:#aaa;margin:2px 0 6px">🔐 Goku requiere clave de acceso</p>
     <button type="button" class="game-btn" id="btnShipShop" style="width:100%;margin:6px 0;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">🚀 Tienda de naves · modelos + personajes + skins</button>
     <div id="gokuFormMenu" style="display:${shipModel==="goku" && lsGet("techGokuAccessV2","0")==="1"?"block":"none"}">
       <h3>⚡ Fase de Goku</h3>
@@ -3647,7 +3647,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",usuario:"Usuario",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",ssjblue:"SSJ Blue",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",phoenix:"Fénix",blade:"Cuchilla",cruiser:"Crucero",arrow:"Flecha",viper:"Víbora",titan:"Titán",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",ssjblue:"SSJ Blue",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 

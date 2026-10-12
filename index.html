@@ -157,10 +157,22 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 /* Selector fases Goku: flotante sobre el juego (PC y móvil) */
 .goku-forms-overlay{
   display:none;position:absolute;bottom:42px;left:50%;transform:translateX(-50%);
-  z-index:25;justify-content:center;gap:5px;flex-wrap:wrap;pointer-events:auto;
+  z-index:25;align-items:center;gap:5px;flex-wrap:wrap;pointer-events:auto;
   background:rgba(0,0,0,.55);padding:5px 8px;border-radius:12px;border:1px solid rgba(255,205,0,.3);
 }
 .goku-forms-overlay.show{display:flex}
+.goku-forms-overlay.minimized{
+  padding:4px 6px;gap:0;background:rgba(0,0,0,.4);border-color:rgba(255,205,0,.2);
+}
+.goku-forms-overlay.minimized .goku-form-btn{display:none!important}
+.goku-forms-overlay.minimized .goku-min-btn{margin:0}
+.goku-min-btn{
+  width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,205,0,.5);
+  background:rgba(0,40,90,.9);color:#FFCD00;font-size:14px;line-height:1;
+  cursor:pointer;touch-action:manipulation;flex-shrink:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.goku-min-btn:hover{background:rgba(255,205,0,.25);color:#fff}
 .goku-forms{display:none;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
 .goku-forms.show{display:flex}
 .goku-form-btn{
@@ -193,6 +205,20 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   #startPanel{padding-bottom:24px!important}
   #startExtras{padding-bottom:8px}
 }
+
+/* Optimización de rendimiento para celulares */
+@media (max-width: 900px), (pointer: coarse) {
+  body::before { animation: none !important; }
+  .game-panel {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .tech-game { box-shadow: none !important; }
+  .touch-move-pad, .touch-fire, .touch-util {
+    box-shadow: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -218,15 +244,12 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 </div>
 <div class="game-help"></div>
 <div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
+  <button type="button" class="goku-min-btn" id="gokuMinBtn" title="Minimizar / mostrar fases"></button>
   <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
   <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
   <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
   <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
   <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
-  <button type="button" class="goku-form-btn" data-form="bru">Bru</button>
-  <button type="button" class="goku-form-btn" data-form="golden">Golden</button>
-  <button type="button" class="goku-form-btn" data-form="ultra">Ultra</button>
-  <button type="button" class="goku-form-btn" data-form="superdios">S.Dios</button>
 </div>
 </div>
 
@@ -252,10 +275,6 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
     <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
     <button type="button" class="goku-form-btn" data-form="ssj4">SSJ4</button>
-    <button type="button" class="goku-form-btn" data-form="bru">Bru</button>
-    <button type="button" class="goku-form-btn" data-form="golden">Golden</button>
-    <button type="button" class="goku-form-btn" data-form="ultra">Ultra</button>
-    <button type="button" class="goku-form-btn" data-form="superdios">S.Dios</button>
   </div>
 </div>
 </section>
@@ -368,7 +387,6 @@ let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
-let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
 const player={x:300,y:300,size:16};
 const mouse={x:300,y:300};
@@ -411,7 +429,7 @@ let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|goku
-let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios
+let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
 let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
@@ -421,256 +439,12 @@ let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
 let upgAmmo=Number(lsGet("techUpgAmmo",0))||0;
 let upgLives=Number(lsGet("techUpgLives",0))||0;
 let lang=lsGet("techLang","es");
-/* ===== MISIONES DIARIAS (menú + progreso) ===== */
+let dailyGoal=20, dailyDone=Number(lsGet("techDailyDone","0"))||0;
 let dailyDate=lsGet("techDailyDate","");
-let dailyMissions=[]; // {id,type,goal,done,reward,claimed,title,desc}
-// compat HUD
-let dailyGoal=20, dailyDone=0, dailyType="kills", dailyReward=25, dailyClaimed=false;
-let ki=0, kiMax=100, kiReady=false;
-
-const DAILY_DEFS={
-  kills:{title:"Cazador espacial",desc:"Elimina enemigos (naves, meteoros o aliens)",goals:[20,30,40],rewards:[25,35,45],icon:"🎯"},
-  aliens:{title:"Caza alienígena",desc:"Destruye alienígenas",goals:[8,12,18],rewards:[30,40,55],icon:"👽"},
-  score:{title:"Puntuación estrella",desc:"Alcanza una puntuación en una partida",goals:[80,150,250],rewards:[30,40,50],icon:"⭐"},
-  boss:{title:"Cazador de jefes",desc:"Derrota jefes alien / nodriza",goals:[1,2,3],rewards:[40,60,80],icon:"👹"},
-  meteors:{title:"Rompe-meteoros",desc:"Destruye meteoritos",goals:[15,25,40],rewards:[25,35,50],icon:"☄️"},
-  combo:{title:"Maestro del combo",desc:"Consigue un combo alto",goals:[8,12,15],rewards:[30,45,60],icon:"🔥"}
-};
-
-function saveDailyMissions(){
-  try{lsSet("techDailyMissions",JSON.stringify(dailyMissions))}catch(e){}
-  // sync first active for HUD
-  const m=dailyMissions.find(x=>!x.claimed)||dailyMissions[0];
-  if(m){
-    dailyType=m.type;dailyGoal=m.goal;dailyDone=m.done;dailyReward=m.reward;dailyClaimed=!!m.claimed;
-  }
-  const allDone=dailyMissions.length&&dailyMissions.every(x=>x.claimed);
-  dailyClaimed=allDone;
-}
-function loadDailyMissions(){
-  try{
-    const arr=JSON.parse(lsGet("techDailyMissions","[]"));
-    if(Array.isArray(arr)&&arr.length){dailyMissions=arr;saveDailyMissions();return true}
-  }catch(e){}
-  return false;
-}
-function generateDailyMissions(){
-  const pool=Object.keys(DAILY_DEFS);
-  const picked=[];
-  while(picked.length<3){
-    const t=pool[Math.floor(Math.random()*pool.length)];
-    if(!picked.includes(t))picked.push(t);
-  }
-  dailyMissions=picked.map((t,i)=>{
-    const def=DAILY_DEFS[t];
-    const tier=Math.min(2,Math.floor(Math.random()*3));
-    return {
-      id:t+"_"+i,
-      type:t,
-      goal:def.goals[tier],
-      done:0,
-      reward:def.rewards[tier],
-      claimed:false,
-      title:def.title,
-      desc:def.desc,
-      icon:def.icon,
-      tier:tier+1
-    };
-  });
-  saveDailyMissions();
-}
 (function resetDaily(){
   const d=new Date().toISOString().slice(0,10);
-  if(dailyDate!==d){
-    dailyDate=d;
-    lsSet("techDailyDate",d);
-    generateDailyMissions();
-  } else if(!loadDailyMissions()){
-    generateDailyMissions();
-  } else {
-    saveDailyMissions();
-  }
+  if(dailyDate!==d){dailyDate=d;dailyDone=0;lsSet("techDailyDate",d);lsSet("techDailyDone",0)}
 })();
-function dailyLabel(){
-  const open=dailyMissions.filter(m=>!m.claimed).length;
-  const done=dailyMissions.filter(m=>m.claimed).length;
-  if(!dailyMissions.length)return "Misiones "+dailyDone+"/"+dailyGoal;
-  return "Misiones "+done+"/3"+(open?"":" ✅");
-}
-function progressDaily(kind, amount){
-  amount=amount||1;
-  let changed=false;
-  dailyMissions.forEach(m=>{
-    if(m.claimed)return;
-    let add=0;
-    if(m.type==="kills"&&(kind==="kill"||kind==="any"))add=amount;
-    else if(m.type==="aliens"&&kind==="alien")add=amount;
-    else if(m.type==="meteors"&&kind==="meteor")add=amount;
-    else if(m.type==="boss"&&kind==="boss")add=amount;
-    else if(m.type==="score"&&kind==="score"){m.done=Math.max(m.done,amount);changed=true;return}
-    else if(m.type==="combo"&&kind==="combo"){m.done=Math.max(m.done,amount);changed=true;return}
-    else return;
-    if(add){m.done=Math.min(m.goal,m.done+add);changed=true}
-  });
-  if(!changed)return;
-  // auto-claim completed
-  dailyMissions.forEach(m=>{
-    if(!m.claimed&&m.done>=m.goal){
-      m.claimed=true;m.done=m.goal;
-      coins+=m.reward;lsSet("techCoinsV2",coins);
-      scenarioMsg="✅ "+m.title+" +"+m.reward+"🪙";scenarioTransition=110;
-      unlockAch("daily","Misión diaria: "+m.title);
-    }
-  });
-  saveDailyMissions();
-}
-function showDailyMissionsMenu(){
-  let m=document.getElementById("dailyMissionsPanel");
-  if(!m){
-    m=document.createElement("div");m.id="dailyMissionsPanel";m.className="game-panel";
-    m.style.cssText="display:none;z-index:62;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:16px 14px 18px";
-    (document.querySelector(".tech-game")||document.body).appendChild(m);
-  }
-  const doneN=dailyMissions.filter(x=>x.claimed).length;
-  const totalRew=dailyMissions.reduce((a,x)=>a+(x.claimed?x.reward:0),0);
-  const pendingRew=dailyMissions.reduce((a,x)=>a+(x.claimed?0:x.reward),0);
-  let cards="";
-  dailyMissions.forEach((miss,idx)=>{
-    const pct=Math.min(100,Math.floor((miss.done/miss.goal)*100));
-    const done=miss.claimed||miss.done>=miss.goal;
-    const barCol=done?"#66FF88":"#FFCD00";
-    cards+=`<div style="margin:10px 0;padding:12px;border-radius:12px;border:1px solid ${done?"rgba(100,255,136,.45)":"rgba(255,205,0,.3)"};background:${done?"rgba(20,60,30,.55)":"rgba(0,20,50,.65)"}">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-        <span style="font-size:15px;color:#fff;font-weight:700">${miss.icon||"📋"} ${miss.title}</span>
-        <span style="font-size:11px;color:#FFCD00">+${miss.reward}🪙</span>
-      </div>
-      <p style="font-size:11px;color:#bbb;margin:6px 0 8px;line-height:1.35">${miss.desc}</p>
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:#aaa;margin-bottom:4px">
-        <span>Progreso</span>
-        <span style="color:${done?"#66FF88":"#fff"}">${Math.min(miss.done,miss.goal)} / ${miss.goal}${done?" ✅":""}</span>
-      </div>
-      <div style="height:8px;border-radius:6px;background:rgba(0,0,0,.45);overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${barCol},#fff);border-radius:6px;transition:width .3s"></div>
-      </div>
-      <p style="font-size:9px;color:#888;margin-top:6px">Nivel ${miss.tier||1} · ${miss.type}</p>
-    </div>`;
-  });
-  if(!cards)cards='<p style="color:#aaa;text-align:center">No hay misiones. Reinicia el día.</p>';
-  m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:6px">📋 MISIONES DIARIAS</h2>
-  <p style="text-align:center;color:#FFCD00;font-size:12px;margin:0 0 4px">${dailyDate||new Date().toISOString().slice(0,10)}</p>
-  <p style="text-align:center;color:#ccc;font-size:11px;margin:0 0 12px">Completadas <b style="color:#66FF88">${doneN}/3</b> · Ganadas <b style="color:#FFD700">${totalRew}🪙</b> · Pendientes <b>${pendingRew}🪙</b></p>
-  <p style="text-align:center;color:#888;font-size:10px;margin:0 0 8px">Se renuevan cada día · Recompensa automática al completar</p>
-  ${cards}
-  <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,205,0,.25);text-align:center">
-    <p style="color:#aaa;font-size:11px;margin:4px 0">Monedas actuales: <b style="color:#FFD700">${coins}🪙</b></p>
-    <button class="game-btn" id="closeDailyMissions" style="width:100%;margin-top:10px">CERRAR</button>
-  </div>`;
-  m.style.display="block";
-  const cl=document.getElementById("closeDailyMissions");
-  if(cl)cl.onclick=()=>{m.style.display="none"};
-}
-
-
-const WEAPON_SHOP=[
-  {id:"basic",name:"Básica",price:0,icon:"🔫",desc:"Disparo simple estándar. Siempre disponible."},
-  {id:"double",name:"Doble cañón",price:40,icon:"🔫🔫",desc:"Dispara dos balas en paralelo."},
-  {id:"pierce",name:"Perforante",price:60,icon:"💉",desc:"Las balas atraviesan enemigos."},
-  {id:"spread",name:"Abanico",price:80,icon:"🌀",desc:"Tres balas en abanico."},
-  {id:"rapid",name:"Ráfaga",price:100,icon:"⚡",desc:"Cadencia alta, balas más rápidas."},
-  {id:"laser_gun",name:"Cañón láser",price:120,icon:"🔷",desc:"Disparo continuo tipo rayo (consume menos balas)."},
-  {id:"missile_gun",name:"Lanzamisiles",price:150,icon:"🚀",desc:"Cada disparo suelta un misil teledirigido."},
-  {id:"plasma",name:"Plasma",price:180,icon:"💚",desc:"Balas grandes de plasma con más daño."},
-  {id:"wave",name:"Onda",price:200,icon:"🌊",desc:"Disparo en forma de onda ancha."}
-];
-function buyWeapon(id){
-  const item=WEAPON_SHOP.find(w=>w.id===id);
-  if(!item)return false;
-  if(ownedWeapons.includes(id)){
-    currentWeapon=id;lsSet("techWeapon",id);return "equip";
-  }
-  if(coins<item.price){alert("Necesitas "+item.price+" monedas 🪙");return false}
-  coins-=item.price;ownedWeapons.push(id);
-  lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
-  currentWeapon=id;lsSet("techWeapon",id);
-  return "buy";
-}
-function showWeaponShop(){
-  let m=document.getElementById("weaponShopPanel");
-  if(!m){
-    m=document.createElement("div");m.id="weaponShopPanel";m.className="game-panel";
-    m.style.cssText="display:none;z-index:63;max-height:92%;overflow-y:auto;text-align:left;width:min(420px,94%);padding:16px 14px 18px";
-    (document.querySelector(".tech-game")||document.body).appendChild(m);
-  }
-  function render(){
-    let cards="";
-    WEAPON_SHOP.forEach(w=>{
-      const owned=ownedWeapons.includes(w.id);
-      const eq=currentWeapon===w.id;
-      const canBuy=!owned&&coins>=w.price;
-      let btnLabel,btnStyle,btnAct;
-      if(eq){btnLabel="✓ EQUIPADA";btnStyle="background:#66FF88;color:#111;border-color:#fff";btnAct=""}
-      else if(owned){btnLabel="EQUIPAR";btnStyle="background:#0038A8;color:#fff;border-color:#FFCD00";btnAct=w.id}
-      else if(canBuy){btnLabel="COMPRAR · "+w.price+"🪙";btnStyle="background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;border-color:#fff";btnAct=w.id}
-      else {btnLabel="🔒 "+w.price+"🪙";btnStyle="background:#222;color:#888;border-color:#444";btnAct=""}
-      cards+=`<div style="margin:8px 0;padding:12px;border-radius:12px;border:1px solid ${eq?"rgba(100,255,136,.5)":"rgba(255,205,0,.28)"};background:${eq?"rgba(20,60,30,.55)":"rgba(0,15,40,.7)"}">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <span style="font-size:14px;color:#fff;font-weight:700">${w.icon} ${w.name}</span>
-          <span style="font-size:11px;color:#FFD700">${w.price?w.price+"🪙":"Gratis"}</span>
-        </div>
-        <p style="font-size:11px;color:#bbb;margin:6px 0 10px;line-height:1.35">${w.desc}</p>
-        <button type="button" class="game-btn shop-w-btn" data-buy="${btnAct}" style="width:100%;margin:0;padding:8px;font-size:12px;${btnStyle}" ${btnAct?"":"disabled"}>${btnLabel}</button>
-      </div>`;
-    });
-    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🛒 TIENDA DE ARMAS</h2>
-    <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
-    <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">Compra y equipa armas permanentes</p>
-    ${cards}
-    <button class="game-btn" id="closeWeaponShop" style="width:100%;margin-top:12px">CERRAR</button>`;
-    m.querySelectorAll(".shop-w-btn").forEach(b=>{
-      const id=b.getAttribute("data-buy");
-      if(!id)return;
-      b.onclick=()=>{
-        const r=buyWeapon(id);
-        if(r){render();try{if(typeof doVibrate==="function")doVibrate(15)}catch(e){}}
-      };
-    });
-    const cl=document.getElementById("closeWeaponShop");
-    if(cl)cl.onclick=()=>{m.style.display="none";try{const box=document.getElementById("startExtras");if(box&&typeof renderStart==="function"){}}catch(e){}};
-  }
-  render();
-  m.style.display="block";
-}
-
-function addKi(n){
-  if(ki>=kiMax){kiReady=true;return}
-  ki=Math.min(kiMax,ki+(n||5));
-  if(ki>=kiMax){ki=kiMax;kiReady=true;scenarioMsg="⚡ KI LISTO (K)";scenarioTransition=45}
-}
-function useKiAttack(){
-  if(!gameRunning||gamePaused)return;
-  if(ki<kiMax){doVibrate(8);return}
-  ki=0;kiReady=false;doVibrate(30);
-  playSfx("nova");if(!SFX.nova)playSfx("explode");
-  scenarioMsg="💥 ATAQUE DE KI";scenarioTransition=60;
-  /* Onda de ki + ráfaga de balas */
-  const R=140*getScale();
-  createExplosion(player.x,player.y,R*.55,"255,220,50");
-  createExplosion(player.x,player.y-40,R*.4,"100,200,255");
-  for(let i=obstacles.length-1;i>=0;i--){
-    const o=obstacles[i],cx=o.x+o.size/2,cy=o.y+o.size/2;
-    if(Math.hypot(cx-player.x,cy-player.y)<R+o.size*.5){
-      if(o.indestructible||o.type==="hard")continue;
-      if(String(o.type).startsWith("boss")){o.hp-=15;if(o.hp<=0)destroyEnemy(o,i)}
-      else destroyEnemy(o,i);
-    }
-  }
-  enemyBullets=[];
-  const sp=12*getSpeedScale(),s=getScale();
-  for(let i=0;i<12;i++){
-    const ang=-Math.PI/2+(i-5.5)*0.1;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.5*s,pierce:true,vx:Math.sin(ang)*sp*0.3,vy:-Math.cos(ang)*sp});
-  }
-}
 function getRanking(){try{return JSON.parse(lsGet("techRanking","[]"))||[]}catch(e){return []}}
 function pushRanking(sc){
   const list=getRanking();
@@ -846,41 +620,36 @@ function showUserManual(){
 }
 
 
+let gokuOverlayMin = lsGet("techGokuOverlayMin","0")==="1";
 function updateGokuFormsUI(){
-  const isGoku = shipModel==="goku";
-  const show = isGoku && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
-  ["gokuForms","gokuFormsOverlay"].forEach(id=>{
-    const wrap=document.getElementById(id);
-    if(!wrap)return;
-    wrap.classList.toggle("show", show);
-    if(id==="gokuForms"){
-      /* touch pad: solo móvil */
-      wrap.style.display = show ? "flex" : "none";
-    } else {
-      /* overlay sobre el canvas */
-      wrap.style.display = show ? "flex" : "none";
-    }
-    wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
-      const f=btn.getAttribute("data-form");
-      btn.classList.toggle("active", f===gokuForm);
+  const show = shipModel==="goku";
+  /* touch pad (móvil) */
+  const pad=document.getElementById("gokuForms");
+  if(pad){
+    pad.classList.toggle("show", show);
+    pad.style.display = show ? "flex" : "none";
+    pad.querySelectorAll(".goku-form-btn").forEach(btn=>{
+      btn.classList.toggle("active", btn.getAttribute("data-form")===gokuForm);
     });
-  });
-  /* Mostrar botón solo si la nave es Goku */
-  const btn=document.getElementById("btnToggleForms");
-  if(btn){
-    btn.style.display = isGoku ? "flex" : "none";
-    syncFormsBtn();
+  }
+  /* overlay en pantalla del juego (minimizable) */
+  const ov=document.getElementById("gokuFormsOverlay");
+  if(ov){
+    ov.classList.toggle("show", show);
+    ov.classList.toggle("minimized", gokuOverlayMin);
+    ov.style.display = show ? "flex" : "none";
+    ov.querySelectorAll(".goku-form-btn").forEach(btn=>{
+      btn.classList.toggle("active", btn.getAttribute("data-form")===gokuForm);
+    });
+    const mb=document.getElementById("gokuMinBtn");
+    if(mb) mb.textContent = "";
   }
 }
-function syncFormsBtn(){
-  const b=document.getElementById("btnToggleForms");
-  if(!b)return;
-  const open = typeof showGokuFormsBar==="undefined" || showGokuFormsBar;
-  b.innerHTML = open ? "▼" : "▶";
-  b.title = open ? "Ocultar transformaciones" : "Mostrar transformaciones";
-  b.style.background = open ? "rgba(0,20,50,.9)" : "rgba(255,205,0,.9)";
-  b.style.color = open ? "#FFCD00" : "#111";
-  b.style.borderColor = open ? "rgba(255,205,0,.5)" : "#fff";
+function toggleGokuOverlayMin(e){
+  if(e){e.preventDefault();e.stopPropagation()}
+  gokuOverlayMin = !gokuOverlayMin;
+  lsSet("techGokuOverlayMin", gokuOverlayMin ? "1" : "0");
+  updateGokuFormsUI();
 }
 function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
@@ -914,41 +683,11 @@ function applyGokuFormPower(form){
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="🔥 SUPER SAIYAJIN 4";scenarioTransition=90;
     playSfx("nova");if(!SFX.nova)playSfx("power");
-  } else if(form==="bru"){
-    rapidFire=Math.max(rapidFire,380);
-    shield=Math.max(shield,200);
-    pierce=Math.max(pierce,200);
-    specialCharges=Math.min(9,specialCharges+2);
-    scenarioMsg="💪 FASE BRU";scenarioTransition=75;
-    playSfx("power");
-  } else if(form==="golden"){
-    rapidFire=Math.max(rapidFire,480);
-    tripleShot=Math.max(tripleShot,300);
-    shield=Math.max(shield,280);
-    specialCharges=Math.min(9,specialCharges+3);
-    scenarioMsg="✨ GOLDEN DIOS";scenarioTransition=85;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
-  } else if(form==="ultra"){
-    rapidFire=Math.max(rapidFire,420);
-    shield=Math.max(shield,300);
-    barrier=Math.max(barrier,280);
-    specialCharges=Math.min(9,specialCharges+2);
-    scenarioMsg="🟣 FASE ULTRA";scenarioTransition=80;
-    playSfx("power");
-  } else if(form==="superdios"){
-    rapidFire=Math.max(rapidFire,500);
-    pierce=Math.max(pierce,360);
-    shield=Math.max(shield,340);
-    overdrive=Math.max(overdrive,280);
-    tripleShot=Math.max(tripleShot,320);
-    specialCharges=Math.min(9,specialCharges+4);
-    scenarioMsg="👑 SUPER DIOS";scenarioTransition=100;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
   }
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios"].includes(form))return;
+  if(!["normal","ssj1","ssj2","ssj3","ssj4"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
   updateGokuFormsUI();
@@ -1108,16 +847,6 @@ const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;t
 btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
 const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
-/* Cuadro para ocultar / mostrar barra de transformaciones Goku */
-const btnForms=mk("btnToggleForms","▼","Ocultar transformaciones","position:absolute;bottom:42px;left:50%;transform:translateX(-50%);z-index:30;width:34px;height:28px;border:1px solid rgba(255,205,0,.5);border-radius:6px;background:rgba(0,20,50,.9);color:#FFCD00;font-size:12px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;box-shadow:0 0 8px rgba(0,0,0,.35)");
-btnForms.onclick=()=>{
-  showGokuFormsBar=!showGokuFormsBar;
-  lsSet("techShowForms",showGokuFormsBar?"1":"0");
-  updateGokuFormsUI();
-  try{if(typeof doVibrate==="function")doVibrate(12)}catch(e){}
-};
-if(typeof updateGokuFormsUI==="function")updateGokuFormsUI();
-
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45;max-height:min(85vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
@@ -1251,10 +980,6 @@ if(startPanel&&!document.getElementById("startExtras")){
         <button type="button" data-gform="ssj2" class="${gokuForm==="ssj2"?"active":""}">SSJ2</button>
         <button type="button" data-gform="ssj3" class="${gokuForm==="ssj3"?"active":""}">SSJ3</button>
         <button type="button" data-gform="ssj4" class="${gokuForm==="ssj4"?"active":""}">SSJ4</button>
-        <button type="button" data-gform="bru" class="${gokuForm==="bru"?"active":""}">Bru</button>
-        <button type="button" data-gform="golden" class="${gokuForm==="golden"?"active":""}">Golden Dios</button>
-        <button type="button" data-gform="ultra" class="${gokuForm==="ultra"?"active":""}">Ultra</button>
-        <button type="button" data-gform="superdios" class="${gokuForm==="superdios"?"active":""}">Super Dios</button>
       </div>
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
@@ -1287,10 +1012,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
-    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🛒 Tienda de armas · ${coins}🪙</button>
-    <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
-    <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
-    <h3>TOP: ${rank}</h3>
+    <h3>Misión ${dailyDone}/${dailyGoal} · TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
@@ -1326,7 +1048,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
-      const prices={basic:0,double:40,pierce:60,spread:80,rapid:100,laser_gun:120,missile_gun:150,plasma:180,wave:200};
+      const prices={basic:0,double:40,pierce:60,spread:80};
       if(!ownedWeapons.includes(w)){
         if(coins<(prices[w]||0)){alert("Necesitas "+prices[w]+" monedas");return}
         coins-=prices[w];ownedWeapons.push(w);lsSet("techCoinsV2",coins);lsSet("techWeapons",JSON.stringify(ownedWeapons));
@@ -1334,8 +1056,6 @@ if(startPanel&&!document.getElementById("startExtras")){
       currentWeapon=w;lsSet("techWeapon",w);renderStart();
     });
     const bms=box.querySelector("#btnManualStart");if(bms)bms.onclick=()=>showUserManual();
-    const bdm=box.querySelector("#btnDailyMissions");if(bdm)bdm.onclick=()=>showDailyMissionsMenu();
-    const bws=box.querySelector("#btnWeaponShop");if(bws)bws.onclick=()=>showWeaponShop();
     const bl=box.querySelector("#btnLoadSave");
     if(bl)bl.onclick=()=>{
       const d=loadMidGame();
@@ -1358,7 +1078,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   if(cred) startPanel.appendChild(cred);
 }
 
-const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · <b>K</b> ataque KI · Nave <b>Br7</b>";
+const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-5</b> fases · Nave <b>Br7</b>";
 })();
 
 function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
@@ -1384,8 +1104,10 @@ function getSpeedScale(){
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  const w=Math.max(1,Math.floor(r.width));
-  const h=Math.max(1,Math.floor(r.height));
+  const mobileDevice = ('ontouchstart' in window) || /Mobi|Android|iPhone/i.test(navigator.userAgent||'');
+  const quality = mobileDevice ? 0.78 : 1;
+  const w=Math.max(1,Math.floor(r.width * quality));
+  const h=Math.max(1,Math.floor(r.height * quality));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
   player.size=Math.max(13,Math.min(20,17*getScale()));
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}
@@ -1499,7 +1221,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   window.addEventListener("touchend",function(e){if(stickId!==null)onStickEnd(e)},{passive:false});
 
   const spBtn=document.getElementById("touchSpecial");
-  function doSpecial(){ if(ki>=kiMax) useKiAttack(); else useSpecialPower(); }
+  function doSpecial(){ useSpecialPower(); }
   if(spBtn){
     spBtn.addEventListener("touchstart",e=>{e.preventDefault();doSpecial()},{passive:false});
     spBtn.addEventListener("mousedown",e=>{e.preventDefault();doSpecial()});
@@ -1523,6 +1245,11 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   }
   wireGokuBtns(document.getElementById("gokuForms"));
   wireGokuBtns(document.getElementById("gokuFormsOverlay"));
+  const minBtn=document.getElementById("gokuMinBtn");
+  if(minBtn){
+    minBtn.addEventListener("click",toggleGokuOverlayMin);
+    minBtn.addEventListener("touchstart",function(e){toggleGokuOverlayMin(e)},{passive:false});
+  }
   updateGokuFormsUI();
 
   function fireDown(e){
@@ -1557,17 +1284,12 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
 
 document.addEventListener("keydown",e=>{
 if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
-if((e.key==="k"||e.key==="K")&&gameRunning&&!gamePaused){useKiAttack();e.preventDefault()}
 if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="1"){setGokuForm("normal");e.preventDefault()}
   if(e.key==="2"){setGokuForm("ssj1");e.preventDefault()}
   if(e.key==="3"){setGokuForm("ssj2");e.preventDefault()}
   if(e.key==="4"){setGokuForm("ssj3");e.preventDefault()}
   if(e.key==="5"){setGokuForm("ssj4");e.preventDefault()}
-  if(e.key==="6"){setGokuForm("bru");e.preventDefault()}
-  if(e.key==="7"){setGokuForm("golden");e.preventDefault()}
-  if(e.key==="8"){setGokuForm("ultra");e.preventDefault()}
-  if(e.key==="9"){setGokuForm("superdios");e.preventDefault()}
 }
 if(e.key==="ArrowUp"){keys.up=true;e.preventDefault()}if(e.key==="ArrowDown"){keys.down=true;e.preventDefault()}
 if(e.key==="ArrowLeft"){keys.left=true;e.preventDefault()}if(e.key==="ArrowRight"){keys.right=true;e.preventDefault()}
@@ -1649,10 +1371,6 @@ function createEnemy(etype,role){
   else if(etype==="thief"){size=(11+Math.random()*4)*sc;hp=2;spd=1.7}
   else if(etype==="teleport"){size=(12+Math.random()*4)*sc;hp=3;spd=1.4}
   else if(etype==="creature"||etype==="alien"){size=(16+Math.random()*6)*sc;hp=5;spd=1.3}
-  else if(etype==="alien_small"){size=(9+Math.random()*4)*sc;hp=2;spd=2.0}
-  else if(etype==="alien_flyer"){size=(12+Math.random()*5)*sc;hp=3;spd=1.7}
-  else if(etype==="alien_brute"){size=(20+Math.random()*8)*sc;hp=8;spd=1.0}
-  else if(etype==="alien_eye"){size=(14+Math.random()*5)*sc;hp=4;spd=1.4}
   else if(etype==="bigship"){size=(14+Math.random()*8)*sc;hp=4+Math.floor(level/2);spd=1.3}
   else{size=(10+Math.random()*6)*sc;hp=2+Math.floor(level/3);spd=1.5}
   const topY=18+Math.random()*48;
@@ -1668,23 +1386,6 @@ function createEnemy(etype,role){
 
 function createBoss(btype){
   const sc=getScale();
-  if(String(btype).startsWith("boss_alien")){
-    const size=Math.min(canvas.width*.34,100*sc);
-    const hpBase=38+Math.floor((waveCount||1)*4);
-    obstacles.push({
-      x:canvas.width/2-size/2,y:-size-20,size,speed:1.0*getSpeedScale(),
-      rotation:0,rotationSpeed:0,points:[],type:btype,
-      hp:hpBase,maxHp:hpBase,shootTimer:28,zigzag:0,zigzagDir:1,
-      baseY:58,arriving:true,spawnTimer:80,worldBoss:true
-    });
-    const names={
-      boss_alien_space:"JEFE ALIEN",boss_alien_ice:"JEFE HIELO",boss_alien_fire:"JEFE FUEGO",
-      boss_alien_crystal:"JEFE CRISTAL",boss_alien_halloween:"JEFE BRUJA",
-      boss_alien_neon:"JEFE NEÓN",boss_alien_toxic:"JEFE TÓXICO",boss_alien_void:"JEFE VACÍO"
-    };
-    scenarioMsg="👽 "+(names[btype]||"JEFE ALIEN");scenarioTransition=100;
-    return;
-  }
   if(btype==="megameteor"){
     const size=Math.min(canvas.width*.32,95*sc);
     obstacles.push({x:canvas.width/2-size/2,y:-size-20,size,speed:1.1*getSpeedScale(),rotation:0,rotationSpeed:.02,points:generateMeteorPoints(size),type:"boss_meteor",hp:30+level*5,maxHp:30+level*5,shootTimer:40,zigzag:0,zigzagDir:1,baseY:70,arriving:true,weak:[0,1.2,2.4]});
@@ -1704,11 +1405,9 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  let poolTop=["hunter","hunter","ship","sniper","kamikaze","alien","alien_small","alien_flyer"];
-  if(waveCount>=1)poolTop.push("ship","hunter","alien","alien_flyer");
-  if(waveCount>=2)poolTop.push("alien_eye","alien","teleport");
-  if(waveCount>=3||scenario>=3)poolTop.push("alien_brute","alien","creature");
-  if(scenario>=3)poolTop.push("alien","alien_flyer","teleport");
+  let poolTop=["hunter","hunter","ship","sniper","kamikaze"];
+  if(waveCount>=1)poolTop.push("ship","hunter");
+  if(scenario>=3)poolTop.push("alien","teleport");
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     createEnemy(poolTop[Math.floor(Math.random()*poolTop.length)],"top");
@@ -1720,33 +1419,11 @@ function spawnShipWave(){
       scenarioMsg="⚠ NAVE PESADA ENTRÓ";scenarioTransition=80;
     },nTop*650+400);
   }
-  /* Oleada extra de alienígenas cada 4 oleadas */
-  if(waveCount>0&&waveCount%4===0){
-    setTimeout(()=>{
-      if(!gameRunning||gamePaused||phase!=="ships")return;
-      const aliens=["alien","alien_flyer","alien_eye","alien_brute","alien_small"];
-      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(aliens[Math.floor(Math.random()*aliens.length)],"top");
-      scenarioMsg="👽 INVASIÓN ALIEN";scenarioTransition=90;
-    },nTop*650+900);
-  }
 }
 
 function nextBossType(){
-  /* Jefe según mundo elegido */
-  const byWorld={
-    1:"boss_alien_space",
-    2:"boss_alien_ice",
-    3:"boss_alien_fire",
-    4:"boss_alien_crystal",
-    5:"boss_alien_halloween",
-    6:"boss_alien_neon",
-    7:"boss_alien_toxic",
-    8:"boss_alien_void"
-  };
-  const w=selectedWorld||1;
-  if(byWorld[w])return byWorld[w];
   const cycle=["megameteor","mothership","tentacle","livingbh"];
-  return cycle[Math.floor((waveCount||0)/4)%cycle.length];
+  return cycle[Math.floor((level-1)/5)%cycle.length];
 }
 
 function advanceLevel(){
@@ -1809,30 +1486,6 @@ function shoot(){
   if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
   if(currentWeapon==="spread"&&has("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
   if(currentWeapon==="pierce"&&has("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
-  if(currentWeapon==="rapid"&&has("rapid")){
-    lastShot=now-Math.floor(cd*0.55);
-    if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.25,size:2.8*s,pierce:false});ammo--;return}
-  if(currentWeapon==="laser_gun"&&has("laser_gun")){
-    if(ammo<=0)return;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp*1.4,size:2.2*s,pierce:true});
-    if(Math.random()<.45)ammo--;
-    return}
-  if(currentWeapon==="missile_gun"&&has("missile_gun")){
-    if(ammo<=0)return;ammo--;
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false});
-    if(typeof fireMissile==="function")fireMissile();
-    return}
-  if(currentWeapon==="plasma"&&has("plasma")){
-    if(ammo<=0)return;ammo-=Math.min(2,ammo);
-    bullets.push({x:player.x,y:player.y-player.size,speed:sp*0.95,size:5*s,pierce:true});
-    return}
-  if(currentWeapon==="wave"&&has("wave")){
-    for(let i=-2;i<=2;i++){
-      if(ammo<=0)break;
-      bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:2.8*s,pierce:false,vx:i*1.8,vy:-sp});
-      ammo--;
-    }
-    return}
 
 const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:pierce>0});ammo--};
 if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
@@ -1851,18 +1504,10 @@ function enemyShoot(o){
   } else if(o.type==="bigship"){
     enemyBullets.push({x:cx-7,y:cy,vx:vx-.25,vy:vy,size:3.2*s});
     enemyBullets.push({x:cx+7,y:cy,vx:vx+.25,vy:vy,size:3.2*s});
-  } else if(o.type==="swarm"||o.type==="alien_small"){
+  } else if(o.type==="swarm"){
     enemyBullets.push({x:cx,y:cy,vx:vx*.85,vy:vy*.85,size:2.4*s});
-  } else if(o.type==="alien"||o.type==="creature"||o.type==="alien_flyer"){
-    /* plasma verde */
-    enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.4*s,alien:true});
-  } else if(o.type==="alien_eye"){
-    enemyBullets.push({x:cx,y:cy,vx:vx*1.1,vy:vy*1.1,size:3.8*s,alien:true});
-  } else if(o.type==="alien_brute"){
-    enemyBullets.push({x:cx-6,y:cy,vx:vx-.2,vy:vy,size:3.6*s,alien:true});
-    enemyBullets.push({x:cx+6,y:cy,vx:vx+.2,vy:vy,size:3.6*s,alien:true});
   } else {
-    /* ship, hunter, kamikaze, teleport, etc. */
+    /* ship, hunter, kamikaze, teleport, alien, etc. TODAS disparan */
     enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.1*s});
   }
 }
@@ -1916,39 +1561,14 @@ function destroyEnemy(o,i){
     createExplosion(cx,cy,o.size*(String(o.type).startsWith("boss")?1.4:1),colors[o.type]||"255,100,50");
   }
   maybeSpawnPickup(cx,cy);
-  /* Aliens que se dividen en 2 pequeños */
-  const splitTypes=["alien","alien_flyer","alien_brute","creature","alien_eye"];
-  if(splitTypes.includes(o.type)&&!o.noSplit&&obstacles.length<(isMobile()?10:18)){
-    const sc=getScale();
-    for(let k=0;k<2;k++){
-      const sz=(7+Math.random()*3)*sc;
-      obstacles.push({
-        x:cx+(k?12:-12)-sz/2,y:cy-sz/2,size:sz,
-        speed:(1.8+Math.random()*0.4)*getProgressSpeed()*getSpeedScale(),
-        rotation:0,rotationSpeed:0,points:[],type:"alien_small",hp:1,maxHp:1,
-        shootTimer:20+Math.random()*30,zigzag:Math.random()*Math.PI*2,
-        zigzagDir:k?1:-1,baseY:Math.min(cy,canvas.height*0.3),arriving:false,
-        aimLine:0,teleTimer:0,swarmId:0,regroup:0,role:"top",noSplit:true
-      });
-    }
-  }
   if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="boss_meteor"||o.type==="fireball"){
     meteorsDestroyed++;
     doVibrate(o.type==="explosive"||o.type==="boss_meteor"?55:35);
-    addKi(4);
-  } else {
-    shipsDestroyed++;
-    addKi(String(o.type).startsWith("boss")?25:6);
-  }
-  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
+  } else shipsDestroyed++;
+  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45};
   addScoreCombo(pts[o.type]||2);
-  const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)||String(o.type).startsWith("boss_alien");
-  progressDaily("kill",1);
-  if(isAlien)progressDaily("alien",1);
-  if(String(o.type).startsWith("boss"))progressDaily("boss",1);
-  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="fireball"||o.type==="boss_meteor")progressDaily("meteor",1);
-  progressDaily("score",score);
-  if(typeof combo==="number")progressDaily("combo",combo);
+  dailyDone++;lsSet("techDailyDone",dailyDone);
+  if(dailyDone>=dailyGoal)unlockAch("daily","Misión diaria completada");
   obstacles.splice(i,1);
 }
 
@@ -2457,29 +2077,21 @@ function drawShipModel(g,s,model,skin,label){
   }else if(model==="delta"){
     g.moveTo(0,-s-4);g.lineTo(s*.85,s*.65);g.lineTo(0,s*.35);g.lineTo(-s*.85,s*.65);g.closePath();
   }else if(model==="goku"){
-    /* ===== GOKU por fases: normal|ssj1-4|bru|golden|ultra|superdios ===== */
+    /* ===== GOKU por fases: normal | ssj2 | ssj3 | ssj4 ===== */
     const form = (typeof gokuForm!=="undefined" && gokuForm) ? gokuForm : "normal";
     // Colores de aura / cabello según fase
-    let auraCol, hairCol, hairStroke, auraAlpha, eyeCol;
+    let auraCol, hairCol, hairStroke, auraAlpha, eyeCol, eyeGlow;
     if(form==="ssj4"){
-      auraCol="#FF2200"; hairCol="#1a0a05"; hairStroke="#4a2010"; auraAlpha=0.35; eyeCol="#111";
+      auraCol="#FF2200"; hairCol="#1a0a05"; hairStroke="#4a2010"; auraAlpha=0.35; eyeCol="#FFEE00"; eyeGlow="#FF4400";
     } else if(form==="ssj3"){
-      auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#111";
+      auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#11aaff"; eyeGlow="#FFD700";
     } else if(form==="ssj2"){
-      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.28; eyeCol="#111";
+      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.28; eyeCol="#11aaff"; eyeGlow="#FFD700";
     } else if(form==="ssj1"){
-      auraCol="#FFD700"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.24; eyeCol="#111";
-    } else if(form==="bru"){
-      auraCol="#FF6644"; hairCol="#2a1510"; hairStroke="#5a3020"; auraAlpha=0.30; eyeCol="#111";
-    } else if(form==="golden"){
-      auraCol="#FFD700"; hairCol="#FFE44D"; hairStroke="#C9A227"; auraAlpha=0.40; eyeCol="#111";
-    } else if(form==="ultra"){
-      auraCol="#AA66FF"; hairCol="#1a1028"; hairStroke="#4a3080"; auraAlpha=0.34; eyeCol="#111";
-    } else if(form==="superdios"){
-      auraCol="#FFEE88"; hairCol="#FFD700"; hairStroke="#FFAA00"; auraAlpha=0.45; eyeCol="#111";
+      auraCol="#FFD700"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.24; eyeCol="#11aaff"; eyeGlow="#FFD700";
     } else {
       // normal (Base)
-      auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111";
+      auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111"; eyeGlow="#88ccff";
     }
 
     // Aura de fondo
@@ -2488,19 +2100,11 @@ function drawShipModel(g,s,model,skin,label){
     else if(form==="ssj3") g.fillStyle="rgba(255,220,50,.30)";
     else if(form==="ssj2") g.fillStyle="rgba(255,230,80,.26)";
     else if(form==="ssj1") g.fillStyle="rgba(255,215,0,.22)";
-    else if(form==="bru") g.fillStyle="rgba(255,80,40,.28)";
-    else if(form==="golden") g.fillStyle="rgba(255,215,0,.38)";
-    else if(form==="ultra") g.fillStyle="rgba(140,80,255,.30)";
-    else if(form==="superdios") g.fillStyle="rgba(255,230,100,.42)";
     else g.fillStyle="rgba(100,180,255,.14)";
     g.beginPath();g.ellipse(0,-s*.1,s*1.2,s*1.6,0,0,Math.PI*2);g.fill();
-    if(form==="ssj3"||form==="ssj4"||form==="golden"||form==="superdios"){
-      g.fillStyle=(form==="ssj4")?"rgba(255,80,0,.15)":(form==="superdios"||form==="golden")?"rgba(255,220,80,.18)":"rgba(255,255,150,.12)";
+    if(form==="ssj3"||form==="ssj4"){
+      g.fillStyle=form==="ssj4"?"rgba(255,80,0,.15)":"rgba(255,255,150,.12)";
       g.beginPath();g.ellipse(0,-s*.15,s*1.45,s*1.85,0,0,Math.PI*2);g.fill();
-    }
-    if(form==="superdios"){
-      g.fillStyle="rgba(255,215,0,.12)";
-      g.beginPath();g.ellipse(0,-s*.2,s*1.65,s*2.05,0,0,Math.PI*2);g.fill();
     }
     g.shadowBlur=0;
 
@@ -2520,6 +2124,7 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.28,-s*.7);g.lineTo(-s*.35,-s*1.05);g.lineTo(-s*.22,-s*.85);
       g.closePath();g.fill();g.stroke();
     } else if(form==="ssj1"){
+      // SSJ1: cabello dorado clásico (picos medios)
       g.beginPath();
       g.moveTo(0,-s*1.55);
       g.lineTo(s*.16,-s*1.05);g.lineTo(s*.35,-s*1.35);g.lineTo(s*.26,-s*.88);
@@ -2535,6 +2140,7 @@ function drawShipModel(g,s,model,skin,label){
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.6);g.lineTo(s*.1,-s*1.15);g.lineTo(-s*.1,-s*1.15);g.closePath();g.fill();
     } else if(form==="ssj2"){
+      // SSJ2: picos dorados más agresivos + rayos
       g.beginPath();
       g.moveTo(0,-s*1.75);
       g.lineTo(s*.18,-s*1.2);g.lineTo(s*.4,-s*1.55);g.lineTo(s*.3,-s*.98);
@@ -2549,9 +2155,11 @@ function drawShipModel(g,s,model,skin,label){
       g.closePath();g.fill();g.stroke();
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.82);g.lineTo(s*.12,-s*1.3);g.lineTo(-s*.12,-s*1.3);g.closePath();g.fill();
+      // chispas SSJ2
       g.strokeStyle="rgba(255,255,180,.7)";g.lineWidth=1.2;
       for(let k=0;k<4;k++){const a=-1.2+k*0.7;g.beginPath();g.moveTo(Math.cos(a)*s*.6,Math.sin(a)*s*.9-s*.2);g.lineTo(Math.cos(a)*s*1.1,Math.sin(a)*s*1.3-s*.3);g.stroke()}
     } else if(form==="ssj3"){
+      // SSJ3: cabello muy largo hacia abajo
       g.beginPath();
       g.moveTo(0,-s*1.85);
       g.lineTo(s*.2,-s*1.25);g.lineTo(s*.42,-s*1.6);g.lineTo(s*.32,-s*1.0);
@@ -2570,61 +2178,8 @@ function drawShipModel(g,s,model,skin,label){
       g.closePath();g.fill();g.stroke();
       g.fillStyle="#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.92);g.lineTo(s*.14,-s*1.35);g.lineTo(-s*.14,-s*1.35);g.closePath();g.fill();
-    } else if(form==="bru"){
-      // Bru: cabello oscuro salvaje + mechones rojos
-      g.beginPath();
-      g.moveTo(0,-s*1.65);
-      g.lineTo(s*.2,-s*1.1);g.lineTo(s*.45,-s*1.4);g.lineTo(s*.32,-s*.9);
-      g.lineTo(s*.68,-s*1.15);g.lineTo(s*.48,-s*.55);
-      g.lineTo(s*.8,-s*.7);g.lineTo(s*.5,-s*.28);
-      g.lineTo(s*.58,-s*.08);g.lineTo(s*.25,-s*.18);
-      g.lineTo(0,-s*.14);
-      g.lineTo(-s*.25,-s*.18);g.lineTo(-s*.58,-s*.08);
-      g.lineTo(-s*.5,-s*.28);g.lineTo(-s*.8,-s*.7);
-      g.lineTo(-s*.48,-s*.55);g.lineTo(-s*.68,-s*1.15);
-      g.lineTo(-s*.32,-s*.9);g.lineTo(-s*.45,-s*1.4);g.lineTo(-s*.2,-s*1.1);
-      g.closePath();g.fill();g.stroke();
-      g.fillStyle="#CE1126";
-      g.beginPath();g.moveTo(s*.1,-s*1.55);g.lineTo(s*.28,-s*1.15);g.lineTo(s*.12,-s*1.1);g.closePath();g.fill();
-      g.beginPath();g.moveTo(-s*.1,-s*1.55);g.lineTo(-s*.28,-s*1.15);g.lineTo(-s*.12,-s*1.1);g.closePath();g.fill();
-    } else if(form==="golden"||form==="superdios"){
-      // Golden / Super Dios: cabello dorado radiante
-      g.beginPath();
-      g.moveTo(0,-s*1.9);
-      g.lineTo(s*.18,-s*1.25);g.lineTo(s*.42,-s*1.65);g.lineTo(s*.3,-s*1.0);
-      g.lineTo(s*.65,-s*1.35);g.lineTo(s*.48,-s*.7);
-      g.lineTo(s*.85,-s*.95);g.lineTo(s*.55,-s*.4);
-      g.lineTo(s*.7,-s*.08);g.lineTo(s*.28,-s*.18);
-      g.lineTo(0,-s*.14);
-      g.lineTo(-s*.28,-s*.18);g.lineTo(-s*.7,-s*.08);
-      g.lineTo(-s*.55,-s*.4);g.lineTo(-s*.85,-s*.95);
-      g.lineTo(-s*.48,-s*.7);g.lineTo(-s*.65,-s*1.35);
-      g.lineTo(-s*.3,-s*1.0);g.lineTo(-s*.42,-s*1.65);g.lineTo(-s*.18,-s*1.25);
-      g.closePath();g.fill();g.stroke();
-      g.fillStyle="#FFF8C0";
-      g.beginPath();g.moveTo(0,-s*1.98);g.lineTo(s*.14,-s*1.4);g.lineTo(-s*.14,-s*1.4);g.closePath();g.fill();
-      if(form==="superdios"){
-        g.strokeStyle="rgba(255,240,150,.85)";g.lineWidth=1.4;
-        for(let k=0;k<6;k++){const a=-1.4+k*0.55;g.beginPath();g.moveTo(Math.cos(a)*s*.5,Math.sin(a)*s*.85-s*.25);g.lineTo(Math.cos(a)*s*1.25,Math.sin(a)*s*1.45-s*.35);g.stroke()}
-      }
-    } else if(form==="ultra"){
-      // Ultra: cabello violeta / oscuro alto
-      g.beginPath();
-      g.moveTo(0,-s*1.7);
-      g.lineTo(s*.2,-s*1.15);g.lineTo(s*.4,-s*1.45);g.lineTo(s*.3,-s*.95);
-      g.lineTo(s*.6,-s*1.2);g.lineTo(s*.45,-s*.65);
-      g.lineTo(s*.72,-s*.8);g.lineTo(s*.48,-s*.35);
-      g.lineTo(s*.55,-s*.1);g.lineTo(s*.22,-s*.18);
-      g.lineTo(0,-s*.14);
-      g.lineTo(-s*.22,-s*.18);g.lineTo(-s*.55,-s*.1);
-      g.lineTo(-s*.48,-s*.35);g.lineTo(-s*.72,-s*.8);
-      g.lineTo(-s*.45,-s*.65);g.lineTo(-s*.6,-s*1.2);
-      g.lineTo(-s*.3,-s*.95);g.lineTo(-s*.4,-s*1.45);g.lineTo(-s*.2,-s*1.15);
-      g.closePath();g.fill();g.stroke();
-      g.fillStyle="#7B61FF";
-      g.beginPath();g.moveTo(0,-s*1.78);g.lineTo(s*.1,-s*1.25);g.lineTo(-s*.1,-s*1.25);g.closePath();g.fill();
     } else {
-      // SSJ4 fallback
+      // SSJ4: cabello negro/rojo salvaje + pelaje
       g.fillStyle="#1a0805";
       g.beginPath();
       g.moveTo(0,-s*1.7);
@@ -2639,33 +2194,44 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.35,-s*.9);g.lineTo(-s*.48,-s*1.4);g.lineTo(-s*.22,-s*1.15);
       g.closePath();g.fill();
       g.strokeStyle="#8B2500";g.stroke();
+      // mechones rojos
       g.fillStyle="#8B0000";
       g.beginPath();g.moveTo(s*.15,-s*1.5);g.lineTo(s*.35,-s*1.1);g.lineTo(s*.2,-s*1.05);g.closePath();g.fill();
       g.beginPath();g.moveTo(-s*.15,-s*1.5);g.lineTo(-s*.35,-s*1.1);g.lineTo(-s*.2,-s*1.05);g.closePath();g.fill();
     }
 
-    // === CARA mejorada ===
-    const skinCol = form==="ssj4" ? "#C45A3A" : (form==="ultra" ? "#E8D0B8" : (form==="superdios"||form==="golden") ? "#FFE8C8" : "#F5C9A0");
+    // === CARA ===
+    const skinCol = form==="ssj4" ? "#C45A3A" : "#F5C9A0";
     g.fillStyle=skinCol;
-    g.beginPath();g.ellipse(0,-s*.05,s*.34,s*.38,0,0,Math.PI*2);g.fill();
+    g.beginPath();g.ellipse(0,-s*.05,s*.32,s*.36,0,0,Math.PI*2);g.fill();
     g.strokeStyle=form==="ssj4"?"#8B3A20":"#C48A5A";g.lineWidth=Math.max(0.8,s*.04);g.stroke();
 
-    // Ojos negros (mejorados)
-    g.fillStyle="#0a0a0a";
-    g.beginPath();g.ellipse(-s*.12,-s*.08,s*.075,s*.095,0,0,Math.PI*2);g.fill();
-    g.beginPath();g.ellipse(s*.12,-s*.08,s*.075,s*.095,0,0,Math.PI*2);g.fill();
-    // brillo sutil
-    g.fillStyle="rgba(255,255,255,.55)";
-    g.beginPath();g.arc(-s*.1,-s*.11,s*.022,0,Math.PI*2);g.fill();
-    g.beginPath();g.arc(s*.14,-s*.11,s*.022,0,Math.PI*2);g.fill();
-    // cejas
-    g.strokeStyle="#1a1a1a";g.lineWidth=Math.max(1.2,s*.06);
-    g.beginPath();g.moveTo(-s*.2,-s*.18);g.lineTo(-s*.04,-s*.2);g.stroke();
-    g.beginPath();g.moveTo(s*.2,-s*.18);g.lineTo(s*.04,-s*.2);g.stroke();
+    // Ojos
+    if(form==="normal"){
+      g.fillStyle="#111";
+      g.beginPath();g.ellipse(-s*.12,-s*.08,s*.07,s*.09,0,0,Math.PI*2);g.fill();
+      g.beginPath();g.ellipse(s*.12,-s*.08,s*.07,s*.09,0,0,Math.PI*2);g.fill();
+      g.fillStyle="#fff";
+      g.beginPath();g.arc(-s*.1,-s*.11,s*.025,0,Math.PI*2);g.fill();
+      g.beginPath();g.arc(s*.14,-s*.11,s*.025,0,Math.PI*2);g.fill();
+    } else {
+      // ojos de combate / SSJ
+      g.fillStyle=eyeCol;
+      g.beginPath();g.ellipse(-s*.12,-s*.08,s*.08,s*.1,0,0,Math.PI*2);g.fill();
+      g.beginPath();g.ellipse(s*.12,-s*.08,s*.08,s*.1,0,0,Math.PI*2);g.fill();
+      g.fillStyle="#fff";
+      g.beginPath();g.arc(-s*.1,-s*.12,s*.03,0,Math.PI*2);g.fill();
+      g.beginPath();g.arc(s*.14,-s*.12,s*.03,0,Math.PI*2);g.fill();
+      if(form==="ssj4"){
+        g.strokeStyle="#FFEE00";g.lineWidth=1;
+        g.beginPath();g.ellipse(-s*.12,-s*.08,s*.1,s*.12,0,0,Math.PI*2);g.stroke();
+        g.beginPath();g.ellipse(s*.12,-s*.08,s*.1,s*.12,0,0,Math.PI*2);g.stroke();
+      }
+    }
 
     // Boca
     g.strokeStyle="#333";g.lineWidth=Math.max(1,s*.05);
-    g.beginPath();g.moveTo(-s*.08,s*.1);g.quadraticCurveTo(0,s*.18,s*.08,s*.1);g.stroke();
+    g.beginPath();g.moveTo(-s*.08,s*.08);g.quadraticCurveTo(0,s*.16,s*.08,s*.08);g.stroke();
 
     // Pelaje pecho SSJ4
     if(form==="ssj4"){
@@ -2673,22 +2239,8 @@ function drawShipModel(g,s,model,skin,label){
       g.beginPath();g.ellipse(0,s*.28,s*.28,s*.18,0,0,Math.PI*2);g.fill();
     }
 
-    // === CUERPO: camisa ROJA + pantalón (todas las fases base/SSJ) ===
-    // Colores de ropa
-    let shirtCol="#CE1126", shirtStroke="#8B0000", undershirt="#FFCD00", beltCol="#1A1A1A", pantsCol="#8B0000";
-    if(form==="bru"){
-      shirtCol="#AA1111"; shirtStroke="#660000"; undershirt="#FFAA00"; beltCol="#222"; pantsCol="#6B0000";
-    } else if(form==="golden"){
-      shirtCol="#CE1126"; shirtStroke="#8B0000"; undershirt="#FFD700"; beltCol="#1A1A1A"; pantsCol="#8B0000";
-    } else if(form==="ultra"){
-      shirtCol="#CE1126"; shirtStroke="#8B0000"; undershirt="#7B61FF"; beltCol="#2a1a40"; pantsCol="#8B0000";
-    } else if(form==="superdios"){
-      // Super Dios: cuerpo de oro
-      shirtCol="#FFD700"; shirtStroke="#C9A227"; undershirt="#FFF8C0"; beltCol="#B8860B"; pantsCol="#DAA520";
-    }
-
-    // Camisa / gi
-    g.fillStyle=shirtCol;
+    // === CUERPO (gi naranja) ===
+    g.fillStyle="#E67E22";
     g.beginPath();
     g.moveTo(-s*.38,s*.15);
     g.lineTo(s*.38,s*.15);
@@ -2699,49 +2251,35 @@ function drawShipModel(g,s,model,skin,label){
     g.lineTo(-s*.42,s*.55);
     g.closePath();
     g.fill();
-    g.strokeStyle=shirtStroke;g.lineWidth=Math.max(0.8,s*.04);g.stroke();
+    g.strokeStyle="#C0392B";g.lineWidth=Math.max(0.8,s*.04);g.stroke();
 
-    // Cuello / camiseta interior
-    g.fillStyle=undershirt;
+    // Camiseta azul / cuello
+    g.fillStyle="#2980B9";
     g.beginPath();g.moveTo(-s*.18,s*.12);g.lineTo(s*.18,s*.12);g.lineTo(s*.15,s*.28);g.lineTo(-s*.15,s*.28);g.closePath();g.fill();
 
     // Cinturón
-    g.fillStyle=beltCol;
+    g.fillStyle="#1A5276";
     g.fillRect(-s*.28,s*.48,s*.56,s*.08);
 
-    // Brazos (mismo color camisa)
-    g.fillStyle=shirtCol;
+    // Brazos
+    g.fillStyle="#E67E22";
     g.beginPath();g.ellipse(-s*.48,s*.32,s*.12,s*.22,-0.4,0,Math.PI*2);g.fill();
     g.beginPath();g.ellipse(s*.48,s*.32,s*.12,s*.22,0.4,0,Math.PI*2);g.fill();
     g.fillStyle=skinCol;
     g.beginPath();g.arc(-s*.55,s*.48,s*.09,0,Math.PI*2);g.fill();
     g.beginPath();g.arc(s*.55,s*.48,s*.09,0,Math.PI*2);g.fill();
 
-    // Piernas / pantalón
-    g.fillStyle=pantsCol;
+    // Piernas / botas
+    g.fillStyle="#1A5276";
     g.beginPath();g.moveTo(-s*.22,s*.68);g.lineTo(-s*.28,s*.95);g.lineTo(-s*.08,s*.95);g.lineTo(-s*.05,s*.68);g.closePath();g.fill();
     g.beginPath();g.moveTo(s*.22,s*.68);g.lineTo(s*.28,s*.95);g.lineTo(s*.08,s*.95);g.lineTo(s*.05,s*.68);g.closePath();g.fill();
-    // botas
-    g.fillStyle="#111";
-    g.fillRect(-s*.3,s*.9,s*.24,s*.1);
-    g.fillRect(s*.06,s*.9,s*.24,s*.1);
-
-    // Aura dorada extra Super Dios (cuerpo metálico)
-    if(form==="superdios"){
-      g.strokeStyle="rgba(255,240,150,.5)";g.lineWidth=1.5;
-      g.beginPath();g.ellipse(0,s*.35,s*.48,s*.55,0,0,Math.PI*2);g.stroke();
-    }
 
     // Propulsor / aura inferior
     const fl=7+Math.random()*6;
     g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?4:12;
     const thr=g.createLinearGradient(0,s*.9,0,s*.9+fl);
-    if(form==="ssj4"||form==="bru"){
+    if(form==="ssj4"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FF6644");thr.addColorStop(.6,"#FF2200");thr.addColorStop(1,"rgba(180,0,0,0)");
-    } else if(form==="ultra"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#CCAAFF");thr.addColorStop(.7,"#6633AA");thr.addColorStop(1,"rgba(40,0,80,0)");
-    } else if(form==="golden"||form==="superdios"){
-      thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FFF8C0");thr.addColorStop(.55,"#FFD700");thr.addColorStop(1,"rgba(180,120,0,0)");
     } else if(form==="normal"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#88CCFF");thr.addColorStop(.7,"#3366AA");thr.addColorStop(1,"rgba(0,50,120,0)");
     } else {
@@ -2752,7 +2290,7 @@ function drawShipModel(g,s,model,skin,label){
     g.shadowBlur=0;
 
     // Etiqueta fase
-    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"BRU",golden:"GOLDEN",ultra:"ULTRA",superdios:"S.DIOS"}[form]||"";
+    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[form]||"";
     if(label || formLabel){
       const nm=String(label||"").slice(0,8);
       const fs=Math.max(7, Math.min(s*0.4, s*0.85/Math.max(2,(nm.length||4)*0.35)));
@@ -2827,7 +2365,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
@@ -2899,52 +2437,11 @@ function drawObstacle(o){
   } else if(String(o.type).startsWith("boss")){
     const s=o.size;
     let c0,c1,glow,label;
-    if(String(o.type).startsWith("boss_alien")){
-      /* Jefe alien del mundo */
-      const t=performance.now()/250;
-      let bodyCol="#44CC66", glow="#66FFAA", eyeCol="#FFEE00", label="ALIEN";
-      if(o.type==="boss_alien_ice"){bodyCol="#88CCFF";glow="#AAEEFF";eyeCol="#fff";label="HIELO"}
-      else if(o.type==="boss_alien_fire"){bodyCol="#FF6622";glow="#FFAA44";eyeCol="#FFEE00";label="FUEGO"}
-      else if(o.type==="boss_alien_crystal"){bodyCol="#66AAFF";glow="#AADDFF";eyeCol="#EEF";label="CRISTAL"}
-      else if(o.type==="boss_alien_halloween"){bodyCol="#FF8800";glow="#FFAA44";eyeCol="#111";label="BRUJA"}
-      else if(o.type==="boss_alien_neon"){bodyCol="#FF00AA";glow="#00FFCC";eyeCol="#0FF";label="NEÓN"}
-      else if(o.type==="boss_alien_toxic"){bodyCol="#88FF22";glow="#CCFF44";eyeCol="#111";label="TÓXICO"}
-      else if(o.type==="boss_alien_void"){bodyCol="#442266";glow="#AA66FF";eyeCol="#FF66FF";label="VACÍO"}
-      else {label="ESPACIO"}
-      ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?6:16;
-      // cabeza grande
-      const g=ctx.createRadialGradient(0,-s*.15,2,0,0,s*.85);
-      g.addColorStop(0,"#fff");g.addColorStop(.25,bodyCol);g.addColorStop(1,"#0a0a0a");
-      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,-s*.05,s*.7,s*.65,0,0,Math.PI*2);ctx.fill();
-      // ojos
-      ctx.fillStyle="#0a0a0a";
-      ctx.beginPath();ctx.ellipse(-s*.28,-s*.15,s*.2,s*.28,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(s*.28,-s*.15,s*.2,s*.28,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=eyeCol;
-      ctx.beginPath();ctx.arc(-s*.28,-s*.15,s*.08,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(s*.28,-s*.15,s*.08,0,Math.PI*2);ctx.fill();
-      // antenas
-      ctx.strokeStyle=glow;ctx.lineWidth=3;
-      ctx.beginPath();ctx.moveTo(-s*.2,-s*.6);ctx.lineTo(-s*.4,-s*1.05);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(s*.2,-s*.6);ctx.lineTo(s*.4,-s*1.05);ctx.stroke();
-      ctx.fillStyle="#FF6688";
-      ctx.beginPath();ctx.arc(-s*.4,-s*1.05,s*.1,0,Math.PI*2);ctx.arc(s*.4,-s*1.05,s*.1,0,Math.PI*2);ctx.fill();
-      // tentáculos
-      ctx.strokeStyle=bodyCol;ctx.lineWidth=3;
-      for(let k=0;k<5;k++){
-        const ang=-0.9+k*0.45;const len=s*(0.7+Math.sin(t+k)*0.2);
-        ctx.beginPath();ctx.moveTo(Math.cos(ang)*s*.25,s*.45);
-        ctx.quadraticCurveTo(Math.cos(ang)*len*0.6,s*.45+len*0.5,Math.cos(ang)*len,s*.5+len);ctx.stroke();
-      }
-      ctx.shadowBlur=0;
-      const barW=s*1.6;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-18,barW,7);
-      ctx.fillStyle=o.hp>o.maxHp/2?"#66FF88":"#FF3333";ctx.fillRect(-barW/2,-s-18,barW*(o.hp/o.maxHp),7);
-      ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.15)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-24);
-    } else {
     if(o.type==="boss_mothership"){c0="#0a0a0a";c1="#333";glow="#666";label="NODRIZA"}
     else if(o.type==="boss_tentacle"){c0="#2a0040";c1="#8844CC";glow="#AA66FF";label="KRAKEN"}
     else if(o.type==="boss_bh"){c0="#000";c1="#220044";glow="#8800FF";label="AGUJERO"}
     else{c0="#441100";c1="#FF8844";glow="#FFAA44";label="METEORO"}
+    // mothership / bosses black-ish
     if(o.type==="boss_mothership"){c0="#050505";c1="#1a1a1a";glow="#444"}
     ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(0,s*.9,s*.6,s*.14,0,0,Math.PI*2);ctx.fill();
     const bodyG=ctx.createLinearGradient(-s*.6,0,s*.6,0);bodyG.addColorStop(0,c0);bodyG.addColorStop(.5,c1);bodyG.addColorStop(1,c0);
@@ -2958,109 +2455,11 @@ function drawObstacle(o){
     const barW=s*1.5;ctx.shadowBlur=0;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-16,barW,6);
     ctx.fillStyle=o.hp>o.maxHp/2?"#FFC107":"#FF3333";ctx.fillRect(-barW/2,-s-16,barW*(o.hp/o.maxHp),6);
     ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.16)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-22);
-    }
-  } else if(["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)){
-    /* ===== ALIENÍGENAS ===== */
-    const s=o.size;
-    const t=performance.now()/200;
-    ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,s*.9,s*.5,s*.12,0,0,Math.PI*2);ctx.fill();
-    if(o.type==="alien_small"){
-      /* Pequeño verdoso con antenas */
-      ctx.shadowColor="#66FF88";ctx.shadowBlur=isMobile()?0:10;
-      const g=ctx.createRadialGradient(0,-s*.1,1,0,0,s*.7);
-      g.addColorStop(0,"#AAFFAA");g.addColorStop(.5,"#33AA55");g.addColorStop(1,"#0a3018");
-      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.45,s*.55,0,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle="#88FFAA";ctx.lineWidth=1;ctx.stroke();
-      // ojos
-      ctx.fillStyle="#111";ctx.beginPath();ctx.arc(-s*.15,-s*.1,s*.1,0,Math.PI*2);ctx.arc(s*.15,-s*.1,s*.1,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#FFEE00";ctx.beginPath();ctx.arc(-s*.15,-s*.1,s*.04,0,Math.PI*2);ctx.arc(s*.15,-s*.1,s*.04,0,Math.PI*2);ctx.fill();
-      // antenas
-      ctx.strokeStyle="#66FF88";ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(-s*.1,-s*.45);ctx.lineTo(-s*.25,-s*.8);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(s*.1,-s*.45);ctx.lineTo(s*.25,-s*.8);ctx.stroke();
-      ctx.fillStyle="#FF6688";ctx.beginPath();ctx.arc(-s*.25,-s*.8,s*.08,0,Math.PI*2);ctx.arc(s*.25,-s*.8,s*.08,0,Math.PI*2);ctx.fill();
-    } else if(o.type==="alien_flyer"){
-      /* Volador con alas membranadas */
-      ctx.shadowColor="#44FFAA";ctx.shadowBlur=isMobile()?0:12;
-      // alas
-      const flap=Math.sin(t*2)*.15;
-      ctx.fillStyle="rgba(80,255,160,.45)";
-      ctx.beginPath();ctx.ellipse(-s*.7,s*.05,s*.55,s*.25+flap, -0.3,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(s*.7,s*.05,s*.55,s*.25+flap, 0.3,0,Math.PI*2);ctx.fill();
-      // cuerpo
-      const g=ctx.createRadialGradient(0,-s*.1,1,0,0,s*.6);
-      g.addColorStop(0,"#88FFCC");g.addColorStop(.5,"#22AA66");g.addColorStop(1,"#0a2818");
-      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.4,s*.55,0,0,Math.PI*2);ctx.fill();
-      // ojo central
-      ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(0,-s*.08,s*.18,s*.2,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#FF3355";ctx.beginPath();ctx.arc(0,-s*.08,s*.07,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.03,-s*.12,s*.03,0,Math.PI*2);ctx.fill();
-    } else if(o.type==="alien_brute"){
-      /* Bruto grande y corpulento */
-      ctx.shadowColor="#AAFF44";ctx.shadowBlur=isMobile()?0:12;
-      const g=ctx.createRadialGradient(-s*.1,-s*.2,2,0,0,s*.85);
-      g.addColorStop(0,"#CCFF66");g.addColorStop(.4,"#66AA22");g.addColorStop(1,"#1a3008");
-      ctx.fillStyle=g;
-      ctx.beginPath();
-      ctx.moveTo(0,-s*.7);ctx.lineTo(s*.55,-s*.2);ctx.lineTo(s*.5,s*.5);ctx.lineTo(s*.2,s*.75);
-      ctx.lineTo(-s*.2,s*.75);ctx.lineTo(-s*.5,s*.5);ctx.lineTo(-s*.55,-s*.2);ctx.closePath();ctx.fill();
-      // brazos
-      ctx.fillStyle="#44AA22";
-      ctx.beginPath();ctx.ellipse(-s*.65,s*.1,s*.2,s*.35,-0.4,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(s*.65,s*.1,s*.2,s*.35,0.4,0,Math.PI*2);ctx.fill();
-      // ojos
-      ctx.fillStyle="#111";ctx.beginPath();ctx.arc(-s*.18,-s*.25,s*.12,0,Math.PI*2);ctx.arc(s*.18,-s*.25,s*.12,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#FFEE00";ctx.beginPath();ctx.arc(-s*.18,-s*.25,s*.05,0,Math.PI*2);ctx.arc(s*.18,-s*.25,s*.05,0,Math.PI*2);ctx.fill();
-      // boca
-      ctx.strokeStyle="#1a3008";ctx.lineWidth=2;
-      ctx.beginPath();ctx.moveTo(-s*.15,s*.05);ctx.lineTo(0,s*.2);ctx.lineTo(s*.15,s*.05);ctx.stroke();
-    } else if(o.type==="alien_eye"){
-      /* Un solo ojo flotante */
-      ctx.shadowColor="#FF66AA";ctx.shadowBlur=isMobile()?0:14;
-      const g=ctx.createRadialGradient(0,0,1,0,0,s*.7);
-      g.addColorStop(0,"#FFEEFF");g.addColorStop(.35,"#CC66AA");g.addColorStop(.7,"#662244");g.addColorStop(1,"#1a0810");
-      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*.6,s*.55,0,0,Math.PI*2);ctx.fill();
-      // iris
-      ctx.fillStyle="#111";ctx.beginPath();ctx.ellipse(0,0,s*.28,s*.32,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#FF2244";ctx.beginPath();ctx.arc(0,0,s*.12,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.06,-s*.08,s*.05,0,Math.PI*2);ctx.fill();
-      // tentáculos inferiores
-      ctx.strokeStyle="rgba(200,80,140,.7)";ctx.lineWidth=2;
-      for(let k=0;k<4;k++){
-        const ang=-0.6+k*0.4;const len=s*(.5+Math.sin(t+k)*.15);
-        ctx.beginPath();ctx.moveTo(Math.cos(ang)*s*.3,s*.4);
-        ctx.quadraticCurveTo(Math.cos(ang)*len*.7,s*.4+len*.5,Math.cos(ang)*len,s*.4+len);ctx.stroke();
-      }
-    } else {
-      /* alien / creature clásico: cabeza grande + cuerpo */
-      ctx.shadowColor="#66FFAA";ctx.shadowBlur=isMobile()?0:12;
-      // cabeza ovalada
-      const g=ctx.createRadialGradient(0,-s*.25,1,0,-s*.1,s*.7);
-      g.addColorStop(0,"#BBFFDD");g.addColorStop(.4,"#44CC88");g.addColorStop(1,"#0a3020");
-      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,-s*.15,s*.55,s*.5,0,0,Math.PI*2);ctx.fill();
-      // cuerpo
-      ctx.fillStyle="#33AA66";
-      ctx.beginPath();ctx.moveTo(-s*.3,s*.2);ctx.lineTo(s*.3,s*.2);ctx.lineTo(s*.25,s*.7);ctx.lineTo(-s*.25,s*.7);ctx.closePath();ctx.fill();
-      // ojos negros grandes
-      ctx.fillStyle="#0a0a0a";
-      ctx.beginPath();ctx.ellipse(-s*.2,-s*.2,s*.16,s*.22,0,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.ellipse(s*.2,-s*.2,s*.16,s*.22,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#66FFAA";
-      ctx.beginPath();ctx.arc(-s*.18,-s*.22,s*.05,0,Math.PI*2);ctx.arc(s*.22,-s*.22,s*.05,0,Math.PI*2);ctx.fill();
-      // antenas
-      ctx.strokeStyle="#88FFBB";ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(-s*.15,-s*.55);ctx.lineTo(-s*.3,-s*.9);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(s*.15,-s*.55);ctx.lineTo(s*.3,-s*.9);ctx.stroke();
-      ctx.fillStyle="#FF6688";
-      ctx.beginPath();ctx.arc(-s*.3,-s*.9,s*.09,0,Math.PI*2);ctx.arc(s*.3,-s*.9,s*.09,0,Math.PI*2);ctx.fill();
-    }
-    ctx.shadowBlur=0;
-    const barW=s*1.2;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-12,barW,3);
-    ctx.fillStyle=o.hp>o.maxHp/2?"#66FF88":"#FF3333";ctx.fillRect(-barW/2,-s-12,barW*(o.hp/o.maxHp),3);
   } else {
-    // regular enemies (naves)
+    // regular enemies
     const s=o.size;
     let c0,c1,wing,glow;
+    /* Naves enemigas negras */
     if(o.type==="hunter"){c0="#0a0a0a";c1="#2a2a2a";wing="#111";glow="#CE1126"}
     else if(o.type==="sniper"){c0="#0d0d0d";c1="#333";wing="#1a1a1a";glow="#FF4444"}
     else if(o.type==="turret"){c0="#111";c1="#3a3a3a";wing="#222";glow="#888"}
@@ -3068,6 +2467,7 @@ function drawObstacle(o){
     else if(o.type==="swarm"){c0="#0a0a0a";c1="#252525";wing="#151515";glow="#FF6644"}
     else if(o.type==="thief"){c0="#0c0c0c";c1="#2c2c2c";wing="#181818";glow="#FF6688"}
     else if(o.type==="teleport"){c0="#0a0a12";c1="#1a1a28";wing="#12121a";glow="#AA66FF"}
+    else if(o.type==="creature"||o.type==="alien"){c0="#0a0f0a";c1="#1a221a";wing="#121812";glow="#66FFAA"}
     else if(o.type==="bigship"){c0="#050505";c1="#222";wing="#0e0e0e";glow="#CE1126"}
     else{c0="#0a0a0a";c1="#2a2a2a";wing="#151515";glow="#CE1126"}
     ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,s*.95,s*.55,s*.12,0,0,Math.PI*2);ctx.fill();
@@ -3092,9 +2492,7 @@ function updateLaser(){if(laser<=0)return;const bw=12*getScale();ctx.fillStyle="
 for(let j=obstacles.length-1;j>=0;j--){const o=obstacles[j];if(Math.abs(o.x+o.size/2-player.x)<o.size*.5+bw&&o.y<player.y){o.hp-=o.type&&String(o.type).startsWith("boss")?.1:.2;if(o.hp<=0)destroyEnemy(o,j)}}}
 function drawBullets(){
   for(let i=bullets.length-1;i>=0;i--){
-    const b=bullets[i];
-    if(b.vx!=null||b.vy!=null){b.x+=(b.vx||0);b.y+=(b.vy!=null?b.vy:-b.speed)}
-    else b.y-=b.speed;
+    const b=bullets[i];b.y-=b.speed;
     /* Bala láser del jugador (no bolita) */
     ctx.save();
     /* Balas negras con borde rojo */
@@ -3172,11 +2570,9 @@ function updateEnemyBullets(){
     /* Proyectil enemigo afilado (no bolita) */
     const ang=Math.atan2(b.vy,b.vx);
     ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ang);
-    const isAlien=!!b.alien;
-    ctx.shadowColor=isAlien?"#44FF88":"#FF3355";ctx.shadowBlur=isMobile()?0:5;
+    ctx.shadowColor="#FF3355";ctx.shadowBlur=isMobile()?0:5;
     const eg=ctx.createLinearGradient(-8,0,8,0);
-    if(isAlien){eg.addColorStop(0,"rgba(50,255,120,0)");eg.addColorStop(.4,"#22CC66");eg.addColorStop(1,"#CCFFDD")}
-    else{eg.addColorStop(0,"rgba(255,50,80,0)");eg.addColorStop(.4,"#FF2244");eg.addColorStop(1,"#FFD0D8")}
+    eg.addColorStop(0,"rgba(255,50,80,0)");eg.addColorStop(.4,"#FF2244");eg.addColorStop(1,"#FFD0D8");
     ctx.fillStyle=eg;
     ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-5,-2.6);ctx.lineTo(-3,0);ctx.lineTo(-5,2.6);ctx.closePath();ctx.fill();
     ctx.fillStyle="#FFF";ctx.fillRect(-2,-1,5,2);
@@ -3274,24 +2670,13 @@ else lab+=" · JEFE";
 ctx.fillText(lab,canvas.width/2,12);
 ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,28);
 if(combo>1){ctx.fillStyle="#FFCD00";ctx.font=mob?"bold 11px Orbitron":"bold 13px Orbitron";ctx.fillText("COMBO x"+combo+" · "+comboMult.toFixed(2)+"x",canvas.width/2,44)}
-ctx.textAlign="right";ctx.fillStyle=dailyClaimed?"#66FF88":"#88CCFF";ctx.font="9px Share Tech Mono";
-ctx.fillText(typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal),canvas.width-8,28);
-/* Barra de KI */
-const kiW=mob?70:100,kiH=6,kiX=canvas.width-8-kiW,kiY=mob?36:34;
-ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(kiX-2,kiY-2,kiW+4,kiH+4);
-ctx.fillStyle="#222";ctx.fillRect(kiX,kiY,kiW,kiH);
-const kiPct=(typeof ki!=="undefined"?ki:0)/(typeof kiMax!=="undefined"?kiMax:100);
-ctx.fillStyle=kiPct>=1?"#FFD700":"#00C8FF";
-ctx.fillRect(kiX,kiY,kiW*kiPct,kiH);
-ctx.fillStyle=kiPct>=1?"#FFD700":"#88CCFF";ctx.font="bold 8px Orbitron";
-ctx.fillText(kiPct>=1?"KI LISTO (K)":"KI",kiX-4,kiY+kiH/2);
-ctx.textAlign="center";
+ctx.textAlign="right";ctx.fillStyle="#88CCFF";ctx.font="9px Share Tech Mono";ctx.fillText("Misión "+dailyDone+"/"+dailyGoal,canvas.width-8,28);ctx.textAlign="center";
 
 /* VIDAS van en HTML a la izquierda (TECH SYSTEM) */
 ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-36,canvas.width,36);
 ctx.textAlign="left";ctx.font="bold 15px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("BALAS "+ammo,10,canvas.height-17);ctx.fillStyle="#FFD700";ctx.font="bold 11px Orbitron";ctx.fillText("🪙 "+coins,10,canvas.height-32);
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold 11px Orbitron";ctx.fillText("¡SIN BALAS! +40",canvas.width/2,canvas.height-17)}
-const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
+const pows=[];if(shield>0)pows.push(["ESCUDO","#00C8FF"]);if(rapidFire>0)pows.push(["RÁPIDO","#00FF88"]);if(tripleShot>0)pows.push(["TRIPLE","#66CCFF"]);if(laser>0)pows.push(["LÁSER","#00FFFF"]);if(pierce>0)pows.push(["PERFORA","#AADD00"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(magnet>0)pows.push(["IMÁN","#FFAA00"]);if(missilePower>0)pows.push(["MISILES","#FF8800"]);if(allyPower>0)pows.push(["ALIADOS","#44FFAA"]);if(overdrive>0)pows.push(["TURBO","#FF2244"]);if(nova>0)pows.push(["NOVA","#FFAA00"]);if(reflect>0)pows.push(["REFLEJO","#66FFEE"]);if(burst>0)pows.push(["RÁFAGA","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["PODERES "+specialCharges,"#E8F0FF"]);if(invisible>0)pows.push(["FANTASMA","#CCAAFF"]);if(drones.length)pows.push(["DRON "+drones.length,"#88DDFF"]);if(freezeEnemies>0)pows.push(["HIELO","#AADDFF"]);if(barrier>0)pows.push(["BARRERA","#66CCFF"]);if(bazooka>0)pows.push(["BAZUCA "+bazooka,"#FF8844"]);
 ctx.font="bold 9px Share Tech Mono";ctx.textAlign="left";let px=95;pows.forEach(([t,col])=>{ctx.fillStyle=col;ctx.fillText(t,px,canvas.height-17);px+=52})}
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */
@@ -3593,11 +2978,11 @@ for(let i=obstacles.length-1;i>=0;i--){
       o.x+=Math.sin(o.zigzag)*2.8*slow;
       if(o.x<5){o.x=5;o.zigzagDir=1}if(o.x+o.size>canvas.width-5){o.x=canvas.width-o.size-5;o.zigzagDir=-1}
       o.y=o.baseY+Math.sin(o.zigzag*.6)*14;
-      if(o.type==="boss_mothership"||String(o.type).startsWith("boss_alien")){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=String(o.type).startsWith("boss_alien")?70:100;if(obstacles.length<18)createEnemy(Math.random()>.5?"alien_small":"alien_flyer")}}
+      if(o.type==="boss_mothership"){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=100;if(obstacles.length<18)createEnemy(Math.random()>.5?"swarm":"hunter")}}
       if(o.type==="boss_meteor"&&Math.random()<.01){const sz=o.size*.25;obstacles.push({x:o.x+o.size/2,y:o.y+o.size,size:sz,speed:2*getSpeedScale(),vx:(Math.random()-.5)*3,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false})}
       if(o.type==="boss_bh"){const bx=o.x+o.size/2,by=o.y+o.size/2,br=o.size*1.8;const pd=Math.hypot(player.x-bx,player.y-by);if(invisible<=0&&pd<br&&pd>1){const ps=(1-pd/br)*2.2;player.x+=(bx-player.x)/pd*ps;player.y+=(by-player.y)/pd*ps;mouse.x=player.x;mouse.y=player.y}for(let j=obstacles.length-1;j>=0;j--){if(j===i)continue;const oo=obstacles[j];const ox=oo.x+oo.size/2,oy=oo.y+oo.size/2,od=Math.hypot(ox-bx,oy-by);if(od<br&&od>1&&!String(oo.type).startsWith("boss")){oo.x+=(bx-ox)/od*1.2;oo.y+=(by-oy)/od*1.2}}}
     }
-    o.shootTimer-=slow;if(!o.arriving&&o.shootTimer<=0){enemyShoot(o);o.shootTimer=o.type==="boss_mothership"?35:String(o.type).startsWith("boss_alien")?32:45}
+    o.shootTimer-=slow;if(!o.arriving&&o.shootTimer<=0){enemyShoot(o);o.shootTimer=o.type==="boss_mothership"?35:45}
   } else {
     // enemy AI: misiles, curvas, zigzag, reagrupar
     if(o.arriving){o.y+=o.speed*2.4*slow*frz;if(o.y>=o.baseY){o.y=o.baseY;o.arriving=false}}
@@ -3658,7 +3043,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

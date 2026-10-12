@@ -513,7 +513,7 @@ const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
-const player={x:300,y:300,size:20}; /* base +25% */
+const player={x:300,y:300,size:12}; /* más lejos / pequeña */
 const mouse={x:300,y:300};
 let isShooting=false;let stickActive=false;let touchDriving=false;
 const keys={up:false,down:false,left:false,right:false};
@@ -1705,7 +1705,7 @@ function resizeCanvas(){
   const w=Math.max(1,Math.floor(r.width*renderScale));
   const h=Math.max(1,Math.floor(r.height*renderScale));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
-  player.size=Math.max(16,Math.min(26,21.25*getScale())); /* +25% más grande */
+  player.size=Math.max(10,Math.min(15,12.5*getScale())); /* más alejada / pequeña */
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}
   initStars()
 }
@@ -3163,7 +3163,7 @@ function drawShipPreview(){
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<30;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   /* Centrar mejor naves altas (Goku muñeco) */
-  const shipScale = shipModel==="goku" ? 30 : 36; /* preview +25% */
+  const shipScale = shipModel==="goku" ? 18 : 22; /* preview más pequeña */
   const yOff = shipModel==="goku" ? 12 : 6;
   g.save();g.translate(W/2,H/2+yOff);
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);

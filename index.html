@@ -513,7 +513,7 @@ const METEOR_DURATION=37*60,WARNING_DURATION=2*60; /* oleada cada 37 s */
 let ammo=100,shield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=200;
-const player={x:300,y:300,size:16};
+const player={x:300,y:300,size:20}; /* base +25% */
 const mouse={x:300,y:300};
 let isShooting=false;let stickActive=false;let touchDriving=false;
 const keys={up:false,down:false,left:false,right:false};
@@ -1355,7 +1355,7 @@ const PS_LOGO_HTML=`<svg width="110" height="70" viewBox="0 0 160 95" xmlns="htt
 function initStars(){
   starsBG=[];
   const mobile=isMobile();
-  const n=Math.min(mobile?(lowPower?28:45):220, Math.floor((canvas.width*canvas.height)/(lowPower||mobile?28000:6000))+(lowPower?4:(mobile?10:40)));
+  const n=Math.min(mobile?(lowPower?12:22):120, Math.floor((canvas.width*canvas.height)/(lowPower||mobile?45000:8000))+(lowPower?2:(mobile?6:28)));
   for(let i=0;i<n;i++)starsBG.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.3,a:.25+Math.random()*.7,sp:.12+Math.random()*.5});
 }
 
@@ -1701,11 +1701,11 @@ function getSpeedScale(){
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect();
   /* Tamaño normal de pantalla (como antes) */
-  const renderScale=isMobile()?(lowPower?0.62:0.72):1;
+  const renderScale=isMobile()?(lowPower?0.52:0.62):1; /* menos píxeles = más FPS */
   const w=Math.max(1,Math.floor(r.width*renderScale));
   const h=Math.max(1,Math.floor(r.height*renderScale));
   if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}
-  player.size=Math.max(13,Math.min(20,17*getScale()));
+  player.size=Math.max(16,Math.min(26,21.25*getScale())); /* +25% más grande */
   if(!gameRunning){player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y}
   initStars()
 }
@@ -1930,7 +1930,7 @@ function applyGravity(obj,x,y,mult){
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>(isMobile()?6:12))return;
+  if(obstacles.length>(isMobile()?4:12))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const isFire=kind==="fireball";
@@ -1957,7 +1957,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype,role){
-  if(obstacles.length>(isMobile()?10:18))return;
+  if(obstacles.length>(isMobile()?7:18))return;
   const sc=getScale();
   let size,hp,spd;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -2116,7 +2116,7 @@ function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack(
 function shoot(){
   if(!gameRunning||gamePaused)return;
   if(ammo<=0||laser>0)return;
-  if(bullets.length>(isMobile()?18:24))return;
+  if(bullets.length>(isMobile()?12:24))return;
   const now=performance.now();
   const cd=rapidFire>0?55:(isMobile()?120:shootCooldown);
   if(now-lastShot<cd)return;
@@ -2158,7 +2158,7 @@ if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
 
 function enemyShoot(o){
   if(["meteor","explosive","magnetic","hard"].includes(o.type))return;
-  if(enemyBullets.length>(isMobile()?22:36))return;
+  if(enemyBullets.length>(isMobile()?12:36))return;
   const s=getScale(),cx=o.x+o.size/2,cy=o.y+o.size*.85;
   const dx=player.x-cx, dy=player.y-cy, dist=Math.hypot(dx,dy)||1;
   const speed=(4.2+Math.random()*1.8+level*.1)*getSpeedScale()*(isMobile()?0.9:1);
@@ -2188,7 +2188,7 @@ function enemyShoot(o){
 
 function createExplosion(x,y,size,color){
   if(size>=8)playSfx("explode"); /* SONIDO EXPLOSIÓN METEORO/ENEMIGO */
-  if(explosions.length>(isMobile()?6:12))explosions.splice(0,isMobile()?4:6);
+  if(explosions.length>(isMobile()?3:12))explosions.splice(0,isMobile()?2:6);
   const n=isMobile()?1:Math.min(3,2+Math.floor(size/10));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*2.5;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*2.5,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
 }
@@ -2196,7 +2196,7 @@ function createExplosion(x,y,size,color){
 /* Suelta un poder al azar (máx. pocos en pantalla) */
 function maybeSpawnPickup(x,y){
   /* Poderes en TODOS los mundos (1–8), sin filtro por escenario */
-  if(pickups.length>=(isMobile()?3:4))return;
+  if(pickups.length>=(isMobile()?2:4))return;
   const r=Math.random(),s=16*getScale();
   if(r<.07){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
   /* pool de poderes especiales (hammer, chrono, barrier, stormbolt, bazooka, etc.) */
@@ -2431,7 +2431,7 @@ function updateAllies(){
 
 /* TRAMPAS */
 function spawnTrap(){
-  if(traps.length>(isMobile()?2:5))return;
+  if(traps.length>(isMobile()?1:5))return;
   const s=getScale();
   const roll=Math.random();
   /* Láseres vertical / horizontal / cruz (mitad de pantalla) */
@@ -3163,7 +3163,7 @@ function drawShipPreview(){
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<30;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
   /* Centrar mejor naves altas (Goku muñeco) */
-  const shipScale = shipModel==="goku" ? 24 : 30;
+  const shipScale = shipModel==="goku" ? 30 : 36; /* preview +25% */
   const yOff = shipModel==="goku" ? 12 : 6;
   g.save();g.translate(W/2,H/2+yOff);
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
@@ -3507,7 +3507,7 @@ function updateExtraTraps(){
   }
 }
 function updateEnemyBullets(){
-  if(enemyBullets.length>(isMobile()?10:16))enemyBullets.splice(0,enemyBullets.length-(isMobile()?10:16));
+  if(enemyBullets.length>(isMobile()?8:16))enemyBullets.splice(0,enemyBullets.length-(isMobile()?8:16));
   const slow=1; /* sin ralentizar */
   for(let i=enemyBullets.length-1;i>=0;i--){
     const b=enemyBullets[i];b.x+=b.vx*slow;b.y+=b.vy*slow;
@@ -3666,10 +3666,12 @@ function drawSpaceBG(){
     /* luna */
     ctx.fillStyle="rgba(255,230,170,.22)";ctx.beginPath();ctx.arc(W*.85,H*.12,isMobile()?18:32,0,Math.PI*2);ctx.fill();
     ctx.fillStyle="rgba(255,180,80,.08)";ctx.beginPath();ctx.arc(W*.85,H*.12,isMobile()?28:48,0,Math.PI*2);ctx.fill();
-    /* niebla */
-    const neb=ctx.createRadialGradient(W*.5,H,5,W*.5,H,W*.65);
-    neb.addColorStop(0,"rgba(255,90,0,.16)");neb.addColorStop(1,"rgba(0,0,0,0)");
-    ctx.fillStyle=neb;ctx.fillRect(0,0,W,H);
+    /* niebla (solo PC) */
+    if(!isMobile()){
+      const neb=ctx.createRadialGradient(W*.5,H,5,W*.5,H,W*.65);
+      neb.addColorStop(0,"rgba(255,90,0,.16)");neb.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle=neb;ctx.fillRect(0,0,W,H);
+    }
     function drawPumpkin(px,py,pr){
       ctx.fillStyle="#e67e22";ctx.beginPath();ctx.ellipse(px,py,pr*1.15,pr*.88,0,0,Math.PI*2);ctx.fill();
       ctx.fillStyle="#d35400";ctx.beginPath();ctx.ellipse(px-pr*.35,py,pr*.4,pr*.82,0,0,Math.PI*2);ctx.fill();
@@ -3724,38 +3726,39 @@ function drawSpaceBG(){
       ctx.fillStyle="#333";ctx.fillRect(-2,-7,4,2);
       ctx.restore();
     }
-    const nPump=isMobile()?5:8;
-    for(let i=0;i<nPump;i++){
-      const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
-      drawPumpkin(px,H-16-(i%3)*5,9+i%5);
-    }
-    const nCandy=isMobile()?8:14;
-    for(let i=0;i<nCandy;i++){
-      const cx=(i*83+t*25)%(W+20)-10;
-      const cy=50+(i*41+Math.sin(t+i)*18)%(H*0.5);
-      drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
-    }
-    if(!lowPower||!isMobile()){
-      drawWitch((W*.2+Math.sin(t)*.02*W)%W,H*.28,isMobile()?0.85:1.1);
-      drawWizard(W*.75,H*.32,isMobile()?0.8:1);
-      drawGhost(W*.45+Math.sin(t*1.2)*20,H*.22,isMobile()?0.9:1.2);
-      drawGhost(W*.1,H*.4,0.7);
-      drawDoll(W*.55,H*.38,isMobile()?0.85:1);
-      drawDoll(W*.88,H*.5,0.7);
-    }
-    /* murciélagos */
-    for(let i=0;i<(isMobile()?3:6);i++){
-      const bx=(i*110+t*50)%(W+40)-20;
-      const by=25+i*28+Math.sin(t*3+i)*6;
-      ctx.strokeStyle="rgba(50,30,50,.55)";ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
+    /* Móvil: fondo simple (sin decenas de sprites por frame) */
+    if(!isMobile()){
+      const nPump=8;
+      for(let i=0;i<nPump;i++){
+        const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
+        drawPumpkin(px,H-16-(i%3)*5,9+i%5);
+      }
+      for(let i=0;i<14;i++){
+        const cx=(i*83+t*25)%(W+20)-10;
+        const cy=50+(i*41+Math.sin(t+i)*18)%(H*0.5);
+        drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
+      }
+      if(!lowPower){
+        drawWitch((W*.2+Math.sin(t)*.02*W)%W,H*.28,1.1);
+        drawWizard(W*.75,H*.32,1);
+        drawGhost(W*.45+Math.sin(t*1.2)*20,H*.22,1.2);
+        drawGhost(W*.1,H*.4,0.7);
+        drawDoll(W*.55,H*.38,1);
+        drawDoll(W*.88,H*.5,0.7);
+      }
+      for(let i=0;i<6;i++){
+        const bx=(i*110+t*50)%(W+40)-20;
+        const by=25+i*28+Math.sin(t*3+i)*6;
+        ctx.strokeStyle="rgba(50,30,50,.55)";ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
+      }
     }
   } else if(selectedWorld===6){
     /* NEÓN CYBER */
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     g.addColorStop(0,"#050010");g.addColorStop(.5,"#0a0020");g.addColorStop(1,"#001018");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-    if(!lowPower){
+    if(!lowPower&&!isMobile()){
       ctx.strokeStyle="rgba(0,255,200,.12)";ctx.lineWidth=1;
       const off=(performance.now()/30)%40;
       for(let y=-40;y<canvas.height+40;y+=40){ctx.beginPath();ctx.moveTo(0,y+off);ctx.lineTo(canvas.width,y+off-20);ctx.stroke()}
@@ -3990,7 +3993,7 @@ for(let i=obstacles.length-1;i>=0;i--){
 }
 updateTraps();updateExtraTraps();if(!gameRunning)return;
 updateLaser();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunning)return;
-updatePickups();updateExplosions();updateLightning();updateAllies();updateDrones();drawPlayer();updateParticles();drawWarning();drawHUD();
+updatePickups();updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawPlayer();if(!(typeof mob==="function"?mob():isMobile()))updateParticles();drawWarning();drawHUD();
 animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */

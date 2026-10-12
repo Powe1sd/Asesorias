@@ -1027,7 +1027,7 @@ function showWeaponShop(){
         <button type="button" class="game-btn shop-w-btn" data-buy="${btnAct}" style="width:100%;margin:0;padding:8px;font-size:12px;${btnStyle}" ${btnAct?"":"disabled"}>${btnLabel}</button>
       </div>`;
     });
-    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🔫 TIENDA DE ARMAS</h2>
+    m.innerHTML=`<h2 style="text-align:center;font-size:22px;margin-bottom:4px">🔫 EQUIPAMIENTO</h2>
     <p style="text-align:center;color:#FFD700;font-size:14px;margin:0 0 4px">🪙 ${coins} monedas</p>
     <p style="text-align:center;color:#888;font-size:10px;margin:0 0 4px">Solo para naves · Goku usa disparo normal</p>
     <p style="text-align:center;color:#888;font-size:10px;margin:0 0 12px">En partida: botón 🔫 para cambiar arma</p>
@@ -1948,7 +1948,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
-    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🔫 Tienda de armas · ${coins}🪙</button>
+    <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🔫 Equipamiento · ${coins}🪙</button>
     <button type="button" class="game-btn" id="btnUpgradeShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#00A0E9,#0038A8);color:#fff;border-color:#FFCD00;font-weight:700">⚙️ Tienda de mejoras</button>
     <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>

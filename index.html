@@ -24,22 +24,22 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .game-score span{color:#FFCD00;font-weight:800;font-size:14px;text-shadow:0 0 10px rgba(255,205,0,.55)}
 .game-help{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(255,255,255,.55);font-family:'Share Tech Mono',monospace;font-size:12px;pointer-events:none;white-space:nowrap}
 .game-panel{position:absolute;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:360px;max-width:92%;max-height:92%;padding:22px 18px;text-align:center;background:linear-gradient(165deg,rgba(8,14,32,.97),rgba(0,0,0,.98));border:1px solid rgba(255,205,0,.32);border-radius:16px;box-shadow:0 0 0 1px rgba(0,56,168,.25),0 16px 48px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.game-panel h2{color:#FFCD00;font-size:24px;margin-bottom:12px;letter-spacing:1px;text-shadow:0 0 18px rgba(255,205,0,.35),0 2px 4px #000}
+.game-panel h2{color:#fff;font-size:24px;margin-bottom:12px;letter-spacing:1px;text-shadow:none;-webkit-text-fill-color:#fff}
 .game-panel p{color:#c5d0e0;font-family:'Share Tech Mono',monospace;line-height:1.55;margin-bottom:8px;font-size:13px}
 .game-panel small{color:#7a8aa0;font-family:'Share Tech Mono',monospace;font-size:11px}
 .game-btn{margin-top:14px;padding:12px 22px;border:1px solid rgba(255,205,0,.55);border-radius:10px;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;background:linear-gradient(180deg,#fff 0%,#e8e8e8 100%);color:#0a0a0a;transition:transform .2s,box-shadow .2s,background .2s;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 .game-btn:hover{background:linear-gradient(180deg,#FFCD00,#e6b800);border-color:#FFCD00;transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,205,0,.25)}
 .game-btn-blue{background:linear-gradient(180deg,#0050c8,#0038A8);color:#fff;border-color:rgba(0,160,233,.65)}
 #gameOverPanel{display:none}
-#gameOverPanel h2{color:#CE1126;-webkit-text-fill-color:#CE1126}
+#gameOverPanel h2{color:#fff!important;-webkit-text-fill-color:#fff!important}
 .final-score{color:#FFCD00;font-size:30px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 16px rgba(255,205,0,.4);letter-spacing:1px}
 .cyber-hero{text-align:center;padding:50px 20px 30px}
-.cyber-hero h1{font-size:2.4rem;font-weight:800;background:linear-gradient(90deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cyber-hero h1{font-size:2.4rem;font-weight:800;color:#fff;letter-spacing:1px;text-shadow:none;-webkit-text-fill-color:#fff;background:none}
 .data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;padding:30px 25px 50px;max-width:1200px;margin:0 auto}
 .data-card{background:linear-gradient(160deg,rgba(12,18,40,.88),rgba(6,10,24,.92));border:1px solid rgba(255,205,0,.28);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:.35s;box-shadow:0 8px 28px rgba(0,0,0,.35)}
 .data-card::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#FFCD00,#0038A8,#CE1126)}
 .data-card:hover{transform:translateY(-8px);border-color:rgba(206,17,38,.6)}
-.data-card h2{font-size:1.35rem;margin-bottom:12px;background:linear-gradient(90deg,#FFCD00,#CE1126);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.data-card h2{font-size:1.35rem;margin-bottom:12px;color:#fff;-webkit-text-fill-color:#fff;background:none;text-shadow:none}
 .data-card p{color:#e0e0e0!important;line-height:1.5;margin-bottom:12px}
 .data-card a{color:#fff;text-decoration:none}
 .data-card a:hover{color:#CE1126}
@@ -47,7 +47,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .contact-section{max-width:1200px;margin:0 auto 45px;padding:30px 25px 0}
 .contact-card{background:rgba(15,20,40,.82);border:1px solid rgba(255,205,0,.28);border-radius:14px;padding:30px;position:relative;overflow:hidden}
 .contact-card::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#FFCD00,#0038A8,#CE1126)}
-.contact-title{text-align:center;font-size:1.8rem;margin-bottom:25px;background:linear-gradient(90deg,#FFCD00,#CE1126);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.contact-title{text-align:center;font-size:1.8rem;margin-bottom:25px;color:#fff;-webkit-text-fill-color:#fff;background:none;text-shadow:none}
 .contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 .contact-item{display:flex;align-items:center;gap:15px;padding:18px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.18)}
 .contact-icon{min-width:45px;height:45px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;font-size:18px}
@@ -55,12 +55,12 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .contact-info a,.contact-info span{color:#eee;text-decoration:none;font-family:'Share Tech Mono',monospace;font-size:.9rem;word-break:break-word}
 .cyber-footer{text-align:center;padding:25px 20px 18px;border-top:1px solid rgba(206,17,38,.3);background:linear-gradient(180deg,transparent,rgba(0,30,80,.4))}
 .cyber-footer p{margin:6px 0;opacity:.85;font-size:.88rem;color:#ddd}
-.colombia-flag{display:flex;flex-direction:column;width:35px;height:35px;margin:12px auto 6px;border-radius:4px;overflow:hidden;border:1.5px solid rgba(255,255,255,.15)}
-.flag-yellow{background:#FFCD00;height:50%}.flag-blue{background:#0038A8;height:25%}.flag-red{background:#CE1126;height:25%}
+.name-under-flag{text-align:center;color:#CE1126;font-weight:800;font-size:1rem;letter-spacing:2px;margin:4px 0 2px;text-shadow:0 0 10px rgba(206,17,38,.45)}
+.flag-label{text-align:center;color:#FFCD00;font-size:.75rem;letter-spacing:2px;opacity:.85;margin-bottom:4px}
 .flag-label{font-size:.7rem;color:#CE1126;margin-top:5px}
 .triangle-container{display:flex;justify-content:center;align-items:center;padding:12px 0 4px}
-.mini-triangle{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #CE1126;animation:colorCycle 5s infinite linear}
-@keyframes colorCycle{0%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}33%{border-left-color:#FFCD00;filter:drop-shadow(0 0 10px #FFCD00)}66%{border-left-color:#0038A8;filter:drop-shadow(0 0 10px #0038A8)}100%{border-left-color:#CE1126;filter:drop-shadow(0 0 10px #CE1126)}}
+.mini-triangle{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:16px solid #CE1126;animation:colorCycle 3s infinite linear;will-change:border-left-color,filter}
+@keyframes colorCycle{0%{border-left-color:#CE1126;filter:drop-shadow(0 0 12px #CE1126)}25%{border-left-color:#FFCD00;filter:drop-shadow(0 0 12px #FFCD00)}50%{border-left-color:#0038A8;filter:drop-shadow(0 0 12px #0038A8)}75%{border-left-color:#00A0E9;filter:drop-shadow(0 0 12px #00A0E9)}100%{border-left-color:#CE1126;filter:drop-shadow(0 0 12px #CE1126)}}
 .floating-name{position:fixed;bottom:12px;right:14px;font-size:.8rem;color:#CE1126;z-index:50}
 @media(max-width:600px){.tech-game-section{padding:0 10px}.tech-game{height:min(78vh,520px);min-height:420px}.game-top{left:42px;right:140px;top:8px}.game-title{font-size:10px}.game-score{font-size:11px;text-align:left}.game-score span{font-size:12px}.game-help{font-size:9px}.game-panel{width:94%;max-width:94%;padding:14px 12px;max-height:95%}.game-panel h2{font-size:22px}.cyber-hero h1{font-size:1.7rem}}
 
@@ -201,7 +201,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     background: none !important;
     content: none !important;
   }
-  .mini-triangle { animation: none !important; filter: none !important; }
+  .mini-triangle { animation: colorCycle 3s infinite linear !important; }
   * { scroll-behavior: auto !important; }
   .game-panel, .game-panel * {
     backdrop-filter: none !important;
@@ -408,9 +408,11 @@ input[type="range"]{height:6px;border-radius:4px;background:rgba(255,255,255,.12
   font-weight:800!important;border-radius:10px!important;box-shadow:0 4px 16px rgba(206,17,38,.3)!important;
 }
 .cyber-hero h1{
-  background:linear-gradient(90deg,#FFCD00,#fff 40%,#00A0E9);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  text-shadow:none;filter:drop-shadow(0 0 12px rgba(255,205,0,.25));
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:none!important;
+  filter:none!important;
+  text-shadow:none!important;
 }
 .touch-move-pad{
   border:1px solid rgba(0,160,233,.4)!important;
@@ -422,6 +424,159 @@ input[type="range"]{height:6px;border-radius:4px;background:rgba(255,255,255,.12
 }
 #pausePanel h2,#configPanel h2{color:#FFCD00}
 .game-help{color:rgba(180,200,220,.5)!important;letter-spacing:.5px}
+
+
+/* Títulos en blanco puro (sin degradado) */
+.cyber-hero h1, .data-card h2, .contact-title, .game-panel h2, .game-panel h3 {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+
+/* === Tema blanco solicitado: campos, títulos, botones y contacto === */
+input, textarea, select,
+#shipNameInput,
+input[type="text"], input[type="password"], input[type="number"] {
+  color: #fff !important;
+  border-color: rgba(255,255,255,.8) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #fff !important;
+  opacity: .8;
+}
+.cyber-hero h1, .data-card h2, .contact-title,
+.game-panel h2, .game-panel h3,
+.contact-info strong, .contact-info a, .contact-info span,
+.contact-card, .contact-card p, .contact-card label,
+.cyber-footer p, .name-under-flag, .flag-label,
+.game-title, .game-score, .game-score span,
+.game-panel p, .game-panel small,
+#pausePanel h2, #configPanel h2,
+.extra-panel, .extra-panel h3, .extra-panel label {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+}
+.contact-icon, .btn-neoprimary, .game-btn, .game-btn-blue {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #fff !important;
+  box-shadow: none !important;
+}
+.contact-info strong { font-weight: 800 !important; }
+.contact-item, .contact-card, .data-card {
+  border-color: rgba(255,255,255,.55) !important;
+}
+.contact-card::before, .data-card::before { background: #fff !important; }
+.btn-neoprimary:hover, .game-btn:hover {
+  background: #f2f2f2 !important;
+  color: #000 !important;
+}
+
+
+/* Ajustes solicitados: títulos blancos e iconos de contacto visibles */
+h1,h2,h3,h4,h5,h6,
+#gameOverPanel h2 { color:#fff !important; -webkit-text-fill-color:#fff !important; text-shadow:none !important; }
+.contact-icon { background:#fff !important; color:#000 !important; }
+.contact-icon i { color:#000 !important; -webkit-text-fill-color:#000 !important; display:inline-block !important; font-family:"Font Awesome 6 Free" !important; font-weight:900 !important; opacity:1 !important; visibility:visible !important; }
+.contact-title > i { color:#fff !important; -webkit-text-fill-color:#fff !important; }
+
+
+
+/* === Ajuste de contraste: etiquetas, campos y misiones === */
+/* Etiquetas del juego: fondo blanco y texto negro para que siempre se lean */
+.tech-game label,
+.game-panel label,
+#dailyMissionsPanel label,
+.extra-panel label,
+#startExtras label {
+  background:#fff !important;
+  color:#000 !important;
+  -webkit-text-fill-color:#000 !important;
+  border-radius:6px !important;
+  padding:5px 8px !important;
+  text-shadow:none !important;
+}
+/* Campos: blanco con texto, borde y placeholder negros */
+.tech-game input,
+.tech-game textarea,
+.tech-game select,
+#dailyMissionsPanel input,
+#dailyMissionsPanel select,
+#dailyMissionsPanel textarea,
+#startExtras input,
+#startExtras select,
+#startExtras textarea {
+  background:#fff !important;
+  color:#000 !important;
+  -webkit-text-fill-color:#000 !important;
+  border:1px solid #222 !important;
+  caret-color:#000 !important;
+  box-shadow:none !important;
+}
+.tech-game input::placeholder,
+.tech-game textarea::placeholder,
+#dailyMissionsPanel input::placeholder,
+#startExtras input::placeholder {
+  color:#333 !important;
+  -webkit-text-fill-color:#333 !important;
+  opacity:1 !important;
+}
+/* Misiones: tarjetas claras, texto oscuro y progreso con contraste */
+#dailyMissionsPanel > div:not(.mission-ignore) {
+  color:#111 !important;
+}
+#dailyMissionsPanel h2,
+#dailyMissionsPanel p,
+#dailyMissionsPanel span,
+#dailyMissionsPanel b,
+#dailyMissionsPanel strong {
+  color:#111 !important;
+  -webkit-text-fill-color:#111 !important;
+  text-shadow:none !important;
+}
+#dailyMissionsPanel > div[style*="border-radius"] {
+  background:#fff !important;
+  border:1px solid #bbb !important;
+  color:#111 !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.12) !important;
+}
+#dailyMissionsPanel div[style*="height:8px"] {
+  background:#ddd !important;
+}
+#dailyMissionsPanel button,
+.tech-game button {
+  text-shadow:none !important;
+}
+/* Iconos de interfaz y contacto visibles en negro sobre blanco */
+.contact-icon,
+.tech-game label i,
+.tech-game button i,
+#dailyMissionsPanel i,
+#startExtras i {
+  background:#fff !important;
+  color:#000 !important;
+  -webkit-text-fill-color:#000 !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+.contact-icon i {
+  color:#000 !important;
+  -webkit-text-fill-color:#000 !important;
+}
+/* Evitar títulos o texto rojos que pierdan contraste en paneles */
+#dailyMissionsPanel h2,
+#dailyMissionsPanel h3,
+#startExtras h3,
+#startExtras label {
+  color:#111 !important;
+  -webkit-text-fill-color:#111 !important;
+}
 
 </style>
 </head>
@@ -516,11 +671,11 @@ input[type="range"]{height:6px;border-radius:4px;background:rgba(255,255,255,.12
 <div class="contact-card">
 <h2 class="contact-title"><i class="fa-solid fa-address-card"></i> Contacto</h2>
 <div class="contact-grid">
-<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-clock"></i></div><div class="contact-info"><strong>Horario de atención</strong><span>Lunes a viernes · 9:00 a. m. – 1:00 p. m. y 2:00 p. m. – 6:00 p. m.</span></div></div>
-<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div><div class="contact-info"><strong>País</strong><span>Colombia</span></div></div>
+<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-user"></i></div><div class="contact-info"><strong>Nombre</strong><span>Brayhan Rubio</span></div></div>
+<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-envelope"></i></div><div class="contact-info"><strong>Correo</strong><a href="mailto:brayan32455415@gmail.com">brayan32455415@gmail.com</a></div></div>
+
 <div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-code"></i></div><div class="contact-info"><strong>Área</strong><span>Desarrollo de Software</span></div></div>
-<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-building"></i></div><div class="contact-info"><strong>Servicio</strong><span>Asesorías Profesionales</span></div></div>
-<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-layer-group"></i></div><div class="contact-info"><strong>Servicios</strong><span>Sistemas automatización, IA y gestión tecnológica</span></div></div>
+<div class="contact-item"><div class="contact-icon"><i class="fa-solid fa-clock"></i></div><div class="contact-info"><strong>Horario</strong><span>Lunes a viernes · 9:00 a. m. – 1:00 p. m. y 2:00 p. m. – 6:00 p. m.</span></div></div>
 </div>
 </div>
 </section>
@@ -528,13 +683,14 @@ input[type="range"]{height:6px;border-radius:4px;background:rgba(255,255,255,.12
 <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
 <p>Versión 1.0.6</p>
 <p>⚡ Sistema</p>
+<p>⚡ Brayhan</p>
 <p>⚡ R R</p>
-<div class="colombia-flag"><div class="flag-yellow"></div><div class="flag-blue"></div><div class="flag-red"></div></div>
-<div class="flag-label">COLOMBIA</div>
+
+
+
 <div class="triangle-container"><div class="mini-triangle"></div></div>
 <p style="margin-top:10px;opacity:.7;font-size:.8rem">© 2026 Asesorías Profesionales. Todos los derechos reservados.</p>
-<p style="margin-top:10px;opacity:.7;font-size:.8rem">Privada</p>
-<p style="margin-top:14px;font-size:1rem;color:#FFCD00;letter-spacing:2px;font-weight:600">Jesucristo</p>
+
 </footer>
 <!-- nombre movido arriba junto a TECH SYSTEM -->
 </div>
@@ -632,7 +788,7 @@ document.addEventListener("touchstart",function _unlockVib(){
   try{ const fn=navigator.vibrate||navigator.webkitVibrate; if(fn) fn.call(navigator,1); }catch(e){}
 },{passive:true,once:true});
 
-const CREDITS={name:"Brayhan Estiven Coy Rubio",phone:"3052076713",email:"brayan32455415@gmail.com",label:"Desarrollo · TECH"};
+const CREDITS={name:"Brayhan Rubio",phone:"3052076713",email:"brayan32455415@gmail.com",label:"Desarrollo · TECH"};
 
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
@@ -1094,7 +1250,7 @@ function makeScoreCard(){
   g.fillStyle="rgba(255,255,255,.12)";g.fillRect(80,530,W-160,2);
   /* marca casi invisible */
   g.fillStyle="rgba(255,205,0,.28)";g.font="9px Share Tech Mono,monospace";g.fillText("Brayhan Estiven Coy Rubio · TECH",W/2,600);
-  g.fillStyle="#CE1126";g.font="bold 20px Orbitron,Arial,sans-serif";g.fillText("Jesucristo",W/2,700);
+
   g.fillStyle="#666";g.font="14px Share Tech Mono,monospace";g.fillText(new Date().toLocaleString(),W/2,760);
   return cv;
 }
@@ -1733,30 +1889,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
-    <h3>⚙ Configuración</h3>
-    <div style="padding:8px 4px;border:1px solid rgba(255,205,0,.25);border-radius:10px;background:rgba(0,15,40,.55);margin:6px 0 10px">
-      <p style="color:#FFCD00;font-size:10px;margin:4px 0 2px">Sensibilidad touch / mando · <span id="startSensPadVal">${Number(sensPad).toFixed(2)}x</span></p>
-      <input type="range" id="startSensPad" min="0" max="2" step="0.01" value="${sensPad}" style="width:96%;accent-color:#00A0E9">
-      <p style="color:#FFCD00;font-size:10px;margin:8px 0 2px">Música · <span id="startVolMusicVal">${Math.round(volMusic*100)}%</span></p>
-      <input type="range" id="startVolMusic" min="0" max="1" step="0.01" value="${volMusic}" style="width:96%;accent-color:#CE1126">
-      <p style="color:#FFCD00;font-size:10px;margin:8px 0 2px">Efectos · <span id="startVolSfxVal">${Math.round(volSfx*100)}%</span></p>
-      <input type="range" id="startVolSfx" min="0" max="1" step="0.01" value="${volSfx}" style="width:96%;accent-color:#FFCD00">
-      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;color:#ddd;font-size:11px;cursor:pointer">
-        <input type="checkbox" id="startLowPower" ${lowPower?"checked":""} style="accent-color:#00C8FF"> Bajo consumo (más FPS)
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
-        <input type="checkbox" id="startMute" ${audioMuted?"checked":""} style="accent-color:#CE1126"> Silenciar audio
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
-        <input type="checkbox" id="startVibrate" ${vibrateOn?"checked":""} style="accent-color:#FFCD00"> Vibración
-      </label>
-      <p style="color:#888;font-size:9px;margin:6px 0 2px">Poderes al recoger</p>
-      <select id="startPowerMode" style="width:96%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444;font-size:11px">
-        <option value="auto" ${powerMode==="auto"?"selected":""}>Automático</option>
-        <option value="manual" ${powerMode==="manual"?"selected":""}>Manual (G / ⚡)</option>
-      </select>
-      <button type="button" class="game-btn" id="btnOpenFullConfig" style="width:100%;margin-top:10px;padding:8px;font-size:12px">⚙ Más opciones</button>
-    </div>
+    <p style="color:#888;font-size:10px;margin:8px 0 4px">Ajustes en ⚙ Config (arriba a la izquierda)</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});

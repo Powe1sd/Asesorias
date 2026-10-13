@@ -1020,19 +1020,12 @@ let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|r13|c67|rr1|s1000|f50|t200|s179|goku
 let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios|ssblue
-let gokuUnlocked=lsGet("techGokuUnlocked","0")==="1";
-if(!gokuUnlocked){
-  gokuForm="normal";lsSet("techGokuForm","normal");
-  if(shipModel==="goku"){shipModel="classic";lsSet("techShipModelV2","classic")}
-}
-const GOKU_ACCESS_CODE="3245"; /* cambia aquí la clave Goku */
+let gokuUnlocked=true; /* Goku libre — sin PIN */
+lsSet("techGokuUnlocked","1");
 function tryUnlockGoku(code){
-  if(String(code||"").trim()===GOKU_ACCESS_CODE){
-    gokuUnlocked=true;
-    lsSet("techGokuUnlocked","1");
-    return true;
-  }
-  return false;
+  gokuUnlocked=true;
+  lsSet("techGokuUnlocked","1");
+  return true;
 }
 let _gokuPinCb=null;
 function ensureGokuAccessModal(){
@@ -1124,18 +1117,15 @@ function ensureGokuAccessModal(){
   return m;
 }
 function promptGokuAccess(cb){
-  /* Modal PIN bacano (sin window.prompt) */
-  const m=ensureGokuAccessModal();
-  _gokuPinCb=typeof cb==="function"?cb:null;
-  m.classList.add("show");
-  const msg=document.getElementById("gokuPinMsg");
-  if(msg){msg.textContent="";msg.style.color="#FF6688"}
-  m.querySelectorAll(".goku-pin-dot").forEach(d=>d.classList.remove("filled","error","ok"));
-  /* compat: si se llama sin callback (código viejo), no bloquea síncrono */
-  return !!gokuUnlocked;
+  /* Goku libre: sin PIN */
+  gokuUnlocked=true;
+  lsSet("techGokuUnlocked","1");
+  try{ const m=document.getElementById("gokuAccessModal"); if(m) m.classList.remove("show"); }catch(e){}
+  if(typeof cb==="function") setTimeout(()=>cb(true),0);
+  return true;
 }
 function promptGokuAccessAsync(){
-  return new Promise(resolve=>promptGokuAccess(resolve));
+  return Promise.resolve(true);
 }
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
@@ -1686,14 +1676,6 @@ function applyGokuFormPower(form){
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!gokuUnlocked){
-    promptGokuAccess(ok=>{
-      if(!ok)return;
-      if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
-      gokuForm=form;lsSet("techGokuForm",form);updateGokuFormsUI();applyGokuFormPower(form);
-    });
-    return;
-  }
   if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
@@ -2200,11 +2182,10 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-model="f50" class="${shipModel==="f50"?"active":""}">F50</button>
       <button type="button" data-model="t200" class="${shipModel==="t200"?"active":""}">T200</button>
       <button type="button" data-model="s179" class="${shipModel==="s179"?"active":""}">S179 ✓</button>
-      <button type="button" data-model="goku" class="${shipModel==="goku"?"active":""}">${gokuUnlocked?"⚡ Goku":"🔒 Goku"}</button>
+      <button type="button" data-model="goku" class="${shipModel==="goku"?"active":""}">⚡ Goku</button>
     </div>
-    <div id="gokuFormMenu" style="display:${shipModel==="goku"&&gokuUnlocked?"block":"none"}">
-      <h3>⚡ Fase de Goku ${gokuUnlocked?"":"🔒"}</h3>
-      ${gokuUnlocked?`
+    <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
+      <h3>⚡ Fase de Goku</h3>
       <div class="diff-btns">
         <button type="button" data-gform="normal" class="${gokuForm==="normal"?"active":""}">Normal</button>
         <button type="button" data-gform="ssj1" class="${gokuForm==="ssj1"?"active":""}">SSJ1</button>
@@ -2218,11 +2199,6 @@ if(startPanel&&!document.getElementById("startExtras")){
         <button type="button" data-gform="ssblue" class="${gokuForm==="ssblue"?"active":""}">SS Blue</button>
       </div>
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
-      `:`
-      <p style="font-size:11px;color:#FF6688;margin:6px 0">Goku bloqueado · se requiere PIN de acceso</p>
-      <button type="button" class="game-btn" id="btnUnlockGoku" style="width:100%;margin:8px 0;padding:12px;background:linear-gradient(135deg,#CE1126,#FFCD00);color:#111;border-color:#fff;font-weight:800">🔒 ABRIR TERMINAL DE ACCESO</button>
-      <p style="font-size:9px;color:#888;margin:2px 0 6px">Sin clave no se puede usar Goku (ni fase Normal)</p>
-      `}
     </div>
     <h3>✏️ Nombre de la nave</h3>
     <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
@@ -2267,35 +2243,13 @@ if(startPanel&&!document.getElementById("startExtras")){
     });
     box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
       const m=b.getAttribute("data-model");
-      if(m==="goku"&&!gokuUnlocked){
-        promptGokuAccess(ok=>{
-          if(!ok)return;
-          shipModel="goku";lsSet("techShipModelV2","goku");renderStart();updateGokuFormsUI();
-        });
-        return;
-      }
       shipModel=m;lsSet("techShipModelV2",shipModel);renderStart();
       updateGokuFormsUI();
     });
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
-      if(!gokuUnlocked){
-        promptGokuAccess(ok=>{
-          if(!ok)return;
-          gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();updateGokuFormsUI();
-        });
-        return;
-      }
       gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
       updateGokuFormsUI();
     });
-    const btnUg=box.querySelector("#btnUnlockGoku");
-    if(btnUg){
-      btnUg.onclick=()=>{
-        promptGokuAccess(ok=>{
-          if(ok){renderStart();updateGokuFormsUI()}
-        });
-      };
-    }
     const sni=box.querySelector("#shipNameInput");
     if(sni){
       sni.onclick=e=>e.stopPropagation();
@@ -4932,7 +4886,6 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
-if(!gokuUnlocked&&shipModel==="goku"){shipModel="classic";lsSet("techShipModelV2","classic");gokuForm="normal";lsSet("techGokuForm","normal")}
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";

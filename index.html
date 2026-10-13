@@ -10,32 +10,33 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:#000;font-family:'Orbitron',sans-serif;color:#fff;overflow-x:hidden;min-height:100vh;-webkit-tap-highlight-color:transparent}
-body::before{content:"";position:fixed;width:100%;height:200%;background-image:radial-gradient(circle,rgba(255,255,255,.35) 1px,transparent 1px),radial-gradient(circle,rgba(180,180,180,.2) 1px,transparent 1px),radial-gradient(circle,rgba(255,255,255,.12) 1px,transparent 1px);background-size:50px 50px,70px 70px,90px 90px;animation:stars 90s linear infinite;z-index:-1}
+body{margin:0;background:#03050c;font-family:'Orbitron',sans-serif;color:#fff;overflow-x:hidden;min-height:100vh;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;width:100%;height:200%;background-image:radial-gradient(circle,rgba(255,255,255,.28) 1px,transparent 1px),radial-gradient(circle,rgba(0,56,168,.18) 1px,transparent 1px),radial-gradient(circle,rgba(255,205,0,.1) 1px,transparent 1px);background-size:50px 50px,72px 72px,96px 96px;animation:stars 100s linear infinite;z-index:-1}
 @keyframes stars{to{transform:translateY(-50%)}}
 .tech-game-section{width:100%;max-width:1200px;margin:25px auto 10px;padding:0 25px}
-.tech-game{position:relative;width:100%;height:420px;overflow:hidden;border-radius:18px;background:#000;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 24px rgba(255,255,255,.08);touch-action:none}
-.tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:1}
+.tech-game{position:relative;width:100%;height:420px;overflow:hidden;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#0a1228 0%,#000 70%);border:1px solid rgba(255,205,0,.28);box-shadow:0 0 0 1px rgba(0,56,168,.35),0 0 32px rgba(206,17,38,.12),0 12px 40px rgba(0,0,0,.55);touch-action:none}
+.tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:1;opacity:.7}
+.tech-game::after{content:"";position:absolute;inset:0;border-radius:20px;pointer-events:none;z-index:3;box-shadow:inset 0 0 40px rgba(0,56,168,.12),inset 0 1px 0 rgba(255,205,0,.12)}
 #gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(0)}
-.game-top{position:absolute;top:8px;left:44px;right:150px;display:flex;flex-direction:column;align-items:flex-start;z-index:12;pointer-events:none;gap:2px}
-.game-title{color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;text-shadow:0 0 8px rgba(255,255,255,.5);white-space:nowrap}
-.game-score{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:left;line-height:1.45;color:#eee;text-shadow:0 0 6px rgba(0,0,0,.9),0 1px 2px #000;letter-spacing:.3px}
-.game-score span{color:#FFCD00;font-weight:800;font-size:14px;text-shadow:0 0 8px rgba(255,205,0,.45)}
+.game-top{position:absolute;top:8px;left:44px;right:150px;display:flex;flex-direction:column;align-items:flex-start;z-index:12;pointer-events:none;gap:3px}
+.game-title{color:#fff;font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 0 12px rgba(0,160,233,.45),0 1px 2px #000;white-space:nowrap}
+.game-score{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:left;line-height:1.5;color:#c8d6e8;text-shadow:0 0 8px rgba(0,0,0,.95),0 1px 2px #000;letter-spacing:.4px;padding:4px 8px 4px 0;border-left:2px solid rgba(255,205,0,.55);padding-left:8px}
+.game-score span{color:#FFCD00;font-weight:800;font-size:14px;text-shadow:0 0 10px rgba(255,205,0,.55)}
 .game-help{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);z-index:10;color:rgba(255,255,255,.55);font-family:'Share Tech Mono',monospace;font-size:12px;pointer-events:none;white-space:nowrap}
-.game-panel{position:absolute;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:340px;max-width:90%;max-height:92%;padding:20px 16px;text-align:center;background:rgba(0,0,0,.96);border:1px solid rgba(255,255,255,.3);border-radius:15px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.game-panel h2{font-size:30px;margin-bottom:12px;background:linear-gradient(90deg,#FFCD00,#fff,#FFCD00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:0 0 20px rgba(255,205,0,.25)}
-.game-panel p{color:#ddd;font-family:'Share Tech Mono',monospace;line-height:1.5;margin-bottom:8px}
-.game-panel small{color:#888;font-family:'Share Tech Mono',monospace}
-.game-btn{margin-top:18px;padding:11px 22px;border:1px solid #fff;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:700;background:#fff;color:#000;transition:.25s}
-.game-btn:hover{transform:scale(1.06)}
-.game-btn-blue{background:#222;color:#fff;border:1px solid #888;margin-left:5px}
+.game-panel{position:absolute;z-index:20;top:50%;left:50%;transform:translate(-50%,-50%);width:360px;max-width:92%;max-height:92%;padding:22px 18px;text-align:center;background:linear-gradient(165deg,rgba(8,14,32,.97),rgba(0,0,0,.98));border:1px solid rgba(255,205,0,.32);border-radius:16px;box-shadow:0 0 0 1px rgba(0,56,168,.25),0 16px 48px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.game-panel h2{color:#FFCD00;font-size:24px;margin-bottom:12px;letter-spacing:1px;text-shadow:0 0 18px rgba(255,205,0,.35),0 2px 4px #000}
+.game-panel p{color:#c5d0e0;font-family:'Share Tech Mono',monospace;line-height:1.55;margin-bottom:8px;font-size:13px}
+.game-panel small{color:#7a8aa0;font-family:'Share Tech Mono',monospace;font-size:11px}
+.game-btn{margin-top:14px;padding:12px 22px;border:1px solid rgba(255,205,0,.55);border-radius:10px;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;background:linear-gradient(180deg,#fff 0%,#e8e8e8 100%);color:#0a0a0a;transition:transform .2s,box-shadow .2s,background .2s;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.game-btn:hover{background:linear-gradient(180deg,#FFCD00,#e6b800);border-color:#FFCD00;transform:translateY(-2px);box-shadow:0 6px 18px rgba(255,205,0,.25)}
+.game-btn-blue{background:linear-gradient(180deg,#0050c8,#0038A8);color:#fff;border-color:rgba(0,160,233,.65)}
 #gameOverPanel{display:none}
 #gameOverPanel h2{color:#CE1126;-webkit-text-fill-color:#CE1126}
-.final-score{color:#fff;font-size:28px;font-family:'Share Tech Mono',monospace}
+.final-score{color:#FFCD00;font-size:30px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 16px rgba(255,205,0,.4);letter-spacing:1px}
 .cyber-hero{text-align:center;padding:50px 20px 30px}
 .cyber-hero h1{font-size:2.4rem;font-weight:800;background:linear-gradient(90deg,#fff,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;padding:30px 25px 50px;max-width:1200px;margin:0 auto}
-.data-card{background:rgba(15,20,40,.75);border:1px solid rgba(255,205,0,.25);border-radius:14px;padding:24px;position:relative;overflow:hidden;transition:.35s}
+.data-card{background:linear-gradient(160deg,rgba(12,18,40,.88),rgba(6,10,24,.92));border:1px solid rgba(255,205,0,.28);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:.35s;box-shadow:0 8px 28px rgba(0,0,0,.35)}
 .data-card::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#FFCD00,#0038A8,#CE1126)}
 .data-card:hover{transform:translateY(-8px);border-color:rgba(206,17,38,.6)}
 .data-card h2{font-size:1.35rem;margin-bottom:12px;background:linear-gradient(90deg,#FFCD00,#CE1126);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -94,10 +95,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   background:radial-gradient(circle at 35% 30%,#fff,#FFCD00 40%,#CE1126 85%);
   left:50%;top:50%;transform:translate(-50%,-50%);
   box-shadow:0 0 14px rgba(255,205,0,.55),0 4px 10px rgba(0,0,0,.4);pointer-events:none}
-.touch-fire{width:92px;height:92px;border-radius:50%;border:2px solid rgba(255,60,80,.7);touch-action:none;-webkit-user-select:none;
-  background:radial-gradient(circle at 35% 28%,#ff8a8a,#CE1126 50%,#5a0000);
-  color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;
-  touch-action:none;box-shadow:0 0 20px rgba(206,17,38,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+.touch-fire{width:72px;height:72px;border-radius:50%;border:2px solid rgba(255,205,0,.5);background:radial-gradient(circle at 35% 30%,#ff4455,#CE1126 55%,#8a0010);color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;touch-action:none;box-shadow:0 0 22px rgba(206,17,38,.4),inset 0 1px 0 rgba(255,255,255,.25)}
 .touch-fire:active,.touch-fire.pressed{transform:scale(.93);box-shadow:0 0 28px rgba(255,40,40,.75)}
 .touch-util{min-width:56px;height:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(0,200,255,.4);
   background:rgba(0,40,90,.7);color:#9fdfff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;
@@ -163,12 +161,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .goku-forms-overlay.show{display:flex}
 .goku-forms{display:none;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
 .goku-forms.show{display:flex}
-.goku-form-btn{
-  min-width:48px;padding:5px 7px;border-radius:9px;border:1px solid rgba(255,205,0,.45);
-  background:rgba(0,30,70,.9);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;
-  cursor:pointer;touch-action:manipulation;
-}
-.goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 10px rgba(255,205,0,.5)}
+.goku-form-btn{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,205,0,.35);background:rgba(0,20,50,.85);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s}
+.goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 12px rgba(255,205,0,.45)}
 .goku-form-btn:active{transform:scale(.95)}
 @media(max-width:900px){
   .tech-game-section:fullscreen .goku-forms{display:flex}
@@ -181,9 +175,9 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .extra-panel{margin-top:10px;text-align:left;font-size:11px;color:#ccc;max-height:140px;overflow-y:auto}
 .extra-panel h3{color:#fff;font-size:12px;margin:8px 0 4px}
 .diff-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:10px 0}
-.diff-btns button{padding:9px 13px;border-radius:10px;border:1px solid rgba(255,205,0,.45);background:linear-gradient(160deg,rgba(0,40,100,.75),rgba(0,20,50,.9));color:#fff;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.diff-btns button{padding:9px 14px;border-radius:10px;border:1px solid rgba(255,205,0,.4);background:linear-gradient(160deg,rgba(0,40,100,.8),rgba(0,12,36,.95));color:#e8f0ff;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.3)}
 .diff-btns button:hover{border-color:#FFCD00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,205,0,.2)}
-.diff-btns button.active{background:linear-gradient(135deg,#FFCD00,#FFAA00);color:#111;font-weight:700;border-color:#fff;box-shadow:0 0 14px rgba(255,205,0,.45)}
+.diff-btns button.active{background:linear-gradient(135deg,#FFCD00,#FFAA00);color:#111;font-weight:700;border-color:#fff;box-shadow:0 0 16px rgba(255,205,0,.4)}
 .touch-special{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,205,0,.55);background:radial-gradient(circle at 35% 30%,#ffe08a,#b8860b 60%,#5c4500);color:#111;font-family:Orbitron,sans-serif;font-weight:800;font-size:10px;touch-action:none}
 #startPanel{scrollbar-width:thin;scrollbar-color:#fff #111}
 #startPanel::-webkit-scrollbar{width:6px}
@@ -398,6 +392,36 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   }
   #shipNameInput{font-size:16px!important;padding:10px!important}
 }
+
+
+/* —— Estilo visual TECH CO —— */
+.game-panel h3{color:#FFCD00;font-size:13px;letter-spacing:.8px;margin:12px 0 8px;text-transform:uppercase;border-bottom:1px solid rgba(255,205,0,.2);padding-bottom:6px}
+.extra-panel{margin-top:8px}
+.extra-panel label{color:#b8c4d8!important}
+input[type="range"]{height:6px;border-radius:4px;background:rgba(255,255,255,.12)}
+#shipNameInput,select{
+  background:rgba(0,12,28,.9)!important;color:#FFCD00!important;border:1px solid rgba(255,205,0,.35)!important;
+  border-radius:8px!important;padding:8px 10px!important;font-family:Orbitron,sans-serif!important;
+}
+.btn-neoprimary{
+  background:linear-gradient(135deg,#FFCD00,#CE1126)!important;color:#111!important;border:none!important;
+  font-weight:800!important;border-radius:10px!important;box-shadow:0 4px 16px rgba(206,17,38,.3)!important;
+}
+.cyber-hero h1{
+  background:linear-gradient(90deg,#FFCD00,#fff 40%,#00A0E9);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:none;filter:drop-shadow(0 0 12px rgba(255,205,0,.25));
+}
+.touch-move-pad{
+  border:1px solid rgba(0,160,233,.4)!important;
+  background:radial-gradient(circle at 50% 50%,rgba(0,40,90,.55),rgba(0,10,30,.75))!important;
+}
+.touch-util,.touch-special{
+  border:1px solid rgba(255,205,0,.3)!important;
+  background:rgba(0,20,50,.75)!important;color:#9fdfff!important;border-radius:10px!important;
+}
+#pausePanel h2,#configPanel h2{color:#FFCD00}
+.game-help{color:rgba(180,200,220,.5)!important;letter-spacing:.5px}
 
 </style>
 </head>
@@ -631,7 +655,7 @@ if(!gokuUnlocked){
   gokuForm="normal";lsSet("techGokuForm","normal");
   if(shipModel==="goku"){shipModel="classic";lsSet("techShipModelV2","classic")}
 }
-const GOKU_ACCESS_CODE="1314";
+const GOKU_ACCESS_CODE="3245"; /* cambia aquí la clave Goku */
 function tryUnlockGoku(code){
   if(String(code||"").trim()===GOKU_ACCESS_CODE){
     gokuUnlocked=true;
@@ -1481,6 +1505,10 @@ if(typeof updateGokuFormsUI==="function")updateGokuFormsUI();
 let cfg=document.getElementById("configPanel");
 if(!cfg){cfg=document.createElement("div");cfg.id="configPanel";cfg.className="game-panel";cfg.style.cssText="display:none;z-index:45;max-height:min(85vh,520px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain";
 cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
+<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p>
+<p style="color:#888;font-size:10px;margin:2px 0 8px">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p>
+<p style="color:#aaa;font-size:10px;margin:0 0 10px">Meteoritos / naves destruidos y misiones se ven aquí durante la partida en el HUD superior del menú.</p>
+
 <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">Sensibilidad ratón / touch en canvas</p>
 <input type="range" id="sensMouse" min="0.2" max="2.0" step="0.05" value="${sensMouse}" style="width:90%;accent-color:#FFCD00">
 <p id="sensMouseVal" style="color:#aaa;font-size:10px">${Number(sensMouse).toFixed(2)}x</p>
@@ -1561,8 +1589,6 @@ let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
 pp.style.cssText="display:none;z-index:50;max-height:min(88vh,560px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;width:min(360px,94%);padding:16px 14px 18px";
 pp.innerHTML=`<h2 style="margin-bottom:6px;font-size:22px">⏸ PAUSA</h2>
-<p style="color:#FFCD00;font-size:12px;margin:6px 0 2px">${CREDITS.name}</p>
-<p style="color:#aaa;font-size:10px;margin:2px 0 8px">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p>
 <button class="game-btn" id="resumeGame" style="margin-top:6px;width:100%">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0;width:100%">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0;width:100%">💾 GUARDAR</button>
@@ -1613,7 +1639,7 @@ function wirePauseControls(){
 wirePauseControls();
 document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
-c.innerHTML=`<p style="color:#FFCD00;font-size:13px;margin:4px 0">${CREDITS.name}</p><div>${PS_LOGO_HTML}</div><p style="color:#ccc;font-size:11px;margin:6px 0 2px">📞 ${CREDITS.phone}</p><p style="color:#ccc;font-size:11px;margin:2px 0 6px">✉ ${CREDITS.email}</p><p style="color:#777;font-size:11px">${CREDITS.label}</p><p style="color:#666;font-size:10px;margin-top:8px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · P · Nave <b style="color:#FFCD00">Br7</b></p>`;
+c.innerHTML=`<p style="color:#666;font-size:10px;margin-top:6px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa</p>`;
 startPanel.appendChild(c)}
 
 if(startPanel&&!document.getElementById("startExtras")){
@@ -2171,6 +2197,8 @@ function createMeteor(kind){
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype,role){
   if(obstacles.length>(isMobile()?7:18))return;
+  /* Sin bichos verdes: solo naves negras */
+  if(String(etype).startsWith("alien")||etype==="creature")etype="hunter";
   const sc=getScale();
   let size,hp,spd;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
@@ -2210,11 +2238,11 @@ function createBoss(btype){
       baseY:Math.max(50,canvas.height*0.12),arriving:true,spawnTimer:80,worldBoss:true
     });
     const names={
-      boss_alien_space:"JEFE ALIEN",boss_alien_ice:"JEFE HIELO",boss_alien_fire:"JEFE FUEGO",
-      boss_alien_crystal:"JEFE CRISTAL",boss_alien_halloween:"JEFE BRUJA",
-      boss_alien_neon:"JEFE NEÓN",boss_alien_toxic:"JEFE TÓXICO",boss_alien_void:"JEFE VACÍO"
+      boss_alien_space:"JEFE NEGRO",boss_alien_ice:"JEFE NEGRO",boss_alien_fire:"JEFE NEGRO",
+      boss_alien_crystal:"JEFE NEGRO",boss_alien_halloween:"JEFE NEGRO",
+      boss_alien_neon:"JEFE NEGRO",boss_alien_toxic:"JEFE NEGRO",boss_alien_void:"JEFE NEGRO"
     };
-    scenarioMsg="👽 "+(names[btype]||"JEFE ALIEN");scenarioTransition=100;
+    scenarioMsg="🚀 "+(names[btype]||"JEFE NEGRO");scenarioTransition=100;
     return;
   }
   if(btype==="megameteor"){
@@ -2237,10 +2265,10 @@ function spawnShipWave(){
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
   let poolTop=["hunter","hunter","ship","sniper","kamikaze","ship","hunter","bigship"];
-  if(waveCount>=1)poolTop.push("ship","hunter","alien","alien_flyer");
-  if(waveCount>=2)poolTop.push("alien_eye","alien","teleport");
-  if(waveCount>=3||scenario>=3)poolTop.push("alien_brute","alien","creature");
-  if(scenario>=3)poolTop.push("alien","alien_flyer","teleport");
+  if(waveCount>=1)poolTop.push("ship","hunter","sniper");
+  if(waveCount>=2)poolTop.push("teleport","bigship");
+  if(waveCount>=3||scenario>=3)poolTop.push("bigship","hunter","kamikaze");
+  if(scenario>=3)poolTop.push("sniper","teleport","bigship");
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     createEnemy(poolTop[Math.floor(Math.random()*poolTop.length)],"top");
@@ -2256,8 +2284,7 @@ function spawnShipWave(){
   if(waveCount>0&&waveCount%4===0){
     setTimeout(()=>{
       if(!gameRunning||gamePaused||phase!=="ships")return;
-      const aliens=["alien","alien_flyer","alien_eye","alien_brute","alien_small"];
-      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(aliens[Math.floor(Math.random()*aliens.length)],"top");
+      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(["hunter","ship","sniper","bigship"][Math.floor(Math.random()*4)],"top");
       scenarioMsg="👽 INVASIÓN ALIEN";scenarioTransition=90;
     },nTop*650+900);
   }
@@ -3711,15 +3738,20 @@ function drawBullets(){
     ctx.fillStyle="#0a0a0a";ctx.fillRect(b.x-1,b.y-4,2,8);
     ctx.strokeStyle="#CE1126";ctx.lineWidth=1;ctx.strokeRect(b.x-1.2,b.y-4,2.4,8);
     ctx.restore();
-    if(b.y<-40){bullets.splice(i,1);continue}
+    if(b.y<-120){bullets.splice(i,1);continue}
     for(let j=obstacles.length-1;j>=0;j--){
       const o=obstacles[j];
       const isBoss=String(o.type||"").startsWith("boss");
-      /* Jefe: hitbox más grande para que las balas sí impacten */
-      const hitR=(isBoss?o.size*0.85:o.size*0.6)+Math.max(b.size,3)*1.8;
-      if(Math.hypot(b.x-(o.x+o.size/2),b.y-(o.y+o.size/2))<hitR){
+      /* Hitbox rectangular generosa (el jefe sí recibe impacto) */
+      const pad=isBoss?Math.max(14,o.size*0.25):Math.max(4,o.size*0.08);
+      const hit=b.x>=o.x-pad&&b.x<=o.x+o.size+pad&&b.y>=o.y-pad&&b.y<=o.y+o.size+pad;
+      if(hit){
         if(o.indestructible||o.type==="hard"){createExplosion(b.x,b.y,4,"150,150,150");if(!b.pierce)bullets.splice(i,1);break}
-        o.hp-=isBoss?1:1;createExplosion(b.x,b.y,7,"255,200,50");if(!b.pierce)bullets.splice(i,1);if(o.hp<=0)destroyEnemy(o,j);if(!b.pierce)break
+        o.hp-=1;
+        createExplosion(b.x,b.y,isBoss?10:7,"255,200,50");
+        if(!b.pierce)bullets.splice(i,1);
+        if(o.hp<=0)destroyEnemy(o,j);
+        if(!b.pierce)break;
       }
     }
   }
@@ -3915,8 +3947,8 @@ ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font=P(13)+"px Share Tech Mono";ctx.f
 function drawHUD(){
 const mob=(canvas.clientWidth||canvas.width)<500;
 const P=(typeof px==="function")?px:(n=>n);
-/* Barras en coords de buffer (HD nítido) */
-ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,canvas.width,P(mob?32:30));
+/* HUD limpio: solo lo esencial (métricas largas van en ⚙ Config) */
+ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,canvas.width,P(mob?26:24));
 ctx.textAlign="center";ctx.textBaseline="middle";
 ctx.font="bold "+P(mob?10:12)+"px Orbitron";
 ctx.fillStyle="#CE1126";
@@ -3925,35 +3957,33 @@ const nm=String(shipName||"Br7");
 ctx.strokeText("🚀 "+nm,canvas.width/2,P(mob?12:11));
 ctx.fillStyle="#FFCD00";
 ctx.fillText("🚀 "+nm,canvas.width/2,P(mob?12:11));
-ctx.font="bold "+P(mob?8:9)+"px Orbitron";ctx.textBaseline="middle";ctx.textAlign="left";
-ctx.fillStyle="#FF6644";ctx.fillText("MET "+meteorsDestroyed,P(8),P(16));
-ctx.textAlign="center";ctx.fillStyle="rgba(255,255,255,.85)";ctx.font=P(mob?8:9)+"px Share Tech Mono";
-const scenNames={1:"ÓRBITA",2:"ASTEROIDES",3:"ALIEN",4:"AGUJERO"};
-let lab=scenNames[scenario]+" · O"+(waveCount+1);
-if(phase==="meteors")lab+=" · "+Math.ceil(phaseTimer/60)+"s";
-else if(phase==="warning")lab+=" · ALERTA";
-else if(phase==="ships")lab+=" · NAVES";
-else lab+=" · JEFE";
-ctx.fillText(lab,canvas.width/2,P(12));
-ctx.fillStyle="#FFAA66";ctx.fillText("NAV "+shipsDestroyed,canvas.width/2,P(26));
-if(combo>1){ctx.fillStyle="#FFCD00";ctx.font="bold "+P(mob?9:11)+"px Orbitron";ctx.fillText("COMBO x"+combo+" · "+comboMult.toFixed(2)+"x",canvas.width/2,P(38))}
-ctx.textAlign="right";ctx.fillStyle=dailyClaimed?"#66FF88":"#88CCFF";ctx.font=P(9)+"px Share Tech Mono";
-ctx.fillText(typeof dailyLabel==="function"?dailyLabel():("Misión "+dailyDone+"/"+dailyGoal),canvas.width-P(8),P(26));
-const kiW=P(mob?70:100),kiH=P(6),kiX=canvas.width-P(8)-kiW,kiY=P(mob?34:32);
-ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(kiX-P(2),kiY-P(2),kiW+P(4),kiH+P(4));
-ctx.fillStyle="#222";ctx.fillRect(kiX,kiY,kiW,kiH);
-const kiPct=(typeof ki!=="undefined"?ki:0)/(typeof kiMax!=="undefined"?kiMax:100);
-ctx.fillStyle=kiPct>=1?"#FFD700":"#00C8FF";
-ctx.fillRect(kiX,kiY,kiW*kiPct,kiH);
-ctx.fillStyle=kiPct>=1?"#FFD700":"#88CCFF";ctx.font="bold "+P(8)+"px Orbitron";
-ctx.fillText(kiPct>=1?"KI LISTO (K)":"KI",kiX-P(4),kiY+kiH/2);
-ctx.textAlign="center";
-
-ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,canvas.height-P(28),canvas.width,P(28));
-ctx.textAlign="left";ctx.font="bold "+P(10)+"px Orbitron";ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";ctx.fillText("MUNICIÓN "+ammo,P(8),canvas.height-P(10));ctx.fillStyle="#FFD700";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("⭐ "+coins,P(8),canvas.height-P(22));
+if(combo>1){
+  ctx.font="bold "+P(mob?9:10)+"px Orbitron";
+  ctx.fillStyle="#FFCD00";
+  ctx.fillText("x"+combo,canvas.width/2,P(mob?22:20));
+}
+if(bounceShield>0){
+  ctx.textAlign="right";ctx.font="bold "+P(8)+"px Orbitron";ctx.fillStyle="#AAFFFF";
+  ctx.fillText("REBOTE",canvas.width-P(8),P(12));
+}
+ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,canvas.height-P(26),canvas.width,P(26));
+ctx.textAlign="left";ctx.font="bold "+P(10)+"px Orbitron";
+ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";
+ctx.fillText("MUNICIÓN "+ammo,P(8),canvas.height-P(10));
+ctx.fillStyle="#FFD700";ctx.font="bold "+P(9)+"px Orbitron";
+ctx.fillText("⭐ "+coins,P(8),canvas.height-P(20));
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("¡SIN MUNICIÓN! +40",canvas.width/2,canvas.height-P(10))}
-const pows=[];if(shield>0)pows.push(["ESC","#00C8FF"]);if(bounceShield>0)pows.push(["REB","#AAFFFF"]);if(vortex>0)pows.push(["VOR","#CC66FF"]);if(ion>0)pows.push(["ION","#66FFEE"]);if(emp>0)pows.push(["EMP","#FFEE66"]);if(rapidFire>0)pows.push(["RAP","#00FF88"]);if(tripleShot>0)pows.push(["TRI","#66CCFF"]);if(laser>0)pows.push(["LAS","#00FFFF"]);if(pierce>0)pows.push(["PER","#AADD00"]);if(invisible>0)pows.push(["FAN","#CCAAFF"]);if(magnet>0)pows.push(["IMA","#FFAA00"]);if(missilePower>0)pows.push(["MIS","#FF8800"]);if(allyPower>0)pows.push(["ALI","#44FFAA"]);if(overdrive>0)pows.push(["TUR","#FF2244"]);if(nova>0)pows.push(["NOV","#FFAA00"]);if(reflect>0)pows.push(["REF","#66FFEE"]);if(burst>0)pows.push(["RAF","#FF8800"]);if(powersCollected>0&&specialCharges>0)pows.push(["POD "+specialCharges,"#E8F0FF"]);if(drones.length)pows.push(["DRN","#88DDFF"]);if(freezeEnemies>0)pows.push(["HIE","#AADDFF"]);if(barrier>0)pows.push(["BAR","#66CCFF"]);if(bazooka>0)pows.push(["BAZ","#FF8844"]);
-ctx.font="bold "+P(8)+"px Share Tech Mono";ctx.textAlign="left";let hx=P(78);pows.forEach(([lab,col])=>{ctx.fillStyle=col;ctx.fillText(lab,hx,canvas.height-P(10));hx+=P(36)})
+const pows=[];
+if(shield>0)pows.push(["ESC","#00C8FF"]);
+if(bounceShield>0)pows.push(["REB","#AAFFFF"]);
+if(rapidFire>0)pows.push(["RAP","#00FF88"]);
+if(tripleShot>0)pows.push(["TRI","#66CCFF"]);
+if(laser>0)pows.push(["LAS","#00FFFF"]);
+if(vortex>0)pows.push(["VOR","#CC66FF"]);
+if(ion>0)pows.push(["ION","#66FFEE"]);
+if(specialCharges>0)pows.push(["POD "+specialCharges,"#E8F0FF"]);
+ctx.font="bold "+P(8)+"px Share Tech Mono";ctx.textAlign="left";
+let hx=P(78);pows.forEach(([lab,col])=>{ctx.fillStyle=col;ctx.fillText(lab,hx,canvas.height-P(10));hx+=P(36)});
 }
 
 /* Fondo según escenario (Tierra, asteroides, alien, agujero) */

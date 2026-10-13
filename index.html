@@ -578,6 +578,222 @@ h1,h2,h3,h4,h5,h6,
   -webkit-text-fill-color:#111 !important;
 }
 
+
+
+/* === AJUSTE GLOBAL DE LEGIBILIDAD: TEXTO BLANCO Y CAMPOS OSCUROS === */
+/* Este bloque unifica los estilos que antes se contradecían. */
+:root{
+  --tech-text:#ffffff;
+  --tech-field-bg:#07101f;
+  --tech-field-border:rgba(255,255,255,.72);
+  --tech-accent:#FFCD00;
+}
+body,
+body p,
+body label,
+body small,
+body span,
+body li,
+body a,
+body strong,
+body b,
+body em,
+body legend,
+body summary,
+body .extra-panel,
+body .extra-panel *,
+body .game-panel,
+body .game-panel *,
+body #startExtras,
+body #startExtras *,
+body #dailyMissionsPanel,
+body #dailyMissionsPanel *,
+body #pausePanel,
+body #pausePanel *,
+body #configPanel,
+body #configPanel *,
+body #gameOverPanel,
+body #gameOverPanel *,
+body .goku-pin-card,
+body .goku-pin-card *,
+body .data-card,
+body .data-card *,
+body .contact-card,
+body .contact-card *,
+body .cyber-footer,
+body .cyber-footer *,
+body .touch-pad,
+body .touch-pad *{
+  color:var(--tech-text);
+  -webkit-text-fill-color:var(--tech-text);
+}
+
+/* Títulos, incluidos los títulos y subtítulos de las ventanas del juego */
+h1,h2,h3,h4,h5,h6,
+.game-title,.game-score,.game-score span,.final-score,
+.cyber-hero h1,.data-card h2,.contact-title,
+.game-panel h2,.game-panel h3,
+#pausePanel h2,#configPanel h2,
+#gokuAccessModal h2,
+#dailyMissionsPanel h2,#dailyMissionsPanel h3,
+#startExtras h3{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:none!important;
+  -webkit-background-clip:border-box!important;
+  background-clip:border-box!important;
+  text-shadow:none!important;
+  opacity:1!important;
+}
+
+/* Campos de texto: fondo oscuro y letras blancas en todos los paneles */
+input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea,
+select,
+#shipNameInput,
+#dailyMissionsPanel input,
+#dailyMissionsPanel textarea,
+#dailyMissionsPanel select,
+#startExtras input,
+#startExtras textarea,
+#startExtras select,
+#pausePanel input,
+#pausePanel textarea,
+#pausePanel select,
+#configPanel input,
+#configPanel textarea,
+#configPanel select,
+.game-panel input,
+.game-panel textarea,
+.game-panel select,
+.goku-pin-card input{
+  background:#07101f!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  caret-color:#fff!important;
+  border-radius:8px;
+  box-shadow:none!important;
+  opacity:1!important;
+  font-family:'Share Tech Mono',monospace;
+}
+input::placeholder,
+textarea::placeholder,
+#shipNameInput::placeholder,
+.game-panel input::placeholder,
+.game-panel textarea::placeholder,
+#startExtras input::placeholder,
+#dailyMissionsPanel input::placeholder{
+  color:#e4eaf3!important;
+  -webkit-text-fill-color:#e4eaf3!important;
+  opacity:1!important;
+}
+input:focus,textarea:focus,select:focus{
+  outline:2px solid #FFCD00!important;
+  outline-offset:1px;
+  border-color:#FFCD00!important;
+}
+
+/* Las etiquetas dejan de tener una caja blanca que dificulta la lectura */
+.tech-game label,
+.game-panel label,
+#dailyMissionsPanel label,
+.extra-panel label,
+#startExtras label,
+#pausePanel label,
+#configPanel label{
+  background:transparent!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border-radius:0!important;
+  padding:4px 0!important;
+  text-shadow:none!important;
+}
+
+/* Paneles de información y misiones: fondo oscuro, texto blanco */
+.game-panel,
+#startPanel,#gameOverPanel,#configPanel,#pausePanel,
+#gokuAccessModal .goku-pin-card,
+#dailyMissionsPanel,
+#startExtras,
+.extra-panel{
+  color:#fff!important;
+}
+.game-panel p,.game-panel small,
+.goku-pin-sub,.goku-pin-msg,
+.game-help,.touch-move-hint,
+#dailyMissionsPanel p,#dailyMissionsPanel span,
+#dailyMissionsPanel b,#dailyMissionsPanel strong{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+#dailyMissionsPanel > div:not(.mission-ignore),
+#dailyMissionsPanel > div[style*="border-radius"]{
+  background:#07101f!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.55)!important;
+}
+#dailyMissionsPanel h2,#dailyMissionsPanel h3,
+#dailyMissionsPanel p,#dailyMissionsPanel span,
+#dailyMissionsPanel b,#dailyMissionsPanel strong{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+
+/* Botones oscuros con letras blancas; el amarillo queda como acento */
+.game-btn,.game-btn-blue,.btn-neoprimary,
+.diff-btns button,.goku-form-btn,.goku-pin-key,.goku-pin-close,
+.touch-util,.touch-special,.touch-fire{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  text-shadow:none!important;
+}
+.game-btn,.game-btn-blue,.goku-pin-close{
+  background:#101b2d!important;
+  border:1px solid rgba(255,255,255,.75)!important;
+}
+.btn-neoprimary{
+  background:#101b2d!important;
+  border:1px solid #FFCD00!important;
+}
+.game-btn:hover,.game-btn-blue:hover,.btn-neoprimary:hover,
+.goku-pin-close:hover{
+  background:#1b2c45!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.diff-btns button.active,.goku-form-btn.active{
+  background:linear-gradient(135deg,#FFCD00,#FFAA00)!important;
+  color:#111!important;
+  -webkit-text-fill-color:#111!important;
+}
+.contact-icon{
+  background:#fff!important;
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.contact-icon i{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.contact-item,.contact-card,.data-card{
+  border-color:rgba(255,255,255,.55)!important;
+}
+.contact-info strong{color:#fff!important;-webkit-text-fill-color:#fff!important}
+.contact-info a,.contact-info span,.data-card a{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.flag-label,.name-under-flag{color:#fff!important;-webkit-text-fill-color:#fff!important}
+@media(max-width:600px){
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  textarea,select{
+    font-size:16px!important;
+    min-height:40px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -681,8 +897,7 @@ h1,h2,h3,h4,h5,h6,
 </section>
 <footer class="cyber-footer">
 <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
-<p>Versión 1.0.6</p>
-<p>⚡ Sistema</p>
+<p>Versión 1.0.1.1.3</p>
 <p>⚡ Brayhan</p>
 <p>⚡ R R</p>
 

@@ -102,7 +102,54 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   touch-action:none;box-shadow:0 0 10px rgba(0,120,255,.2)}
 .touch-util:active{background:rgba(0,80,160,.85);color:#fff}
 #touchSpecial{border-color:rgba(255,205,0,.5);color:#FFCD00}
-@media(max-width:900px){.touch-pad{display:block}}
+/* Touch pad: visible en móvil y en pantallas táctiles / grandes adaptadas */
+@media(max-width:1100px){.touch-pad{display:block}}
+@media(pointer:coarse){.touch-pad{display:block}}
+.touch-pad.show-touch{display:block!important}
+.touch-pad{
+  width:100%;
+  max-width:min(1100px,100%);
+  margin:8px auto 12px;
+  padding:0 max(8px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-right));
+  box-sizing:border-box;
+  flex-shrink:0;
+}
+.touch-pad-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:clamp(8px,2vw,20px);
+  width:100%;
+  box-sizing:border-box;
+  padding:clamp(10px,1.5vw,16px) clamp(12px,2vw,20px);
+  border-radius:clamp(14px,2vw,22px);
+}
+.touch-move-pad{
+  width:clamp(110px,18vw,160px)!important;
+  height:clamp(100px,16vw,145px)!important;
+}
+.touch-fire{
+  width:clamp(68px,12vw,96px)!important;
+  height:clamp(68px,12vw,96px)!important;
+  font-size:clamp(12px,2.2vw,16px)!important;
+}
+.touch-util,.touch-special{
+  min-width:clamp(48px,8vw,72px);
+  height:clamp(34px,5vw,42px);
+  font-size:clamp(10px,1.8vw,13px);
+}
+.touch-pad .goku-forms{
+  max-width:100%;
+  box-sizing:border-box;
+  padding:6px 4px 2px;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:4px;
+}
+.touch-pad .goku-form-btn{
+  font-size:clamp(9px,1.6vw,11px);
+  padding:5px 8px;
+}
 @media(max-width:600px){
   
 .touch-move-pad{
@@ -138,19 +185,37 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game-section:-webkit-full-screen .touch-pad{
   display:none!important;
 }
-/* Móvil en fullscreen: juego más bajo + touch pad visible */
-@media(max-width:900px){
+/* Fullscreen táctil / pantalla grande: juego + touch pad visibles y adaptados */
+@media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game{
-    height:min(58vh,calc(100vh - 160px));width:min(98vw,900px);
+    height:min(62vh,calc(100vh - 180px - env(safe-area-inset-bottom,0px)));
+    width:min(98vw,1100px);
+    max-height:calc(100vh - 170px - env(safe-area-inset-bottom,0px));
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad{
-    display:block!important;width:min(98vw,900px);margin:6px auto 0;flex-shrink:0;
+    display:block!important;
+    width:min(98vw,1100px);
+    margin:6px auto 0;
+    flex-shrink:0;
+    max-height:min(38vh,280px);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   .tech-game-section:fullscreen .touch-pad-inner{
-    padding:8px 12px;gap:8px;
+    padding:clamp(8px,1.2vw,14px) clamp(10px,2vw,18px);
+    gap:clamp(8px,2vw,16px);
   }
+}
+/* Pantallas grandes en horizontal: más espacio al pad */
+@media(min-width:700px) and (max-height:500px) and (orientation:landscape){
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game{
+    height:min(55vh,calc(100vh - 150px));
+  }
+  .touch-move-pad{width:clamp(100px,20vh,140px)!important;height:clamp(90px,18vh,120px)!important}
+  .touch-fire{width:clamp(60px,16vh,84px)!important;height:clamp(60px,16vh,84px)!important}
 }
 /* Selector fases Goku: flotante sobre el juego (PC y móvil) */
 .goku-forms-overlay{
@@ -2055,26 +2120,42 @@ btnFS.onclick=()=>{
   else if(wrap.webkitRequestFullscreen)wrap.webkitRequestFullscreen();
 };
 btnExit.onclick=()=>{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen()};
+function isTouchUI(){
+  try{
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints>0) ||
+      (window.matchMedia && (window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(hover:none)').matches)) ||
+      window.innerWidth<=1100;
+  }catch(e){return window.innerWidth<=1100}
+}
+function syncTouchPad(){
+  const tp=document.getElementById("touchPad");
+  if(!tp)return;
+  const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);
+  const touch=isTouchUI();
+  if(touch){
+    tp.classList.add("show-touch");
+    tp.style.display="block";
+    if(fs){
+      tp.classList.add("show-fs");
+      tp.style.cssText="display:block!important;width:min(98vw,1100px);max-width:100%;margin:6px auto 0;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));box-sizing:border-box;";
+    } else {
+      tp.classList.remove("show-fs");
+      tp.style.cssText="display:block!important;width:100%;max-width:min(1100px,100%);margin:8px auto 12px;box-sizing:border-box;";
+    }
+  } else {
+    tp.classList.remove("show-touch","show-fs");
+    tp.style.cssText = fs ? "display:none!important;" : "";
+  }
+}
 function onFS(){
   const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);
   btnExit.style.display=fs?"block":"none";
   btnFS.style.display=fs?"none":"block";
-  const tp=document.getElementById("touchPad");
-  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints>0) || window.innerWidth<=900;
-  if(tp){
-    if(fs && isTouchDevice){
-      /* Solo móvil: mostrar touch pad en fullscreen */
-      tp.classList.add("show-fs");
-      tp.style.cssText="display:block!important;width:min(98vw,900px);margin:6px auto 0;";
-    } else {
-      /* PC: sin touch pad, juego a pantalla completa */
-      tp.classList.remove("show-fs");
-      tp.style.cssText = fs ? "display:none!important;" : "";
-    }
-  }
-  setTimeout(()=>{resizeCanvas();updateGokuFormsUI()},150);
+  syncTouchPad();
+  setTimeout(()=>{resizeCanvas();updateGokuFormsUI();syncTouchPad()},150);
 }
 document.addEventListener("fullscreenchange",onFS);document.addEventListener("webkitfullscreenchange",onFS);
+try{syncTouchPad();window.addEventListener("resize",()=>{clearTimeout(window._tpR);window._tpR=setTimeout(syncTouchPad,120)})}catch(e){}
 const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:8px;right:80px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:14px;cursor:pointer;display:none");
 btnPause.onclick=()=>togglePause();
 const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;top:8px;right:116px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.85);color:#fff;font-size:13px;cursor:pointer;display:none");
@@ -2839,12 +2920,8 @@ function createBoss(btype){
       hp:hpBase,maxHp:hpBase,shootTimer:28,zigzag:0,zigzagDir:1,
       baseY:Math.max(50,canvas.height*0.12),arriving:true,spawnTimer:80,worldBoss:true
     });
-    const names={
-      boss_alien_space:"JEFE NEGRO",boss_alien_ice:"JEFE NEGRO",boss_alien_fire:"JEFE NEGRO",
-      boss_alien_crystal:"JEFE NEGRO",boss_alien_halloween:"JEFE NEGRO",
-      boss_alien_neon:"JEFE NEGRO",boss_alien_toxic:"JEFE NEGRO",boss_alien_void:"JEFE NEGRO"
-    };
-    scenarioMsg="🚀 "+(names[btype]||"JEFE NEGRO");scenarioTransition=100;
+    /* Sin mensaje "JEFE NEGRO": solo aparece */
+    scenarioMsg="";scenarioTransition=0;
     return;
   }
   if(btype==="megameteor"){
@@ -4357,7 +4434,7 @@ function drawObstacle(o){
     let c0,c1,glow,label;
     if(String(o.type).startsWith("boss_alien")){
       /* Jefe: nave negra elegante (no tan grande) */
-      const label="JEFE NEGRO";
+      const label="";
       const pulse=.5+.5*Math.sin(performance.now()/400);
       ctx.shadowColor="rgba(206,17,38,"+(0.35+pulse*.25)+")";ctx.shadowBlur=isMobile()?4:12;
       /* casco triangular premium */
@@ -4393,7 +4470,7 @@ function drawObstacle(o){
       ctx.shadowBlur=0;
 const barW=s*1.6;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-18,barW,7);
       ctx.fillStyle=o.hp>o.maxHp/2?"#66FF88":"#FF3333";ctx.fillRect(-barW/2,-s-18,barW*(o.hp/o.maxHp),7);
-      ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.15)}px Orbitron`;ctx.textAlign="center";ctx.fillText(label,0,-s-24);
+      ctx.fillStyle="#FFCD00";ctx.font=`bold ${Math.max(9,s*.15)}px Orbitron`;ctx.textAlign="center";if(label)ctx.fillText(label,0,-s-24);
     } else {
     if(o.type==="boss_mothership"){c0="#0a0a0a";c1="#333";glow="#666";label="NODRIZA"}
     else if(o.type==="boss_tentacle"){c0="#2a0040";c1="#8844CC";glow="#AA66FF";label="KRAKEN"}
@@ -4830,7 +4907,7 @@ function checkCollision(o){return Math.hypot(player.x-(o.x+o.size/2),player.y-(o
 function drawWarning(){if(phase!=="warning")return;const a=.5+Math.sin(performance.now()/120)*.4;const P=(typeof px==="function")?px:(n=>n);
 ctx.fillStyle=`rgba(206,17,38,${a*.25})`;ctx.fillRect(0,0,canvas.width,canvas.height);
 ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${P(Math.min(22,(canvas.clientWidth||400)*.05))}px Orbitron`;ctx.textAlign="center";
-const msg=(waveCount>0&&waveCount%4===0)?"⚠ JEFE APROXIMÁNDOSE ⚠":"⚠ OLEADA "+(waveCount+1)+" ⚠";
+const msg=(waveCount>0&&waveCount%4===0)?"":"⚠ OLEADA "+(waveCount+1)+" ⚠";
 ctx.fillText(msg,canvas.width/2,canvas.height/2-P(10));
 ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.font=P(13)+"px Share Tech Mono";ctx.fillText(Math.ceil(phaseTimer/60)+" s",canvas.width/2,canvas.height/2+P(22))}
 

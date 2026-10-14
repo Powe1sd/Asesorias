@@ -173,7 +173,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
   background:#020b22;
-  padding:max(4px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  padding:max(0px, calc(env(safe-area-inset-top) - 1.3cm)) max(6px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
   overflow-x:hidden;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   width:100%;height:100%;box-sizing:border-box;
@@ -191,7 +191,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game{
-    height:min(88vh, calc(100vh - 0.4cm - 110px - env(safe-area-inset-bottom, 0px))) !important;
+    height:min(90vh, calc(100vh - 100px - env(safe-area-inset-bottom, 0px))) !important;margin-top:-1.3cm !important;
     width:min(98vw, 1100px) !important;
     max-height:none !important;
     flex:1 1 auto;
@@ -201,7 +201,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   .tech-game-section:-webkit-full-screen .touch-pad{
     display:block!important;
     width:min(98vw,1100px)!important;
-    margin:0.4cm auto 0 !important; /* subido 4cm más */
+    margin:0 auto 0 !important; /* 2cm más arriba */
     padding-bottom:max(8px, env(safe-area-inset-bottom)) !important;
     flex-shrink:0 !important;
     max-height:min(18vh, 170px) !important;
@@ -233,7 +233,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad{
-    margin-top:0.3cm !important;
+    margin-top:0 !important;
     max-height:min(28vh, 160px) !important;
   }
 }
@@ -2157,7 +2157,7 @@ function syncTouchPad(){
     tp.style.display="block";
     if(fs){
       tp.classList.add("show-fs");
-      tp.style.cssText="display:block!important;width:min(98vw,1100px);max-width:100%;margin:0.4cm auto 0;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));box-sizing:border-box;flex-shrink:0;";
+      tp.style.cssText="display:block!important;width:min(98vw,1100px);max-width:100%;margin:0 auto 0;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right));padding-bottom:max(8px,env(safe-area-inset-bottom));box-sizing:border-box;flex-shrink:0;";
     } else {
       tp.classList.remove("show-fs");
       tp.style.cssText="display:block!important;width:100%;max-width:min(1100px,100%);margin:8px auto 12px;box-sizing:border-box;";

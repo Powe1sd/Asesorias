@@ -1808,6 +1808,7 @@ try {
   // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
   // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
   SFX.shoot = new Audio("audios/disparo.mp3");
+  SFX.ki = new Audio("audios/poder-goku.mp3"); /* disparo energía Goku */
   SFX.explode = new Audio("audios/explosion.mp3");
   SFX.power = new Audio("audios/poder.mp3");
   SFX.hit = new Audio("audios/dano.mp3");
@@ -1907,6 +1908,7 @@ function _ensureSynthEngine(){
 function startEngineSound(){
   try{
     if(audioMuted) return;
+    if(shipModel==="goku"){ stopEngineSound(); return; } /* Goku sin propulsor */
     applyAudioVolumes();
     if(SFX.engine && SFX.engine.src){
       SFX.engine.loop=true;
@@ -1965,6 +1967,7 @@ function pauseEngineSound(){
 }
 function resumeEngineSound(){
   if(!gameRunning || gamePaused || audioMuted) return;
+  if(shipModel==="goku"){ stopEngineSound(); return; }
   try{
     if(SFX.engine && SFX.engine.src){
       SFX.engine.volume=Math.min(1, volSfx*0.55);
@@ -1974,6 +1977,7 @@ function resumeEngineSound(){
   _startSynthEngine();
 }
 function updateEngineSound(){
+  if(shipModel==="goku"){ if(_enginePlaying) stopEngineSound(); return; }
   if(!_enginePlaying || audioMuted) return;
   try{
     const moving = touchDriving || stickActive || keys.left||keys.right||keys.up||keys.down || isShooting;
@@ -2264,7 +2268,43 @@ if(startPanel&&!document.getElementById("startExtras")){
       <div style="display:flex;justify-content:center;gap:4px;margin-top:8px;flex-wrap:wrap">
         ${SHIP_GALLERY.map((_,i)=>`<span data-gal="${i}" style="width:7px;height:7px;border-radius:50%;display:inline-block;cursor:pointer;background:${i===getShipGalleryIndex()?"#FFCD00":"rgba(255,255,255,.25)"}"></span>`).join("")}
       </div>
-      <p style="font-size:9px;color:#888;margin:6px 0 4px">◀ ▶ o desliza · toca un punto para saltar</p>
+      <p style="font-size:9px;color:#888;margin:6px 0 4px">◀ ▶ o desliza · o elige abajo</p>
+    </div>
+    <h3>🚀 Todas las naves</h3>
+    <div class="diff-btns">
+      <button type="button" data-model="classic" class="${shipModel==="classic"?"active":""}">Clásica</button>
+      <button type="button" data-model="fighter" class="${shipModel==="fighter"?"active":""}">Cazadora</button>
+      <button type="button" data-model="interceptor" class="${shipModel==="interceptor"?"active":""}">Interceptor</button>
+      <button type="button" data-model="heavy" class="${shipModel==="heavy"?"active":""}">Pesada</button>
+      <button type="button" data-model="stealth" class="${shipModel==="stealth"?"active":""}">Sigilo</button>
+      <button type="button" data-model="wing" class="${shipModel==="wing"?"active":""}">Ala X</button>
+      <button type="button" data-model="needle" class="${shipModel==="needle"?"active":""}">Aguja</button>
+      <button type="button" data-model="delta" class="${shipModel==="delta"?"active":""}">Delta</button>
+      <button type="button" data-model="r13" class="${shipModel==="r13"?"active":""}">R13</button>
+      <button type="button" data-model="c67" class="${shipModel==="c67"?"active":""}">C67</button>
+      <button type="button" data-model="rr1" class="${shipModel==="rr1"?"active":""}">RR1</button>
+      <button type="button" data-model="s1000" class="${shipModel==="s1000"?"active":""}">S1000</button>
+      <button type="button" data-model="f50" class="${shipModel==="f50"?"active":""}">F50</button>
+      <button type="button" data-model="t200" class="${shipModel==="t200"?"active":""}">T200</button>
+      <button type="button" data-model="s179" class="${shipModel==="s179"?"active":""}">S179 ✓</button>
+      <button type="button" data-model="goku" class="${shipModel==="goku"?"active":""}">⚡ Goku</button>
+    </div>
+    <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
+      <h3>⚡ Fase de Goku</h3>
+      <div class="diff-btns">
+        <button type="button" data-gform="normal" class="${gokuForm==="normal"?"active":""}">Normal</button>
+        <button type="button" data-gform="ssj" class="${gokuForm==="ssj"?"active":""}">SSJ</button>
+        <button type="button" data-gform="ssj1" class="${gokuForm==="ssj1"?"active":""}">SSJ1</button>
+        <button type="button" data-gform="ssj2" class="${gokuForm==="ssj2"?"active":""}">SSJ2</button>
+        <button type="button" data-gform="ssj3" class="${gokuForm==="ssj3"?"active":""}">SSJ3</button>
+        <button type="button" data-gform="ssj4" class="${gokuForm==="ssj4"?"active":""}">SSJ4</button>
+        <button type="button" data-gform="bru" class="${gokuForm==="bru"?"active":""}">Bru</button>
+        <button type="button" data-gform="golden" class="${gokuForm==="golden"?"active":""}">Golden Dios</button>
+        <button type="button" data-gform="ultra" class="${gokuForm==="ultra"?"active":""}">Ultra</button>
+        <button type="button" data-gform="superdios" class="${gokuForm==="superdios"?"active":""}">Super Dios</button>
+        <button type="button" data-gform="ssblue" class="${gokuForm==="ssblue"?"active":""}">SS Blue</button>
+      </div>
+      <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
 
     <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
@@ -2306,6 +2346,19 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
     box.querySelectorAll("[data-skin]").forEach(b=>b.onclick=()=>{
       shipSkin=b.getAttribute("data-skin");lsSet("techShipSkin",shipSkin);renderStart();
+    });
+    box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
+      const m=b.getAttribute("data-model");
+      shipModel=m;lsSet("techShipModelV2",shipModel);
+      if(m==="goku"&&!gokuForm)gokuForm="normal";
+      renderStart();
+      try{updateGokuFormsUI()}catch(e){}
+    });
+    box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
+      gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);
+      shipModel="goku";lsSet("techShipModelV2","goku");
+      renderStart();
+      try{updateGokuFormsUI()}catch(e){}
     });
     const goPrev=()=>{shiftShipGallery(-1);renderStart()};
     const goNext=()=>{shiftShipGallery(1);renderStart()};
@@ -2924,10 +2977,49 @@ function shoot(){
   const cd=rapidFire>0?45:(isMobile()?70:shootCooldown);
   if(now-lastShot<cd)return;
   lastShot=now;
-  try{playSfx("shoot")}catch(e){}
+  const isGoku=shipModel==="goku";
+  try{
+    if(isGoku){
+      if(SFX.ki&&SFX.ki.src)playSfx("ki");
+      else playSfx("laser"); /* fallback si no hay audios/poder-goku.mp3 */
+    } else playSfx("shoot");
+  }catch(e){}
   doVibrate(20,"shoot");
   const sp=10.5*getSpeedScale()*bufScale(),s=getScale();
   const has=w=>Array.isArray(ownedWeapons)&&ownedWeapons.indexOf(w)>=0;
+  /* Goku: bolitas de energía (ki) pequeñas */
+  const pushKi=(x,y,spd,sz,opts)=>{
+    const b=Object.assign({x,y,speed:spd,size:sz,pierce:false},opts||{});
+    if(isGoku){
+      b.ki=true;
+      b.size=Math.max(1.6, (sz||3)*0.55)*s/s; /* pequeñas */
+      b.size=2.0*s;
+      const form=gokuForm||"normal";
+      b.kiColor=form==="ssj"||form==="ssj4"||form==="bru"?"255,60,40":
+        form==="ssblue"?"80,200,255":
+        form==="ultra"?"180,120,255":
+        form==="golden"||form==="superdios"?"255,220,80":
+        form==="ssj1"||form==="ssj2"||form==="ssj3"?"255,230,100":
+        "120,200,255";
+      b.speed=spd*1.05;
+    }
+    bullets.push(b);
+  };
+  if(isGoku){
+    /* Goku siempre lanza bolitas de ki (arma básica estilo energía) */
+    const add=ox=>{
+      if(ammo<=0)return;
+      pushKi(player.x+ox, player.y-player.size*.85, sp*1.08, 2.0*s, {pierce:pierce>0});
+      ammo--;
+    };
+    if(tripleShot>0){add(-10);add(0);add(10)}
+    else if(currentWeapon==="double"&&has("double")){add(-7);add(7);if(tripleShot>0){add(-14);add(14)}}
+    else if(currentWeapon==="spread"&&has("spread")){
+      for(let i=-1;i<=1;i++){if(ammo<=0)break;pushKi(player.x,player.y-player.size*.85,sp,2.0*s,{vx:i*2.0,vy:-sp,pierce:false});ammo--}
+    }
+    else add(0);
+    return;
+  }
   if(currentWeapon==="double"&&has("double")){const add=ox=>{if(ammo<=0)return;bullets.push({x:player.x+ox,y:player.y-player.size,speed:sp,size:3.2*s,pierce:false});ammo--};add(-8);add(8);if(tripleShot>0){add(-16);add(16)}return}
   if(currentWeapon==="spread"&&has("spread")){for(let i=-1;i<=1;i++){if(ammo<=0)break;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3*s,pierce:false,vx:i*2.2,vy:-sp});ammo--}return}
   if(currentWeapon==="pierce"&&has("pierce")){if(ammo<=0)return;bullets.push({x:player.x,y:player.y-player.size,speed:sp,size:3.2*s,pierce:true});ammo--;return}
@@ -4502,8 +4594,22 @@ function drawBullets(){
     const b=bullets[i];
     if(b.vx!=null||b.vy!=null){b.x+=(b.vx||0);b.y+=(b.vy!=null?b.vy:-b.speed)}
     else b.y-=b.speed;
-    /* Bala láser del jugador (no bolita) */
     ctx.save();
+    if(b.ki){
+      /* Bolita de energía de Goku */
+      const r=Math.max(2.2, b.size||2.5);
+      const col=b.kiColor||"120,200,255";
+      ctx.shadowColor=`rgb(${col})`;ctx.shadowBlur=isMobile()?4:10;
+      const grd=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,r*1.6);
+      grd.addColorStop(0,"#fff");
+      grd.addColorStop(0.35,`rgba(${col},1)`);
+      grd.addColorStop(1,`rgba(${col},0)`);
+      ctx.fillStyle=grd;
+      ctx.beginPath();ctx.arc(b.x,b.y,r*1.4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="#fff";
+      ctx.beginPath();ctx.arc(b.x-r*0.15,b.y-r*0.15,r*0.45,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    } else {
     /* Balas negras con borde rojo */
     ctx.shadowColor=b.pierce?"#FF3333":"#111";ctx.shadowBlur=isMobile()?0:5;
     const g=ctx.createLinearGradient(b.x,b.y+10,b.x,b.y-10);
@@ -4516,6 +4622,7 @@ function drawBullets(){
     ctx.fillStyle="#0a0a0a";ctx.fillRect(b.x-1,b.y-4,2,8);
     ctx.strokeStyle="#CE1126";ctx.lineWidth=1;ctx.strokeRect(b.x-1.2,b.y-4,2.4,8);
     ctx.restore();
+    }
     if(b.y<-120){bullets.splice(i,1);continue}
     for(let j=obstacles.length-1;j>=0;j--){
       const o=obstacles[j];

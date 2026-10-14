@@ -1007,6 +1007,7 @@ const CREDITS={name:"Brayhan Rubio",phone:"3052076713",email:"brayan32455415@gma
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
 let combo=0,comboTimer=0,comboMult=1;
+let screenShake=0,hitSparks=[];
 let feverMode=0,feverAnnounced=false,lastSupplyDrop=0,supplyCrates=[];
 let damageFlash=0,introTimer=0;
 let lowPower=(function(){
@@ -1019,6 +1020,62 @@ let lowPower=(function(){
 let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
 let shipSkin=lsGet("techShipSkin","white");
+
+/* Galería de naves + fases Goku (carrusel con flechas) */
+const SHIP_GALLERY=[
+  {model:"classic",form:null,name:"Clásica",icon:"🚀"},
+  {model:"fighter",form:null,name:"Cazadora",icon:"✈️"},
+  {model:"interceptor",form:null,name:"Interceptor",icon:"🛸"},
+  {model:"heavy",form:null,name:"Pesada",icon:"🛡️"},
+  {model:"stealth",form:null,name:"Sigilo",icon:"🌑"},
+  {model:"wing",form:null,name:"Ala X",icon:"🦅"},
+  {model:"needle",form:null,name:"Aguja",icon:"📌"},
+  {model:"delta",form:null,name:"Delta",icon:"🔺"},
+  {model:"r13",form:null,name:"R13",icon:"🏎️"},
+  {model:"c67",form:null,name:"C67",icon:"🚢"},
+  {model:"rr1",form:null,name:"RR1",icon:"⚡"},
+  {model:"s1000",form:null,name:"S1000",icon:"💫"},
+  {model:"f50",form:null,name:"F50",icon:"🛩️"},
+  {model:"t200",form:null,name:"T200",icon:"🧱"},
+  {model:"s179",form:null,name:"S179",icon:"✅"},
+  {model:"goku",form:"normal",name:"Goku Base",icon:"🥋"},
+  {model:"goku",form:"ssj1",name:"Goku SSJ1",icon:"⚡"},
+  {model:"goku",form:"ssj2",name:"Goku SSJ2",icon:"⚡"},
+  {model:"goku",form:"ssj3",name:"Goku SSJ3",icon:"💥"},
+  {model:"goku",form:"ssj4",name:"Goku SSJ4",icon:"🔥"},
+  {model:"goku",form:"bru",name:"Goku Bru",icon:"💪"},
+  {model:"goku",form:"golden",name:"Goku Golden",icon:"✨"},
+  {model:"goku",form:"ultra",name:"Goku Ultra",icon:"🟣"},
+  {model:"goku",form:"superdios",name:"Goku S.Dios",icon:"👑"},
+  {model:"goku",form:"ssblue",name:"Goku SS Blue",icon:"🔵"}
+];
+function getShipGalleryIndex(){
+  for(let i=0;i<SHIP_GALLERY.length;i++){
+    const e=SHIP_GALLERY[i];
+    if(e.model!==shipModel)continue;
+    if(e.model==="goku"){
+      if(e.form===(gokuForm||"normal"))return i;
+    } else return i;
+  }
+  return 0;
+}
+function applyShipGalleryEntry(entry){
+  if(!entry)return;
+  shipModel=entry.model;
+  lsSet("techShipModelV2",shipModel);
+  if(entry.model==="goku"){
+    gokuForm=entry.form||"normal";
+    lsSet("techGokuForm",gokuForm);
+  }
+  try{updateGokuFormsUI()}catch(e){}
+}
+function shiftShipGallery(dir){
+  const n=SHIP_GALLERY.length;
+  let i=getShipGalleryIndex();
+  i=(i+dir+n)%n;
+  applyShipGalleryEntry(SHIP_GALLERY[i]);
+}
+
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|r13|c67|rr1|s1000|f50|t200|s179|goku
 let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios|ssblue
 let gokuUnlocked=true; /* Goku libre — sin PIN */
@@ -2184,43 +2241,23 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="7" class="${selectedWorld===7?"active":""}">7 Tóxico</button>
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
     </div>
-    <canvas id="shipPreview" width="240" height="150" style="width:100%;max-width:260px;height:150px;display:block;margin:10px auto;border-radius:14px;border:1px solid rgba(255,205,0,.35);background:#000;box-shadow:0 0 18px rgba(255,205,0,.12)"></canvas>
-    <h3>🚀 Modelo de nave</h3>
-    <div class="diff-btns">
-      <button type="button" data-model="classic" class="${shipModel==="classic"?"active":""}">Clásica</button>
-      <button type="button" data-model="fighter" class="${shipModel==="fighter"?"active":""}">Cazadora</button>
-      <button type="button" data-model="interceptor" class="${shipModel==="interceptor"?"active":""}">Interceptor</button>
-      <button type="button" data-model="heavy" class="${shipModel==="heavy"?"active":""}">Pesada</button>
-      <button type="button" data-model="stealth" class="${shipModel==="stealth"?"active":""}">Sigilo</button>
-      <button type="button" data-model="wing" class="${shipModel==="wing"?"active":""}">Ala X</button>
-      <button type="button" data-model="needle" class="${shipModel==="needle"?"active":""}">Aguja</button>
-      <button type="button" data-model="delta" class="${shipModel==="delta"?"active":""}">Delta</button>
-      <button type="button" data-model="r13" class="${shipModel==="r13"?"active":""}">R13</button>
-      <button type="button" data-model="c67" class="${shipModel==="c67"?"active":""}">C67</button>
-      <button type="button" data-model="rr1" class="${shipModel==="rr1"?"active":""}">RR1</button>
-      <button type="button" data-model="s1000" class="${shipModel==="s1000"?"active":""}">S1000</button>
-      <button type="button" data-model="f50" class="${shipModel==="f50"?"active":""}">F50</button>
-      <button type="button" data-model="t200" class="${shipModel==="t200"?"active":""}">T200</button>
-      <button type="button" data-model="s179" class="${shipModel==="s179"?"active":""}">S179 ✓</button>
-      <button type="button" data-model="goku" class="${shipModel==="goku"?"active":""}">⚡ Goku</button>
-    </div>
-    <div id="gokuFormMenu" style="display:${shipModel==="goku"?"block":"none"}">
-      <h3>⚡ Fase de Goku</h3>
-      <div class="diff-btns">
-        <button type="button" data-gform="normal" class="${gokuForm==="normal"?"active":""}">Normal</button>
-        <button type="button" data-gform="ssj1" class="${gokuForm==="ssj1"?"active":""}">SSJ1</button>
-        <button type="button" data-gform="ssj2" class="${gokuForm==="ssj2"?"active":""}">SSJ2</button>
-        <button type="button" data-gform="ssj3" class="${gokuForm==="ssj3"?"active":""}">SSJ3</button>
-        <button type="button" data-gform="ssj4" class="${gokuForm==="ssj4"?"active":""}">SSJ4</button>
-        <button type="button" data-gform="bru" class="${gokuForm==="bru"?"active":""}">Bru</button>
-        <button type="button" data-gform="golden" class="${gokuForm==="golden"?"active":""}">Golden Dios</button>
-        <button type="button" data-gform="ultra" class="${gokuForm==="ultra"?"active":""}">Ultra</button>
-        <button type="button" data-gform="superdios" class="${gokuForm==="superdios"?"active":""}">Super Dios</button>
-        <button type="button" data-gform="ssblue" class="${gokuForm==="ssblue"?"active":""}">SS Blue</button>
+        <h3>🚀 Seleccionar nave</h3>
+    <div id="shipCarousel" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 4px;user-select:none;-webkit-user-select:none">
+      <button type="button" id="shipPrev" aria-label="Anterior" style="flex:0 0 44px;height:44px;border-radius:12px;border:1px solid rgba(255,205,0,.5);background:rgba(0,20,50,.9);color:#FFCD00;font-size:22px;font-weight:800;cursor:pointer;line-height:1">◀</button>
+      <div style="flex:1;min-width:0;text-align:center">
+        <canvas id="shipPreview" width="240" height="150" style="width:100%;max-width:240px;height:150px;display:block;margin:0 auto;border-radius:14px;border:1px solid rgba(255,205,0,.4);background:#000;box-shadow:0 0 18px rgba(255,205,0,.15)"></canvas>
       </div>
-      <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
+      <button type="button" id="shipNext" aria-label="Siguiente" style="flex:0 0 44px;height:44px;border-radius:12px;border:1px solid rgba(255,205,0,.5);background:rgba(0,20,50,.9);color:#FFCD00;font-size:22px;font-weight:800;cursor:pointer;line-height:1">▶</button>
     </div>
-    <h3>✏️ Nombre de la nave</h3>
+    <div style="text-align:center;margin:6px 0 2px">
+      <div id="shipCarouselName" style="font-size:15px;font-weight:800;color:#FFCD00;letter-spacing:1px">${(SHIP_GALLERY[getShipGalleryIndex()]||{}).icon||"🚀"} ${(SHIP_GALLERY[getShipGalleryIndex()]||{}).name||shipModel}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:3px">${getShipGalleryIndex()+1} / ${SHIP_GALLERY.length}${shipModel==="goku"?" · fase Goku":""}</div>
+      <div style="display:flex;justify-content:center;gap:4px;margin-top:8px;flex-wrap:wrap">
+        ${SHIP_GALLERY.map((_,i)=>`<span data-gal="${i}" style="width:7px;height:7px;border-radius:50%;display:inline-block;cursor:pointer;background:${i===getShipGalleryIndex()?"#FFCD00":"rgba(255,255,255,.25)"}"></span>`).join("")}
+      </div>
+      <p style="font-size:9px;color:#888;margin:6px 0 4px">◀ ▶ o desliza · toca un punto para saltar</p>
+    </div>
+
     <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
       style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
     <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
@@ -2245,7 +2282,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     </div>
     <h3>Bonos por récord</h3>
     <p style="font-size:10px;line-height:1.45;color:#bbb">
-      🎯 👺 Récord: <b style="color:#FFCD00">${Number(lsGet("techRunRecordV4",0))||0}</b>
+      🎯 Récord: <b style="color:#FFCD00">${Number(lsGet("techRunRecordV4",0))||0}</b>
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
@@ -2261,15 +2298,30 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-skin]").forEach(b=>b.onclick=()=>{
       shipSkin=b.getAttribute("data-skin");lsSet("techShipSkin",shipSkin);renderStart();
     });
-    box.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>{
-      const m=b.getAttribute("data-model");
-      shipModel=m;lsSet("techShipModelV2",shipModel);renderStart();
-      updateGokuFormsUI();
+    const goPrev=()=>{shiftShipGallery(-1);renderStart()};
+    const goNext=()=>{shiftShipGallery(1);renderStart()};
+    const bp=box.querySelector("#shipPrev"), bn=box.querySelector("#shipNext");
+    if(bp)bp.onclick=e=>{e.preventDefault();goPrev()};
+    if(bn)bn.onclick=e=>{e.preventDefault();goNext()};
+    box.querySelectorAll("[data-gal]").forEach(d=>{
+      d.onclick=()=>{
+        const i=Number(d.getAttribute("data-gal"));
+        if(!isNaN(i)&&SHIP_GALLERY[i]){applyShipGalleryEntry(SHIP_GALLERY[i]);renderStart()}
+      };
     });
-    box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
-      gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);renderStart();
-      updateGokuFormsUI();
-    });
+    /* Swipe en el preview */
+    const car=box.querySelector("#shipCarousel");
+    if(car){
+      let sx=0,sy=0;
+      car.ontouchstart=e=>{if(e.touches[0]){sx=e.touches[0].clientX;sy=e.touches[0].clientY}};
+      car.ontouchend=e=>{
+        const t=e.changedTouches&&e.changedTouches[0];if(!t)return;
+        const dx=t.clientX-sx, dy=t.clientY-sy;
+        if(Math.abs(dx)<40||Math.abs(dx)<Math.abs(dy))return;
+        if(dx>0)goPrev(); else goNext();
+      };
+    }
+
     const sni=box.querySelector("#shipNameInput");
     if(sni){
       sni.onclick=e=>e.stopPropagation();
@@ -2946,8 +2998,29 @@ function enemyShoot(o){
   }
 }
 
+function triggerShake(amt){screenShake=Math.max(screenShake,amt||8)}
+function addHitSpark(x,y,col){
+  if(isMobile()&&lowPower)return;
+  const n=isMobile()?2:5;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3.5;
+    hitSparks.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:12+Math.random()*10,max:18,color:col||"255,200,50",size:1.5+Math.random()*2});
+  }
+}
+function updateHitSparks(){
+  for(let i=hitSparks.length-1;i>=0;i--){
+    const p=hitSparks[i];
+    p.x+=p.vx;p.y+=p.vy;p.vx*=0.94;p.vy*=0.94;p.life--;
+    const a=Math.max(0,p.life/(p.max||18));
+    ctx.fillStyle=`rgba(${p.color},${a})`;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.size*a,0,Math.PI*2);ctx.fill();
+    if(p.life<=0)hitSparks.splice(i,1);
+  }
+}
 function createExplosion(x,y,size,color){
   if(size>=8)playSfx("explode"); /* SONIDO EXPLOSIÓN METEORO/ENEMIGO */
+  if(size>=10)triggerShake(Math.min(14,4+size*0.15));
+  if(size>=6)addHitSpark(x,y,color||"255,180,40");
   if(explosions.length>(isMobile()?3:12))explosions.splice(0,isMobile()?2:6);
   const n=isMobile()?1:Math.min(3,2+Math.floor(size/10));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*2.5;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*2.5,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
@@ -3584,7 +3657,7 @@ function hitPlayer(x,y,opts){
     /* Láser/trampa: no mata de un golpe — se puede esquivar */
     if(laserGrace>0)return;
     laserGrace=50;
-    playSfx("hit");damageFlash=18;
+    playSfx("hit");damageFlash=18;try{triggerShake(11);addHitSpark(player.x,player.y,"255,50,30")}catch(e){};triggerShake(12);addHitSpark(player.x,player.y,"255,60,40");
     if(shield>0){shield=Math.max(0,shield-35);createExplosion(x,y,8,"0,200,255");return}
     /* sin escudo: solo avisa + escudo temporal corto */
     shield=Math.max(shield,70);
@@ -4094,6 +4167,17 @@ function drawShipPreview(){
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
+function drawSpeedLines(){
+  if(overdrive<=0&&feverMode<=0)return;
+  if(isMobile()&&lowPower)return;
+  const n=isMobile()?4:8;
+  ctx.strokeStyle=feverMode>0?"rgba(255,140,0,.25)":"rgba(100,200,255,.2)";
+  ctx.lineWidth=1.5;
+  for(let i=0;i<n;i++){
+    const x=(i*canvas.width/n+performance.now()/8)%canvas.width;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-6,canvas.height);ctx.stroke();
+  }
+}
 function drawPlayer(){
   /* Estela */
   if(!lowPower){
@@ -4895,6 +4979,12 @@ function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
 ctx.clearRect(0,0,canvas.width,canvas.height);
 try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high"}catch(e){}
+/* Efecto temblor de pantalla */
+if(screenShake>0){
+  const sx=(Math.random()-.5)*screenShake, sy=(Math.random()-.5)*screenShake;
+  ctx.save();ctx.translate(sx,sy);
+  screenShake*=0.82;if(screenShake<0.4)screenShake=0;
+} else { ctx.save(); }
 drawSpaceBG();
 /* mob-no-shadow: las GPUs móviles odian shadowBlur */
 if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColor="transparent"}catch(e){}}
@@ -5072,7 +5162,7 @@ if(phase==="meteors"&&gameRunning&&!gamePaused){
     if(Math.random()<0.55)spawnSupplyCrate();
   }
 }
-updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawPlayer();
+updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawSpeedLines();drawPlayer();
 try{updateEngineSound()}catch(e){}
 
 /* Vórtice: atrae enemigos */
@@ -5099,7 +5189,10 @@ if(ion>0){
   }
 }
 
-if(!(typeof mob==="function"?mob():isMobile()))updateParticles();drawWarning();drawHUD();
+if(!(typeof mob==="function"?mob():isMobile()))updateParticles();
+updateHitSparks();
+drawWarning();drawHUD();
+try{ctx.restore()}catch(e){}
 animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
@@ -5115,7 +5208,7 @@ if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
 updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
-combo=0;comboTimer=0;comboMult=1;feverMode=0;feverAnnounced=false;supplyCrates=[];lastSupplyDrop=performance.now();damageFlash=0;introTimer=120;
+combo=0;comboTimer=0;comboMult=1;feverMode=0;feverAnnounced=false;supplyCrates=[];lastSupplyDrop=performance.now();damageFlash=0;introTimer=120;screenShake=0;hitSparks=[];
 const rec=Number(lsGet("techRunRecordV4",0))||0;
 ammo=100+(rec>=30?20:0);lives=1+(rec>=60?1:0);updateLivesUI();
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);

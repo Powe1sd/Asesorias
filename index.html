@@ -1069,6 +1069,7 @@ function applyShipGalleryEntry(entry){
   if(entry.model==="goku"){
     gokuForm=entry.form||"normal";
     lsSet("techGokuForm",gokuForm);
+    try{if(SFX.gokuFase&&SFX.gokuFase.src){try{SFX.gokuFase.currentTime=0}catch(_){}playSfx("gokuFase")}}catch(e){}
   }
   try{updateGokuFormsUI()}catch(e){}
 }
@@ -1690,26 +1691,22 @@ function applyGokuFormPower(form){
     shield=Math.max(shield,160);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="🔴 SUPER SAIYAJIN";scenarioTransition=60;
-    playSfx("power");
   } else if(form==="ssj1"){
     rapidFire=Math.max(rapidFire,220);
     shield=Math.max(shield,100);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 1";scenarioTransition=60;
-    playSfx("power");
   } else if(form==="ssj2"){
     rapidFire=Math.max(rapidFire,320);
     shield=Math.max(shield,140);
     specialCharges=Math.min(9,specialCharges+1);
     scenarioMsg="⚡ SUPER SAIYAJIN 2";scenarioTransition=70;
-    playSfx("power");
   } else if(form==="ssj3"){
     rapidFire=Math.max(rapidFire,400);
     tripleShot=Math.max(tripleShot,280);
     shield=Math.max(shield,180);
     specialCharges=Math.min(9,specialCharges+2);
     scenarioMsg="💥 SUPER SAIYAJIN 3";scenarioTransition=80;
-    playSfx("power");
   } else if(form==="ssj4"){
     rapidFire=Math.max(rapidFire,450);
     pierce=Math.max(pierce,300);
@@ -1717,28 +1714,24 @@ function applyGokuFormPower(form){
     overdrive=Math.max(overdrive,200);
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="🔥 SUPER SAIYAJIN 4";scenarioTransition=90;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
   } else if(form==="bru"){
     rapidFire=Math.max(rapidFire,380);
     shield=Math.max(shield,200);
     pierce=Math.max(pierce,200);
     specialCharges=Math.min(9,specialCharges+2);
     scenarioMsg="💪 FASE BRU";scenarioTransition=75;
-    playSfx("power");
   } else if(form==="golden"){
     rapidFire=Math.max(rapidFire,480);
     tripleShot=Math.max(tripleShot,300);
     shield=Math.max(shield,280);
     specialCharges=Math.min(9,specialCharges+3);
     scenarioMsg="✨ GOLDEN DIOS";scenarioTransition=85;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
   } else if(form==="ultra"){
     rapidFire=Math.max(rapidFire,420);
     shield=Math.max(shield,300);
     barrier=Math.max(barrier,280);
     specialCharges=Math.min(9,specialCharges+2);
     scenarioMsg="🟣 FASE ULTRA";scenarioTransition=80;
-    playSfx("power");
   } else if(form==="superdios"){
     rapidFire=Math.max(rapidFire,500);
     pierce=Math.max(pierce,360);
@@ -1747,7 +1740,6 @@ function applyGokuFormPower(form){
     tripleShot=Math.max(tripleShot,320);
     specialCharges=Math.min(9,specialCharges+4);
     scenarioMsg="👑 SUPER DIOS";scenarioTransition=100;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
   } else if(form==="ssblue"){
     rapidFire=Math.max(rapidFire,520);
     pierce=Math.max(pierce,380);
@@ -1757,8 +1749,14 @@ function applyGokuFormPower(form){
     barrier=Math.max(barrier,300);
     specialCharges=Math.min(9,specialCharges+4);
     scenarioMsg="🔵 SUPER SAIYAJIN BLUE";scenarioTransition=100;
-    playSfx("nova");if(!SFX.nova)playSfx("power");
   }
+  /* Solo audio de fase — no mezclar con poder-goku (disparo) */
+  try{
+    if(SFX.gokuFase&&SFX.gokuFase.src){
+      try{SFX.gokuFase.currentTime=0}catch(_){}
+      playSfx("gokuFase");
+    }
+  }catch(e){}
   doVibrate(20);
 }
 function setGokuForm(form){
@@ -1808,7 +1806,8 @@ try {
   // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
   // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
   SFX.shoot = new Audio("audios/disparo.mp3");
-  SFX.ki = new Audio("audios/poder-goku.mp3"); /* disparo energía Goku */
+  SFX.ki = new Audio("audios/poder-goku.mp3"); /* disparo energía Goku (solo disparo) */
+  SFX.gokuFase = new Audio("audios/goku-fasee.mp3"); /* cambio de fase Goku */
   SFX.explode = new Audio("audios/explosion.mp3");
   SFX.power = new Audio("audios/poder.mp3");
   SFX.hit = new Audio("audios/dano.mp3");
@@ -2351,12 +2350,18 @@ if(startPanel&&!document.getElementById("startExtras")){
       const m=b.getAttribute("data-model");
       shipModel=m;lsSet("techShipModelV2",shipModel);
       if(m==="goku"&&!gokuForm)gokuForm="normal";
+      if(m==="goku"){
+        try{if(SFX.gokuFase&&SFX.gokuFase.src){try{SFX.gokuFase.currentTime=0}catch(_){}playSfx("gokuFase")}}catch(e){}
+      }
       renderStart();
       try{updateGokuFormsUI()}catch(e){}
     });
     box.querySelectorAll("[data-gform]").forEach(b=>b.onclick=()=>{
       gokuForm=b.getAttribute("data-gform");lsSet("techGokuForm",gokuForm);
       shipModel="goku";lsSet("techShipModelV2","goku");
+      try{
+        if(SFX.gokuFase&&SFX.gokuFase.src){try{SFX.gokuFase.currentTime=0}catch(_){}playSfx("gokuFase")}
+      }catch(e){}
       renderStart();
       try{updateGokuFormsUI()}catch(e){}
     });

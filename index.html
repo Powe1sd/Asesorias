@@ -820,6 +820,7 @@ input:focus,textarea:focus,select:focus{
 <div class="game-help"></div>
 <div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
   <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
+  <button type="button" class="goku-form-btn" data-form="ssj">SSJ</button>
   <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
   <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
   <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
@@ -850,6 +851,7 @@ input:focus,textarea:focus,select:focus{
   </div>
   <div class="goku-forms" id="gokuForms" aria-label="Fases de Goku">
     <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
+    <button type="button" class="goku-form-btn" data-form="ssj">SSJ</button>
     <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
     <button type="button" class="goku-form-btn" data-form="ssj2">SSJ2</button>
     <button type="button" class="goku-form-btn" data-form="ssj3">SSJ3</button>
@@ -1039,6 +1041,7 @@ const SHIP_GALLERY=[
   {model:"t200",form:null,name:"T200",icon:"🧱"},
   {model:"s179",form:null,name:"S179",icon:"✅"},
   {model:"goku",form:"normal",name:"Goku Base",icon:"🥋"},
+  {model:"goku",form:"ssj",name:"Goku SSJ",icon:"🔴"},
   {model:"goku",form:"ssj1",name:"Goku SSJ1",icon:"⚡"},
   {model:"goku",form:"ssj2",name:"Goku SSJ2",icon:"⚡"},
   {model:"goku",form:"ssj3",name:"Goku SSJ3",icon:"💥"},
@@ -1077,7 +1080,7 @@ function shiftShipGallery(dir){
 }
 
 let shipModel=lsGet("techShipModelV2","classic"); // classic|fighter|interceptor|heavy|stealth|wing|needle|delta|r13|c67|rr1|s1000|f50|t200|s179|goku
-let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios|ssblue
+let gokuForm=lsGet("techGokuForm","normal"); // normal|ssj|ssj1|ssj2|ssj3|ssj4|bru|golden|ultra|superdios|ssblue
 let gokuUnlocked=true; /* Goku libre — sin PIN */
 lsSet("techGokuUnlocked","1");
 function tryUnlockGoku(code){
@@ -1491,7 +1494,7 @@ function addScoreCombo(pts){
     if(feverMode<=0){
       feverMode=360;
       feverAnnounced=true;
-      scenarioMsg="🔥 FIEBRE DE COMBO x"+combo;scenarioTransition=90;
+      scenarioMsg="";scenarioTransition=0;
       try{playSfx("overdrive")}catch(e){try{playSfx("nova")}catch(_){}}
       try{doVibrate(30)}catch(e){}
       rapidFire=Math.max(rapidFire,180);
@@ -1682,6 +1685,12 @@ function applyGokuFormPower(form){
   if(form==="normal"){
     shield=Math.max(shield,80);
     scenarioMsg="🥋 Goku Base";scenarioTransition=50;
+  } else if(form==="ssj"){
+    rapidFire=Math.max(rapidFire,300);
+    shield=Math.max(shield,160);
+    specialCharges=Math.min(9,specialCharges+1);
+    scenarioMsg="🔴 SUPER SAIYAJIN";scenarioTransition=60;
+    playSfx("power");
   } else if(form==="ssj1"){
     rapidFire=Math.max(rapidFire,220);
     shield=Math.max(shield,100);
@@ -1753,7 +1762,7 @@ function applyGokuFormPower(form){
   doVibrate(20);
 }
 function setGokuForm(form){
-  if(!["normal","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
+  if(!["normal","ssj","ssj1","ssj2","ssj3","ssj4","bru","golden","ultra","superdios","ssblue"].includes(form))return;
   gokuForm=form;
   lsSet("techGokuForm",form);
   updateGokuFormsUI();
@@ -2646,6 +2655,7 @@ if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.pre
 if((e.key==="k"||e.key==="K")&&gameRunning&&!gamePaused){useKiAttack();e.preventDefault()}
 if(shipModel==="goku"&&gameRunning&&!gamePaused){
   if(e.key==="1"){setGokuForm("normal");e.preventDefault()}
+  if(e.key==="0"){setGokuForm("ssj");e.preventDefault()}
   if(e.key==="2"){setGokuForm("ssj1");e.preventDefault()}
   if(e.key==="3"){setGokuForm("ssj2");e.preventDefault()}
   if(e.key==="4"){setGokuForm("ssj3");e.preventDefault()}
@@ -3776,6 +3786,8 @@ function drawShipModel(g,s,model,skin,label){
     let auraCol, hairCol, hairStroke, auraAlpha, eyeCol;
     if(form==="ssj4"){
       auraCol="#FF2200"; hairCol="#1a0a05"; hairStroke="#4a2010"; auraAlpha=0.35; eyeCol="#111";
+    } else if(form==="ssj"){
+      auraCol="#FF2244"; hairCol="#E01020"; hairStroke="#8B0000"; auraAlpha=0.35; eyeCol="#111";
     } else if(form==="ssj3"){
       auraCol="#FFE066"; hairCol="#FFD700"; hairStroke="#E6A800"; auraAlpha=0.32; eyeCol="#111";
     } else if(form==="ssj2"){
@@ -3800,6 +3812,7 @@ function drawShipModel(g,s,model,skin,label){
     // Aura de fondo
     g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?8:18;
     if(form==="ssj4") g.fillStyle="rgba(255,40,0,.32)";
+    else if(form==="ssj") g.fillStyle="rgba(255,30,50,.34)";
     else if(form==="ssj3") g.fillStyle="rgba(255,220,50,.30)";
     else if(form==="ssj2") g.fillStyle="rgba(255,230,80,.26)";
     else if(form==="ssj1") g.fillStyle="rgba(255,215,0,.22)";
@@ -3835,7 +3848,7 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.38,-s*.45);g.lineTo(-s*.5,-s*.8);
       g.lineTo(-s*.28,-s*.7);g.lineTo(-s*.35,-s*1.05);g.lineTo(-s*.22,-s*.85);
       g.closePath();g.fill();g.stroke();
-    } else if(form==="ssj1"){
+    } else if(form==="ssj"||form==="ssj1"){
       g.beginPath();
       g.moveTo(0,-s*1.55);
       g.lineTo(s*.16,-s*1.05);g.lineTo(s*.35,-s*1.35);g.lineTo(s*.26,-s*.88);
@@ -3848,8 +3861,12 @@ function drawShipModel(g,s,model,skin,label){
       g.lineTo(-s*.4,-s*.62);g.lineTo(-s*.55,-s*1.1);
       g.lineTo(-s*.26,-s*.88);g.lineTo(-s*.35,-s*1.35);g.lineTo(-s*.16,-s*1.05);
       g.closePath();g.fill();g.stroke();
-      g.fillStyle="#FFE44D";
+      g.fillStyle=form==="ssj"?"#FF6688":"#FFE44D";
       g.beginPath();g.moveTo(0,-s*1.6);g.lineTo(s*.1,-s*1.15);g.lineTo(-s*.1,-s*1.15);g.closePath();g.fill();
+      if(form==="ssj"){
+        g.strokeStyle="rgba(255,60,80,.75)";g.lineWidth=1.2;
+        for(let k=0;k<4;k++){const a=-1.2+k*0.7;g.beginPath();g.moveTo(Math.cos(a)*s*.55,Math.sin(a)*s*.85-s*.2);g.lineTo(Math.cos(a)*s*1.05,Math.sin(a)*s*1.25-s*.3);g.stroke()}
+      }
     } else if(form==="ssj2"){
       g.beginPath();
       g.moveTo(0,-s*1.75);
@@ -4070,7 +4087,7 @@ function drawShipModel(g,s,model,skin,label){
     const fl=7+Math.random()*6;
     g.shadowColor=auraCol;g.shadowBlur=(typeof isMobile==='function'&&isMobile())?4:12;
     const thr=g.createLinearGradient(0,s*.9,0,s*.9+fl);
-    if(form==="ssj4"||form==="bru"){
+    if(form==="ssj"||form==="ssj4"||form==="bru"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.25,"#FF6644");thr.addColorStop(.6,"#FF2200");thr.addColorStop(1,"rgba(180,0,0,0)");
     } else if(form==="ultra"){
       thr.addColorStop(0,"#fff");thr.addColorStop(.3,"#CCAAFF");thr.addColorStop(.7,"#6633AA");thr.addColorStop(1,"rgba(40,0,80,0)");
@@ -4088,7 +4105,7 @@ function drawShipModel(g,s,model,skin,label){
     g.shadowBlur=0;
 
     // Etiqueta fase
-    const formLabel = {normal:"BASE",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"BRU",golden:"GOLDEN",ultra:"ULTRA",superdios:"S.DIOS",ssblue:"SS BLUE"}[form]||"";
+    const formLabel = {normal:"BASE",ssj:"SSJ",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"BRU",golden:"GOLDEN",ultra:"ULTRA",superdios:"S.DIOS",ssblue:"SS BLUE"}[form]||"";
     if(label || formLabel){
       const nm=String(label||"").slice(0,8);
       const fs=Math.max(7, Math.min(s*0.4, s*0.85/Math.max(2,(nm.length||4)*0.35)));
@@ -4163,15 +4180,15 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",r13:"R13",c67:"C67",rr1:"RR1",s1000:"S1000",f50:"F50",t200:"T200",s179:"S179",goku:"Goku "+({normal:"Base",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios",ssblue:"SS Blue"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",r13:"R13",c67:"C67",rr1:"RR1",s1000:"S1000",f50:"F50",t200:"T200",s179:"S179",goku:"Goku "+({normal:"Base",ssj:"SSJ",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios",ssblue:"SS Blue"}[gokuForm]||"")};
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
 function drawSpeedLines(){
-  if(overdrive<=0&&feverMode<=0)return;
+  if(overdrive<=0)return;
   if(isMobile()&&lowPower)return;
   const n=isMobile()?4:8;
-  ctx.strokeStyle=feverMode>0?"rgba(255,140,0,.25)":"rgba(100,200,255,.2)";
+  ctx.strokeStyle="rgba(100,200,255,.2)";
   ctx.lineWidth=1.5;
   for(let i=0;i<n;i++){
     const x=(i*canvas.width/n+performance.now()/8)%canvas.width;
@@ -4731,13 +4748,8 @@ ctx.fillStyle="#FFCD00";
 ctx.fillText("🚀 "+nm,canvas.width/2,P(mob?12:11));
 if(combo>1){
   ctx.font="bold "+P(mob?9:10)+"px Orbitron";
-  ctx.fillStyle=feverMode>0?"#FF6600":"#FFCD00";
-  ctx.fillText((feverMode>0?"🔥 ":"")+"x"+combo,canvas.width/2,P(mob?22:20));
-}
-if(feverMode>0){
-  ctx.font="bold "+P(mob?8:9)+"px Orbitron";
-  ctx.fillStyle="#FFAA00";
-  ctx.fillText("FIEBRE "+Math.ceil(feverMode/60)+"s · x1.5",canvas.width/2,P(mob?32:30));
+  ctx.fillStyle="#FFCD00";
+  ctx.fillText("x"+combo,canvas.width/2,P(mob?22:20));
 }
 if(bounceShield>0){
   ctx.textAlign="right";ctx.font="bold "+P(8)+"px Orbitron";ctx.fillStyle="#AAFFFF";
@@ -4989,15 +5001,7 @@ drawSpaceBG();
 /* mob-no-shadow: las GPUs móviles odian shadowBlur */
 if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColor="transparent"}catch(e){}}
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
-if(feverMode>0){
-  const pulse=0.08+0.06*Math.sin(performance.now()/120);
-  const g=ctx.createRadialGradient(canvas.width/2,canvas.height/2,canvas.width*0.15,canvas.width/2,canvas.height/2,canvas.width*0.75);
-  g.addColorStop(0,"rgba(255,180,0,0)");
-  g.addColorStop(1,`rgba(255,120,0,${pulse})`);
-  ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle=`rgba(255,205,0,${0.25+pulse})`;ctx.lineWidth=3;
-  ctx.strokeRect(4,4,canvas.width-8,canvas.height-8);
-}
+/* fiebre: sin barras laterales (evita mareo) */
 if(introTimer>0){
   const a=Math.min(1,introTimer/40);
   ctx.fillStyle=`rgba(0,0,0,${0.35*a})`;ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -5011,7 +5015,7 @@ if(shield>0)shield--;if(bounceShield>0)bounceShield--;if(vortex>0)vortex--;if(io
 if(comboTimer>0){comboTimer--}else{combo=0;comboMult=1}
 if(feverMode>0){
   feverMode--;
-  if(feverMode<=0){feverAnnounced=false;scenarioMsg="Fiebre terminada";scenarioTransition=50}
+  if(feverMode<=0){feverAnnounced=false}
 }
 if(damageFlash>0)damageFlash--;
 if(introTimer>0)introTimer--;

@@ -2660,11 +2660,16 @@ function createEnemy(etype,role){
   let size,hp,spd;
   if(etype==="hunter"){size=(11+Math.random()*5)*sc;hp=2;spd=1.8}
   else if(etype==="sniper"){size=(12+Math.random()*4)*sc;hp=2;spd=1.1}
-  else if(etype==="turret"){size=(14+Math.random()*4)*sc;hp=4;spd=0}
+  else if(etype==="turret"){size=(16+Math.random()*4)*sc;hp=5;spd=0}
   else if(etype==="kamikaze"){size=(9+Math.random()*5)*sc;hp=1;spd=2.0}
   else if(etype==="swarm"){size=(7+Math.random()*3)*sc;hp=1;spd=1.8}
   else if(etype==="thief"){size=(11+Math.random()*4)*sc;hp=2;spd=1.7}
   else if(etype==="teleport"){size=(12+Math.random()*4)*sc;hp=3;spd=1.4}
+  else if(etype==="drone"){size=(7+Math.random()*3)*sc;hp=1;spd=2.2}
+  else if(etype==="bomber"){size=(13+Math.random()*5)*sc;hp=3;spd=1.2}
+  else if(etype==="armored"){size=(15+Math.random()*5)*sc;hp=7;spd=0.9}
+  else if(etype==="strafer"){size=(11+Math.random()*4)*sc;hp=2;spd=2.0}
+  else if(etype==="missile_ship"){size=(12+Math.random()*4)*sc;hp=3;spd=1.3}
   else if(etype==="creature"||etype==="alien"){size=(16+Math.random()*6)*sc;hp=5;spd=1.3}
   else if(etype==="alien_small"){size=(9+Math.random()*4)*sc;hp=2;spd=2.0}
   else if(etype==="alien_flyer"){size=(12+Math.random()*5)*sc;hp=3;spd=1.7}
@@ -2672,14 +2677,14 @@ function createEnemy(etype,role){
   else if(etype==="alien_eye"){size=(14+Math.random()*5)*sc;hp=4;spd=1.4}
   else if(etype==="bigship"){size=(14+Math.random()*8)*sc;hp=4+Math.floor(level/2);spd=1.3}
   else{size=(10+Math.random()*6)*sc;hp=2+Math.floor(level/3);spd=1.5}
-  const topY=18+Math.random()*48;
+  const topY=etype==="turret"?(12+Math.random()*28):(18+Math.random()*48);
   obstacles.push({
     x:20+Math.random()*(canvas.width-size-40),y:-size-20,size,speed:spd*getProgressSpeed()*getSpeedScale(),
     rotation:0,rotationSpeed:0,points:[],type:etype,hp,maxHp:hp,
     shootTimer:8+Math.random()*20,zigzag:Math.random()*Math.PI*2,
     zigzagDir:Math.random()>.5?1:-1,baseY:topY,arriving:true,
     aimLine:0,teleTimer:120+Math.random()*80,swarmId:0,regroup:0,
-    role:"top"
+    role:"top", orbitAng:Math.random()*Math.PI*2, dropTimer:40+Math.random()*40
   });
 }
 
@@ -2721,11 +2726,12 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
   const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
-  let poolTop=["hunter","hunter","ship","sniper","kamikaze","ship","hunter","bigship"];
-  if(waveCount>=1)poolTop.push("ship","hunter","sniper");
-  if(waveCount>=2)poolTop.push("teleport","bigship");
-  if(waveCount>=3||scenario>=3)poolTop.push("bigship","hunter","kamikaze");
-  if(scenario>=3)poolTop.push("sniper","teleport","bigship");
+  let poolTop=["hunter","hunter","ship","sniper","kamikaze","ship","hunter","drone","drone"];
+  if(waveCount>=1)poolTop.push("ship","hunter","sniper","drone","strafer");
+  if(waveCount>=2)poolTop.push("teleport","bigship","turret","bomber");
+  if(waveCount>=3||scenario>=3)poolTop.push("bigship","hunter","kamikaze","armored","missile_ship");
+  if(scenario>=3)poolTop.push("sniper","teleport","bigship","turret","strafer");
+  if(waveCount>=4)poolTop.push("bomber","armored","missile_ship","drone");
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
     createEnemy(poolTop[Math.floor(Math.random()*poolTop.length)],"top");
@@ -2737,12 +2743,29 @@ function spawnShipWave(){
       scenarioMsg="⚠ NAVE PESADA ENTRÓ";scenarioTransition=80;
     },nTop*650+400);
   }
-  /* Oleada extra de alienígenas cada 4 oleadas */
+  /* Oleada de drones cada 2 oleadas */
+  if(waveCount>0&&waveCount%2===0){
+    setTimeout(()=>{
+      if(!gameRunning||gamePaused||phase!=="ships")return;
+      for(let k=0;k<(isMobile()?2:4);k++)createEnemy("drone","top");
+      scenarioMsg="🛸 ENJAMBRE DE DRONES";scenarioTransition=70;
+    },nTop*650+200);
+  }
+  /* Torreta fija cada 5 oleadas */
+  if(waveCount>0&&waveCount%5===0){
+    setTimeout(()=>{
+      if(!gameRunning||gamePaused||phase!=="ships")return;
+      createEnemy("turret","top");
+      createEnemy("turret","top");
+      scenarioMsg="🔫 TORRETAS DESPLEGADAS";scenarioTransition=80;
+    },nTop*650+500);
+  }
+  /* Oleada extra cada 4 oleadas */
   if(waveCount>0&&waveCount%4===0){
     setTimeout(()=>{
       if(!gameRunning||gamePaused||phase!=="ships")return;
-      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(["hunter","ship","sniper","bigship"][Math.floor(Math.random()*4)],"top");
-      scenarioMsg="👽 INVASIÓN ALIEN";scenarioTransition=90;
+      for(let k=0;k<(isMobile()?2:3);k++)createEnemy(["hunter","bomber","strafer","armored","missile_ship"][Math.floor(Math.random()*5)],"top");
+      scenarioMsg="⚠ REFUERZOS ENEMIGOS";scenarioTransition=90;
     },nTop*650+900);
   }
 }
@@ -2871,10 +2894,27 @@ function enemyShoot(o){
   } else if(o.type==="bigship"){
     enemyBullets.push({x:cx-7,y:cy,vx:vx-.25,vy:vy,size:3.2*s});
     enemyBullets.push({x:cx+7,y:cy,vx:vx+.25,vy:vy,size:3.2*s});
+  } else if(o.type==="turret"){
+    /* ráfaga de 3 hacia el jugador */
+    for(let i=-1;i<=1;i++)enemyBullets.push({x:cx,y:cy,vx:vx+i*.4,vy:vy,size:3.0*s});
+  } else if(o.type==="drone"){
+    enemyBullets.push({x:cx,y:cy,vx:vx*.9,vy:vy*.9,size:2.2*s});
+  } else if(o.type==="bomber"){
+    /* bombas hacia abajo + un poco de aim */
+    enemyBullets.push({x:cx,y:cy,vx:vx*.35,vy:Math.max(vy,3.2*getSpeedScale()),size:4.2*s});
+    enemyBullets.push({x:cx-8,y:cy,vx:vx*.2-0.4,vy:Math.max(vy,2.8*getSpeedScale()),size:3.4*s});
+    enemyBullets.push({x:cx+8,y:cy,vx:vx*.2+0.4,vy:Math.max(vy,2.8*getSpeedScale()),size:3.4*s});
+  } else if(o.type==="armored"){
+    enemyBullets.push({x:cx-6,y:cy,vx:vx-.15,vy:vy,size:3.5*s});
+    enemyBullets.push({x:cx+6,y:cy,vx:vx+.15,vy:vy,size:3.5*s});
+  } else if(o.type==="strafer"){
+    for(let i=-1;i<=1;i++)enemyBullets.push({x:cx,y:cy,vx:vx+i*.7,vy:vy*.95,size:2.8*s});
+  } else if(o.type==="missile_ship"){
+    /* proyectil lento más grande (tipo misil) */
+    enemyBullets.push({x:cx,y:cy,vx:vx*0.75,vy:vy*0.75,size:4.5*s,aim:true});
   } else if(o.type==="swarm"||o.type==="alien_small"){
     enemyBullets.push({x:cx,y:cy,vx:vx*.85,vy:vy*.85,size:2.4*s});
   } else if(o.type==="alien"||o.type==="creature"||o.type==="alien_flyer"){
-    /* plasma verde */
     enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.4*s,alien:true});
   } else if(o.type==="alien_eye"){
     enemyBullets.push({x:cx,y:cy,vx:vx*1.1,vy:vy*1.1,size:3.8*s,alien:true});
@@ -2882,7 +2922,6 @@ function enemyShoot(o){
     enemyBullets.push({x:cx-6,y:cy,vx:vx-.2,vy:vy,size:3.6*s,alien:true});
     enemyBullets.push({x:cx+6,y:cy,vx:vx+.2,vy:vy,size:3.6*s,alien:true});
   } else {
-    /* ship, hunter, kamikaze, teleport, etc. */
     enemyBullets.push({x:cx,y:cy,vx:vx,vy:vy,size:3.1*s});
   }
 }
@@ -2932,7 +2971,7 @@ function destroyEnemy(o,i){
         obstacles.push({x:cx,y:cy,size:sz,speed:(1.5+Math.random()*1.8)*getSpeedScale(),vx:Math.cos(a)*1.5,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false});
     }
   } else {
-    const colors={meteor:"255,60,30",explosive:"255,120,20",magnetic:"80,180,255",hunter:"0,220,255",sniper:"255,200,50",turret:"AA8844",kamikaze:"FF3333",swarm:"88FF88",thief:"FF66AA",teleport:"CC66FF",creature:"66FFAA",ship:"00BFFF",bigship:"2ECC71",boss_meteor:"FF8844",boss_mothership:"222222",boss_tentacle:"AA44FF",boss_bh:"220044"};
+    const colors={meteor:"255,60,30",explosive:"255,120,20",magnetic:"80,180,255",hunter:"0,220,255",sniper:"255,200,50",turret:"AA8844",kamikaze:"FF3333",swarm:"88FF88",thief:"FF66AA",teleport:"CC66FF",drone:"66DDFF",bomber:"FF8844",armored:"AABBCC",strafer:"FFAA00",missile_ship:"FF6622",creature:"66FFAA",ship:"00BFFF",bigship:"2ECC71",boss_meteor:"FF8844",boss_mothership:"222222",boss_tentacle:"AA44FF",boss_bh:"220044"};
     createExplosion(cx,cy,o.size*(String(o.type).startsWith("boss")?1.4:1),colors[o.type]||"255,100,50");
   }
   maybeSpawnPickup(cx,cy);
@@ -2960,7 +2999,7 @@ function destroyEnemy(o,i){
     shipsDestroyed++;
     addKi(String(o.type).startsWith("boss")?25:6);
   }
-  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:4,kamikaze:3,swarm:1,thief:5,teleport:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
+  const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:6,kamikaze:3,swarm:1,thief:5,teleport:6,drone:2,bomber:5,armored:7,strafer:4,missile_ship:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
   addScoreCombo(pts[o.type]||2);
   const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)||String(o.type).startsWith("boss_alien");
   progressDaily("kill",1);
@@ -4196,26 +4235,71 @@ const barW=s*1.6;ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(-barW/2,-s-18,barW,
     let c0,c1,wing,glow;
     if(o.type==="hunter"){c0="#0a0a0a";c1="#2a2a2a";wing="#111";glow="#CE1126"}
     else if(o.type==="sniper"){c0="#0d0d0d";c1="#333";wing="#1a1a1a";glow="#FF4444"}
-    else if(o.type==="turret"){c0="#111";c1="#3a3a3a";wing="#222";glow="#888"}
+    else if(o.type==="turret"){c0="#111";c1="#3a3a3a";wing="#222";glow="#FFAA44"}
     else if(o.type==="kamikaze"){c0="#1a0505";c1="#3a1010";wing="#220808";glow="#FF2222"}
     else if(o.type==="swarm"){c0="#0a0a0a";c1="#252525";wing="#151515";glow="#FF6644"}
     else if(o.type==="thief"){c0="#0c0c0c";c1="#2c2c2c";wing="#181818";glow="#FF6688"}
     else if(o.type==="teleport"){c0="#0a0a12";c1="#1a1a28";wing="#12121a";glow="#AA66FF"}
+    else if(o.type==="drone"){c0="#0a1520";c1="#1a3040";wing="#0e2030";glow="#66DDFF"}
+    else if(o.type==="bomber"){c0="#1a0a00";c1="#3a2010";wing="#221508";glow="#FF8844"}
+    else if(o.type==="armored"){c0="#1a1a1a";c1="#555";wing="#2a2a2a";glow="#AABBCC"}
+    else if(o.type==="strafer"){c0="#1a1000";c1="#3a2800";wing="#221800";glow="#FFAA00"}
+    else if(o.type==="missile_ship"){c0="#150505";c1="#3a1515";wing="#200808";glow="#FF6622"}
     else if(o.type==="bigship"){c0="#050505";c1="#222";wing="#0e0e0e";glow="#CE1126"}
     else{c0="#0a0a0a";c1="#2a2a2a";wing="#151515";glow="#CE1126"}
     ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,s*.95,s*.55,s*.12,0,0,Math.PI*2);ctx.fill();
     const bodyG=ctx.createLinearGradient(-s*.6,0,s*.6,0);bodyG.addColorStop(0,c0);bodyG.addColorStop(.5,c1);bodyG.addColorStop(1,c0);
     ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?0:10;
-    ctx.beginPath();ctx.moveTo(0,s*.85);ctx.lineTo(s*.5,-s*.15);ctx.lineTo(s*.28,-s*.7);ctx.lineTo(-s*.28,-s*.7);ctx.lineTo(-s*.5,-s*.15);ctx.closePath();
-    ctx.fillStyle=bodyG;ctx.fill();
-    ctx.strokeStyle="rgba(206,17,38,.55)";ctx.lineWidth=1.2;ctx.stroke();
-    ctx.fillStyle=wing;
-    ctx.beginPath();ctx.moveTo(-s*.28,-s*.05);ctx.lineTo(-s*1.05,-s*.55);ctx.lineTo(-s*.35,-s*.7);ctx.closePath();ctx.fill();
-    ctx.strokeStyle="rgba(255,205,0,.25)";ctx.lineWidth=1;ctx.stroke();
-    /* cabina elegante */
-    ctx.fillStyle="#CE1126";ctx.beginPath();ctx.ellipse(0,-s*.35,s*.12,s*.18,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle="rgba(255,220,180,.5)";ctx.beginPath();ctx.arc(0,-s*.38,s*.04,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.moveTo(s*.28,-s*.05);ctx.lineTo(s*1.05,-s*.55);ctx.lineTo(s*.35,-s*.7);ctx.closePath();ctx.fill();
+    if(o.type==="drone"){
+      /* hexágono / mini drone */
+      ctx.beginPath();
+      for(let k=0;k<6;k++){const a=-Math.PI/2+k*Math.PI/3;const px=Math.cos(a)*s*.55,py=Math.sin(a)*s*.55;k?ctx.lineTo(px,py):ctx.moveTo(px,py)}
+      ctx.closePath();ctx.fillStyle=bodyG;ctx.fill();ctx.strokeStyle="rgba(100,220,255,.7)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle="#66DDFF";ctx.beginPath();ctx.arc(0,0,s*.18,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle="rgba(100,220,255,.4)";ctx.beginPath();ctx.arc(0,0,s*.75,0,Math.PI*2);ctx.stroke();
+    } else if(o.type==="turret"){
+      /* base + cañón */
+      ctx.fillStyle=bodyG;
+      ctx.beginPath();ctx.rect(-s*.55,-s*.25,s*1.1,s*.7);ctx.fill();
+      ctx.strokeStyle="rgba(255,170,60,.6)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle="#222";ctx.beginPath();ctx.arc(0,s*.1,s*.35,0,Math.PI*2);ctx.fill();
+      const ang=Math.atan2(player.y-(o.y+o.size/2),player.x-(o.x+o.size/2));
+      ctx.save();ctx.rotate(ang);
+      ctx.fillStyle="#FFAA44";ctx.fillRect(0,-s*.1,s*.9,s*.2);
+      ctx.fillStyle="#fff";ctx.fillRect(s*.7,-s*.06,s*.2,s*.12);
+      ctx.restore();
+      ctx.fillStyle="#CE1126";ctx.beginPath();ctx.arc(0,s*.1,s*.12,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="bomber"){
+      ctx.beginPath();ctx.moveTo(0,-s*.55);ctx.lineTo(s*.55,s*.1);ctx.lineTo(s*.4,s*.7);ctx.lineTo(0,s*.5);ctx.lineTo(-s*.4,s*.7);ctx.lineTo(-s*.55,s*.1);ctx.closePath();
+      ctx.fillStyle=bodyG;ctx.fill();ctx.strokeStyle="rgba(255,140,40,.65)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle="#FF8844";ctx.fillRect(-s*.15,s*.15,s*.3,s*.35);
+      ctx.fillStyle="#CE1126";ctx.beginPath();ctx.ellipse(0,-s*.15,s*.14,s*.18,0,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="armored"){
+      ctx.beginPath();ctx.moveTo(0,-s*.6);ctx.lineTo(s*.55,-s*.1);ctx.lineTo(s*.6,s*.55);ctx.lineTo(s*.2,s*.8);ctx.lineTo(-s*.2,s*.8);ctx.lineTo(-s*.6,s*.55);ctx.lineTo(-s*.55,-s*.1);ctx.closePath();
+      ctx.fillStyle=bodyG;ctx.fill();ctx.strokeStyle="rgba(180,200,220,.7)";ctx.lineWidth=2;ctx.stroke();
+      ctx.strokeStyle="rgba(255,255,255,.25)";ctx.strokeRect(-s*.25,-s*.2,s*.5,s*.45);
+      ctx.fillStyle="#8899AA";ctx.beginPath();ctx.ellipse(0,-s*.25,s*.12,s*.16,0,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="strafer"){
+      ctx.beginPath();ctx.moveTo(0,-s*.5);ctx.lineTo(s*.3,-s*.1);ctx.lineTo(s*1.15,s*.25);ctx.lineTo(s*.35,s*.35);ctx.lineTo(0,s*.65);
+      ctx.lineTo(-s*.35,s*.35);ctx.lineTo(-s*1.15,s*.25);ctx.lineTo(-s*.3,-s*.1);ctx.closePath();
+      ctx.fillStyle=bodyG;ctx.fill();ctx.strokeStyle="rgba(255,180,0,.6)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle="#FFAA00";ctx.beginPath();ctx.ellipse(0,-s*.15,s*.1,s*.14,0,0,Math.PI*2);ctx.fill();
+    } else if(o.type==="missile_ship"){
+      ctx.beginPath();ctx.moveTo(0,-s*.85);ctx.lineTo(s*.22,-s*.1);ctx.lineTo(s*.35,s*.55);ctx.lineTo(0,s*.35);ctx.lineTo(-s*.35,s*.55);ctx.lineTo(-s*.22,-s*.1);ctx.closePath();
+      ctx.fillStyle=bodyG;ctx.fill();ctx.strokeStyle="rgba(255,100,40,.7)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle="#FF6622";ctx.fillRect(-s*.08,-s*.3,s*.16,s*.5);
+      ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,-s*.55,s*.08,0,Math.PI*2);ctx.fill();
+    } else {
+      ctx.beginPath();ctx.moveTo(0,s*.85);ctx.lineTo(s*.5,-s*.15);ctx.lineTo(s*.28,-s*.7);ctx.lineTo(-s*.28,-s*.7);ctx.lineTo(-s*.5,-s*.15);ctx.closePath();
+      ctx.fillStyle=bodyG;ctx.fill();
+      ctx.strokeStyle="rgba(206,17,38,.55)";ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle=wing;
+      ctx.beginPath();ctx.moveTo(-s*.28,-s*.05);ctx.lineTo(-s*1.05,-s*.55);ctx.lineTo(-s*.35,-s*.7);ctx.closePath();ctx.fill();
+      ctx.strokeStyle="rgba(255,205,0,.25)";ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle="#CE1126";ctx.beginPath();ctx.ellipse(0,-s*.35,s*.12,s*.18,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle="rgba(255,220,180,.5)";ctx.beginPath();ctx.arc(0,-s*.38,s*.04,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(s*.28,-s*.05);ctx.lineTo(s*1.05,-s*.55);ctx.lineTo(s*.35,-s*.7);ctx.closePath();ctx.fill();
+    }
     if(o.type==="sniper"&&o.aimLine>0){
       ctx.strokeStyle=`rgba(255,200,0,${.3+Math.sin(performance.now()/50)*.2})`;ctx.lineWidth=1;ctx.setLineDash([4,4]);
       ctx.beginPath();ctx.moveTo(0,s*.5);ctx.lineTo(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2));ctx.stroke();ctx.setLineDash([]);
@@ -4799,7 +4883,7 @@ for(let i=obstacles.length-1;i>=0;i--){
       o.x+=Math.sin(o.zigzag)*2.8*slow;
       if(o.x<5){o.x=5;o.zigzagDir=1}if(o.x+o.size>canvas.width-5){o.x=canvas.width-o.size-5;o.zigzagDir=-1}
       o.y=o.baseY+Math.sin(o.zigzag*.6)*14;
-      if(o.type==="boss_mothership"||String(o.type).startsWith("boss_alien")){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=String(o.type).startsWith("boss_alien")?70:100;if(obstacles.length<18)createEnemy(Math.random()>.5?"alien_small":"alien_flyer")}}
+      if(o.type==="boss_mothership"||String(o.type).startsWith("boss_alien")){o.spawnTimer=(o.spawnTimer||90)-slow;if(o.spawnTimer<=0){o.spawnTimer=String(o.type).startsWith("boss_alien")?70:100;if(obstacles.length<18)createEnemy(Math.random()>.5?"drone":"hunter")}}
       if(o.type==="boss_meteor"&&Math.random()<.01){const sz=o.size*.25;obstacles.push({x:o.x+o.size/2,y:o.y+o.size,size:sz,speed:2*getSpeedScale(),vx:(Math.random()-.5)*3,rotation:0,rotationSpeed:.1,points:generateMeteorPoints(sz),type:"meteor",hp:1,maxHp:1,shootTimer:0,zigzag:0,zigzagDir:1,baseY:0,arriving:false})}
       if(o.type==="boss_bh"){const bx=o.x+o.size/2,by=o.y+o.size/2,br=o.size*1.8;const pd=Math.hypot(player.x-bx,player.y-by);if(invisible<=0&&pd<br&&pd>1){const ps=(1-pd/br)*2.2;player.x+=(bx-player.x)/pd*ps;player.y+=(by-player.y)/pd*ps;mouse.x=player.x;mouse.y=player.y}for(let j=obstacles.length-1;j>=0;j--){if(j===i)continue;const oo=obstacles[j];const ox=oo.x+oo.size/2,oy=oo.y+oo.size/2,od=Math.hypot(ox-bx,oy-by);if(od<br&&od>1&&!String(oo.type).startsWith("boss")){oo.x+=(bx-ox)/od*1.2;oo.y+=(by-oy)/od*1.2}}}
     }
@@ -4807,19 +4891,33 @@ for(let i=obstacles.length-1;i>=0;i--){
   } else {
     // enemy AI: misiles, curvas, zigzag, reagrupar
     if(o.arriving){o.y+=o.speed*2.4*slow*frz;if(o.y>=o.baseY){o.y=o.baseY;o.arriving=false}}
-    else if(o.type==="turret"){/* fija arriba */}
+    else if(o.type==="turret"){
+      /* fija arriba, solo dispara */
+      if(o.arriving){/* handled above */}
+      else { o.y=o.baseY; }
+    }
+    else if(o.type==="drone"){
+      const cx=o.x+o.size/2, cy=o.y+o.size/2;
+      o.orbitAng=(o.orbitAng||0)+0.06*o.zigzagDir*frz;
+      o.x+=Math.cos(o.orbitAng)*3.2*slow*frz;
+      o.y=o.baseY+Math.sin(o.orbitAng*1.4)*18;
+      const dx=player.x-cx, dist=Math.hypot(dx,player.y-cy)||1;
+      o.x+=(dx/dist)*o.speed*0.15*slow*frz;
+      const maxY=canvas.height*0.38;
+      if(o.y>maxY)o.y=maxY;
+      if(o.x<5){o.x=5;o.zigzagDir=1}if(o.x+o.size>canvas.width-5){o.x=canvas.width-o.size-5;o.zigzagDir=-1}
+      if(o.y<12)o.y=12;
+    }
     else {
       o.zigzag=(o.zigzag||0)+0.055*o.zigzagDir;
       const cx=o.x+o.size/2, cy=o.y+o.size/2;
       const dx=player.x-cx, dy=player.y-cy, dist=Math.hypot(dx,dy)||1;
-      /* Todas las naves de oleada se quedan ARRIBA (zigzag + disparo) */
-      const zigAmp=o.type==="hunter"?4.2:o.type==="kamikaze"?3.5:2.8;
-      o.zigzag+=(o.type==="hunter"?0.1:0.07)*o.zigzagDir;
+      const zigAmp=o.type==="hunter"?4.2:o.type==="kamikaze"?3.5:o.type==="strafer"?6.5:o.type==="bomber"?2.2:o.type==="armored"?1.8:2.8;
+      o.zigzag+=(o.type==="hunter"?0.1:o.type==="strafer"?0.14:0.07)*o.zigzagDir;
       o.x+=Math.sin(o.zigzag)*zigAmp*slow*frz;
       o.y=o.baseY+Math.sin(o.zigzag*1.15)*16+Math.cos(o.zigzag*0.55)*5;
-      /* solo un poco hacia el jugador en horizontal, sin bajar */
-      o.x+=(dx/dist)*o.speed*0.25*slow*frz;
-      const maxY=canvas.height*0.34;
+      o.x+=(dx/dist)*o.speed*(o.type==="strafer"?0.4:o.type==="armored"?0.12:0.25)*slow*frz;
+      const maxY=canvas.height*(o.type==="bomber"?0.4:0.34);
       if(o.y>maxY)o.y=maxY;
       o.role="top";
 
@@ -4830,16 +4928,15 @@ for(let i=obstacles.length-1;i>=0;i--){
         if(o.teleTimer<=0){o.x=30+Math.random()*(canvas.width-o.size-60);o.y=30+Math.random()*50;o.baseY=o.y;o.teleTimer=80+Math.random()*70;createExplosion(o.x,o.y,12,"200,100,255")}
       }
     }
-    if(o.type==="sniper")o.aimLine=1;
+    if(o.type==="sniper"||o.type==="missile_ship")o.aimLine=1;
     if(o.type==="thief"&&Math.hypot(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2))<80*getScale()){if(Math.random()<.02)ammo=Math.max(0,ammo-1)}
     if(o.type==="creature"){
       obstacles.forEach(m=>{if((m.type==="meteor"||m.type==="explosive")&&Math.hypot((m.x+m.size/2)-(o.x+o.size/2),(m.y+m.size/2)-(o.y+o.size/2))<90){m.vx=(m.vx||0)+((m.x-o.x)>0?.05:-.05)}});
     }
-    /* TODAS disparan más seguido */
     o.shootTimer=(o.shootTimer||30)-slow;
     if(!o.arriving&&o.shootTimer<=0){
       enemyShoot(o);
-      const cd=o.type==="sniper"?50:o.type==="swarm"?40:o.type==="hunter"?35:o.type==="bigship"?42:45;
+      const cd=o.type==="sniper"?50:o.type==="swarm"?40:o.type==="hunter"?35:o.type==="bigship"?42:o.type==="turret"?28:o.type==="drone"?48:o.type==="bomber"?55:o.type==="armored"?50:o.type==="strafer"?32:o.type==="missile_ship"?60:45;
       o.shootTimer=cd+Math.random()*15;
     }
   }

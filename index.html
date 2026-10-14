@@ -1007,6 +1007,7 @@ const CREDITS={name:"Brayhan Rubio",phone:"3052076713",email:"brayan32455415@gma
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
 let combo=0,comboTimer=0,comboMult=1;
+let feverMode=0,feverAnnounced=false,lastSupplyDrop=0,supplyCrates=[];
 let damageFlash=0,introTimer=0;
 let lowPower=(function(){
   const v=lsGet("techLowPower","");
@@ -1408,6 +1409,8 @@ function checkAchievements(){
   if(meteorsDestroyed>=50)unlockAch("m50","50 meteoritos");
   if(shipsDestroyed>=20)unlockAch("n20","20 naves");
   if(combo>=10)unlockAch("c10","Combo x10");
+  if(combo>=15)unlockAch("c15","Combo x15");
+  if(feverMode>0&&combo>=8)unlockAch("fever","Fiebre de combo");
 }
 function diffMult(){
   if(difficulty==="easy")return 0.7;
@@ -1427,8 +1430,25 @@ function diffSpeedMult(){
 }
 function addScoreCombo(pts){
   combo++;comboTimer=150;comboMult=1+Math.min(2,Math.floor(combo/5)*0.25);
-  addScore(Math.floor(pts*comboMult*diffMult()));
+  if(combo>=8){
+    if(feverMode<=0){
+      feverMode=360;
+      feverAnnounced=true;
+      scenarioMsg="🔥 FIEBRE DE COMBO x"+combo;scenarioTransition=90;
+      try{playSfx("overdrive")}catch(e){try{playSfx("nova")}catch(_){}}
+      try{doVibrate(30)}catch(e){}
+      rapidFire=Math.max(rapidFire,180);
+      shield=Math.max(shield,90);
+    } else {
+      feverMode=Math.min(480,feverMode+40);
+    }
+    comboMult=Math.max(comboMult,2.5);
+  }
+  let gained=Math.floor(pts*comboMult*diffMult());
+  if(feverMode>0)gained=Math.floor(gained*1.5);
+  addScore(gained);
   checkAchievements();
+  progressDaily("combo",combo);
 }
 function makeScoreCard(){
   /* Imagen tipo pantallazo con la puntuación */
@@ -2945,6 +2965,81 @@ function maybeSpawnPickup(x,y){
     const type=pool[Math.floor(Math.random()*pool.length)];
     pickups.push({x,y,type,size:s,vy:1.5});
   }
+}
+
+
+/* ===== Caja de suministro (evento especial) ===== */
+function spawnSupplyCrate(){
+  if(!gameRunning||gamePaused)return;
+  if(supplyCrates.length>=2)return;
+  const s=18*((typeof getScale==="function")?getScale():1);
+  supplyCrates.push({
+    x:40+Math.random()*(canvas.width-80),
+    y:-30,
+    size:s,
+    vy:1.1+Math.random()*0.6,
+    spin:0,
+    life:900,
+    hp:3
+  });
+  scenarioMsg="📦 SUMINISTRO EN CAMINO";scenarioTransition=70;
+  try{playSfx("power")}catch(e){}
+}
+function updateSupplyCrates(){
+  if(!supplyCrates.length)return;
+  for(let i=supplyCrates.length-1;i>=0;i--){
+    const c=supplyCrates[i];
+    c.y+=c.vy;c.spin+=0.04;c.life--;
+    ctx.save();ctx.translate(c.x,c.y);ctx.rotate(Math.sin(c.spin)*0.15);
+    ctx.fillStyle="rgba(0,0,0,.35)";ctx.beginPath();ctx.ellipse(0,c.size*.7,c.size*.55,c.size*.12,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#8B5A2B";
+    ctx.fillRect(-c.size*.45,-c.size*.35,c.size*.9,c.size*.7);
+    ctx.strokeStyle="#FFCD00";ctx.lineWidth=2;
+    ctx.strokeRect(-c.size*.45,-c.size*.35,c.size*.9,c.size*.7);
+    ctx.fillStyle="#CE1126";
+    ctx.fillRect(-c.size*.08,-c.size*.35,c.size*.16,c.size*.7);
+    ctx.fillRect(-c.size*.45,-c.size*.08,c.size*.9,c.size*.16);
+    ctx.fillStyle="#FFCD00";ctx.font="bold "+Math.max(10,c.size*.55)+"px Orbitron";
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("★",0,0);
+    ctx.restore();
+    if(Math.hypot(player.x-c.x,player.y-c.y)<player.size+c.size*.6){
+      openSupplyCrate(c.x,c.y);
+      supplyCrates.splice(i,1);
+      continue;
+    }
+    for(let j=bullets.length-1;j>=0;j--){
+      const b=bullets[j];
+      if(Math.hypot(b.x-c.x,b.y-c.y)<c.size*.6){
+        c.hp--;
+        createExplosion(b.x,b.y,6,"255,205,0");
+        if(!b.pierce)bullets.splice(j,1);
+        if(c.hp<=0){openSupplyCrate(c.x,c.y);supplyCrates.splice(i,1)}
+        break;
+      }
+    }
+    if(c.y>canvas.height+40||c.life<=0)supplyCrates.splice(i,1);
+  }
+}
+function openSupplyCrate(x,y){
+  createExplosion(x,y,28,"255,205,0");
+  createExplosion(x,y,18,"206,17,38");
+  try{playSfx("power")}catch(e){}
+  try{doVibrate(25)}catch(e){}
+  const rewards=["ammo","shield","rapid","coin","coin","missile","triple","life","overdrive","nova"];
+  const n=2+Math.floor(Math.random()*2);
+  for(let k=0;k<n;k++){
+    const type=rewards[Math.floor(Math.random()*rewards.length)];
+    const ang=-Math.PI/2+(k-(n-1)/2)*0.5;
+    pickups.push({
+      x:x+Math.cos(ang)*20,y:y+Math.sin(ang)*12,
+      type,size:16*((typeof getScale==="function")?getScale():1),
+      vy:1.2+Math.random()*0.5,
+      value:type==="coin"?15+Math.floor(Math.random()*15):undefined
+    });
+  }
+  coins+=10;lsSet("techCoinsV2",coins);
+  scenarioMsg="📦 SUMINISTRO ABIERTO +10⭐";scenarioTransition=80;
+  shield=Math.max(shield,120);
 }
 
 function createParticle(){if(isMobile()||particles.length>5||Math.random()>.75)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
@@ -4552,8 +4647,13 @@ ctx.fillStyle="#FFCD00";
 ctx.fillText("🚀 "+nm,canvas.width/2,P(mob?12:11));
 if(combo>1){
   ctx.font="bold "+P(mob?9:10)+"px Orbitron";
-  ctx.fillStyle="#FFCD00";
-  ctx.fillText("x"+combo,canvas.width/2,P(mob?22:20));
+  ctx.fillStyle=feverMode>0?"#FF6600":"#FFCD00";
+  ctx.fillText((feverMode>0?"🔥 ":"")+"x"+combo,canvas.width/2,P(mob?22:20));
+}
+if(feverMode>0){
+  ctx.font="bold "+P(mob?8:9)+"px Orbitron";
+  ctx.fillStyle="#FFAA00";
+  ctx.fillText("FIEBRE "+Math.ceil(feverMode/60)+"s · x1.5",canvas.width/2,P(mob?32:30));
 }
 if(bounceShield>0){
   ctx.textAlign="right";ctx.font="bold "+P(8)+"px Orbitron";ctx.fillStyle="#AAFFFF";
@@ -4799,6 +4899,15 @@ drawSpaceBG();
 /* mob-no-shadow: las GPUs móviles odian shadowBlur */
 if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColor="transparent"}catch(e){}}
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
+if(feverMode>0){
+  const pulse=0.08+0.06*Math.sin(performance.now()/120);
+  const g=ctx.createRadialGradient(canvas.width/2,canvas.height/2,canvas.width*0.15,canvas.width/2,canvas.height/2,canvas.width*0.75);
+  g.addColorStop(0,"rgba(255,180,0,0)");
+  g.addColorStop(1,`rgba(255,120,0,${pulse})`);
+  ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle=`rgba(255,205,0,${0.25+pulse})`;ctx.lineWidth=3;
+  ctx.strokeRect(4,4,canvas.width-8,canvas.height-8);
+}
 if(introTimer>0){
   const a=Math.min(1,introTimer/40);
   ctx.fillStyle=`rgba(0,0,0,${0.35*a})`;ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -4810,6 +4919,10 @@ if(introTimer>0){
 
 if(shield>0)shield--;if(bounceShield>0)bounceShield--;if(vortex>0)vortex--;if(ion>0)ion--;if(emp>0)emp--;if(laserGrace>0)laserGrace--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;
 if(comboTimer>0){comboTimer--}else{combo=0;comboMult=1}
+if(feverMode>0){
+  feverMode--;
+  if(feverMode<=0){feverAnnounced=false;scenarioMsg="Fiebre terminada";scenarioTransition=50}
+}
 if(damageFlash>0)damageFlash--;
 if(introTimer>0)introTimer--;
 
@@ -4951,7 +5064,15 @@ for(let i=obstacles.length-1;i>=0;i--){
 }
 updateTraps();updateExtraTraps();if(!gameRunning)return;
 updateLaser();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunning)return;
-updatePickups();updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawPlayer();
+updatePickups();updateSupplyCrates();
+if(phase==="meteors"&&gameRunning&&!gamePaused){
+  const nowTs=performance.now();
+  if(nowTs-lastSupplyDrop>18000){
+    lastSupplyDrop=nowTs;
+    if(Math.random()<0.55)spawnSupplyCrate();
+  }
+}
+updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawPlayer();
 try{updateEngineSound()}catch(e){}
 
 /* Vórtice: atrae enemigos */
@@ -4994,7 +5115,7 @@ if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
 updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
-combo=0;comboTimer=0;comboMult=1;damageFlash=0;introTimer=120;
+combo=0;comboTimer=0;comboMult=1;feverMode=0;feverAnnounced=false;supplyCrates=[];lastSupplyDrop=performance.now();damageFlash=0;introTimer=120;
 const rec=Number(lsGet("techRunRecordV4",0))||0;
 ammo=100+(rec>=30?20:0);lives=1+(rec>=60?1:0);updateLivesUI();
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);

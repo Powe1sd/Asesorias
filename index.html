@@ -4184,17 +4184,6 @@ function drawShipPreview(){
   g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
 }
 
-function drawSpeedLines(){
-  if(overdrive<=0)return;
-  if(isMobile()&&lowPower)return;
-  const n=isMobile()?4:8;
-  ctx.strokeStyle="rgba(100,200,255,.2)";
-  ctx.lineWidth=1.5;
-  for(let i=0;i<n;i++){
-    const x=(i*canvas.width/n+performance.now()/8)%canvas.width;
-    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-6,canvas.height);ctx.stroke();
-  }
-}
 function drawPlayer(){
   /* Estela */
   if(!lowPower){
@@ -4795,7 +4784,7 @@ function drawSpaceBG(){
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     g.addColorStop(0,"#050818");g.addColorStop(.5,"#0a1840");g.addColorStop(1,"#120828");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-    if(!lowPower){ctx.strokeStyle="rgba(100,200,255,.08)";ctx.lineWidth=1;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(i*canvas.width/5,0);ctx.lineTo(canvas.width,canvas.height-i*40);ctx.stroke()}}
+
   } else if(selectedWorld===5){
     /* HALLOWEEN: calabazas, dulces, brujas, magos, fantasmas */
     const W=canvas.width,H=canvas.height,t=performance.now()/700;
@@ -4897,13 +4886,7 @@ function drawSpaceBG(){
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
     g.addColorStop(0,"#050010");g.addColorStop(.5,"#0a0020");g.addColorStop(1,"#001018");
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-    if(!lowPower&&!isMobile()){
-      ctx.strokeStyle="rgba(0,255,200,.12)";ctx.lineWidth=1;
-      const off=(performance.now()/30)%40;
-      for(let y=-40;y<canvas.height+40;y+=40){ctx.beginPath();ctx.moveTo(0,y+off);ctx.lineTo(canvas.width,y+off-20);ctx.stroke()}
-      ctx.strokeStyle="rgba(255,0,180,.1)";
-      for(let x=-40;x<canvas.width+40;x+=50){ctx.beginPath();ctx.moveTo(x+off,0);ctx.lineTo(x+off-15,canvas.height);ctx.stroke()}
-    }
+/* sin rejilla animada (evita mareo) */
   } else if(selectedWorld===7){
     /* TÓXICO */
     const g=ctx.createLinearGradient(0,0,0,canvas.height);
@@ -5166,7 +5149,7 @@ if(phase==="meteors"&&gameRunning&&!gamePaused){
     if(Math.random()<0.55)spawnSupplyCrate();
   }
 }
-updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawSpeedLines();drawPlayer();
+updateExplosions();if(!(typeof mob==="function"?mob():isMobile())||!lowPower){updateLightning()}updateAllies();updateDrones();drawPlayer();
 try{updateEngineSound()}catch(e){}
 
 /* Vórtice: atrae enemigos */

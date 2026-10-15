@@ -173,7 +173,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
   background:#020b22;
-  padding:max(0px, calc(env(safe-area-inset-top) - 1.3cm)) max(6px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  padding:max(8px, env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
   overflow-x:hidden;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   width:100%;height:100%;box-sizing:border-box;
@@ -191,11 +191,13 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game{
-    height:min(90vh, calc(100vh - 100px - env(safe-area-inset-bottom, 0px))) !important;margin-top:-1.3cm !important;
+    /* bajado 3.5cm para que se vea el personaje arriba en móvil */
+    height:min(78vh, calc(100vh - 3.5cm - 115px - env(safe-area-inset-bottom, 0px))) !important;
+    margin-top:3.5cm !important;
     width:min(98vw, 1100px) !important;
     max-height:none !important;
-    flex:1 1 auto;
-    min-height:55vh;
+    flex:0 0 auto;
+    min-height:45vh;
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad{
@@ -5063,31 +5065,45 @@ function drawSpaceBG(){
       ctx.fillStyle="#333";ctx.fillRect(-2,-7,4,2);
       ctx.restore();
     }
-    /* Móvil: fondo simple (sin decenas de sprites por frame) */
-    if(!isMobile()){
-      const nPump=8;
-      for(let i=0;i<nPump;i++){
-        const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
-        drawPumpkin(px,H-16-(i%3)*5,9+i%5);
-      }
-      for(let i=0;i<14;i++){
-        const cx=(i*83+t*25)%(W+20)-10;
-        const cy=50+(i*41+Math.sin(t+i)*18)%(H*0.5);
-        drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
-      }
-      if(!lowPower){
-        drawWitch((W*.2+Math.sin(t)*.02*W)%W,H*.28,1.1);
-        drawWizard(W*.75,H*.32,1);
-        drawGhost(W*.45+Math.sin(t*1.2)*20,H*.22,1.2);
-        drawGhost(W*.1,H*.4,0.7);
-        drawDoll(W*.55,H*.38,1);
-        drawDoll(W*.88,H*.5,0.7);
-      }
-      for(let i=0;i<6;i++){
-        const bx=(i*110+t*50)%(W+40)-20;
-        const by=25+i*28+Math.sin(t*3+i)*6;
-        ctx.strokeStyle="rgba(50,30,50,.55)";ctx.lineWidth=1.5;
-        ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
+    /* Calabazas, dulces, brujas, fantasmas (móvil: menos sprites) */
+    const mob=typeof isMobile==="function"?isMobile():false;
+    const nPump=mob?4:8;
+    for(let i=0;i<nPump;i++){
+      const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
+      drawPumpkin(px,H-14-(i%3)*4, mob?7+i%3 : 9+i%5);
+    }
+    const nCandy=mob?6:14;
+    for(let i=0;i<nCandy;i++){
+      const cx=(i*83+t*25)%(W+20)-10;
+      const cy=45+(i*41+Math.sin(t+i)*18)%(H*0.48);
+      drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
+    }
+    /* Fantasmas flotando */
+    drawGhost(W*.45+Math.sin(t*1.2)*18,H*.18+Math.sin(t)*.8*8,mob?0.9:1.2);
+    drawGhost(W*.12+Math.cos(t*0.8)*12,H*.32,mob?0.55:0.75);
+    if(!mob) drawGhost(W*.78,H*.25+Math.sin(t*1.5)*10,0.85);
+    /* Brujas */
+    drawWitch((W*.18+Math.sin(t)*.03*W+W)%W,H*.22,mob?0.85:1.1);
+    if(!mob) drawWitch((W*.62+Math.cos(t*0.6)*20)%W,H*.15,0.7);
+    /* Mago / muñecas (PC o no lowPower) */
+    if(!mob||!lowPower){
+      drawWizard(W*.82,H*.28,mob?0.75:1);
+      if(!mob){drawDoll(W*.55,H*.36,1);drawDoll(W*.9,H*.48,0.7)}
+    }
+    /* Murciélagos */
+    const nBat=mob?3:6;
+    for(let i=0;i<nBat;i++){
+      const bx=(i*110+t*55)%(W+40)-20;
+      const by=22+i*26+Math.sin(t*3+i)*6;
+      ctx.strokeStyle="rgba(80,40,80,.65)";ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
+    }
+    /* Estrellas / chispas naranja */
+    if(!lowPower){
+      for(let i=0;i<(mob?4:8);i++){
+        const sx=(i*97+t*15)%W, sy=(i*53+20)%(H*0.55);
+        ctx.fillStyle="rgba(255,180,60,.25)";
+        ctx.beginPath();ctx.arc(sx,sy,1.2,0,Math.PI*2);ctx.fill();
       }
     }
   } else if(selectedWorld===6){

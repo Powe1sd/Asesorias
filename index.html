@@ -5065,12 +5065,36 @@ function drawSpaceBG(){
       ctx.fillStyle="#333";ctx.fillRect(-2,-7,4,2);
       ctx.restore();
     }
-    /* Calabazas, dulces, brujas, fantasmas (móvil: menos sprites) */
+    function drawTomb(tx,ty,sc){
+      ctx.save();ctx.translate(tx,ty);ctx.scale(sc,sc);
+      /* lápida redondeada */
+      ctx.fillStyle="#4a4a52";
+      ctx.beginPath();
+      ctx.moveTo(-10,12);ctx.lineTo(-10,-6);ctx.quadraticCurveTo(-10,-16,0,-16);ctx.quadraticCurveTo(10,-16,10,-6);ctx.lineTo(10,12);
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle="#2e2e34";
+      ctx.fillRect(-12,10,24,4);
+      /* cruz / RIP */
+      ctx.strokeStyle="#8a8a92";ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,2);ctx.moveTo(-4,-5);ctx.lineTo(4,-5);ctx.stroke();
+      ctx.fillStyle="rgba(180,180,190,.45)";
+      ctx.font="bold 5px sans-serif";ctx.textAlign="center";
+      ctx.fillText("R.I.P",0,8);
+      ctx.restore();
+    }
+    /* Calabazas, dulces, cementerio, brujas, fantasmas */
     const mob=typeof isMobile==="function"?isMobile():false;
     const nPump=mob?4:8;
     for(let i=0;i<nPump;i++){
       const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
       drawPumpkin(px,H-14-(i%3)*4, mob?7+i%3 : 9+i%5);
+    }
+    /* Tumbas de cementerio al fondo */
+    const nTomb=mob?4:7;
+    for(let i=0;i<nTomb;i++){
+      const tx=(i+0.5)*(W/(nTomb+0.2))+Math.sin(i*1.7)*6;
+      const ty=H-28-(i%3)*6;
+      drawTomb(tx,ty,mob?0.85:1+(i%2)*0.15);
     }
     const nCandy=mob?6:14;
     for(let i=0;i<nCandy;i++){
@@ -5078,27 +5102,37 @@ function drawSpaceBG(){
       const cy=45+(i*41+Math.sin(t+i)*18)%(H*0.48);
       drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
     }
-    /* Fantasmas flotando */
-    drawGhost(W*.45+Math.sin(t*1.2)*18,H*.18+Math.sin(t)*.8*8,mob?0.9:1.2);
-    drawGhost(W*.12+Math.cos(t*0.8)*12,H*.32,mob?0.55:0.75);
-    if(!mob) drawGhost(W*.78,H*.25+Math.sin(t*1.5)*10,0.85);
-    /* Brujas */
-    drawWitch((W*.18+Math.sin(t)*.03*W+W)%W,H*.22,mob?0.85:1.1);
-    if(!mob) drawWitch((W*.62+Math.cos(t*0.6)*20)%W,H*.15,0.7);
-    /* Mago / muñecas (PC o no lowPower) */
+    /* Más fantasmas flotando */
+    drawGhost(W*.45+Math.sin(t*1.2)*18,H*.16+Math.sin(t)*8,mob?0.9:1.2);
+    drawGhost(W*.12+Math.cos(t*0.8)*12,H*.30,mob?0.55:0.75);
+    drawGhost(W*.72+Math.sin(t*0.9)*14,H*.20+Math.cos(t*1.1)*6,mob?0.7:0.95);
+    drawGhost(W*.30+Math.cos(t*1.4)*10,H*.12,mob?0.5:0.65);
+    if(!mob){
+      drawGhost(W*.88,H*.35+Math.sin(t*1.5)*10,0.8);
+      drawGhost(W*.55+Math.sin(t)*8,H*.42,0.55);
+    }
+    /* Más brujas volando */
+    drawWitch((W*.15+Math.sin(t)*.04*W+W)%W,H*.20,mob?0.85:1.1);
+    drawWitch((W*.48+Math.cos(t*0.7)*25+W)%W,H*.12,mob?0.65:0.85);
+    drawWitch((W*.78+Math.sin(t*0.5)*18+W)%W,H*.26,mob?0.7:0.95);
+    if(!mob){
+      drawWitch((W*.35+Math.cos(t)*.05*W+W)%W,H*.34,0.6);
+      drawWitch((W*.9+Math.sin(t*0.4)*10+W)%W,H*.08,0.55);
+    }
+    /* Mago / muñecas */
     if(!mob||!lowPower){
-      drawWizard(W*.82,H*.28,mob?0.75:1);
-      if(!mob){drawDoll(W*.55,H*.36,1);drawDoll(W*.9,H*.48,0.7)}
+      drawWizard(W*.82,H*.38,mob?0.75:1);
+      if(!mob){drawDoll(W*.58,H*.36,1);drawDoll(W*.92,H*.48,0.7)}
     }
     /* Murciélagos */
-    const nBat=mob?3:6;
+    const nBat=mob?4:8;
     for(let i=0;i<nBat;i++){
-      const bx=(i*110+t*55)%(W+40)-20;
-      const by=22+i*26+Math.sin(t*3+i)*6;
+      const bx=(i*95+t*55)%(W+40)-20;
+      const by=18+i*22+Math.sin(t*3+i)*6;
       ctx.strokeStyle="rgba(80,40,80,.65)";ctx.lineWidth=1.5;
       ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
     }
-    /* Estrellas / chispas naranja */
+    /* Chispas naranja */
     if(!lowPower){
       for(let i=0;i<(mob?4:8);i++){
         const sx=(i*97+t*15)%W, sy=(i*53+20)%(H*0.55);

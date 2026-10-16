@@ -2005,15 +2005,21 @@ function applyAudioVolumes(){
     }
   }catch(e){}
 }
+const _sfxLast={};
 function playSfx(key){
   try{
     if(audioMuted) return;
     const a = SFX[key];
     if(!a || !a.src) return;
-    const n = a.cloneNode ? a.cloneNode() : a;
-    n.volume = volSfx;
-    const p = n.play();
-    if(p && p.catch) p.catch(()=>{});
+    const now=performance.now();
+    /* limitar spam (disparos/explosiones) */
+    const minGap=(key==="shoot"||key==="ki")?45:(key==="explode"?80:30);
+    if(_sfxLast[key]&&now-_sfxLast[key]<minGap)return;
+    _sfxLast[key]=now;
+    try{a.pause();a.currentTime=0}catch(e){}
+    a.volume=volSfx;
+    const p=a.play();
+    if(p&&p.catch)p.catch(()=>{});
   }catch(e){}
 }
 
@@ -2948,7 +2954,7 @@ function applyGravity(obj,x,y,mult){
 
 /* Crea meteorito: normal | explosive | magnetic | hard (indestructible) */
 function createMeteor(kind){
-  if(obstacles.length>(isMobile()?4:12))return;
+  if(obstacles.length>(isMobile()?5:14))return;
   const sc=getScale();
   const isHard=kind==="hard";
   const isFire=kind==="fireball";
@@ -2975,7 +2981,7 @@ function createMeteor(kind){
 
 /* Crea nave enemiga; baseY bajo = se queda arriba */
 function createEnemy(etype,role){
-  if(obstacles.length>(isMobile()?7:18))return;
+  if(obstacles.length>(isMobile()?8:16))return;
   /* Sin bichos verdes: solo naves negras */
   if((String(etype).startsWith("alien")||etype==="creature")&&!["ghost","pumpkin","witch_e"].includes(etype))etype="hunter";
   const sc=getScale();
@@ -3045,8 +3051,9 @@ function createBoss(btype){
 
 function spawnShipWave(){
   const dm=diffSpawnMult();
-  /* TODAS arriba: zigzag + disparo (ninguna persigue abajo) */
-  const nTop=Math.min(isMobile()?5:7, Math.floor((3+Math.min(4,Math.floor(waveCount*0.25)))*dm));
+  const mob=typeof isMobile==="function"?isMobile():false;
+  /* Límite de oleada para no saturar (evita trabones) */
+  const nTop=Math.min(mob?4:6, Math.floor((2+Math.min(3,Math.floor(waveCount*0.2)))*dm));
   let poolTop=["hunter","hunter","ship","sniper","kamikaze","ship","hunter","drone","drone"];
   if(waveCount>=1)poolTop.push("ship","hunter","sniper","drone","strafer");
   if(waveCount>=2)poolTop.push("teleport","bigship","turret","bomber");
@@ -3073,7 +3080,7 @@ function spawnShipWave(){
   if(waveCount>0&&waveCount%2===0){
     setTimeout(()=>{
       if(!gameRunning||gamePaused||phase!=="ships")return;
-      for(let k=0;k<(isMobile()?2:4);k++)createEnemy("drone","top");
+      for(let k=0;k<(isMobile()?1:2);k++)createEnemy("drone","top");
       scenarioMsg="🛸 ENJAMBRE DE DRONES";scenarioTransition=70;
     },nTop*650+200);
   }
@@ -3169,7 +3176,7 @@ function updateEmergencyAmmo(ts){if(ammo<=0&&ts-lastAmmoDrop>1200){dropAmmoPack(
 function shoot(){
   if(!gameRunning||gamePaused)return;
   if(ammo<=0||laser>0)return;
-  if(bullets.length>(isMobile()?20:36))return;
+  if(bullets.length>(isMobile()?16:28))return;
   const now=performance.now();
   /* Disparo continuo fluido (móvil y PC) */
   const cd=rapidFire>0?45:(isMobile()?70:shootCooldown);
@@ -3251,7 +3258,7 @@ if(tripleShot>0){add(-12);add(0);add(12)}else add(0)}
 
 function enemyShoot(o){
   if(["meteor","explosive","magnetic","hard"].includes(o.type))return;
-  if(enemyBullets.length>(isMobile()?12:36))return;
+  if(enemyBullets.length>(isMobile()?10:24))return;
   const s=getScale(),cx=o.x+o.size/2,cy=o.y+o.size*.85;
   const dx=player.x-cx, dy=player.y-cy, dist=Math.hypot(dx,dy)||1;
   const isBoss=String(o.type||"").startsWith("boss");
@@ -3306,11 +3313,12 @@ function enemyShoot(o){
 
 function triggerShake(amt){screenShake=Math.max(screenShake,amt||8)}
 function addHitSpark(x,y,col){
-  if(isMobile()&&lowPower)return;
-  const n=isMobile()?2:5;
+  if(isMobile())return; /* chispas solo PC: menos carga */
+  if(hitSparks.length>16)return;
+  const n=3;
   for(let i=0;i<n;i++){
     const a=Math.random()*Math.PI*2,sp=1.5+Math.random()*3.5;
-    hitSparks.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:12+Math.random()*10,max:18,color:col||"255,200,50",size:1.5+Math.random()*2});
+    hitSparks.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:10+Math.random()*8,max:16,color:col||"255,200,50",size:1.5+Math.random()*2});
   }
 }
 function updateHitSparks(){
@@ -3326,9 +3334,9 @@ function updateHitSparks(){
 function createExplosion(x,y,size,color){
   if(size>=8)playSfx("explode"); /* SONIDO EXPLOSIÓN METEORO/ENEMIGO */
   if(size>=10)triggerShake(Math.min(14,4+size*0.15));
-  if(size>=6)addHitSpark(x,y,color||"255,180,40");
-  if(explosions.length>(isMobile()?3:12))explosions.splice(0,isMobile()?2:6);
-  const n=isMobile()?1:Math.min(3,2+Math.floor(size/10));
+  if(size>=12)addHitSpark(x,y,color||"255,180,40");
+  if(explosions.length>(isMobile()?2:8))explosions.splice(0,explosions.length-2);
+  const n=isMobile()?1:Math.min(2,1+Math.floor(size/12));
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=1+Math.random()*2.5;explosions.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,size:2+Math.random()*2.5,opacity:1,color:color||(Math.random()>.5?"255,80,40":"255,200,50")})}
 }
 
@@ -5126,7 +5134,9 @@ function drawSpaceBG(){
 
   } else if(selectedWorld===5){
     /* HALLOWEEN: calabazas, dulces, brujas, magos, fantasmas */
-    const W=canvas.width,H=canvas.height,t=performance.now()/700;
+    const W=canvas.width,H=canvas.height;
+    const t=((typeof performance!=="undefined"?performance.now():0)/900)|0; /* menos precisión = menos trabajo */
+    const _hwFrame=((typeof performance!=="undefined"?performance.now():0)/80)|0;
     const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,"#060208");g.addColorStop(.3,"#1a0c04");g.addColorStop(.65,"#120810");g.addColorStop(1,"#050206");
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -5212,19 +5222,19 @@ function drawSpaceBG(){
     }
     /* Calabazas, dulces, cementerio, brujas, fantasmas */
     const mob=typeof isMobile==="function"?isMobile():false;
-    const nPump=mob?4:8;
+    const nPump=mob?3:6;
     for(let i=0;i<nPump;i++){
       const px=(i*W/(nPump)+Math.sin(t*.5+i)*10)%W;
       drawPumpkin(px,H-14-(i%3)*4, mob?7+i%3 : 9+i%5);
     }
     /* Tumbas de cementerio al fondo */
-    const nTomb=mob?4:7;
+    const nTomb=mob?3:5;
     for(let i=0;i<nTomb;i++){
       const tx=(i+0.5)*(W/(nTomb+0.2))+Math.sin(i*1.7)*6;
       const ty=H-28-(i%3)*6;
       drawTomb(tx,ty,mob?0.85:1+(i%2)*0.15);
     }
-    const nCandy=mob?6:14;
+    const nCandy=mob?3:8;
     for(let i=0;i<nCandy;i++){
       const cx=(i*83+t*25)%(W+20)-10;
       const cy=45+(i*41+Math.sin(t+i)*18)%(H*0.48);
@@ -5253,7 +5263,7 @@ function drawSpaceBG(){
       if(!mob){drawDoll(W*.58,H*.36,1);drawDoll(W*.92,H*.48,0.7)}
     }
     /* Murciélagos */
-    const nBat=mob?4:8;
+    const nBat=mob?2:5;
     for(let i=0;i<nBat;i++){
       const bx=(i*95+t*55)%(W+40)-20;
       const by=18+i*22+Math.sin(t*3+i)*6;
@@ -5356,11 +5366,33 @@ function drawSpaceBG(){
   }
 }
 
+
+/* ===== Limpieza de rendimiento: evita que el juego se trabe ===== */
+function trimArr(arr,max){if(arr&&arr.length>max)arr.splice(0,arr.length-max)}
+function gcEntities(){
+  const m=typeof isMobile==="function"?isMobile():false;
+  trimArr(obstacles,m?10:20);
+  trimArr(bullets,m?18:32);
+  trimArr(enemyBullets,m?14:28);
+  trimArr(explosions,m?4:10);
+  trimArr(particles,m?4:12);
+  trimArr(pickups,m?3:6);
+  trimArr(traps,m?4:10);
+  trimArr(missiles,m?4:10);
+  trimArr(lightningFX,m?2:6);
+  trimArr(hitSparks,m?8:20);
+  trimArr(allies,4);
+  trimArr(drones,4);
+  if(typeof supplyCrates!=="undefined")trimArr(supplyCrates,2);
+  if(typeof gravZones!=="undefined")trimArr(gravZones,3);
+}
+let _gcTick=0;
 /* Bucle principal cada frame: mover, dibujar, colisiones */
 function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
+if((++_gcTick)%8===0)gcEntities();
 ctx.clearRect(0,0,canvas.width,canvas.height);
-try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high"}catch(e){}
+try{ctx.imageSmoothingEnabled=!(typeof isMobile==="function"&&isMobile());if(ctx.imageSmoothingEnabled)ctx.imageSmoothingQuality="low"}catch(e){}
 /* Efecto temblor de pantalla */
 if(screenShake>0){
   const sx=(Math.random()-.5)*screenShake, sy=(Math.random()-.5)*screenShake;

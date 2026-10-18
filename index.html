@@ -3179,7 +3179,8 @@ function createEnemy(etype,role){
 
 function createBoss(btype){
   const sc=getScale();
-  if(btype==="boss_pumpkin"||btype==="boss_witch"){
+  if(btype==="boss_witch")btype="boss_pumpkin";
+  if(btype==="boss_pumpkin"){
     const size=Math.min(canvas.width*.28,90*sc);
     const hp=55+Math.floor((waveCount||1)*5);
     obstacles.push({
@@ -3224,17 +3225,18 @@ function spawnShipWave(){
   const dm=diffSpawnMult();
   const mob=typeof isMobile==="function"?isMobile():false;
   /* Límite de oleada para no saturar (evita trabones) */
-  const nTop=Math.min(mob?4:6, Math.floor((2+Math.min(3,Math.floor(waveCount*0.2)))*dm));
+  const hw=(selectedWorld===5||scenario===5);
+  const nTop=Math.min(mob?(hw?3:4):(hw?5:6), Math.floor((2+Math.min(3,Math.floor(waveCount*0.2)))*dm*(hw&&mob?0.85:1)));
   let poolTop=["hunter","hunter","ship","sniper","kamikaze","ship","hunter","drone","drone"];
   if(waveCount>=1)poolTop.push("ship","hunter","sniper","drone","strafer");
   if(waveCount>=2)poolTop.push("teleport","bigship","turret","bomber");
   if(waveCount>=3||scenario>=3)poolTop.push("bigship","hunter","kamikaze","armored","missile_ship");
   if(scenario>=3)poolTop.push("sniper","teleport","bigship","turret","strafer");
   if(waveCount>=4)poolTop.push("bomber","armored","missile_ship","drone");
-  /* Mundo Halloween: fantasmas, calabazas, brujas */
+  /* Mundo Halloween: fantasmas y calabazas (sin brujas) */
   if((selectedWorld===5||scenario===5)){
-    poolTop.push("ghost","ghost","pumpkin","witch_e","ghost","pumpkin");
-    if(waveCount>=2)poolTop.push("witch_e","ghost","pumpkin");
+    poolTop.push("ghost","ghost","pumpkin","ghost","pumpkin");
+    if(waveCount>=2)poolTop.push("ghost","pumpkin","ghost");
   }
   for(let i=0;i<nTop;i++)setTimeout(()=>{
     if(!gameRunning||gamePaused||phase!=="ships")return;
@@ -3281,7 +3283,7 @@ function nextBossType(){
     2:"boss_alien_ice",
     3:"boss_alien_fire",
     4:"boss_alien_crystal",
-    5:((waveCount||0)%8===0?"boss_witch":"boss_pumpkin"),
+    5:"boss_pumpkin",
     6:"boss_alien_neon",
     7:"boss_alien_toxic",
     8:"boss_alien_void"
@@ -5650,10 +5652,16 @@ function drawSpaceBG(){
     ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
 
   } else if(selectedWorld===5){
-    /* HALLOWEEN: calabazas, dulces, brujas, magos, fantasmas */
+    /* HALLOWEEN liviano (sin brujas, menos lag) */
     const W=canvas.width,H=canvas.height;
-    const t=((typeof performance!=="undefined"?performance.now():0)/900)|0; /* menos precisión = menos trabajo */
-    const _hwFrame=((typeof performance!=="undefined"?performance.now():0)/80)|0;
+    const mobHw=(typeof isMobile==="function"?isMobile():false);
+    const t=((typeof performance!=="undefined"?performance.now():0)/900)|0;
+    if(mobHw&&(((performance.now()/100)|0)%2===1)){
+      ctx.fillStyle="#0a0508";ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="rgba(255,230,170,.2)";ctx.beginPath();ctx.arc(W*.85,H*.12,16,0,Math.PI*2);ctx.fill();
+    } else {
+    /* HALLOWEEN decoración */
+    const _hwFrame=0;
     const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,"#060208");g.addColorStop(.3,"#1a0c04");g.addColorStop(.65,"#120810");g.addColorStop(1,"#050206");
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -5745,56 +5753,52 @@ function drawSpaceBG(){
       drawPumpkin(px,H-14-(i%3)*4, mob?7+i%3 : 9+i%5);
     }
     /* Tumbas de cementerio al fondo */
-    const nTomb=mob?3:5;
+    const nTomb=mobHw?1:3;
     for(let i=0;i<nTomb;i++){
       const tx=(i+0.5)*(W/(nTomb+0.2))+Math.sin(i*1.7)*6;
       const ty=H-28-(i%3)*6;
       drawTomb(tx,ty,mob?0.85:1+(i%2)*0.15);
     }
-    const nCandy=mob?3:8;
+    const nCandy=mobHw?1:4;
     for(let i=0;i<nCandy;i++){
       const cx=(i*83+t*25)%(W+20)-10;
       const cy=45+(i*41+Math.sin(t+i)*18)%(H*0.48);
       drawCandy(cx,cy,t+i,i%3===0?"#ff66aa":i%3===1?"#9b59ff":"#f1c40f");
     }
     /* Más fantasmas flotando */
-    drawGhost(W*.45+Math.sin(t*1.2)*18,H*.16+Math.sin(t)*8,mob?0.9:1.2);
-    drawGhost(W*.12+Math.cos(t*0.8)*12,H*.30,mob?0.55:0.75);
-    drawGhost(W*.72+Math.sin(t*0.9)*14,H*.20+Math.cos(t*1.1)*6,mob?0.7:0.95);
-    drawGhost(W*.30+Math.cos(t*1.4)*10,H*.12,mob?0.5:0.65);
-    if(!mob){
-      drawGhost(W*.88,H*.35+Math.sin(t*1.5)*10,0.8);
-      drawGhost(W*.55+Math.sin(t)*8,H*.42,0.55);
+    /* Menos decoración en móvil para no trabar */
+    if(mobHw){
+      drawGhost(W*.5+Math.sin(t)*12,H*.18,0.7);
+      drawGhost(W*.2,H*.28,0.5);
+    } else {
+      drawGhost(W*.45+Math.sin(t*1.2)*18,H*.16+Math.sin(t)*8,1.0);
+      drawGhost(W*.12+Math.cos(t*0.8)*12,H*.30,0.7);
+      drawGhost(W*.72+Math.sin(t*0.9)*14,H*.20,0.85);
+      drawGhost(W*.30,H*.12,0.6);
+      drawGhost(W*.88,H*.35,0.7);
     }
-    /* Más brujas volando */
-    drawWitch((W*.15+Math.sin(t)*.04*W+W)%W,H*.20,mob?0.85:1.1);
-    drawWitch((W*.48+Math.cos(t*0.7)*25+W)%W,H*.12,mob?0.65:0.85);
-    drawWitch((W*.78+Math.sin(t*0.5)*18+W)%W,H*.26,mob?0.7:0.95);
-    if(!mob){
-      drawWitch((W*.35+Math.cos(t)*.05*W+W)%W,H*.34,0.6);
-      drawWitch((W*.9+Math.sin(t*0.4)*10+W)%W,H*.08,0.55);
-    }
-    /* Mago / muñecas */
-    if(!mob||!lowPower){
-      drawWizard(W*.82,H*.38,mob?0.75:1);
-      if(!mob){drawDoll(W*.58,H*.36,1);drawDoll(W*.92,H*.48,0.7)}
+    /* sin brujas */
+    /* Mago solo en PC */
+    if(!mobHw&&!lowPower){
+      drawWizard(W*.82,H*.38,1);
     }
     /* Murciélagos */
-    const nBat=mob?2:5;
+    const nBat=mobHw?1:3;
     for(let i=0;i<nBat;i++){
       const bx=(i*95+t*55)%(W+40)-20;
       const by=18+i*22+Math.sin(t*3+i)*6;
       ctx.strokeStyle="rgba(80,40,80,.65)";ctx.lineWidth=1.5;
       ctx.beginPath();ctx.moveTo(bx-7,by);ctx.quadraticCurveTo(bx-3,by-6,bx,by);ctx.quadraticCurveTo(bx+3,by-6,bx+7,by);ctx.stroke();
     }
-    /* Chispas naranja */
-    if(!lowPower){
-      for(let i=0;i<(mob?4:8);i++){
+    /* Chispas naranja (menos en móvil) */
+    if(!lowPower&&!mobHw){
+      for(let i=0;i<6;i++){
         const sx=(i*97+t*15)%W, sy=(i*53+20)%(H*0.55);
         ctx.fillStyle="rgba(255,180,60,.25)";
         ctx.beginPath();ctx.arc(sx,sy,1.2,0,Math.PI*2);ctx.fill();
       }
     }
+    } /* fin decoración halloween */
   } else if(selectedWorld===6){
     /* NEÓN CYBER */
     const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);

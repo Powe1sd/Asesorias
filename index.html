@@ -1076,6 +1076,7 @@ let isShooting=false;let stickActive=false;let touchDriving=false;
 let dashCd=0,dashInvuln=0,dashTrail=[],_lastDashTap=0;
 let shieldCd=0,activeShield=0,chargeShot=0,chargeMax=90;
 let worldTeleportCd=0;
+let runStartTime=0;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
 let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)sensKeys=1;
@@ -2485,6 +2486,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   function renderStart(){
     const rank=getRanking().map((r,i)=>(i+1)+". "+r.score).join(" · ")||"Sin récords aún";
     const ach=Object.values(getAchievements()).map(a=>a.title).slice(0,6).join(", ")||"—";
+    const histHtml=formatMatchHistoryHtml(6);
     box.innerHTML=`
     <div class="diff-btns">
       <button type="button" data-d="easy" class="${difficulty==="easy"?"active":""}">FÁCIL</button>
@@ -2601,6 +2603,9 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
+    <h3 style="margin-top:12px">📜 Historial de partidas</h3>
+    <div id="matchHistoryBox">${histHtml}</div>
+    <button type="button" class="game-btn" id="clearHistoryBtn" style="font-size:10px;padding:6px 14px;margin-top:6px">🗑 Borrar historial</button>
     <p style="color:#888;font-size:10px;margin:8px 0 4px">Ajustes en ⚙ Config (arriba a la izquierda)</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
@@ -2688,6 +2693,9 @@ if(startPanel&&!document.getElementById("startExtras")){
     const bof=box.querySelector("#btnOpenFullConfig");
     if(bof)bof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
+    const chb=document.getElementById("clearHistoryBtn");
+    if(chb)chb.onclick=function(){if(confirm("¿Borrar historial de partidas?")){clearMatchHistory();renderStart();}};
+
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
       const prices={basic:0,double:40,pierce:60,spread:80,rapid:100,laser_gun:120,missile_gun:150,plasma:180,wave:200};
@@ -3610,6 +3618,83 @@ function openSupplyCrate(x,y){
 
 function createParticle(){if(isMobile()||particles.length>5||Math.random()>.75)return;particles.push({x:player.x+(Math.random()-.5)*6,y:player.y+player.size*.6,size:Math.random()*2+.6,speed:Math.random()*1.4+.4,opacity:1,color:Math.random()>.5?"255,180,0":"255,100,0"})}
 
+
+/* ===== Historial de partidas (últimas 20) ===== */
+function getMatchHistory(){
+  try{
+    const raw=lsGet("techMatchHistoryV1","[]");
+    const arr=JSON.parse(raw);
+    return Array.isArray(arr)?arr:[];
+  }catch(e){return []}
+}
+function pushMatchHistory(entry){
+  try{
+    let h=getMatchHistory();
+    h.unshift(entry);
+    if(h.length>20)h=h.slice(0,20);
+    lsSet("techMatchHistoryV1",JSON.stringify(h));
+  }catch(e){}
+}
+function clearMatchHistory(){
+  try{lsSet("techMatchHistoryV1","[]")}catch(e){}
+}
+function formatMatchDate(ts){
+  try{
+    const d=new Date(ts);
+    const dd=String(d.getDate()).padStart(2,"0");
+    const mm=String(d.getMonth()+1).padStart(2,"0");
+    const hh=String(d.getHours()).padStart(2,"0");
+    const mi=String(d.getMinutes()).padStart(2,"0");
+    return dd+"/"+mm+" "+hh+":"+mi;
+  }catch(e){return "—"}
+}
+function worldNameHist(w){
+  const n={1:"Espacio",2:"Nieve",3:"Fuego",4:"Cristal",5:"Halloween",6:"Neón",7:"Tóxico",8:"Vacío"};
+  return n[w]||("M"+w);
+}
+function formatMatchHistoryHtml(limit){
+  limit=limit||8;
+  const h=getMatchHistory().slice(0,limit);
+  if(!h.length)return '<p style="color:#888;font-size:11px;margin:6px 0">Sin partidas aún. ¡Juega una!</p>';
+  let html='<div style="text-align:left;max-height:150px;overflow-y:auto;font-size:10px;line-height:1.45;padding:4px 2px;-webkit-overflow-scrolling:touch">';
+  h.forEach(function(m,i){
+    const rec=m.record?' <span style="color:#FFD700">★</span>':'';
+    const goku=(m.model==="goku"&&m.gokuForm)?(' ['+m.gokuForm+']'):'';
+    html+='<div style="border-bottom:1px solid rgba(255,255,255,.08);padding:4px 0">'
+      +'<span style="color:#FFCD00">#'+(i+1)+'</span> '
+      +'<b style="color:#fff">'+(m.score|0)+'</b> pts'
+      +rec
+      +' · Oleada '+(m.wave|0)
+      +' · <span style="color:#88CCFF">'+worldNameHist(m.world)+'</span><br>'
+      +'<span style="color:#8899aa">'+String(m.ship||"Br7")+goku
+      +' · '+(m.diff||"")
+      +' · '+(m.mode||"classic")
+      +' · '+(m.duration||"?")+'s'
+      +' · '+formatMatchDate(m.ts)
+      +'</span></div>';
+  });
+  html+='</div>';
+  return html;
+}
+function saveCurrentMatchToHistory(){
+  const dur=runStartTime?Math.max(1,Math.round((performance.now()-runStartTime)/1000)):0;
+  const prev=Number(lsGet("techRunRecordV4",0))||0;
+  const isRecord=(score>0&&score>=prev);
+  pushMatchHistory({
+    ts:Date.now(),
+    score:score|0,
+    wave:waveCount|0,
+    world:selectedWorld|1,
+    ship:String(shipName||"Br7").slice(0,16),
+    model:shipModel||"classic",
+    gokuForm:shipModel==="goku"?(gokuForm||"normal"):"",
+    diff:difficulty||"normal",
+    mode:gameMode||"classic",
+    duration:dur,
+    record:!!isRecord,
+    coins:coins|0
+  });
+}
 function saveRecord(){const saved=Number(lsGet("techRunRecordV4",0))||0;if(score>saved){record=score;lsSet("techRunRecordV4",record)}else{record=saved}if(recordElement)recordElement.textContent=record}
 function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario()}
 
@@ -5984,6 +6069,7 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
+runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
 startPanel.style.display="none";gameOverPanel.style.display="none";
@@ -6013,13 +6099,13 @@ if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(a
 try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gameover")}catch(e){}
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
-if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();pushRanking(score);
+if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory()}catch(e){}pushRanking(score);
 checkAchievements();
 gameOverPanel.style.display="block";
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:6px">TOP 5</p><p style="color:#ddd;font-size:11px">'+rank+'</p>'
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:6px">TOP 5</p><p style="color:#ddd;font-size:11px">'+rank+'</p>'+'<p style="color:#FFCD00;font-size:11px;margin-top:10px;margin-bottom:2px">📜 HISTORIAL</p>'+formatMatchHistoryHtml(5)
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">🏠 INICIO</button>'
@@ -6036,6 +6122,7 @@ function goToStartMenu(){
   const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
   const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
   startPanel.style.display="block";
+  setTimeout(function(){renderStart();},30);
   setTimeout(drawShipPreview,50);
 }
 

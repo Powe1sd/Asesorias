@@ -902,6 +902,7 @@ input:focus,textarea:focus,select:focus{
 <h2>⚡ TECH RUN</h2>
 <small>Elige dificultad y nave · Desliza para ver más</small><br>
 <button class="game-btn" id="startGame">🚀 INICIAR</button>
+<button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 MODO HISTORIA</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 GAME OVER</h2>
@@ -6132,6 +6133,416 @@ continueButton.addEventListener("click",continueToSite);
 document.addEventListener("keydown",function(e){
   if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
 });
+
+
+/* =========================================================
+   MODO HISTORIA — Operación Br7 (completo)
+   ========================================================= */
+let storyMode=false;
+let storyChapterIdx=0;
+let storyMissionActive=false;
+let storyObjective=null;
+let storyTimer=0;
+let storySuccess=false;
+let storyFailReason="";
+let missionMsgs=[];
+let storyEntities={capsule:null,extractZone:null,escortShip:null,dataBoxes:[],generator:null};
+let storyWaveCount=0;
+let storyCollectCount=0;
+let storyEscortHp=100;
+let storyEscortMaxHp=100;
+
+let storyProgress=(function(){try{return JSON.parse(lsGet("techStoryProgress","{}"))||{}}catch(e){return{}}})();
+function saveStoryProgress(){lsSet("techStoryProgress",JSON.stringify(storyProgress))}
+
+const STORY_CAMPAIGN=[
+  {id:"intro",title:"Briefing",subtitle:"Operación Br7",briefing:"Control TECH te contacta. Hay señales de emergencia en el sector. Tu nave Br7 es la única operativa cerca. Completa las misiones en orden.",type:"intro",reward:20},
+  {id:"rescue1",title:"Señal perdida",subtitle:"Rescate de cápsula",briefing:"Se detectó una cápsula de escape con supervivientes. Localízala, asegúrala y llévala a la zona de extracción (marcador verde).",type:"rescue",reward:45,hint:"Acércate a la cápsula parpadeante y llévala al círculo verde."},
+  {id:"data1",title:"Campo de escombros",subtitle:"Recolección de datos",briefing:"Hay cajas de datos críticas entre meteoritos. Recoge 6 antes de que se pierdan.",type:"collect",reward:40,goalCollect:6},
+  {id:"escort1",title:"Convoy en peligro",subtitle:"Escolta de carga",briefing:"Una nave de suministro está bajo ataque. Protéjala 45 segundos. Si su vida llega a 0, la misión falla.",type:"escort",reward:50,escortSeconds:45},
+  {id:"defend1",title:"Punto de extracción",subtitle:"Defensa de zona",briefing:"Mantén el perímetro. Sobrevive 3 oleadas de enemigos mientras la baliza está activa.",type:"defend",reward:55,wavesNeeded:3},
+  {id:"assault1",title:"Nodo central",subtitle:"Destruir generador",briefing:"El enemigo opera un generador. Destrúyelo disparándole. Tiene mucha vida.",type:"destroy",reward:60,generatorHp:80},
+  {id:"finale",title:"Rescate del vacío",subtitle:"Misión final",briefing:"Última señal: un científico atrapado cerca del enemigo. Rescata la cápsula y llévala a la zona segura.",type:"rescue_boss",reward:100,hint:"Asegura la cápsula y llévala a la zona verde."}
+];
+
+function pushMissionMsg(text,type,duration){
+  type=type||"radio";duration=duration||160;
+  missionMsgs.push({text:text,type:type,life:duration,max:duration});
+  if(missionMsgs.length>5)missionMsgs.shift();
+}
+function drawMissionMessages(){
+  if(!missionMsgs.length||!ctx)return;
+  const P=(typeof px==="function")?px:(n=>n);
+  let y=P(36);
+  for(let i=0;i<missionMsgs.length;i++){
+    const m=missionMsgs[i];m.life--;
+    const a=Math.min(1,m.life/40,(m.max-m.life)/20+0.3);
+    if(m.life<=0){missionMsgs.splice(i,1);i--;continue}
+    let col="rgba(180,220,255,"+a+")";
+    if(m.type==="warn")col="rgba(255,200,80,"+a+")";
+    if(m.type==="success")col="rgba(100,255,140,"+a+")";
+    if(m.type==="urgent")col="rgba(255,80,80,"+a+")";
+    if(m.type==="civil")col="rgba(255,255,255,"+a+")";
+    ctx.save();ctx.globalAlpha=a;
+    ctx.fillStyle="rgba(0,0,0,0.55)";ctx.fillRect(P(8),y-P(12),canvas.width-P(16),P(22));
+    ctx.fillStyle=col;ctx.font="bold "+P(11)+"px Share Tech Mono";ctx.textAlign="left";
+    ctx.fillText(m.text,P(14),y+P(2));ctx.restore();y+=P(24);
+  }
+}
+function drawStoryObjectiveHUD(){
+  if(!storyMode||!storyMissionActive||!storyObjective||!ctx)return;
+  const P=(typeof px==="function")?px:(n=>n);
+  const o=storyObjective;let line="";
+  if(o.type==="rescue"||o.type==="rescue_boss")line=o.picked?"🛡 Lleva la cápsula a la zona verde":"📡 Localiza y asegura la cápsula";
+  else if(o.type==="collect")line="📦 Datos "+storyCollectCount+"/"+(o.goal||6);
+  else if(o.type==="escort")line="🛡 Escolta "+Math.max(0,Math.ceil((o.timeLeft||0)/60))+"s · HP "+Math.ceil(storyEscortHp);
+  else if(o.type==="defend")line="⚠ Oleadas "+storyWaveCount+"/"+(o.waves||3);
+  else if(o.type==="destroy")line="🎯 Generador HP "+Math.max(0,Math.ceil(o.hp||0));
+  if(!line)return;
+  ctx.fillStyle="rgba(0,10,30,0.75)";ctx.fillRect(0,canvas.height-P(48),canvas.width,P(22));
+  ctx.fillStyle="#FFCD00";ctx.font="bold "+P(11)+"px Orbitron";ctx.textAlign="center";
+  ctx.fillText(line,canvas.width/2,canvas.height-P(34));
+}
+
+function startStoryChapter(idx){
+  if(idx<0||idx>=STORY_CAMPAIGN.length)return;
+  storyChapterIdx=idx;
+  const ch=STORY_CAMPAIGN[idx];
+  if(ch.type==="intro"){
+    storyProgress[ch.id]={done:true,best:1};saveStoryProgress();
+    pushMissionMsg("📡 CONTROL: Operación Br7 iniciada. Buena suerte, piloto.","radio",200);
+    showStoryBriefing(idx+1);return;
+  }
+  storyMode=true;gameMode="story";
+  storyMissionActive=true;storySuccess=false;storyFailReason="";
+  storyTimer=0;storyWaveCount=0;storyCollectCount=0;storyEscortHp=100;storyEscortMaxHp=100;
+  storyEntities={capsule:null,extractZone:null,escortShip:null,dataBoxes:[],generator:null};
+  missionMsgs=[];
+  startGame();
+  setupStoryObjective(ch);
+  setTimeout(function(){
+    pushMissionMsg("📡 CONTROL: "+ch.title+" — "+ch.subtitle,"radio",180);
+    if(ch.hint)pushMissionMsg(ch.hint,"info",160);
+  },800);
+}
+
+function setupStoryObjective(ch){
+  const s=(typeof getScale==="function")?getScale():1;
+  const sp=(typeof getSpeedScale==="function")?getSpeedScale():1;
+  if(ch.type==="rescue"||ch.type==="rescue_boss"){
+    storyObjective={type:ch.type,picked:false,capsuleHp:100};
+    storyEntities.capsule={x:40+Math.random()*(canvas.width-80),y:40+Math.random()*(canvas.height*0.35),size:18*s,hp:100,vy:0.15*sp};
+    storyEntities.extractZone={x:canvas.width*0.5,y:canvas.height-55*s,r:48*s};
+    pushMissionMsg("📡 CONTROL: Señal de emergencia detectada. Triangulando…","radio",140);
+  }else if(ch.type==="collect"){
+    storyObjective={type:"collect",goal:ch.goalCollect||6};
+    spawnStoryDataBoxes(ch.goalCollect||6);
+    pushMissionMsg("📡 CONTROL: Recupera las cajas de datos. Mínimo "+(ch.goalCollect||6)+".","radio",160);
+  }else if(ch.type==="escort"){
+    const frames=(ch.escortSeconds||45)*60;
+    storyObjective={type:"escort",timeLeft:frames,maxTime:frames};
+    storyEntities.escortShip={x:canvas.width*0.5,y:canvas.height*0.28,size:28*s,vx:0.6*sp,dir:1};
+    storyEscortHp=100;
+    pushMissionMsg("🛡 ESCOLTA ACTIVA — Protege la nave de carga.","warn",160);
+  }else if(ch.type==="defend"){
+    storyObjective={type:"defend",waves:ch.wavesNeeded||3};storyWaveCount=0;
+    pushMissionMsg("⚠ Defiende el punto de extracción. Oleadas entrantes.","urgent",160);
+  }else if(ch.type==="destroy"){
+    storyObjective={type:"destroy",hp:ch.generatorHp||80,maxHp:ch.generatorHp||80};
+    storyEntities.generator={x:canvas.width*0.5-30*s,y:50*s,size:60*s,hp:ch.generatorHp||80};
+    pushMissionMsg("🎯 OBJETIVO: Destruye el generador enemigo.","warn",160);
+  }
+}
+function spawnStoryDataBoxes(n){
+  storyEntities.dataBoxes=[];
+  const s=(typeof getScale==="function")?getScale():1;
+  const sp=(typeof getSpeedScale==="function")?getSpeedScale():1;
+  for(let i=0;i<n+2;i++){
+    storyEntities.dataBoxes.push({x:30+Math.random()*(canvas.width-60),y:30+Math.random()*(canvas.height*0.55),size:12*s,vy:(0.2+Math.random()*0.35)*sp,taken:false});
+  }
+}
+
+function updateStoryMission(){
+  if(!storyMode||!storyMissionActive||!storyObjective)return;
+  storyTimer++;
+  const o=storyObjective;
+  if(o.type==="rescue"||o.type==="rescue_boss"){
+    const cap=storyEntities.capsule,zone=storyEntities.extractZone;
+    if(cap&&!o.picked){
+      cap.y+=cap.vy||0;
+      if(Math.hypot(player.x-cap.x,player.y-cap.y)<player.size+cap.size){
+        o.picked=true;
+        pushMissionMsg("✅ CÁPSULA ASEGURADA — Llévala a la zona verde.","success",180);
+        pushMissionMsg("👤 CIVIL: ¡Gracias! No nos dejes atrás…","civil",140);
+        try{if(typeof playSfx==="function")playSfx("power")}catch(e){}
+      }
+    }else if(cap&&o.picked){
+      cap.x+=(player.x-cap.x)*0.12;cap.y+=(player.y+player.size+10-cap.y)*0.12;
+      if(zone&&Math.hypot(cap.x-zone.x,cap.y-zone.y)<zone.r*0.85){completeStoryMission(true);return}
+    }
+    if(cap&&!o.picked&&cap.y>canvas.height+40){failStoryMission("La cápsula se perdió en el vacío.");return}
+  }
+  if(o.type==="collect"){
+    const boxes=storyEntities.dataBoxes||[];
+    for(let i=0;i<boxes.length;i++){
+      const b=boxes[i];if(b.taken)continue;b.y+=b.vy;
+      if(Math.hypot(player.x-b.x,player.y-b.y)<player.size+b.size){
+        b.taken=true;storyCollectCount++;
+        pushMissionMsg("📦 Datos "+storyCollectCount+"/"+o.goal,"success",90);
+        try{if(typeof playSfx==="function")playSfx("power")}catch(e){}
+        if(storyCollectCount>=o.goal){completeStoryMission(true);return}
+      }
+      if(b.y>canvas.height+20)b.taken=true;
+    }
+  }
+  if(o.type==="escort"){
+    o.timeLeft--;
+    const es=storyEntities.escortShip;
+    if(es){
+      es.x+=es.vx*es.dir;if(es.x<40||es.x>canvas.width-40)es.dir*=-1;
+      es.y=canvas.height*0.26+Math.sin(storyTimer/40)*8;
+      for(let i=0;i<obstacles.length;i++){
+        const ob=obstacles[i];const cx=ob.x+(ob.size||0)/2,cy=ob.y+(ob.size||0)/2;
+        if(Math.hypot(cx-es.x,cy-es.y)<(ob.size||20)*0.6+es.size*0.5)storyEscortHp-=0.08;
+      }
+      if(storyEscortHp<=0){failStoryMission("La nave de carga fue destruida.");return}
+    }
+    if(o.timeLeft<=0){completeStoryMission(true);return}
+  }
+  if(o.type==="defend"){
+    if(storyWaveCount>=(o.waves||3)){completeStoryMission(true);return}
+  }
+  if(o.type==="destroy"){
+    const g=storyEntities.generator;
+    if(g){
+      for(let i=bullets.length-1;i>=0;i--){
+        const b=bullets[i];
+        if(b.x>g.x&&b.x<g.x+g.size&&b.y>g.y&&b.y<g.y+g.size){
+          g.hp-=(b.dmg||1);o.hp=g.hp;
+          try{createExplosion(b.x,b.y,8,"255,200,50")}catch(e){}
+          if(!b.pierce)bullets.splice(i,1);
+          if(g.hp<=0){
+            try{createExplosion(g.x+g.size/2,g.y+g.size/2,40,"255,100,50")}catch(e){}
+            completeStoryMission(true);return;
+          }
+        }
+      }
+    }
+  }
+}
+
+function drawStoryEntities(){
+  if(!storyMode||!storyMissionActive||!storyObjective||!ctx)return;
+  const o=storyObjective;
+  if(storyEntities.extractZone&&(o.type==="rescue"||o.type==="rescue_boss")&&o.picked){
+    const z=storyEntities.extractZone;
+    ctx.save();ctx.strokeStyle="rgba(80,255,120,0.7)";ctx.lineWidth=2;ctx.setLineDash([6,4]);
+    ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="rgba(80,255,120,0.12)";ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#66FF88";ctx.font="bold 10px Orbitron";ctx.textAlign="center";
+    ctx.fillText("ZONA SEGURA",z.x,z.y-z.r-6);ctx.restore();
+  }
+  if(storyEntities.capsule&&(o.type==="rescue"||o.type==="rescue_boss")){
+    const c=storyEntities.capsule;ctx.save();ctx.translate(c.x,c.y);
+    const pulse=0.5+0.5*Math.sin(performance.now()/200);
+    ctx.shadowColor="#66FFAA";ctx.shadowBlur=12;
+    ctx.fillStyle=o.picked?"#88FFAA":"#FFEE88";
+    ctx.beginPath();ctx.ellipse(0,0,c.size*0.7,c.size*0.45,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#fff";ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle="rgba(0,200,255,"+(0.4+pulse*0.4)+")";ctx.beginPath();ctx.arc(0,-2,4,0,Math.PI*2);ctx.fill();
+    if(!o.picked){ctx.fillStyle="#FFCD00";ctx.font="bold 9px Orbitron";ctx.textAlign="center";ctx.fillText("CÁPSULA",0,-c.size-4)}
+    ctx.restore();
+  }
+  if(o.type==="collect"){
+    (storyEntities.dataBoxes||[]).forEach(function(b){
+      if(b.taken)return;
+      ctx.save();ctx.fillStyle="#FFD700";ctx.strokeStyle="#fff";ctx.lineWidth=1;
+      ctx.fillRect(b.x-b.size/2,b.y-b.size/2,b.size,b.size);ctx.strokeRect(b.x-b.size/2,b.y-b.size/2,b.size,b.size);
+      ctx.fillStyle="#111";ctx.font="bold 8px Orbitron";ctx.textAlign="center";ctx.fillText("DATA",b.x,b.y+3);ctx.restore();
+    });
+  }
+  if(o.type==="escort"&&storyEntities.escortShip){
+    const e=storyEntities.escortShip;ctx.save();ctx.translate(e.x,e.y);
+    ctx.fillStyle="#4466AA";ctx.beginPath();ctx.moveTo(0,-e.size*0.6);ctx.lineTo(e.size*0.7,e.size*0.4);ctx.lineTo(0,e.size*0.25);ctx.lineTo(-e.size*0.7,e.size*0.4);ctx.closePath();ctx.fill();
+    ctx.strokeStyle="#AACCFF";ctx.stroke();
+    const bw=e.size*1.4;ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(-bw/2,-e.size-10,bw,5);
+    ctx.fillStyle=storyEscortHp>40?"#66FF88":"#FF3333";ctx.fillRect(-bw/2,-e.size-10,bw*(storyEscortHp/100),5);
+    ctx.fillStyle="#FFCD00";ctx.font="bold 9px Orbitron";ctx.textAlign="center";ctx.fillText("CARGA",0,-e.size-14);ctx.restore();
+  }
+  if(o.type==="destroy"&&storyEntities.generator){
+    const g=storyEntities.generator;ctx.save();
+    ctx.fillStyle="#331100";ctx.fillRect(g.x,g.y,g.size,g.size);
+    ctx.strokeStyle="#FF8844";ctx.lineWidth=2;ctx.strokeRect(g.x,g.y,g.size,g.size);
+    ctx.fillStyle="#FF6622";ctx.beginPath();ctx.arc(g.x+g.size/2,g.y+g.size/2,g.size*0.25,0,Math.PI*2);ctx.fill();
+    const bw=g.size;ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(g.x,g.y-12,bw,6);
+    ctx.fillStyle="#FF3333";ctx.fillRect(g.x,g.y-12,bw*Math.max(0,g.hp/(storyObjective.maxHp||80)),6);
+    ctx.fillStyle="#FFCD00";ctx.font="bold 10px Orbitron";ctx.textAlign="center";ctx.fillText("GENERADOR",g.x+g.size/2,g.y-16);ctx.restore();
+  }
+}
+
+function completeStoryMission(ok){
+  if(!storyMissionActive)return;
+  storyMissionActive=false;storySuccess=!!ok;
+  const ch=STORY_CAMPAIGN[storyChapterIdx];
+  if(ok&&ch){
+    storyProgress[ch.id]=storyProgress[ch.id]||{};
+    storyProgress[ch.id].done=true;
+    storyProgress[ch.id].best=Math.max(storyProgress[ch.id].best||0,score||0);
+    coins+=(ch.reward||30);lsSet("techCoinsV2",coins);saveStoryProgress();
+    pushMissionMsg("🎉 MISIÓN CUMPLIDA +"+(ch.reward||30)+"⭐","success",220);
+    try{if(typeof playSfx==="function")playSfx("nova")}catch(e){}
+  }
+  gameRunning=false;gamePaused=false;
+  try{cancelAnimationFrame(animationFrame)}catch(e){}
+  showStoryResultPanel(ok);
+}
+function failStoryMission(reason){
+  storyFailReason=reason||"Misión fallida.";
+  pushMissionMsg("💥 "+storyFailReason,"urgent",200);
+  completeStoryMission(false);
+}
+function showStoryResultPanel(ok){
+  let p=document.getElementById("storyResultPanel");
+  if(!p){p=document.createElement("div");p.id="storyResultPanel";p.className="game-panel";
+    p.style.cssText="display:none;z-index:70;width:min(380px,94%);";
+    (document.querySelector(".tech-game")||document.body).appendChild(p)}
+  const ch=STORY_CAMPAIGN[storyChapterIdx]||{};
+  const nextIdx=storyChapterIdx+1;const hasNext=nextIdx<STORY_CAMPAIGN.length;
+  if(ok){
+    p.innerHTML='<h2>✅ MISIÓN CUMPLIDA</h2><p style="color:#FFCD00">'+(ch.title||"")+'</p><p>+'+(ch.reward||0)+' ⭐ puntosjuego</p><p style="font-size:12px;color:#aaa">Puntuación: '+(score||0)+'</p>'+
+      (hasNext?'<button class="game-btn" id="storyNextBtn">➡ SIGUIENTE MISIÓN</button>':'<p style="color:#66FF88">🏁 Campaña completada</p>')+
+      '<button class="game-btn game-btn-blue" id="storyMenuBtn">📖 MENÚ HISTORIA</button>';
+  }else{
+    p.innerHTML='<h2>💥 MISIÓN FALLIDA</h2><p>'+(storyFailReason||"Inténtalo de nuevo.")+'</p>'+
+      '<button class="game-btn" id="storyRetryBtn">🔄 REINTENTAR</button>'+
+      '<button class="game-btn game-btn-blue" id="storyMenuBtn">📖 MENÚ HISTORIA</button>';
+  }
+  p.style.display="block";
+  const next=document.getElementById("storyNextBtn");if(next)next.onclick=function(){p.style.display="none";startStoryChapter(nextIdx)};
+  const retry=document.getElementById("storyRetryBtn");if(retry)retry.onclick=function(){p.style.display="none";startStoryChapter(storyChapterIdx)};
+  const menu=document.getElementById("storyMenuBtn");if(menu)menu.onclick=function(){p.style.display="none";openStoryMenu()};
+}
+
+function openStoryMenu(){
+  storyMode=false;storyMissionActive=false;gameRunning=false;
+  try{cancelAnimationFrame(animationFrame)}catch(e){}
+  if(startPanel)startPanel.style.display="none";
+  if(gameOverPanel)gameOverPanel.style.display="none";
+  const rp=document.getElementById("storyResultPanel");if(rp)rp.style.display="none";
+  let m=document.getElementById("storyMenuPanel");
+  if(!m){m=document.createElement("div");m.id="storyMenuPanel";m.className="game-panel";
+    m.style.cssText="display:none;z-index:65;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;";
+    (document.querySelector(".tech-game")||document.body).appendChild(m)}
+  let html='<h2 style="text-align:center">📖 MODO HISTORIA</h2>';
+  html+='<p style="text-align:center;color:#FFCD00;font-size:12px;margin-bottom:12px">Operación Br7 — Recuperación del Sistema TECH</p>';
+  STORY_CAMPAIGN.forEach(function(ch,i){
+    const prev=i===0?true:!!(storyProgress[STORY_CAMPAIGN[i-1].id]&&storyProgress[STORY_CAMPAIGN[i-1].id].done);
+    const done=!!(storyProgress[ch.id]&&storyProgress[ch.id].done);
+    const locked=!prev&&i>0;
+    const status=locked?"🔒":(done?"✅":"▶");
+    const bg=done?"rgba(20,60,30,0.55)":(locked?"rgba(20,20,20,0.6)":"rgba(0,20,50,0.7)");
+    html+='<div style="margin:8px 0;padding:12px;border-radius:12px;border:1px solid rgba(255,205,0,0.28);background:'+bg+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<span style="font-weight:700;color:#fff">'+status+' '+ch.title+'</span>'+
+      '<span style="color:#FFD700;font-size:11px">+'+ch.reward+'⭐</span></div>'+
+      '<p style="font-size:11px;color:#bbb;margin:6px 0">'+ch.subtitle+'</p>'+
+      (locked?'<p style="font-size:10px;color:#888">Completa la misión anterior</p>':
+        '<button type="button" class="game-btn story-play-btn" data-idx="'+i+'" style="width:100%;margin:6px 0 0;padding:8px;font-size:12px">'+(done?"REJUGAR":"JUGAR")+'</button>')+
+      '</div>';
+  });
+  html+='<button class="game-btn game-btn-blue" id="storyCloseMenu" style="width:100%;margin-top:12px">⬅ VOLVER</button>';
+  m.innerHTML=html;m.style.display="block";
+  m.querySelectorAll(".story-play-btn").forEach(function(btn){
+    btn.onclick=function(){
+      const idx=parseInt(btn.getAttribute("data-idx"),10);
+      m.style.display="none";
+      if(STORY_CAMPAIGN[idx].type==="intro"){startStoryChapter(idx);return}
+      showStoryBriefing(idx);
+    };
+  });
+  const cl=document.getElementById("storyCloseMenu");
+  if(cl)cl.onclick=function(){m.style.display="none";if(startPanel)startPanel.style.display="block"};
+}
+function showStoryBriefing(idx){
+  const ch=STORY_CAMPAIGN[idx];if(!ch)return;
+  let p=document.getElementById("storyBriefPanel");
+  if(!p){p=document.createElement("div");p.id="storyBriefPanel";p.className="game-panel";
+    p.style.cssText="display:none;z-index:66;width:min(400px,94%);";
+    (document.querySelector(".tech-game")||document.body).appendChild(p)}
+  p.innerHTML='<h2>📋 '+ch.title+'</h2><p style="color:#FFCD00;font-size:13px">'+ch.subtitle+'</p>'+
+    '<p style="font-size:12px;line-height:1.5;color:#ccc;margin:12px 0">'+ch.briefing+'</p>'+
+    '<p style="font-size:11px;color:#888">Recompensa: <b style="color:#FFD700">+'+ch.reward+'⭐</b></p>'+
+    '<button class="game-btn" id="storyStartMission">🚀 INICIAR MISIÓN</button>'+
+    '<button class="game-btn game-btn-blue" id="storyBackMenu">⬅ ATRÁS</button>';
+  p.style.display="block";
+  document.getElementById("storyStartMission").onclick=function(){p.style.display="none";startStoryChapter(idx)};
+  document.getElementById("storyBackMenu").onclick=function(){p.style.display="none";openStoryMenu()};
+}
+function storyOnWaveComplete(){
+  if(!storyMode||!storyMissionActive||!storyObjective)return;
+  if(storyObjective.type==="defend"){
+    storyWaveCount++;
+    pushMissionMsg("⚠ Oleada "+storyWaveCount+"/"+(storyObjective.waves||3)+" superada","warn",120);
+  }
+}
+
+/* Enganche botón menú */
+(function(){
+  function bindStoryBtn(){
+    const b=document.getElementById("openStoryMode");
+    if(b&&!b._storyBound){b._storyBound=true;b.addEventListener("click",function(e){e.preventDefault();openStoryMenu()})}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindStoryBtn);
+  else bindStoryBtn();
+  setTimeout(bindStoryBtn,500);
+})();
+
+/* Parches a funciones existentes */
+(function(){
+  const _endGame=typeof endGame==="function"?endGame:null;
+  if(_endGame){
+    endGame=function(){
+      if(storyMode&&storyMissionActive){failStoryMission("La nave Br7 fue destruida.");return}
+      return _endGame.apply(this,arguments);
+    };
+  }
+  const _startGame=typeof startGame==="function"?startGame:null;
+  if(_startGame){
+    startGame=function(){
+      if(!storyMode){storyMissionActive=false;storyObjective=null}
+      return _startGame.apply(this,arguments);
+    };
+  }
+  // Hook gameLoop: envolver requestAnimationFrame no es fiable; inyectamos al final del body del loop vía monkeypatch del drawHUD
+  const _drawHUD=typeof drawHUD==="function"?drawHUD:null;
+  if(_drawHUD){
+    drawHUD=function(){
+      _drawHUD.apply(this,arguments);
+      if(storyMode){
+        try{updateStoryMission()}catch(e){}
+        try{drawStoryEntities()}catch(e){}
+        try{drawMissionMessages()}catch(e){}
+        try{drawStoryObjectiveHUD()}catch(e){}
+      }
+    };
+  }
+  // Wave complete: intentar enganchar updatePhase si existe
+  if(typeof updatePhase==="function"){
+    const _up=updatePhase;
+    let _lastPhase=null;
+    updatePhase=function(){
+      const prev=typeof phase!=="undefined"?phase:null;
+      const r=_up.apply(this,arguments);
+      try{
+        if(storyMode&&prev&&phase&&prev!==phase&&(phase==="meteors"||phase==="ships")){
+          if(prev==="ships"||prev==="boss"||prev==="warning")storyOnWaveComplete();
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+})();
+
 </script>
 </body>
 </html>

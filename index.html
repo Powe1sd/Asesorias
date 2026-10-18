@@ -1106,10 +1106,10 @@ let feverMode=0,feverAnnounced=false,lastSupplyDrop=0,supplyCrates=[];
 let damageFlash=0,introTimer=0;
 let lowPower=(function(){
   const v=lsGet("techLowPower","");
-  if(v==="1")return true;
   if(v==="0")return false;
-  /* por defecto activado en móvil para fluidez */
-  try{return window.innerWidth<=900||('ontouchstart' in window)}catch(e){return false}
+  if(v==="1")return true;
+  /* por defecto activado en móvil / touch para evitar lag y pausas */
+  try{return window.innerWidth<=1024||('ontouchstart' in window)||/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||"")}catch(e){return true}
 })();
 let gyroOn=lsGet("techGyro","0")==="1";
 let oneHand=lsGet("techOneHand","0")==="1";
@@ -2700,11 +2700,35 @@ if(startPanel&&!document.getElementById("startExtras")){
 const h=document.querySelector(".game-help");if(h)h.innerHTML="🖱️ Mouse · ⌨️ Flechas · Espacio · 🎮 Mando · ⚙ · <b>P</b> pausa · Goku: <b>1-9</b> fases · <b>K</b> ataque KI · Nave <b>Br7</b>";
 })();
 
-function togglePause(force){if(!gameRunning)return;gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
+let _lastLoopTs=0,_watchdogTimer=null,_pauseDebounce=0;
+function kickGameLoop(){
+  if(!gameRunning||gamePaused)return;
+  try{cancelAnimationFrame(animationFrame)}catch(e){}
+  animationFrame=requestAnimationFrame(gameLoop);
+}
+function startLoopWatchdog(){
+  try{if(_watchdogTimer)clearInterval(_watchdogTimer)}catch(e){}
+  _watchdogTimer=setInterval(function(){
+    if(!gameRunning||gamePaused)return;
+    const now=performance.now();
+    /* Si el bucle se detuvo >400ms (móvil/navegador), reiniciar */
+    if(_lastLoopTs && now-_lastLoopTs>400){
+      kickGameLoop();
+    }
+  },250);
+}
+function stopLoopWatchdog(){
+  try{if(_watchdogTimer){clearInterval(_watchdogTimer);_watchdogTimer=null}}catch(e){}
+}
+function togglePause(force){if(!gameRunning)return;
+  /* Evitar dobles toques accidentales en móvil */
+  const now=performance.now();
+  if(typeof force!=="boolean" && now-_pauseDebounce<350)return;
+  _pauseDebounce=now;
+  gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
 if(gamePaused){
   if(pp){
     pp.style.display="block";
-    /* refrescar valores de config al abrir */
     try{
       const psp=document.getElementById("pauseSensPad"),pspv=document.getElementById("pauseSensPadVal");
       if(psp){psp.value=sensPad;if(pspv)pspv.textContent=Number(sensPad).toFixed(2)+"x"}
@@ -2720,8 +2744,31 @@ if(gamePaused){
   }
   if(bp)bp.innerHTML="▶";cancelAnimationFrame(animationFrame);if(SFX.bg){try{SFX.bg.volume=Math.min(volMusic,0.04)}catch(e){}}
   try{pauseEngineSound()}catch(e){}
+  stopLoopWatchdog();
 }
-else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}try{resumeEngineSound()}catch(e){}animationFrame=requestAnimationFrame(gameLoop)}}
+else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}try{resumeEngineSound()}catch(e){}kickGameLoop();startLoopWatchdog()}}
+
+/* Al volver a la pestaña / desbloquear pantalla: reanudar bucle (no pausar solo) */
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){
+    /* no forzar pausa: el rAF se para solo; al volver se reinicia */
+    try{pauseEngineSound()}catch(e){}
+  } else {
+    if(gameRunning&&!gamePaused){
+      lastSpawn=performance.now();lastAmmoDrop=performance.now();
+      try{resumeEngineSound()}catch(e){}
+      try{if(SFX.bg&&!audioMuted){SFX.bg.volume=volMusic;SFX.bg.play().catch(function(){})}}catch(e){}
+      kickGameLoop();
+      startLoopWatchdog();
+    }
+  }
+});
+window.addEventListener("pageshow",function(){
+  if(gameRunning&&!gamePaused){kickGameLoop();startLoopWatchdog()}
+});
+window.addEventListener("focus",function(){
+  if(gameRunning&&!gamePaused){kickGameLoop()}
+});
 
 /* Escala visual según tamaño del canvas (naves, meteoritos) */
 function getScale(){
@@ -5527,7 +5574,8 @@ let _gcTick=0;
 /* Bucle principal cada frame: mover, dibujar, colisiones */
 function gameLoop(ts){
 if(!gameRunning||gamePaused)return;
-if((++_gcTick)%8===0)gcEntities();
+_lastLoopTs=performance.now();
+if((++_gcTick)%((typeof isMobile==='function'&&isMobile())?4:8)===0)gcEntities();
 ctx.clearRect(0,0,canvas.width,canvas.height);
 try{ctx.imageSmoothingEnabled=!(typeof isMobile==="function"&&isMobile());if(ctx.imageSmoothingEnabled)ctx.imageSmoothingQuality="low"}catch(e){}
 /* Efecto temblor de pantalla */
@@ -5762,9 +5810,9 @@ startBgMusic();
 startEngineSound();
 
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();
-initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop)}
+initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop);try{startLoopWatchdog()}catch(e){}}
 
-function endGame(){
+function endGame(){try{stopLoopWatchdog()}catch(e){}
 if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
 try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gameover")}catch(e){}
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";

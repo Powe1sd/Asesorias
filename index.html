@@ -1073,7 +1073,7 @@ let sensKeys=Number(lsGet("techSensKeys",1)); if(isNaN(sensKeys)||sensKeys<=0)se
 let sensPad=Number(lsGet("techSensPadV7",0.15)); if(isNaN(sensPad))sensPad=0.15; if(sensPad<0)sensPad=0;
 /* Volúmenes por defecto bajos */
 let volMusic=Number(lsGet("techVolMusicV3",0.10)); if(isNaN(volMusic))volMusic=0.10;
-let volSfx=Number(lsGet("techVolSfxV3",0.10)); if(isNaN(volSfx))volSfx=0.10;
+let volSfx=Number(lsGet("techVolSfxV3",0.55)); if(isNaN(volSfx)||volSfx<0.3)volSfx=0.55;
 let audioMuted=lsGet("techAudioMuted","0")==="1";
 let vibrateOn=lsGet("techVibrate","1")!=="0";
 let vibrateShoot=lsGet("techVibrateShoot","1")!=="0";
@@ -1956,8 +1956,8 @@ try {
   // SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
   // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
   // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
-  SFX.shoot = new Audio("audios/disparo.mp3");
-  SFX.ki = new Audio("audios/poder-goku.mp3"); /* disparo energía Goku (solo disparo) */
+  SFX.shoot = new Audio("audios/disparo.mp3"); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
+  SFX.ki = new Audio("audios/poder-goku.mp3"); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
   SFX.gokuFase = new Audio("audios/goku-fasee.mp3"); /* cambio de fase Goku */
   SFX.explode = new Audio("audios/explosion.mp3");
   SFX.power = new Audio("audios/poder.mp3");
@@ -2009,22 +2009,73 @@ function applyAudioVolumes(){
   }catch(e){}
 }
 const _sfxLast={};
+const _sfxPool={};
+const _sfxPoolIdx={};
+let _sfxCtx=null;
+function _ensureSfxCtx(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    if(!_sfxCtx)_sfxCtx=new AC();
+    if(_sfxCtx.state==="suspended")_sfxCtx.resume();
+    return _sfxCtx;
+  }catch(e){return null}
+}
+function _sfxBeep(freq,dur,vol){
+  try{
+    const ctx=_ensureSfxCtx();
+    if(!ctx)return;
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.type="square";
+    o.frequency.setValueAtTime(freq, ctx.currentTime);
+    const v=Math.max(0.001, vol||0.2);
+    g.gain.setValueAtTime(v, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+dur);
+    o.connect(g);g.connect(ctx.destination);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
 function playSfx(key){
   try{
     if(audioMuted) return;
-    const a = SFX[key];
-    if(!a || !a.src) return;
     const now=performance.now();
-    /* limitar spam (disparos/explosiones) */
-    const minGap=(key==="shoot"||key==="ki")?45:(key==="explode"?80:30);
+    const minGap=(key==="shoot"||key==="ki")?25:(key==="explode"?60:20);
     if(_sfxLast[key]&&now-_sfxLast[key]<minGap)return;
     _sfxLast[key]=now;
-    try{a.pause();a.currentTime=0}catch(e){}
-    a.volume=volSfx;
-    const p=a.play();
-    if(p&&p.catch)p.catch(()=>{});
+    const base=SFX[key];
+    // Disparos mas fuertes
+    const boost=(key==="shoot"||key==="ki")?2.0:1;
+    const vol=Math.max(0.35, Math.min(1, (typeof volSfx==="number"?volSfx:0.5)*boost));
+    if(base && base.src){
+      if(!_sfxPool[key]){ _sfxPool[key]=[]; _sfxPoolIdx[key]=0; }
+      // Round-robin: siempre un audio distinto en rafaga
+      while(_sfxPool[key].length<6){
+        const n = new Audio(base.src);
+        n.preload="auto";
+        _sfxPool[key].push(n);
+      }
+      const idx = _sfxPoolIdx[key] % _sfxPool[key].length;
+      _sfxPoolIdx[key] = idx + 1;
+      const n = _sfxPool[key][idx];
+      try{ n.currentTime=0; }catch(e){}
+      n.volume = vol;
+      const p = n.play();
+      if(p && p.catch) p.catch(function(){
+        if(key==="shoot") _sfxBeep(900,0.05,0.3);
+        else if(key==="ki") _sfxBeep(500,0.07,0.32);
+      });
+      return;
+    }
+    // Sin mp3 -> beep siempre audible
+    if(key==="shoot") _sfxBeep(900,0.05,0.32);
+    else if(key==="ki") _sfxBeep(500,0.07,0.35);
+    else if(key==="explode") _sfxBeep(140,0.1,0.3);
+    else _sfxBeep(700,0.05,0.22);
   }catch(e){}
 }
+
 
 /* ===== Motor de la nave: archivo + fallback sintético Web Audio ===== */
 let _engineCtx=null, _engineNodes=null, _enginePlaying=false;
@@ -5689,6 +5740,8 @@ animationFrame=requestAnimationFrame(gameLoop)}
 
 /* Reinicia variables y empieza la partida */
 function startGame(){
+try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
+try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";

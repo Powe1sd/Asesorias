@@ -176,7 +176,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-stick-knob{width:44px;height:44px}.touch-fire{width:78px;height:78px;font-size:12px}}
 .tech-game-section:fullscreen,.tech-game-section:-webkit-full-screen{
   background:#020b22;
-  padding:max(8px, env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  padding:max(2px, env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(2px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
   overflow-x:hidden;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   width:100%;height:100%;box-sizing:border-box;
@@ -190,28 +190,31 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .tech-game-section:-webkit-full-screen .touch-pad{
   display:none!important;
 }
-/* Fullscreen móvil: MÁS pantalla de juego + touch pad más abajo (~5cm) */
+/* Fullscreen móvil: juego + touch pad subidos ~3.5cm (antes quedaba muy abajo) */
 @media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game{
-    /* bajado 3.5cm para que se vea el personaje arriba en móvil */
-    height:min(78vh, calc(100vh - 3.5cm - 115px - env(safe-area-inset-bottom, 0px))) !important;
-    margin-top:3.5cm !important;
+    height:min(82vh, calc(100vh - 105px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))) !important;
+    margin-top:max(4px, env(safe-area-inset-top, 0px)) !important;
+    margin-bottom:0 !important;
     width:min(98vw, 1100px) !important;
     max-height:none !important;
     flex:0 0 auto;
-    min-height:45vh;
+    min-height:48vh;
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad{
     display:block!important;
     width:min(98vw,1100px)!important;
-    margin:0 auto 0 !important; /* 2cm más arriba */
-    padding-bottom:max(8px, env(safe-area-inset-bottom)) !important;
+    margin:2px auto 0 !important;
+    margin-top:0 !important;
+    padding-top:2px !important;
+    padding-bottom:max(6px, env(safe-area-inset-bottom)) !important;
     flex-shrink:0 !important;
-    max-height:min(18vh, 170px) !important;
+    max-height:min(20vh, 185px) !important;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
+    transform:translateY(-0.5cm);
   }
   .tech-game-section:fullscreen .touch-pad-inner{
     padding:6px 10px !important;
@@ -2069,16 +2072,32 @@ function playSfx(key){
       n.volume = vol;
       const p = n.play();
       if(p && p.catch) p.catch(function(){
-        if(key==="shoot") _sfxBeep(900,0.05,0.3);
-        else if(key==="ki") _sfxBeep(500,0.07,0.32);
+        /* fallback sintético si el mp3 no carga */
+        playSfx._fb=true;
+        if(key==="shoot"){_sfxBeep(920,0.04,0.28)}
+        else if(key==="ki"){_sfxBeep(480,0.05,0.3)}
+        else if(key==="explode"){_sfxBeep(90,0.12,0.3)}
+        else if(key==="hit"){_sfxBeep(220,0.08,0.28)}
+        else if(key==="power"){_sfxBeep(660,0.05,0.22)}
+        else _sfxBeep(700,0.05,0.2);
       });
       return;
     }
-    // Sin mp3 -> beep siempre audible
-    if(key==="shoot") _sfxBeep(900,0.05,0.32);
-    else if(key==="ki") _sfxBeep(500,0.07,0.35);
-    else if(key==="explode") _sfxBeep(140,0.1,0.3);
-    else _sfxBeep(700,0.05,0.22);
+    // Sin mp3 -> sonidos sintéticos por tipo
+    if(key==="shoot"){_sfxBeep(920,0.04,0.28);_sfxBeep(600,0.03,0.12)}
+    else if(key==="ki"){_sfxBeep(480,0.05,0.3);_sfxBeep(720,0.04,0.15)}
+    else if(key==="explode"){_sfxBeep(90,0.12,0.32);_sfxBeep(180,0.08,0.18)}
+    else if(key==="hit"){_sfxBeep(220,0.08,0.28);_sfxBeep(140,0.06,0.15)}
+    else if(key==="power"||key==="pickup"){_sfxBeep(660,0.05,0.22);_sfxBeep(990,0.06,0.18)}
+    else if(key==="shield"){_sfxBeep(400,0.08,0.25);_sfxBeep(800,0.1,0.15)}
+    else if(key==="dash"||key==="overdrive"){_sfxBeep(300,0.04,0.2);_sfxBeep(900,0.06,0.22)}
+    else if(key==="teleport"||key==="nova"){_sfxBeep(250,0.08,0.22);_sfxBeep(500,0.1,0.2);_sfxBeep(1000,0.08,0.15)}
+    else if(key==="boss"||key==="warning"){_sfxBeep(120,0.15,0.3);_sfxBeep(80,0.12,0.2)}
+    else if(key==="wave"||key==="level"){_sfxBeep(523,0.08,0.2);_sfxBeep(659,0.08,0.18);_sfxBeep(784,0.1,0.16)}
+    else if(key==="laser"){_sfxBeep(1100,0.06,0.22)}
+    else if(key==="missile"){_sfxBeep(200,0.05,0.2);_sfxBeep(150,0.12,0.15)}
+    else if(key==="gameover"){_sfxBeep(300,0.2,0.25);_sfxBeep(150,0.25,0.22)}
+    else _sfxBeep(700,0.05,0.2);
   }catch(e){}
 }
 
@@ -3279,9 +3298,9 @@ function advanceLevel(){
   level=1;
 }
 function startMeteorPhase(){phase="meteors";phaseTimer=METEOR_DURATION;obstacles=obstacles.filter(o=>["meteor","explosive","magnetic","hard","fireball"].includes(o.type))}
-function startWarning(){phase="warning";phaseTimer=WARNING_DURATION}
-function startShipPhase(){phase="ships";phaseTimer=0;obstacles=obstacles.filter(o=>!["meteor","explosive","magnetic","hard","fireball"].includes(o.type));spawnShipWave()}
-function startBossPhase(){phase="boss";phaseTimer=0;obstacles=[];enemyBullets=[];createBoss(nextBossType())}
+function startWarning(){phase="warning";phaseTimer=WARNING_DURATION;try{playSfx("warning")}catch(e){}}
+function startShipPhase(){phase="ships";phaseTimer=0;obstacles=obstacles.filter(o=>!["meteor","explosive","magnetic","hard","fireball"].includes(o.type));try{playSfx("wave")}catch(e){}spawnShipWave()}
+function startBossPhase(){phase="boss";phaseTimer=0;obstacles=[];enemyBullets=[];try{playSfx("boss")}catch(e){try{playSfx("warning")}catch(_){}}createBoss(nextBossType())}
 
 /* Cambia de fase: meteoros → aviso → naves → jefe */
 function updatePhase(){
@@ -4140,7 +4159,7 @@ function teleportWorld(){
   obstacles=obstacles.filter(o=>String(o.type).startsWith("boss")||Math.hypot((o.x+o.size/2)-player.x,(o.y+o.size/2)-player.y)<120);
   enemyBullets=[];
   createExplosion(player.x,player.y,20,"100,255,180");
-  try{playSfx("nova")}catch(e){try{playSfx("power")}catch(_){}}
+  try{playSfx("teleport")}catch(e){try{playSfx("nova")}catch(_){try{playSfx("power")}catch(__){}}}
   doVibrate(25);
   invisible=Math.max(invisible,40);
   dashInvuln=Math.max(dashInvuln,40);
@@ -4257,7 +4276,7 @@ function doDash(){
       if(o.hp<=0){try{destroyEnemy(o,j)}catch(e){try{obstacles.splice(j,1)}catch(_){}}}
     }
   }
-  try{playSfx("overdrive")}catch(e){try{playSfx("power")}catch(_){}}
+  try{playSfx("dash")}catch(e){try{playSfx("overdrive")}catch(_){try{playSfx("power")}catch(__){}}}
   doVibrate(18);
   createExplosion(ox,oy,8,trailCol);
   createExplosion(player.x,player.y,6,trailCol);

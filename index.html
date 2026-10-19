@@ -1034,6 +1034,20 @@ input:focus,textarea:focus,select:focus{
   }
 }
 
+
+/* Layouts del touch pad (configurables) */
+.touch-pad.layout-left .touch-pad-inner{flex-direction:row}
+.touch-pad.layout-right .touch-pad-inner{flex-direction:row-reverse}
+.touch-pad.layout-fire-left .touch-pad-inner{flex-direction:row-reverse}
+.touch-pad.layout-stacked .touch-pad-inner{
+  flex-direction:column-reverse;align-items:stretch;gap:8px;
+}
+.touch-pad.layout-stacked .touch-col,
+.touch-pad.layout-stacked .touch-mid{
+  width:100%;display:flex;justify-content:center;flex-direction:row;flex-wrap:wrap;
+}
+.touch-pad.layout-stacked .touch-mid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));max-width:100%}
+
 </style>
 </head>
 <body>
@@ -1326,6 +1340,7 @@ function applyShipGalleryEntry(entry){
     gokuForm="normal";
   }
   try{updateGokuFormsUI()}catch(e){}
+  try{applyTouchLayout();applyUILanguage()}catch(e){}
 }
 function shiftShipGallery(dir){
   const n=SHIP_GALLERY.length;
@@ -1467,6 +1482,153 @@ function buyUpgrade(kind){
   return true;
 }
 let lang=lsGet("techLang","es");
+let touchLayout=lsGet("techTouchLayout","left"); // left | right | stacked
+if(!["left","right","stacked"].includes(touchLayout)) touchLayout="left";
+
+/* ===== i18n ===== */
+const I18N={
+es:{
+  config:"⚙ CONFIG",save:"✓ GUARDAR",manual:"📖 MANUAL",
+  sensMouse:"Sensibilidad ratón / touch en canvas",
+  sensKeys:"Sensibilidad teclado (flechas)",
+  sensPad:"Sensibilidad touch pad / mando",
+  audio:"🔊 AUDIO",music:"Música de fondo",sfx:"Efectos (disparo, explosión, poderes)",
+  mute:"Silenciar todo",vibMeteor:"Vibrar al destruir meteoritos",vibShoot:"Vibrar al disparar",
+  lowPower:"Modo bajo consumo",gyro:"Giroscopio (inclinar móvil)",
+  language:"Idioma",touchLayout:"Controles táctiles (layout)",
+  layoutLeft:"Mover ← · FIRE → (clásico)",
+  layoutRight:"FIRE ← · Mover → (invertido)",
+  layoutStacked:"Apilado (FIRE abajo, mover arriba)",
+  powerMode:"Poderes al recoger",
+  powerAuto:"Automático (se activan al cogerlos)",
+  powerManual:"Manual (tecla G / botón ⚡)",
+  pcHint:"PC: G = usar poder · P = pausa",
+  start:"🚀 INICIAR",story:"📖 MODO HISTORIA",
+  gameOver:"💥 GAME OVER",retry:"🔄 REINTENTAR",continue:"↓ CONTINUAR",
+  pause:"PAUSA",resume:"▶ CONTINUAR",easy:"FÁCIL",normal:"NORMAL",hard:"DIFÍCIL",
+  move:"MOVER",fire:"FIRE",launching:"Br7 despega...",
+  impacted:"Sistema impactado.",score:"Puntuación:"
+},
+en:{
+  config:"⚙ SETTINGS",save:"✓ SAVE",manual:"📖 MANUAL",
+  sensMouse:"Mouse / canvas touch sensitivity",
+  sensKeys:"Keyboard sensitivity (arrows)",
+  sensPad:"Touch pad / gamepad sensitivity",
+  audio:"🔊 AUDIO",music:"Background music",sfx:"SFX (shot, explosion, powers)",
+  mute:"Mute all",vibMeteor:"Vibrate on meteor kill",vibShoot:"Vibrate on shoot",
+  lowPower:"Low power mode",gyro:"Gyroscope (tilt phone)",
+  language:"Language",touchLayout:"Touch controls layout",
+  layoutLeft:"Move ← · FIRE → (classic)",
+  layoutRight:"FIRE ← · Move → (inverted)",
+  layoutStacked:"Stacked (FIRE bottom, move top)",
+  powerMode:"Powers on pickup",
+  powerAuto:"Automatic (activate on pickup)",
+  powerManual:"Manual (G key / ⚡ button)",
+  pcHint:"PC: G = use power · P = pause",
+  start:"🚀 START",story:"📖 STORY MODE",
+  gameOver:"💥 GAME OVER",retry:"🔄 RETRY",continue:"↓ CONTINUE",
+  pause:"PAUSE",resume:"▶ RESUME",easy:"EASY",normal:"NORMAL",hard:"HARD",
+  move:"MOVE",fire:"FIRE",launching:"Br7 launching...",
+  impacted:"System hit.",score:"Score:"
+},
+fr:{
+  config:"⚙ RÉGLAGES",save:"✓ ENREGISTRER",manual:"📖 MANUEL",
+  sensMouse:"Sensibilité souris / tactile",
+  sensKeys:"Sensibilité clavier (flèches)",
+  sensPad:"Sensibilité pad / manette",
+  audio:"🔊 AUDIO",music:"Musique",sfx:"Effets (tir, explosion, pouvoirs)",
+  mute:"Tout couper",vibMeteor:"Vibrer (météores)",vibShoot:"Vibrer (tir)",
+  lowPower:"Mode économie",gyro:"Gyroscope",
+  language:"Langue",touchLayout:"Disposition tactile",
+  layoutLeft:"Bouger ← · FEU → (classique)",
+  layoutRight:"FEU ← · Bouger → (inversé)",
+  layoutStacked:"Empilé (FEU en bas)",
+  powerMode:"Pouvoirs à la collecte",
+  powerAuto:"Automatique",powerManual:"Manuel (G / ⚡)",
+  pcHint:"PC: G = pouvoir · P = pause",
+  start:"🚀 DÉMARRER",story:"📖 MODE HISTOIRE",
+  gameOver:"💥 GAME OVER",retry:"🔄 REJOUER",continue:"↓ CONTINUER",
+  pause:"PAUSE",resume:"▶ REPRENDRE",easy:"FACILE",normal:"NORMAL",hard:"DIFFICILE",
+  move:"BOUGER",fire:"FEU",launching:"Br7 décolle...",
+  impacted:"Système touché.",score:"Score :"
+},
+ja:{
+  config:"⚙ 設定",save:"✓ 保存",manual:"📖 マニュアル",
+  sensMouse:"マウス／タッチ感度",
+  sensKeys:"キーボード感度",
+  sensPad:"パッド／コントローラー感度",
+  audio:"🔊 音声",music:"BGM",sfx:"効果音",
+  mute:"ミュート",vibMeteor:"隕石破壊で振動",vibShoot:"発射で振動",
+  lowPower:"省電力モード",gyro:"ジャイロ",
+  language:"言語",touchLayout:"タッチ配置",
+  layoutLeft:"移動← · 発射→（標準）",
+  layoutRight:"発射← · 移動→（反転）",
+  layoutStacked:"縦配置（発射下）",
+  powerMode:"パワー取得時",
+  powerAuto:"自動",powerManual:"手動（G / ⚡）",
+  pcHint:"PC: G=パワー · P=一時停止",
+  start:"🚀 スタート",story:"📖 ストーリー",
+  gameOver:"💥 ゲームオーバー",retry:"🔄 リトライ",continue:"↓ 続ける",
+  pause:"一時停止",resume:"▶ 再開",easy:"かんたん",normal:"ふつう",hard:"むずかしい",
+  move:"移動",fire:"発射",launching:"Br7 発進...",
+  impacted:"システム被弾。",score:"スコア:"
+},
+zh:{
+  config:"⚙ 设置",save:"✓ 保存",manual:"📖 手册",
+  sensMouse:"鼠标/触控灵敏度",
+  sensKeys:"键盘灵敏度",
+  sensPad:"触控板/手柄灵敏度",
+  audio:"🔊 音频",music:"背景音乐",sfx:"音效",
+  mute:"全部静音",vibMeteor:"击毁陨石时振动",vibShoot:"射击时振动",
+  lowPower:"低功耗模式",gyro:"陀螺仪",
+  language:"语言",touchLayout:"触控布局",
+  layoutLeft:"移动← · 射击→（经典）",
+  layoutRight:"射击← · 移动→（反转）",
+  layoutStacked:"上下布局（射击在下）",
+  powerMode:"拾取能力时",
+  powerAuto:"自动",powerManual:"手动（G / ⚡）",
+  pcHint:"电脑: G=能力 · P=暂停",
+  start:"🚀 开始",story:"📖 故事模式",
+  gameOver:"💥 游戏结束",retry:"🔄 重试",continue:"↓ 继续",
+  pause:"暂停",resume:"▶ 继续",easy:"简单",normal:"普通",hard:"困难",
+  move:"移动",fire:"射击",launching:"Br7 起飞...",
+  impacted:"系统受击。",score:"分数:"
+}
+};
+function T(key){
+  const pack=I18N[lang]||I18N.es;
+  return (pack&&pack[key])||(I18N.es[key])||key;
+}
+function applyTouchLayout(){
+  const tp=document.getElementById("touchPad");
+  if(!tp)return;
+  tp.classList.remove("layout-left","layout-right","layout-stacked","layout-fire-left");
+  const L=touchLayout||"left";
+  if(L==="right") tp.classList.add("layout-right");
+  else if(L==="stacked") tp.classList.add("layout-stacked");
+  else tp.classList.add("layout-left");
+  lsSet("techTouchLayout",L);
+}
+function applyUILanguage(){
+  try{document.documentElement.lang=(lang==="ja"?"ja":lang==="zh"?"zh-CN":lang)||"es"}catch(e){}
+  const map=[
+    ["startGame",T("start")],
+    ["openStoryMode",T("story")],
+    ["restartGame",T("retry")],
+    ["continueGame",T("continue")],
+  ];
+  map.forEach(([id,txt])=>{const el=document.getElementById(id);if(el)el.textContent=txt});
+  const go=document.querySelector("#gameOverPanel h2");if(go)go.textContent=T("gameOver");
+  const gp=document.querySelector("#gameOverPanel p");if(gp&&gp.textContent){/* first p */}
+  const hint=document.querySelector(".touch-move-hint");if(hint)hint.textContent=T("move");
+  const fire=document.getElementById("touchFire");if(fire)fire.textContent=T("fire");
+  const cfgH=document.querySelector("#configPanel h2");if(cfgH)cfgH.textContent=T("config");
+  const close=document.getElementById("closeConfig");if(close)close.textContent=T("save");
+  const man=document.getElementById("btnManual");if(man)man.textContent=T("manual");
+  try{applyTouchLayout()}catch(e){}
+  try{if(typeof renderStart==="function"){/* optional */}}catch(e){}
+}
+
 /* ===== MISIONES DIARIAS (menú + progreso) ===== */
 let dailyDate=lsGet("techDailyDate","");
 let dailyMissions=[]; // {id,type,goal,done,reward,claimed,title,desc}
@@ -2533,19 +2695,29 @@ cfg.innerHTML=`<h2 style="font-size:20px;margin-bottom:10px">⚙ CONFIG</h2>
 <label style="display:block;margin:8px 0;color:#ddd;font-size:12px;cursor:pointer">
 <input type="checkbox" id="gyroToggle" ${gyroOn?"checked":""} style="accent-color:#AA88FF"> Giroscopio (inclinar móvil)
 </label>
-<p style="color:#FFCD00;font-size:11px;margin:8px 0 2px">Idioma</p>
+<p style="color:#FFCD00;font-size:11px;margin:8px 0 2px">${T("language")}</p>
 <select id="langSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
 <option value="es" ${lang==="es"?"selected":""}>Español</option>
 <option value="en" ${lang==="en"?"selected":""}>English</option>
+<option value="fr" ${lang==="fr"?"selected":""}>Français</option>
+<option value="ja" ${lang==="ja"?"selected":""}>日本語</option>
+<option value="zh" ${lang==="zh"?"selected":""}>中文</option>
 </select>
-<p style="color:#FFCD00;font-size:11px;margin:10px 0 4px">Poderes al recoger</p>
+<p style="color:#FFCD00;font-size:11px;margin:10px 0 2px">${T("touchLayout")}</p>
+<select id="touchLayoutSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
+<option value="left" ${touchLayout==="left"?"selected":""}>${T("layoutLeft")}</option>
+<option value="right" ${touchLayout==="right"?"selected":""}>${T("layoutRight")}</option>
+<option value="stacked" ${touchLayout==="stacked"?"selected":""}>${T("layoutStacked")}</option>
+</select>
+<p style="color:#888;font-size:10px;margin:4px 0 8px">Mover / FIRE / poderes · el resto igual</p>
+<p style="color:#FFCD00;font-size:11px;margin:10px 0 4px">${T("powerMode")}</p>
 <select id="powerModeSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
-<option value="auto">Automático (se activan al cogerlos)</option>
-<option value="manual">Manual (tecla G / botón ⚡)</option>
+<option value="auto">${T("powerAuto")}</option>
+<option value="manual">${T("powerManual")}</option>
 </select>
-<p style="color:#888;font-size:10px;margin-top:8px">PC: G = usar poder · P = pausa</p>
-<button class="game-btn" id="btnManual" style="margin-top:10px;width:90%">📖 MANUAL</button>
-<button class="game-btn" id="closeConfig">✓ GUARDAR</button>`;
+<p style="color:#888;font-size:10px;margin-top:8px">${T("pcHint")}</p>
+<button class="game-btn" id="btnManual" style="margin-top:10px;width:90%">${T("manual")}</button>
+<button class="game-btn" id="closeConfig">${T("save")}</button>`;
 gameBox.appendChild(cfg);
 [["sensMouse","mouse","sensMouseVal"],["sensKeys","keys","sensKeysVal"],["sensPad","pad","sensPadVal"]].forEach(([id,w,vid])=>{
 const el=document.getElementById(id),lab=document.getElementById(vid);
@@ -2566,7 +2738,32 @@ const gy=document.getElementById("gyroToggle");if(gy)gy.onchange=()=>{gyroOn=gy.
   if(typeof DeviceOrientationEvent.requestPermission==="function"){DeviceOrientationEvent.requestPermission().then(s=>{if(s==="granted")en()}).catch(()=>{})}
   else en();
 }};
-const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{lang=ls.value};
+const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{lang=ls.value;lsSet("techLang",lang);applyUILanguage();try{rebuildConfigLabels()}catch(e){}};
+const tls=document.getElementById("touchLayoutSelect");
+if(tls){tls.value=touchLayout||"left";tls.onchange=()=>{touchLayout=tls.value;lsSet("techTouchLayout",touchLayout);applyTouchLayout()}};
+function rebuildConfigLabels(){
+  try{
+    const cfg=document.getElementById("configPanel");
+    if(!cfg)return;
+    const h=cfg.querySelector("h2");if(h)h.textContent=T("config");
+    const close=document.getElementById("closeConfig");if(close)close.textContent=T("save");
+    const man=document.getElementById("btnManual");if(man)man.textContent=T("manual");
+    /* refresh select option texts */
+    const tl=document.getElementById("touchLayoutSelect");
+    if(tl){
+      const v=tl.value;
+      tl.innerHTML=`<option value="left">${T("layoutLeft")}</option><option value="right">${T("layoutRight")}</option><option value="stacked">${T("layoutStacked")}</option>`;
+      tl.value=v;
+    }
+    const pm=document.getElementById("powerModeSelect");
+    if(pm){
+      const v=pm.value;
+      pm.innerHTML=`<option value="auto">${T("powerAuto")}</option><option value="manual">${T("powerManual")}</option>`;
+      pm.value=v;
+    }
+  }catch(e){}
+}
+
 const pms=document.getElementById("powerModeSelect");
 if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
@@ -2574,7 +2771,7 @@ const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>s
 document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
-  lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techPowerMode",powerMode);
+  lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);try{applyTouchLayout();applyUILanguage()}catch(e){}
   cfg.style.display="none"};
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 let pp=document.getElementById("pausePanel");
@@ -6068,7 +6265,7 @@ if(introTimer>0){
   const a=Math.min(1,introTimer/40);
   ctx.fillStyle=`rgba(0,0,0,${0.35*a})`;ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${Math.min(22,canvas.width*0.05)}px Orbitron`;ctx.textAlign="center";
-  ctx.fillText(lang==="en"?"Br7 launching...":"Br7 despega...",canvas.width/2,canvas.height/2-10);
+  ctx.fillText(T("launching"),canvas.width/2,canvas.height/2-10);
   ctx.fillStyle=`rgba(255,255,255,${a*0.8})`;ctx.font="12px Share Tech Mono";
   ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+18);
 }

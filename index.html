@@ -96,7 +96,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   left:50%;top:50%;transform:translate(-50%,-50%);
   box-shadow:0 0 14px rgba(255,205,0,.55),0 4px 10px rgba(0,0,0,.4);pointer-events:none}
 .touch-fire{width:72px;height:72px;border-radius:50%;border:2px solid rgba(255,205,0,.5);background:radial-gradient(circle at 35% 30%,#ff4455,#CE1126 55%,#8a0010);color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;touch-action:none;box-shadow:0 0 22px rgba(206,17,38,.4),inset 0 1px 0 rgba(255,255,255,.25)}
-.touch-fire:active,.touch-fire.pressed{transform:scale(.93);box-shadow:0 0 28px rgba(255,200,40,.75)}
+.touch-fire:active,.touch-fire.pressed{transform:scale(.96);box-shadow:0 0 28px rgba(255,200,40,.75)}
 .touch-util{min-width:56px;height:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(0,200,255,.4);
   background:rgba(0,40,90,.7);color:#9fdfff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;
   touch-action:none;box-shadow:0 0 10px rgba(0,120,255,.2)}
@@ -230,20 +230,18 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   .tech-game-section:fullscreen .touch-move-pad{
     width:clamp(100px, 28vw, 130px) !important;
     height:clamp(90px, 24vw, 115px) !important;
-    transform:translateY(-2cm) !important;
+    /* offset con top (más abajo en CSS nuevo) */
     position:relative;
     z-index:32;
   }
   .tech-game-section:fullscreen .touch-fire{
     width:clamp(64px, 18vw, 80px) !important;
     height:clamp(64px, 18vw, 80px) !important;
-    transform:translateY(-2cm) !important;
     position:relative;
     z-index:32;
   }
   .tech-game-section:fullscreen .touch-mid{
-    gap:6px !important;
-    transform:translateY(-2cm) !important;
+    gap:5px !important;
     position:relative;
     z-index:32;
   }
@@ -284,11 +282,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     max-height:min(28vh, 170px) !important;
     transform:none;
   }
-  .tech-game-section:fullscreen .touch-move-pad,
-  .tech-game-section:fullscreen .touch-fire,
-  .tech-game-section:fullscreen .touch-mid{
-    transform:translateY(-1.5cm) !important;
-  }
+  /* landscape: offset manejado por reglas top más abajo */
 }
 /* Selector fases Goku: flotante sobre el juego (PC y móvil) */
 .goku-forms-overlay{
@@ -315,13 +309,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     max-height:none !important;
     overflow:visible !important;
   }
-  .touch-pad .touch-move-pad,
-  .touch-pad .touch-fire,
-  .touch-pad .touch-mid{
-    transform:translateY(-1.2cm);
-    position:relative;
-    z-index:32;
-  }
+  /* offset con top en bloque final del pad */
   .touch-pad .goku-forms,
   .touch-pad .goku-forms.show{
     display:flex !important;
@@ -407,7 +395,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     transition: none !important;
     filter: none !important;
   }
-  .touch-fire:active, .touch-fire.pressed { box-shadow: none !important; transform: scale(.96); }
+  .touch-fire:active, .touch-fire.pressed { box-shadow: none !important; /* top se mantiene en reglas del pad */ }
   .goku-form-btn.active { box-shadow: none !important; }
   .diff-btns button {
     box-shadow: none !important;
@@ -958,6 +946,98 @@ input:focus,textarea:focus,select:focus{
   }
 }
 
+
+/* Pad poderes: rejilla 3 columnas para que quepa 🌍 y poderes nuevos */
+.touch-mid{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:5px !important;
+  align-items:center;
+  justify-items:center;
+  max-width:200px;
+}
+.touch-mid .touch-util{
+  min-width:0 !important;
+  width:100%;
+  max-width:58px;
+  height:32px !important;
+  padding:0 4px !important;
+  font-size:10px !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#touchWorld{border-color:rgba(120,255,160,.55)!important;color:#88FFAA!important}
+#touchDrone{border-color:rgba(100,200,255,.55)!important;color:#88DDFF!important}
+#touchBounce{border-color:rgba(170,255,255,.55)!important;color:#AAFFFF!important}
+#touchFreeze{border-color:rgba(150,220,255,.55)!important;color:#AADDFF!important}
+/* FIRE fijo: offset con top (no transform) para que al pulsar no baje */
+.touch-fire-col{
+  position:relative;
+  z-index:32;
+}
+.touch-fire{
+  position:relative !important;
+  top:0;
+  transform:none !important;
+  will-change:auto;
+}
+.touch-fire:active,
+.touch-fire.pressed{
+  transform:scale(.96) !important;
+  top:0 !important;
+}
+@media(max-width:1100px),(pointer:coarse){
+  .touch-pad .touch-move-pad{
+    top:-1.2cm;
+    transform:none !important;
+    position:relative;
+    z-index:32;
+  }
+  .touch-pad .touch-mid{
+    top:-1.2cm;
+    transform:none !important;
+    position:relative;
+    z-index:32;
+  }
+  .touch-pad .touch-fire-col,
+  .touch-pad .touch-fire{
+    top:-1.2cm !important;
+    transform:none !important;
+    position:relative;
+    z-index:32;
+  }
+  .touch-pad .touch-fire:active,
+  .touch-pad .touch-fire.pressed{
+    top:-1.2cm !important;
+    transform:scale(.96) !important;
+  }
+}
+@media(max-width:1100px),(pointer:coarse){
+  .tech-game-section:fullscreen .touch-move-pad{
+    top:-2cm !important;
+    transform:none !important;
+  }
+  .tech-game-section:fullscreen .touch-mid{
+    top:-2cm !important;
+    transform:none !important;
+    max-width:210px;
+  }
+  .tech-game-section:fullscreen .touch-fire-col,
+  .tech-game-section:fullscreen .touch-fire{
+    top:-2cm !important;
+    transform:none !important;
+  }
+  .tech-game-section:fullscreen .touch-fire:active,
+  .tech-game-section:fullscreen .touch-fire.pressed{
+    top:-2cm !important;
+    transform:scale(.96) !important;
+  }
+  .tech-game-section:fullscreen .touch-pad{
+    max-height:min(26vh, 230px) !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1012,8 +1092,11 @@ input:focus,textarea:focus,select:focus{
       <button type="button" class="touch-util" id="touchDash" title="Dash / esquivar">DASH</button>
       <button type="button" class="touch-util" id="touchShield" title="Escudo activo">🛡</button>
       <button type="button" class="touch-util" id="touchWorld" title="Teletransporte a otro mundo">🌍</button>
+      <button type="button" class="touch-util" id="touchDrone" title="Dron aliado">🛸</button>
+      <button type="button" class="touch-util" id="touchBounce" title="Balas con rebote">↻</button>
+      <button type="button" class="touch-util" id="touchFreeze" title="Congelar enemigos">❄</button>
     </div>
-    <div class="touch-col">
+    <div class="touch-col touch-fire-col">
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
     </div>
   </div>
@@ -1148,6 +1231,7 @@ let isShooting=false;let stickActive=false;let touchDriving=false;
 let dashCd=0,dashInvuln=0,dashTrail=[],_lastDashTap=0;
 let shieldCd=0,activeShield=0,chargeShot=0,chargeMax=90;
 let worldTeleportCd=0;
+let droneCd=0,bounceShot=0,bounceShotCd=0,freezeCd=0;
 let runStartTime=0;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
@@ -3068,6 +3152,24 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     wBtn.addEventListener("touchstart",goW,{passive:false});
     wBtn.addEventListener("mousedown",goW);
   }
+  const drBtn=document.getElementById("touchDrone");
+  if(drBtn){
+    const goDr=e=>{e.preventDefault();activateDronePower()};
+    drBtn.addEventListener("touchstart",goDr,{passive:false});
+    drBtn.addEventListener("mousedown",goDr);
+  }
+  const boBtn=document.getElementById("touchBounce");
+  if(boBtn){
+    const goBo=e=>{e.preventDefault();activateBounceShot()};
+    boBtn.addEventListener("touchstart",goBo,{passive:false});
+    boBtn.addEventListener("mousedown",goBo);
+  }
+  const frBtn=document.getElementById("touchFreeze");
+  if(frBtn){
+    const goFr=e=>{e.preventDefault();activateFreezePower()};
+    frBtn.addEventListener("touchstart",goFr,{passive:false});
+    frBtn.addEventListener("mousedown",goFr);
+  }
   /* Doble toque rápido en el pad de movimiento = dash */
   let _dashTapT=0;
   const stickEl=document.getElementById("touchStick");
@@ -4340,6 +4442,42 @@ function updateShieldBtn(){
   if(shieldCd>0)shieldCd--;
   if(activeShield>0)activeShield--;
   if(worldTeleportCd>0)worldTeleportCd--;
+  if(droneCd>0)droneCd--;
+  if(bounceShotCd>0)bounceShotCd--;
+  if(bounceShot>0)bounceShot--;
+  if(freezeCd>0)freezeCd--;
+}
+function activateDronePower(){
+  if(!gameRunning||gamePaused)return;
+  if(droneCd>0){doVibrate(8);return}
+  try{spawnDrone();spawnDrone()}catch(e){}
+  droneCd=20*60; /* 20s */
+  scenarioMsg="🛸 DRONES ACTIVOS";scenarioTransition=55;
+  try{playSfx("allies")}catch(e){try{playSfx("power")}catch(_){}}
+  doVibrate(18);
+  createExplosion(player.x,player.y,12,"100,200,255");
+}
+function activateBounceShot(){
+  if(!gameRunning||gamePaused)return;
+  if(bounceShotCd>0){doVibrate(8);return}
+  bounceShot=420; /* ~7s de balas con rebote */
+  bounceShotCd=18*60;
+  scenarioMsg="↻ BALAS REBOTE";scenarioTransition=55;
+  try{playSfx("reflect")}catch(e){try{playSfx("power")}catch(_){}}
+  doVibrate(16);
+  createExplosion(player.x,player.y,10,"170,255,255");
+}
+function activateFreezePower(){
+  if(!gameRunning||gamePaused)return;
+  if(freezeCd>0){doVibrate(8);return}
+  freezeEnemies=Math.max(freezeEnemies,210); /* ~3.5s */
+  freezeCd=22*60;
+  enemyBullets=[];
+  scenarioMsg="❄ CONGELACIÓN";scenarioTransition=60;
+  try{playSfx("nova")}catch(e){try{playSfx("power")}catch(_){}}
+  doVibrate(22);
+  createExplosion(player.x,player.y,18,"150,220,255");
+  ctx&&null;
 }
 function getChargeColor(){
   if(shipModel==="goku"){
@@ -5393,7 +5531,15 @@ function drawBullets(){
     ctx.strokeStyle="#CE1126";ctx.lineWidth=1;ctx.strokeRect(b.x-1.2,b.y-4,2.4,8);
     ctx.restore();
     }
-    if(b.y<-120){bullets.splice(i,1);continue}
+    /* Rebote de balas del jugador (poder ↻) */
+    if(bounceShot>0 && !b._noBounce){
+      let bounced=false;
+      if(b.x<4){b.x=4;if(b.vx!=null)b.vx=Math.abs(b.vx||3);else b.vx=3*getSpeedScale();bounced=true}
+      if(b.x>canvas.width-4){b.x=canvas.width-4;if(b.vx!=null)b.vx=-Math.abs(b.vx||3);else b.vx=-3*getSpeedScale();bounced=true}
+      if(b.y<4){b.y=4;if(b.vy!=null)b.vy=Math.abs(b.vy||b.speed||8);else{b.vy=(b.speed||8);b.speed=0}bounced=true}
+      if(bounced){b._bounces=(b._bounces||0)+1;if(b._bounces>4){bullets.splice(i,1);continue}}
+    }
+    if(b.y<-120||b.y>canvas.height+40||b.x<-40||b.x>canvas.width+40){bullets.splice(i,1);continue}
     for(let j=obstacles.length-1;j>=0;j--){
       const o=obstacles[j];
       const isBoss=String(o.type||"").startsWith("boss");
@@ -5656,6 +5802,9 @@ if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillT
 const pows=[];
 if(shield>0)pows.push(["ESC","#00C8FF"]);
 if(bounceShield>0)pows.push(["REB","#AAFFFF"]);
+if(bounceShot>0)pows.push(["↻","#AAFFFF"]);
+if(drones&&drones.length)pows.push(["DRN","#88DDFF"]);
+if(freezeEnemies>0)pows.push(["❄","#AADDFF"]);
 if(rapidFire>0)pows.push(["RAP","#00FF88"]);
 if(tripleShot>0)pows.push(["TRI","#66CCFF"]);
 if(laser>0)pows.push(["LAS","#00FFFF"]);
@@ -6149,7 +6298,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

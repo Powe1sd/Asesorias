@@ -74,7 +74,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-mid{display:flex;flex-direction:column;gap:8px;align-items:center}
 
 .touch-move-pad{
-  width:130px;height:120px;border-radius:18px;touch-action:none;-webkit-user-select:none;
+  width:150px;height:145px;border-radius:18px;touch-action:none;-webkit-user-select:none; /* +~2cm */
   background:linear-gradient(160deg,rgba(20,50,100,.55),rgba(5,15,35,.9));
   border:2px solid rgba(0,200,255,.4);
   box-shadow:0 0 16px rgba(0,120,255,.2),inset 0 0 24px rgba(0,0,0,.35);
@@ -83,7 +83,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .touch-move-hint{color:rgba(150,220,255,.45);font-size:11px;font-family:Orbitron,sans-serif;letter-spacing:1px;pointer-events:none}
 .touch-move-pad:active{border-color:rgba(255,205,0,.55);box-shadow:0 0 20px rgba(0,180,255,.35)}
 @media(max-width:600px){
-  .touch-move-pad{width:120px;height:110px}
+  .touch-move-pad{width:140px;height:135px} /* +~2cm */
 }
 
 .touch-stick-wrap-OLD{position:relative;width:118px;height:118px;border-radius:50%;touch-action:none;-webkit-user-select:none;
@@ -95,7 +95,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   background:radial-gradient(circle at 35% 30%,#fff,#FFCD00 40%,#CE1126 85%);
   left:50%;top:50%;transform:translate(-50%,-50%);
   box-shadow:0 0 14px rgba(255,205,0,.55),0 4px 10px rgba(0,0,0,.4);pointer-events:none}
-.touch-fire{width:72px;height:72px;border-radius:50%;border:2px solid rgba(255,205,0,.5);background:radial-gradient(circle at 35% 30%,#ff4455,#CE1126 55%,#8a0010);color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;touch-action:none;box-shadow:0 0 22px rgba(206,17,38,.4),inset 0 1px 0 rgba(255,255,255,.25)}
+.touch-fire{width:90px;height:90px;border-radius:50%; /* +~2cm */border:2px solid rgba(255,205,0,.5);background:radial-gradient(circle at 35% 30%,#ff4455,#CE1126 55%,#8a0010);color:#fff;font-family:'Orbitron',sans-serif;font-weight:800;font-size:14px;letter-spacing:1px;touch-action:none;box-shadow:0 0 22px rgba(206,17,38,.4),inset 0 1px 0 rgba(255,255,255,.25)}
 .touch-fire:active,.touch-fire.pressed{transform:scale(.96);box-shadow:0 0 28px rgba(255,200,40,.75)}
 .touch-util{min-width:56px;height:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(0,200,255,.4);
   background:rgba(0,40,90,.7);color:#9fdfff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;
@@ -128,13 +128,13 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   border-radius:clamp(14px,2vw,22px);
 }
 .touch-move-pad{
-  width:clamp(110px,18vw,160px)!important;
-  height:clamp(100px,16vw,145px)!important;
+  width:clamp(125px,20vw,175px)!important;
+  height:clamp(120px,19vw,170px)!important; /* +~2cm */
 }
 .touch-fire{
-  width:clamp(68px,12vw,96px)!important;
-  height:clamp(68px,12vw,96px)!important;
-  font-size:clamp(12px,2.2vw,16px)!important;
+  width:clamp(80px,14vw,110px)!important;
+  height:clamp(80px,14vw,110px)!important; /* +~2cm */
+  font-size:clamp(13px,2.2vw,17px)!important;
 }
 .touch-util,.touch-special{
   min-width:clamp(48px,8vw,72px);
@@ -194,7 +194,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game{
-    height:min(80vh, calc(100vh - 120px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))) !important;
+    height:min(76vh, calc(100vh - 155px - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))) !important; /* espacio extra pad +2cm */
     margin-top:max(4px, env(safe-area-inset-top, 0px)) !important;
     margin-bottom:0 !important;
     width:min(98vw, 1100px) !important;
@@ -212,7 +212,7 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     padding-top:2px !important;
     padding-bottom:max(6px, env(safe-area-inset-bottom)) !important;
     flex-shrink:0 !important;
-    max-height:min(22vh, 200px) !important;
+    max-height:min(30vh, 280px) !important; /* +~2cm */
     overflow:visible !important;
     -webkit-overflow-scrolling:touch;
     transform:none; /* cuadro NO subido */
@@ -221,22 +221,23 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     background:transparent;
   }
   .tech-game-section:fullscreen .touch-pad-inner{
-    padding:6px 10px !important;
-    gap:8px !important;
+    padding:12px 12px 18px !important; /* más alto ~2cm */
+    gap:10px !important;
     overflow:visible !important;
     position:relative;
+    min-height:160px;
   }
   /* Solo los botones de control: 2cm más arriba, al alcance de la mano */
   .tech-game-section:fullscreen .touch-move-pad{
-    width:clamp(100px, 28vw, 130px) !important;
-    height:clamp(90px, 24vw, 115px) !important;
+    width:clamp(120px, 32vw, 155px) !important;
+    height:clamp(115px, 30vw, 150px) !important; /* +~2cm */
     /* offset con top (más abajo en CSS nuevo) */
     position:relative;
     z-index:32;
   }
   .tech-game-section:fullscreen .touch-fire{
-    width:clamp(64px, 18vw, 80px) !important;
-    height:clamp(64px, 18vw, 80px) !important;
+    width:clamp(78px, 20vw, 98px) !important;
+    height:clamp(78px, 20vw, 98px) !important; /* +~2cm */
     position:relative;
     z-index:32;
   }
@@ -952,10 +953,10 @@ input:focus,textarea:focus,select:focus{
 .touch-mid .touch-util{
   min-width:0 !important;
   width:100%;
-  max-width:58px;
-  height:32px !important;
+  max-width:62px;
+  height:38px !important; /* un poco más grandes */
   padding:0 4px !important;
-  font-size:10px !important;
+  font-size:11px !important;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -1027,7 +1028,9 @@ input:focus,textarea:focus,select:focus{
     transform:scale(.96) !important;
   }
   .tech-game-section:fullscreen .touch-pad{
-    max-height:min(26vh, 230px) !important;
+    max-height:min(32vh, 305px) !important; /* +~2cm más alto */
+    min-height:min(22vh, 200px);
+    padding-bottom:max(14px, env(safe-area-inset-bottom)) !important;
   }
 }
 

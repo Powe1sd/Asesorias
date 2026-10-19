@@ -1229,7 +1229,7 @@ let starsBG=[];
 let level=1,phase="meteors",phaseTimer=0,waveNumber=1,waveCount=0;
 let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=18*60,WARNING_DURATION=1.5*60; /* oleada cada 18 s */
-let ammo=100,shield=0,bounceShield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,vortex=0,ion=0,emp=0,laserGrace=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",0))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
+let ammo=100,shield=0,bounceShield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,vortex=0,ion=0,emp=0,laserGrace=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",lsGet("techCoins",0)))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
 let shootCooldown=55;
 const player={x:300,y:300,size:13};
@@ -2787,7 +2787,7 @@ const gy=document.getElementById("gyroToggle");if(gy)gy.onchange=()=>{gyroOn=gy.
   if(typeof DeviceOrientationEvent.requestPermission==="function"){DeviceOrientationEvent.requestPermission().then(s=>{if(s==="granted")en()}).catch(()=>{})}
   else en();
 }};
-const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{lang=ls.value;lsSet("techLang",lang);try{rebuildConfigPanel()}catch(e){};applyUILanguage();};
+const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{if(typeof window.setLanguage==="function")window.setLanguage(ls.value);else{lang=ls.value;lsSet("techLang",lang);applyUILanguage();}};
 const tls=document.getElementById("touchLayoutSelect");
 if(tls){tls.value=touchLayout||"left";tls.onchange=()=>{touchLayout=tls.value;lsSet("techTouchLayout",touchLayout);applyTouchLayout()}};
 function rebuildConfigPanel(){
@@ -4094,6 +4094,8 @@ function saveRecord(){const saved=Number(lsGet("techRunRecordV4",0))||0;if(score
 function addScore(pts){score+=pts;if(scoreElement)scoreElement.textContent=score;saveRecord();checkScenario()}
 
 function destroyEnemy(o,i){
+  if(!o||o.__techDestroyed)return;
+  o.__techDestroyed=true;
   const cx=o.x+o.size/2,cy=o.y+o.size/2;
   if(o.type==="explosive"){
     createExplosion(cx,cy,o.size*1.3,"255,100,30");
@@ -4132,7 +4134,7 @@ function destroyEnemy(o,i){
       });
     }
   }
-  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="boss_meteor"||o.type==="fireball"){
+  if(o.type==="meteor"||o.type==="explosive"||o.type==="magnetic"||o.type==="hard"||o.type==="boss_meteor"||o.type==="fireball"){
     meteorsDestroyed++;
     doVibrate(o.type==="explosive"||o.type==="boss_meteor"?55:35);
     addKi(4);
@@ -4142,6 +4144,11 @@ function destroyEnemy(o,i){
   }
   const pts={meteor:1,explosive:2,magnetic:2,ship:3,hunter:4,sniper:5,turret:6,kamikaze:3,swarm:1,thief:5,teleport:6,drone:2,bomber:5,armored:7,strafer:4,missile_ship:6,ghost:4,pumpkin:5,witch_e:6,creature:7,alien:5,alien_small:2,alien_flyer:4,alien_brute:8,alien_eye:6,bigship:6,boss_meteor:30,boss_mothership:40,boss_tentacle:35,boss_bh:45,boss_alien_space:40,boss_alien_ice:40,boss_alien_fire:42,boss_alien_crystal:42,boss_alien_halloween:45,boss_pumpkin:50,boss_witch:52,boss_alien_neon:43,boss_alien_toxic:44,boss_alien_void:48};
   addScoreCombo(pts[o.type]||2);
+  // Puntosjuego can be spent in the shop: every enemy grants 1, bosses grant 10.
+  const currencyReward=String(o.type).startsWith("boss")?10:1;
+  coins=Math.max(0,(Number(coins)||0)+currencyReward);
+  lsSet("techCoinsV2",coins);
+  try{if(typeof updateTechRunCounters==="function")updateTechRunCounters()}catch(e){}
   const isAlien=["alien","alien_small","alien_flyer","alien_brute","alien_eye","creature"].includes(o.type)||String(o.type).startsWith("boss_alien");
   progressDaily("kill",1);
   if(isAlien)progressDaily("alien",1);
@@ -6019,6 +6026,8 @@ ctx.fillStyle=ammo>15?"#FFCD00":"#FF3333";
 ctx.fillText("MUNICIÓN "+ammo,P(8),canvas.height-P(10));
 ctx.fillStyle="#FFD700";ctx.font="bold "+P(9)+"px Orbitron";
 ctx.fillText("⭐ "+coins,P(8),canvas.height-P(20));
+ctx.fillStyle="#FFFFFF";ctx.font="bold "+P(9)+"px Orbitron";
+ctx.fillText("☄ "+meteorsDestroyed,P(8),canvas.height-P(34));
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("¡SIN MUNICIÓN! +40",canvas.width/2,canvas.height-P(10))}
 const pows=[];
 if(shield>0)pows.push(["ESC","#00C8FF"]);
@@ -6987,129 +6996,6 @@ function storyOnWaveComplete(){
 </script>
 
 <script>
-/* === Sistema global de idiomas: menú, etiquetas, párrafos y contenido dinámico === */
-(function(){
-  const LANGS = {
-    es:{label:"Idioma",start:"INICIAR",story:"MODO HISTORIA",manual:"MANUAL",settings:"CONFIGURACIÓN",pause:"PAUSA",resume:"CONTINUAR",close:"CERRAR",easy:"FÁCIL",normal:"NORMAL",hard:"DIFÍCIL",mode:"Modo de juego",classic:"Clásico",infinite:"Infinito",infiniteDesc:"Infinito: oleadas sin jefes, dificultad que sube sin parar",upgrades:"Mejoras permanentes",speed:"Velocidad",ammo:"Munición",lives:"Vidas",damage:"Daño",world:"Mundo",space:"Espacio",snow:"Nieve",fireWorld:"Fuego",crystal:"Cristal",halloween:"Halloween",neon:"Neón",toxic:"Tóxico",void:"Vacío",selectShip:"Seleccionar nave",allShips:"Todas las naves",phase:"Fase de Goku",controlsPC:"CONTROLES PC",controlsMobile:"CONTROLES MÓVIL",powers:"PODERES",coinsWeapons:"MONEDAS Y ARMAS",game:"JUEGO",ships:"NAVES",mouse:"Mouse: mover nave",clickShoot:"Clic / Espacio: disparar",activatePower:"G: activar poder (modo manual)",pauseResume:"P: pausar / reanudar",config:"configuración",stickMove:"Stick: mover",fire:"disparar",manualPower:"poder manual",powerMode:"modo poderes",autoPower:"Automático: al coger un poder se activa solo.",manualPowerDesc:"Manual: se guardan (cargas) y se usan con G o ⚡ de forma aleatoria. Empiezas con 3 cargas.",collectPoints:"Recoge puntosjuego en el mapa. En Equipamiento puedes comprar y equipar armas (doble, perforante, misil).",waves:"Oleadas de meteoritos y naves. Esquiva, dispara, sube de puntuación. Escenarios cambian al avanzar. Comparte tu récord al terminar.",chooseShip:"Elige diseño y color en el inicio. Algunos se desbloquean con récord.",contact:"Contacto",name:"Nombre",email:"Correo",area:"Área",schedule:"Horario",software:"Desarrollo de Software",move:"MOVER",record:"RÉCORD",points:"PUNTOS",score:"Puntuación:",livesLabel:"VIDAS",impacted:"Sistema impactado.",retry:"REINTENTAR",continue:"CONTINUAR",rankNone:"Sin récords aún",scrollShip:"◀ ▶ o desliza · o elige abajo",classicShip:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",xwing:"Ala X",needle:"Aguja"},
-    en:{label:"Language",start:"START",story:"STORY MODE",manual:"MANUAL",settings:"SETTINGS",pause:"PAUSED",resume:"RESUME",close:"CLOSE",easy:"EASY",normal:"NORMAL",hard:"HARD",mode:"Game mode",classic:"Classic",infinite:"Infinite",infiniteDesc:"Infinite: endless waves without bosses; difficulty keeps increasing",upgrades:"Permanent upgrades",speed:"Speed",ammo:"Ammo",lives:"Lives",damage:"Damage",world:"World",space:"Space",snow:"Snow",fireWorld:"Fire",crystal:"Crystal",halloween:"Halloween",neon:"Neon",toxic:"Toxic",void:"Void",selectShip:"Select ship",allShips:"All ships",phase:"Goku form",controlsPC:"PC CONTROLS",controlsMobile:"MOBILE CONTROLS",powers:"POWERS",coinsWeapons:"COINS AND WEAPONS",game:"GAMEPLAY",ships:"SHIPS",mouse:"Mouse: move ship",clickShoot:"Click / Space: shoot",activatePower:"G: activate power (manual mode)",pauseResume:"P: pause / resume",config:"settings",stickMove:"Stick: move",fire:"shoot",manualPower:"manual power",powerMode:"power mode",autoPower:"Automatic: powers activate when collected.",manualPowerDesc:"Manual: charges are stored and can be used randomly with G or ⚡. You start with 3 charges.",collectPoints:"Collect game points on the map. Buy and equip weapons (double shot, piercing, missile) in Equipment.",waves:"Waves of meteors and ships. Dodge, shoot, and increase your score. Scenarios change as you progress. Share your record at the end.",chooseShip:"Choose a design and color at the start. Some ships unlock with a high score.",contact:"Contact",name:"Name",email:"Email",area:"Field",schedule:"Hours",software:"Software Development",move:"MOVE",record:"BEST",points:"SCORE",score:"Score:",livesLabel:"LIVES",impacted:"System hit.",retry:"RETRY",continue:"CONTINUE",rankNone:"No records yet",scrollShip:"◀ ▶ or swipe · or choose below",classicShip:"Classic",fighter:"Fighter",interceptor:"Interceptor",heavy:"Heavy",stealth:"Stealth",xwing:"X-Wing",needle:"Needle"},
-    fr:{label:"Langue",start:"DÉMARRER",story:"MODE HISTOIRE",manual:"MANUEL",settings:"PARAMÈTRES",pause:"PAUSE",resume:"REPRENDRE",close:"FERMER",easy:"FACILE",normal:"NORMAL",hard:"DIFFICILE",mode:"Mode de jeu",classic:"Classique",infinite:"Infini",infiniteDesc:"Infini : vagues sans fin sans boss, difficulté croissante",upgrades:"Améliorations permanentes",speed:"Vitesse",ammo:"Munitions",lives:"Vies",damage:"Dégâts",world:"Monde",space:"Espace",snow:"Neige",fireWorld:"Feu",crystal:"Cristal",halloween:"Halloween",neon:"Néon",toxic:"Toxique",void:"Vide",selectShip:"Choisir un vaisseau",allShips:"Tous les vaisseaux",phase:"Forme de Goku",controlsPC:"COMMANDES PC",controlsMobile:"COMMANDES MOBILES",powers:"POUVOIRS",coinsWeapons:"PIÈCES ET ARMES",game:"JEU",ships:"VAISSEAUX",mouse:"Souris : déplacer le vaisseau",clickShoot:"Clic / Espace : tirer",activatePower:"G : activer le pouvoir (mode manuel)",pauseResume:"P : pause / reprendre",config:"paramètres",stickMove:"Joystick : déplacer",fire:"tirer",manualPower:"pouvoir manuel",powerMode:"mode pouvoirs",autoPower:"Automatique : le pouvoir s’active à la collecte.",manualPowerDesc:"Manuel : les charges sont conservées et utilisées avec G ou ⚡. Vous commencez avec 3 charges.",collectPoints:"Ramassez des points sur la carte. Achetez et équipez des armes dans l’équipement.",waves:"Vagues de météorites et de vaisseaux. Esquivez, tirez et augmentez votre score. Les décors changent en progressant.",chooseShip:"Choisissez le design et la couleur au départ. Certains vaisseaux se débloquent avec un record.",contact:"Contact",name:"Nom",email:"E-mail",area:"Domaine",schedule:"Horaires",software:"Développement logiciel",move:"BOUGER",record:"RECORD",points:"POINTS",score:"Score :",livesLabel:"VIES",impacted:"Système touché.",retry:"REJOUER",continue:"CONTINUER",rankNone:"Aucun record",scrollShip:"◀ ▶ ou glissez · ou choisissez ci-dessous",classicShip:"Classique",fighter:"Chasseur",interceptor:"Intercepteur",heavy:"Lourd",stealth:"Furtif",xwing:"Aile X",needle:"Aiguille"},
-    ja:{label:"言語",start:"スタート",story:"ストーリーモード",manual:"マニュアル",settings:"設定",pause:"一時停止",resume:"再開",close:"閉じる",easy:"かんたん",normal:"ふつう",hard:"むずかしい",mode:"ゲームモード",classic:"クラシック",infinite:"無限",infiniteDesc:"無限：ボスなしでウェーブが続き、難易度が上がります",upgrades:"恒久アップグレード",speed:"速度",ammo:"弾薬",lives:"ライフ",damage:"ダメージ",world:"世界",space:"宇宙",snow:"雪",fireWorld:"炎",crystal:"クリスタル",halloween:"ハロウィン",neon:"ネオン",toxic:"毒",void:"虚無",selectShip:"機体を選択",allShips:"すべての機体",phase:"悟空の形態",controlsPC:"PC操作",controlsMobile:"モバイル操作",powers:"パワー",coinsWeapons:"コインと武器",game:"ゲーム",ships:"機体",mouse:"マウス：機体を移動",clickShoot:"クリック / Space：発射",activatePower:"G：パワー発動（手動）",pauseResume:"P：一時停止 / 再開",config:"設定",stickMove:"スティック：移動",fire:"発射",manualPower:"手動パワー",powerMode:"パワーモード",autoPower:"自動：取得するとパワーが発動します。",manualPowerDesc:"手動：チャージを保存し、Gまたは⚡で使用します。最初に3回分あります。",collectPoints:"マップでポイントを集め、装備画面で武器を購入できます。",waves:"隕石や敵機のウェーブを避けて攻撃し、スコアを伸ばしましょう。進行に応じて背景が変わります。",chooseShip:"開始時に機体のデザインと色を選びます。一部は記録で解除されます。",contact:"連絡先",name:"名前",email:"メール",area:"分野",schedule:"時間",software:"ソフトウェア開発",move:"移動",record:"記録",points:"スコア",score:"スコア：",livesLabel:"ライフ",impacted:"システムに被弾しました。",retry:"再試行",continue:"続ける",rankNone:"記録はまだありません",scrollShip:"◀ ▶ またはスワイプ・下から選択",classicShip:"クラシック",fighter:"戦闘機",interceptor:"迎撃機",heavy:"重装型",stealth:"ステルス",xwing:"Xウイング",needle:"ニードル"},
-    zh:{label:"语言",start:"开始",story:"故事模式",manual:"用户手册",settings:"设置",pause:"暂停",resume:"继续",close:"关闭",easy:"简单",normal:"普通",hard:"困难",mode:"游戏模式",classic:"经典",infinite:"无限",infiniteDesc:"无限模式：没有首领的连续波次，难度不断提高",upgrades:"永久升级",speed:"速度",ammo:"弹药",lives:"生命",damage:"伤害",world:"世界",space:"太空",snow:"雪地",fireWorld:"火焰",crystal:"水晶",halloween:"万圣节",neon:"霓虹",toxic:"毒域",void:"虚空",selectShip:"选择飞船",allShips:"所有飞船",phase:"悟空形态",controlsPC:"电脑操作",controlsMobile:"手机操作",powers:"能力",coinsWeapons:"金币和武器",game:"游戏",ships:"飞船",mouse:"鼠标：移动飞船",clickShoot:"点击 / 空格：射击",activatePower:"G：使用能力（手动模式）",pauseResume:"P：暂停 / 继续",config:"设置",stickMove:"摇杆：移动",fire:"射击",manualPower:"手动能力",powerMode:"能力模式",autoPower:"自动：拾取后自动激活能力。",manualPowerDesc:"手动：储存次数后可按 G 或 ⚡ 使用。开始时有 3 次。",collectPoints:"在地图中收集积分，并在装备界面购买武器。",waves:"躲避并攻击陨石和敌舰，不断提高分数。随着进度推进，场景会改变。",chooseShip:"开始时选择飞船外观和颜色，部分飞船可通过高分解锁。",contact:"联系",name:"姓名",email:"邮箱",area:"领域",schedule:"时间",software:"软件开发",move:"移动",record:"纪录",points:"分数",score:"分数：",livesLabel:"生命",impacted:"系统受到攻击。",retry:"重试",continue:"继续",rankNone:"暂无记录",scrollShip:"◀ ▶ 或滑动 · 也可在下方选择",classicShip:"经典",fighter:"战斗机",interceptor:"拦截机",heavy:"重型",stealth:"隐形",xwing:"X翼",needle:"针式"}
-  };
-  const LANG_NAMES={es:"Español",en:"English",fr:"Français",ja:"日本語",zh:"简体中文"};
-  const ORIGINALS = {
-    "🚀 INICIAR":"start","📖 MODO HISTORIA":"story","📖 MANUAL Br7":"manual","CERRAR":"close",
-    "FÁCIL":"easy","DIFÍCIL":"hard","NORMAL":"normal","♾ Modo de juego":"mode","Clásico":"classic","∞ Infinito":"infinite",
-    "Infinito: oleadas sin jefes, dificultad que sube sin parar":"infiniteDesc","⬆ Mejoras permanentes":"upgrades",
-    "Velocidad":"speed","Munición":"ammo","Vidas":"lives","Daño":"damage","🌍 Mundo":"world",
-    "1 Espacio":"space","2 Nieve":"snow","3 Fuego":"fireWorld","4 Cristal":"crystal","5 Halloween":"halloween","6 Neón":"neon","7 Tóxico":"toxic","8 Vacío":"void",
-    "🚀 Seleccionar nave":"selectShip","🚀 Todas las naves":"allShips","⚡ Fase de Goku":"phase",
-    "CONTROLES PC":"controlsPC","CONTROLES MÓVIL":"controlsMobile","PODERES":"powers","MONEDAS Y ARMAS":"coinsWeapons","JUEGO":"game","NAVES":"ships",
-    "Mouse: mover nave":"mouse","Clic / Espacio: disparar":"clickShoot","G: activar poder (modo manual)":"activatePower","P: pausar / reanudar":"pauseResume",
-    "Stick: mover":"stickMove","FIRE: disparar":"fire","⚡: poder manual":"manualPower","AUTO/MANUAL: modo poderes":"powerMode",
-    "Automático: al coger un poder se activa solo.":"autoPower","Manual: se guardan (cargas) y se usan con G o ⚡ de forma aleatoria. Empiezas con 3 cargas.":"manualPowerDesc",
-    "Recoge puntosjuego en el mapa. En Equipamiento puedes comprar y equipar armas (doble, perforante, misil).":"collectPoints",
-    "Oleadas de meteoritos y naves. Esquiva, dispara, sube de puntuación. Escenarios cambian al avanzar. Comparte tu récord al terminar.":"waves",
-    "Elige diseño y color en el inicio. Algunos se desbloquean con récord.":"chooseShip",
-    "Contacto":"contact","Nombre":"name","Correo":"email","Área":"area","Horario":"schedule","Desarrollo de Software":"software",
-    "MOVER":"move","PUNTOS":"points","RÉCORD":"record","VIDAS":"livesLabel","Puntuación:":"score","Sistema impactado.":"impacted","REINTENTAR":"retry","CONTINUAR":"continue",
-    "Sin récords aún":"rankNone","◀ ▶ o desliza · o elige abajo":"scrollShip","Clásica":"classicShip","Cazadora":"fighter","Interceptor":"interceptor","Pesada":"heavy","Sigilo":"stealth","Ala X":"xwing","Aguja":"needle"
-  };
-  // Traducciones adicionales del menú de inicio. Se mantienen en español como claves
-  // para que cambiar de idioma varias veces nunca deje textos en el idioma anterior.
-  const EXTRA_TRANSLATIONS = {
-    "Máx. 10 letras · se ve en la nave": {es:"Máx. 10 letras · se ve en la nave",en:"Max. 10 characters · shown on the ship",fr:"10 caractères max. · visible sur le vaisseau",ja:"最大10文字・機体に表示",zh:"最多10个字符·显示在飞船上"},
-    "🎨 Color": {es:"🎨 Color",en:"🎨 Color",fr:"🎨 Couleur",ja:"🎨 色",zh:"🎨 颜色"},
-    "Blanca": {es:"Blanca",en:"White",fr:"Blanche",ja:"白",zh:"白色"}, "Negra": {es:"Negra",en:"Black",fr:"Noire",ja:"黒",zh:"黑色"},
-    "Oro": {es:"Oro",en:"Gold",fr:"Or",ja:"金",zh:"金色"}, "Cian": {es:"Cian",en:"Cyan",fr:"Cyan",ja:"シアン",zh:"青色"},
-    "Carmesí": {es:"Carmesí",en:"Crimson",fr:"Cramoisi",ja:"深紅",zh:"深红色"}, "Violeta": {es:"Violeta",en:"Violet",fr:"Violet",ja:"紫",zh:"紫色"},
-    "Lima": {es:"Lima",en:"Lime",fr:"Vert citron",ja:"ライム",zh:"青柠绿"}, "Acero": {es:"Acero",en:"Steel",fr:"Acier",ja:"スチール",zh:"钢色"}, "Naranja": {es:"Naranja",en:"Orange",fr:"Orange",ja:"オレンジ",zh:"橙色"},
-    "Cada fase cambia el aspecto y otorga poderes": {es:"Cada fase cambia el aspecto y otorga poderes",en:"Each form changes your look and grants powers",fr:"Chaque forme change l’apparence et donne des pouvoirs",ja:"各形態で見た目が変わり、能力を獲得します",zh:"每个形态都会改变外观并获得能力"},
-    "Bonos por récord": {es:"Bonos por récord",en:"Record bonuses",fr:"Bonus de record",ja:"記録ボーナス",zh:"纪录奖励"},
-    "Básica": {es:"Básica",en:"Basic",fr:"Basique",ja:"基本",zh:"基础"}, "Perfora · 60": {es:"Perfora · 60",en:"Piercing · 60",fr:"Perforante · 60",ja:"貫通 · 60",zh:"穿透 · 60"}, "Abanico · 80": {es:"Abanico · 80",en:"Spread · 80",fr:"Éventail · 80",ja:"拡散 · 80",zh:"扇形弹 · 80"},
-    "📜 Historial de partidas": {es:"📜 Historial de partidas",en:"📜 Match history",fr:"📜 Historique des parties",ja:"📜 プレイ履歴",zh:"📜 对局记录"},
-    "🗑 Borrar historial": {es:"🗑 Borrar historial",en:"🗑 Clear history",fr:"🗑 Effacer l’historique",ja:"🗑 履歴を削除",zh:"🗑 清除记录"},
-    "Ajustes en ⚙ Config (arriba a la izquierda)": {es:"Ajustes en ⚙ Config (arriba a la izquierda)",en:"Settings in ⚙ Config (top left)",fr:"Réglages dans ⚙ Config (en haut à gauche)",ja:"設定は左上の ⚙ Config",zh:"设置位于左上角 ⚙ Config"},
-    "Todas completadas ✅": {es:"Todas completadas ✅",en:"All completed ✅",fr:"Toutes terminées ✅",ja:"すべて完了 ✅",zh:"全部完成 ✅"},
-    "Normal": {es:"Normal",en:"Normal",fr:"Normal",ja:"通常",zh:"普通"}, "Golden Dios": {es:"Golden Dios",en:"Golden God",fr:"Dieu doré",ja:"ゴールデン神",zh:"黄金之神"}, "Super Dios": {es:"Super Dios",en:"Super God",fr:"Super Dieu",ja:"スーパー神",zh:"超级神"},
-    "Br7": {es:"Br7",en:"Br7",fr:"Br7",ja:"Br7",zh:"Br7"}
-  };
-  const extraReverse={};
-  Object.entries(EXTRA_TRANSLATIONS).forEach(([src,langs])=>Object.entries(langs).forEach(([code,val])=>{if(val)extraReverse[val]=src;}));
-  const reverse={};
-  Object.keys(ORIGINALS).forEach(src=>{const key=ORIGINALS[src];Object.keys(LANGS).forEach(code=>{const val=LANGS[code][key];if(val){reverse[val]=src;}});});
-  function translateValue(value){
-    const trimmed=value.trim();
-    const code=window.__techLangCurrent||activeLang()||"es";
-    const extraCanonical=extraReverse[trimmed]||trimmed;
-    if(EXTRA_TRANSLATIONS[extraCanonical] && EXTRA_TRANSLATIONS[extraCanonical][code]){
-      return value.replace(trimmed,EXTRA_TRANSLATIONS[extraCanonical][code]);
-    }
-    const canonical=reverse[trimmed]||trimmed;
-    const key=ORIGINALS[canonical];
-    if(key && LANGS[code] && LANGS[code][key]) return value.replace(trimmed,LANGS[code][key]);
-    return value;
-  }
-  function activeLang(){try{if(typeof lang!=="undefined" && LANGS[lang])return lang;}catch(e){} try{const saved=lsGet("techLang");if(LANGS[saved])return saved;}catch(e){} return "es";}
-  function addStartSelector(){
-    const panel=document.getElementById("startPanel"); if(!panel || document.getElementById("startLanguagePicker"))return;
-    const wrap=document.createElement("div");wrap.id="startLanguagePicker";
-    wrap.style.cssText="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px auto 10px;position:relative;z-index:40";
-    wrap.innerHTML='<label for="startLangSelect" style="font-size:11px;margin:0!important;padding:0!important;background:transparent!important">'+(LANGS[activeLang()].label)+'</label><select id="startLangSelect" aria-label="Language" style="width:auto;min-width:145px;padding:7px 10px;border-radius:8px;background:#07101f;color:#fff;border:1px solid #fff">';
-    wrap.querySelector("select").innerHTML=Object.keys(LANG_NAMES).map(code=>'<option value="'+code+'">'+LANG_NAMES[code]+'</option>').join("");
-    wrap.querySelector("select").value=activeLang();
-    const h=panel.querySelector("h2"); if(h&&h.nextSibling)panel.insertBefore(wrap,h.nextSibling);else panel.prepend(wrap);
-    wrap.querySelector("select").addEventListener("change",function(){setLanguage(this.value)});
-  }
-  function translateDOM(root){
-    const code=activeLang(); window.__techLangCurrent=code;
-    if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
-      if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;
-      const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|CANVAS|OPTION)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;
-      if(p.closest("#startLanguagePicker"))return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    }});
-    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    nodes.forEach(n=>{const before=n.nodeValue;const after=translateValue(before);if(after!==before)n.nodeValue=after;});
-    root.querySelectorAll&&root.querySelectorAll("[placeholder],[title],[aria-label]").forEach(el=>{
-      ["placeholder","title","aria-label"].forEach(attr=>{const v=el.getAttribute(attr);if(v)el.setAttribute(attr,translateValue(v));});
-    });
-  }
-  window.setLanguage=function(code){
-    if(!LANGS[code])code="es";
-    try{lang=code;lsSet("techLang",code)}catch(e){}
-    window.__techLangCurrent=code;
-    addStartSelector();
-    const picker=document.getElementById("startLangSelect");if(picker)picker.value=code;
-    const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;
-    try{if(typeof applyUILanguage==="function")applyUILanguage()}catch(e){}
-    translateDOM(document.body);
-    // Rebuild panels after language changes, then translate generated text.
-    try{if(typeof rebuildConfigPanel==="function")rebuildConfigPanel()}catch(e){}
-    try{if(typeof renderStart==="function")renderStart()}catch(e){}
-    translateDOM(document.body);
-  };
-  const oldApply=window.applyUILanguage;
-  if(typeof oldApply==="function"){
-    window.applyUILanguage=function(){oldApply.apply(this,arguments);addStartSelector();translateDOM(document.body);};
-  }
-  function init(){
-    addStartSelector();window.__techLangCurrent=activeLang();translateDOM(document.body);
-    const observer=new MutationObserver(mutations=>{
-      let changed=false;mutations.forEach(m=>{if(m.type==="childList"||m.type==="characterData")changed=true;});
-      if(changed){addStartSelector();translateDOM(document.body);}
-    });
-    observer.observe(document.body,{subtree:true,childList:true,characterData:true});
-    const select=document.getElementById("langSelect");
-    if(select){select.addEventListener("change",()=>setTimeout(()=>{const p=document.getElementById("startLangSelect");if(p)p.value=activeLang();},0));}
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
-})();
-</script>
-
-
-<script>
 /* === Parche final i18n: traducción completa del menú de inicio y textos dinámicos === */
 (function(){
   const LANGS = {
@@ -7119,6 +7005,10 @@ function storyOnWaveComplete(){
     ja:{label:'言語',choose:'難易度と機体を選択 · 下へスクロール',start:'🚀 スタート',easy:'かんたん',normal:'ふつう',hard:'むずかしい',mode:'ゲームモード',classic:'クラシック',infinite:'無限',infiniteDesc:'無限：ボスなしでウェーブが続き、難易度が上がります',upgrades:'恒久アップグレード',speed:'速度',ammo:'弾薬',lives:'ライフ',damage:'ダメージ',world:'世界',space:'宇宙',snow:'雪',fire:'炎',crystal:'クリスタル',halloween:'ハロウィン',neon:'ネオン',toxic:'毒',void:'虚無',selectShip:'機体を選択',allShips:'すべての機体',scroll:'◀ ▶ またはスワイプ・下から選択',max:'最大10文字・機体に表示',color:'🎨 色',white:'白',black:'黒',gold:'金',cyan:'シアン',crimson:'深紅',violet:'紫',lime:'ライム',steel:'スチール',orange:'オレンジ',points:'⭐ ゲームポイント：',basic:'基本',double:'ダブル',piercing:'貫通',spread:'拡散',bonuses:'記録ボーナス',record:'記録：',bullets:'弾',life:'ライフ',agile:'敏捷',manual:'📖 ユーザーマニュアル',equipment:'🛡️ 装備',missions:'📋 デイリーミッション',boss:'ボスハンター',combo:'コンボマスター',top:'TOP：記録なし',history:'📜 プレイ履歴',noHistory:'まだプレイ記録がありません。プレイしましょう！',clear:'🗑 履歴を削除',settings:'設定は左上の ⚙ Config',continue:'💾 ゲームを続ける',story:'📖 ストーリーモード',controls:'⌨️ 矢印 · スペース · 🎮 コントローラー · ⚙ 設定 · 一時停止',shown:'機体に表示'},
     zh:{label:'语言',choose:'选择难度和飞船 · 向下滚动查看更多',start:'🚀 开始',easy:'简单',normal:'普通',hard:'困难',mode:'游戏模式',classic:'经典',infinite:'无限',infiniteDesc:'无限模式：没有首领的连续波次，难度不断提高',upgrades:'永久升级',speed:'速度',ammo:'弹药',lives:'生命',damage:'伤害',world:'世界',space:'太空',snow:'雪地',fire:'火焰',crystal:'水晶',halloween:'万圣节',neon:'霓虹',toxic:'毒域',void:'虚空',selectShip:'选择飞船',allShips:'所有飞船',scroll:'◀ ▶ 或滑动 · 也可在下方选择',max:'最多10个字符·显示在飞船上',color:'🎨 颜色',white:'白色',black:'黑色',gold:'金色',cyan:'青色',crimson:'深红色',violet:'紫色',lime:'青柠绿',steel:'钢色',orange:'橙色',points:'⭐ 游戏积分：',basic:'基础',double:'双发',piercing:'穿透',spread:'散射',bonuses:'纪录奖励',record:'纪录：',bullets:'子弹',life:'生命',agile:'敏捷',manual:'📖 用户手册',equipment:'🛡️ 装备',missions:'📋 每日任务',boss:'首领猎手',combo:'连击大师',top:'TOP：暂无记录',history:'📜 对局记录',noHistory:'还没有对局，来玩一局吧！',clear:'🗑 清除记录',settings:'设置位于左上角 ⚙ Config',continue:'💾 继续游戏',story:'📖 故事模式',controls:'⌨️ 方向键 · 空格 · 🎮 手柄 · ⚙ 设置 · 暂停',shown:'显示在飞船上'}
   };
+  Object.assign(LANGS, {
+    pt:{...LANGS.es,label:'Idioma',choose:'Escolha a dificuldade e a nave · Deslize para ver mais',start:'🚀 INICIAR',easy:'FÁCIL',normal:'NORMAL',hard:'DIFÍCIL',mode:'Modo de jogo',classic:'Clássico',infinite:'Infinito',infiniteDesc:'Infinito: ondas sem chefes, dificuldade crescente',upgrades:'Melhorias permanentes',speed:'Velocidade',ammo:'Munição',lives:'Vidas',damage:'Dano',world:'Mundo',space:'Espaço',snow:'Neve',fire:'Fogo',crystal:'Cristal',halloween:'Halloween',neon:'Neon',toxic:'Tóxico',void:'Vazio',selectShip:'Selecionar nave',allShips:'Todas as naves',scroll:'◀ ▶ ou deslize · ou escolha abaixo',max:'Máx. 10 caracteres · aparece na nave',color:'🎨 Cor',white:'Branca',black:'Preta',gold:'Ouro',cyan:'Ciano',crimson:'Carmesim',violet:'Violeta',lime:'Lima',steel:'Aço',orange:'Laranja',points:'⭐ Pontos do jogo:',basic:'Básica',double:'Dupla',piercing:'Perfurante',spread:'Dispersão',bonuses:'Bônus de recorde',record:'Recorde:',bullets:'balas',life:'vida',agile:'ágil',manual:'📖 Manual do usuário',equipment:'🛡️ Equipamento',missions:'📋 Missões diárias',boss:'Caçador de chefes',combo:'Mestre do combo',top:'TOP: Ainda sem recordes',history:'📜 Histórico de partidas',noHistory:'Nenhuma partida ainda. Jogue uma!',clear:'🗑 Limpar histórico',settings:'Configurações em ⚙ Config (canto superior esquerdo)',continue:'💾 Continuar partida',story:'📖 MODO HISTÓRIA',controls:'⌨️ Setas · Espaço · 🎮 Controle · ⚙ Config · Pausa',shown:'aparece na nave'},
+    de:{...LANGS.en,label:'Sprache',choose:'Schwierigkeit und Schiff wählen · Für mehr scrollen',start:'🚀 START',easy:'EINFACH',normal:'NORMAL',hard:'SCHWER',mode:'Spielmodus',classic:'Klassisch',infinite:'Endlos',infiniteDesc:'Endlos: Wellen ohne Bosse, der Schwierigkeitsgrad steigt ständig',upgrades:'Dauerhafte Verbesserungen',speed:'Geschwindigkeit',ammo:'Munition',lives:'Leben',damage:'Schaden',world:'Welt',space:'Weltraum',snow:'Schnee',fire:'Feuer',crystal:'Kristall',halloween:'Halloween',neon:'Neon',toxic:'Giftig',void:'Leere',selectShip:'Schiff auswählen',allShips:'Alle Schiffe',scroll:'◀ ▶ oder wischen · oder unten auswählen',max:'Max. 10 Zeichen · auf dem Schiff sichtbar',color:'🎨 Farbe',white:'Weiß',black:'Schwarz',gold:'Gold',cyan:'Cyan',crimson:'Karmesinrot',violet:'Violett',lime:'Limette',steel:'Stahl',orange:'Orange',points:'⭐ Spielpunkte:',basic:'Basis',double:'Doppelt',piercing:'Durchschlag',spread:'Streuung',bonuses:'Rekordboni',record:'Rekord:',bullets:'Kugeln',life:'Leben',agile:'agil',manual:'📖 Benutzerhandbuch',equipment:'🛡️ Ausrüstung',missions:'📋 Tagesmissionen',boss:'Bossjäger',combo:'Combo-Meister',top:'TOP: Noch keine Rekorde',history:'📜 Spielverlauf',noHistory:'Noch keine Spiele. Spiele jetzt!',clear:'🗑 Verlauf löschen',settings:'Einstellungen unter ⚙ Config (oben links)',continue:'💾 Spiel fortsetzen',story:'📖 STORY-MODUS',controls:'⌨️ Pfeile · Leertaste · 🎮 Controller · ⚙ Config · Pause',shown:'auf dem Schiff sichtbar'}
+  });
   const phrases={
     'Elige dificultad y nave · Desliza para ver más':'choose','Choose difficulty and ship · Scroll for more':'choose','Choisissez difficulté et vaisseau':'choose','Choisissez la difficulté et le vaisseau · Faites défiler':'choose','難易度と機体を選択':'choose','选择难度与飞船':'choose','选择难度和飞船 · 向下滚动查看更多':'choose',
     '🚀 INICIAR':'start','🚀 START':'start','🚀 DÉMARRER':'start','🚀 スタート':'start','🚀 开始':'start','FÁCIL':'easy','EASY':'easy','FACILE':'easy','かんたん':'easy','简单':'easy','DIFÍCIL':'hard','HARD':'hard','DIFFICILE':'hard','むずかしい':'hard','困难':'hard','NORMAL':'normal','ふつう':'normal','普通':'normal',
@@ -7133,6 +7023,7 @@ function storyOnWaveComplete(){
     '📖 Manual de usuario':'manual','📖 User manual':'manual','📖 Manuel utilisateur':'manual','📖 ユーザーマニュアル':'manual','📖 用户手册':'manual','🛡️ Equipamiento':'equipment','🛡️ Equipment':'equipment','🛡️ Équipement':'equipment','🛡️ 装備':'equipment','🛡️ 装备':'equipment','📋 Misiones diarias':'missions','📋 Daily missions':'missions','📋 Missions quotidiennes':'missions','📋 デイリーミッション':'missions','📋 每日任务':'missions','Cazador de jefes':'boss','Boss hunter':'boss','Chasseur de boss':'boss','ボスハンター':'boss','首领猎手':'boss','Maestro del combo':'combo','Combo master':'combo','Maître du combo':'combo','コンボマスター':'combo','连击大师':'combo',
     'TOP: Sin récords aún':'top','TOP: No records yet':'top','TOP : aucun record':'top','TOP：記録なし':'top','TOP：暂无记录':'top','📜 Historial de partidas':'history','📜 Match history':'history','📜 Historique des parties':'history','📜 プレイ履歴':'history','📜 对局记录':'history','Sin partidas aún. ¡Juega una!':'noHistory','No matches yet. Play one!':'noHistory','Aucune partie. Jouez-en une !':'noHistory','まだプレイ記録がありません。プレイしましょう！':'noHistory','还没有对局，来玩一局吧！':'noHistory','🗑 Borrar historial':'clear','🗑 Clear history':'clear','🗑 Effacer l’historique':'clear','🗑 履歴を削除':'clear','🗑 清除记录':'clear','Ajustes en ⚙ Config (arriba a la izquierda)':'settings','Settings in ⚙ Config (top left)':'settings','Réglages dans ⚙ Config (en haut à gauche)':'settings','設定は左上の ⚙ Config':'settings','设置位于左上角 ⚙ Config':'settings','💾 Continuar partida':'continue','💾 Continue game':'continue','💾 Continuer la partie':'continue','💾 ゲームを続ける':'continue','💾 继续游戏':'continue','📖 MODO HISTORIA':'story','📖 STORY MODE':'story','📖 MODE HISTOIRE':'story','📖 ストーリーモード':'story','⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa':'controls','⌨️ Arrows · Space · 🎮 Gamepad · ⚙ Settings · Pause':'controls','⌨️ Flèches · Espace · 🎮 Manette · ⚙ Réglages · Pause':'controls','⌨️ 矢印 · スペース · 🎮 コントローラー · ⚙ 設定 · 一時停止':'controls','⌨️ 方向键 · 空格 · 🎮 手柄 · ⚙ 设置 · 暂停':'controls'
   };
+  Object.entries(LANGS).forEach(([code,dict])=>Object.entries(dict).forEach(([key,value])=>{if(typeof value==='string'&&key!=='label')phrases[value]=key;}));
   const canonical={}; Object.entries(phrases).forEach(([variant,key])=>{canonical[variant]=key;});
   const sortedPhrases=Object.entries(phrases).sort((a,b)=>b[0].length-a[0].length);
   const codes=['es','en','fr','ja','zh'];
@@ -7156,10 +7047,189 @@ function storyOnWaveComplete(){
     const picker=document.getElementById('startLangSelect');if(picker){picker.value=code;const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;}
   }
   function runAdded(node){if(!node||node.nodeType!==1)return;run(node);}
-  const previous=window.setLanguage;
-  window.setLanguage=function(code){if(!LANGS[code])code='es';window.__techLangCurrent=code;try{if(typeof lang!=='undefined')lang=code}catch(e){}try{localStorage.setItem('techLang',code)}catch(e){}try{if(typeof lsSet==='function')lsSet('techLang',code)}catch(e){}try{if(previous)previous(code)}catch(e){}setTimeout(()=>run(document.body),0);setTimeout(()=>run(document.body),80);};
-  function init(){run(document.body);let pending=[];let scheduled=false;const observer=new MutationObserver(records=>{for(const rec of records){for(const node of rec.addedNodes){if(node.nodeType===1&&node.id!=='startLanguagePicker')pending.push(node);}}if(!scheduled&&pending.length){scheduled=true;requestAnimationFrame(()=>{scheduled=false;const batch=pending.splice(0,40);for(const node of batch)runAdded(node);if(pending.length)requestAnimationFrame(()=>{const rest=pending.splice(0);for(const node of rest)runAdded(node);});});}});observer.observe(document.body,{subtree:true,childList:true,characterData:false});const selects=['startLangSelect','langSelect'];selects.forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>setTimeout(()=>run(document.body),0));});}
+  window.setLanguage=function(code){
+    if(!LANGS[code])code='es';
+    window.__techLangCurrent=code;
+    try{lang=code}catch(e){}
+    try{localStorage.setItem('techLang',code)}catch(e){}
+    try{if(typeof lsSet==='function')lsSet('techLang',code)}catch(e){}
+    ['startLangSelect','langSelect'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=code;});
+    const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;
+    try{if(typeof applyUILanguage==='function')applyUILanguage()}catch(e){}
+    try{if(typeof rebuildConfigPanel==='function')rebuildConfigPanel()}catch(e){}
+    run(document.body);
+  };
+  function init(){
+    run(document.body);
+    // Observe inserted elements only; do not react to text changes or rescan the whole page.
+    const observer=new MutationObserver(records=>{
+      for(const rec of records)for(const node of rec.addedNodes){
+        if(node.nodeType===1&&node.id!=='startLanguagePicker')runAdded(node);
+      }
+    });
+    observer.observe(document.body,{subtree:true,childList:true,characterData:false});
+    ['startLangSelect','langSelect'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',()=>window.setLanguage(el.value));});
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+
+<script>
+/* === Corrección ligera: contador de meteoritos, puntos visibles e idioma principal === */
+(function(){
+  const LANGS = {
+    es:{label:'Idioma',points:'Puntos de juego',meteors:'Meteoritos destruidos'},
+    en:{label:'Language',points:'Game points',meteors:'Meteors destroyed'},
+    fr:{label:'Langue',points:'Points de jeu',meteors:'Météorites détruites'},
+    ja:{label:'言語',points:'ゲームポイント',meteors:'破壊した隕石'},
+    zh:{label:'语言',points:'游戏积分',meteors:'已摧毁陨石'},
+    pt:{label:'Idioma',points:'Pontos do jogo',meteors:'Meteoritos destruídos'},
+    de:{label:'Sprache',points:'Spielpunkte',meteors:'Zerstörte Meteoriten'}
+  };
+  function getLang(){return window.__techLangCurrent || (typeof lang!=='undefined'&&lang) || localStorage.getItem('techLang') || 'es'}
+  window.updateTechRunCounters=function(){
+    const code=getLang(), t=LANGS[code]||LANGS.es;
+    const value=String(Math.max(0,Number(typeof coins!=='undefined'?coins:localStorage.getItem('techCoinsV2'))||0));
+    const main=document.getElementById('techCoinsMainValue'); if(main)main.textContent=value;
+    const hud=document.getElementById('techRunCounterText'); if(hud)hud.textContent=t.meteors+': '+(Number(typeof meteorsDestroyed!=='undefined'?meteorsDestroyed:0)||0);
+  };
+  function setupMainLanguage(){
+    const panel=document.getElementById('startPanel'); if(!panel)return;
+    let picker=document.getElementById('startLanguagePicker');
+    if(!picker){
+      picker=document.createElement('div'); picker.id='startLanguagePicker';
+      picker.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 auto 10px;padding:6px 8px;position:relative;z-index:5;';
+      const label=document.createElement('label');label.htmlFor='startLangSelect';label.style.cssText='color:#fff;font-size:12px;font-weight:700';
+      const select=document.createElement('select');select.id='startLangSelect';select.setAttribute('aria-label','Language');
+      select.style.cssText='max-width:180px;padding:7px 10px;border-radius:8px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';
+      [['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch']].forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
+      picker.append(label,select); panel.insertBefore(picker,panel.firstChild);
+      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage()}});
+    }
+    const code=getLang(); const sel=document.getElementById('startLangSelect');if(sel)sel.value=LANGS[code]?code:'es';
+    const label=picker.querySelector('label');if(label)label.textContent=(LANGS[code]||LANGS.es).label;
+    const badge=document.getElementById('techCoinsMainBadge'); if(badge)badge.remove();
+  }
+  const priorSetLanguage=window.setLanguage;
+  window.setLanguage=function(code){
+    if(!LANGS[code])code='es';
+    if(typeof priorSetLanguage==='function')priorSetLanguage(code);else{try{lang=code}catch(e){};try{localStorage.setItem('techLang',code)}catch(e){};try{if(typeof applyUILanguage==='function')applyUILanguage()}catch(e){}}
+    try{window.__techLangCurrent=code}catch(e){}
+    const cfg=document.getElementById('langSelect');if(cfg)cfg.value=code;
+    const main=document.getElementById('startLangSelect');if(main)main.value=code;
+    setupMainLanguage();updateTechRunCounters();
+  };
+  function init(){setupMainLanguage();updateTechRunCounters();const cfg=document.getElementById('langSelect');if(cfg)cfg.value=getLang();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  document.addEventListener('click',function(e){if(e.target&&e.target.id==='startGame')setTimeout(updateTechRunCounters,50)});
+})();
+</script>
+
+
+<script>
+/* Corrección de respaldo: puntuación real al destruir enemigos y al mostrar GAME OVER. */
+(function(){
+  try {
+    if(typeof destroyEnemy==='function'&&!window.__techScoreGuardInstalled){
+      const originalDestroyEnemy=destroyEnemy;
+      destroyEnemy=function(o,i){
+        if(!o||o.__techDestroyed)return;
+        const before=Number(score)||0;
+        const wasMeteor=['meteor','explosive','magnetic','hard','fireball','boss_meteor'].includes(o.type);
+        const alive=!o.__techDestroyed;
+        try{originalDestroyEnemy(o,i)}finally{
+          if(alive&&o.__techDestroyed&&Number(score)===before){
+            const boss=String(o.type||'').startsWith('boss');
+            const fallback=boss?10:(wasMeteor?1:2);
+            addScore(fallback);
+          }
+          if(wasMeteor&&o.__techDestroyed){try{updateTechRunCounters()}catch(e){}}
+        }
+      };
+      window.__techScoreGuardInstalled=true;
+    }
+  }catch(e){}
+  try{
+    const originalEndGame=endGame;
+    if(typeof originalEndGame==='function'&&!window.__techEndScoreGuard){
+      endGame=function(){
+        try{
+          const el=document.getElementById('gameScore');
+          const shown=el?parseInt(String(el.textContent).replace(/[^0-9-]/g,''),10):NaN;
+          if((!Number.isFinite(Number(score))||Number(score)===0)&&Number.isFinite(shown)&&shown>0)score=shown;
+          const final=document.getElementById('finalScore');if(final)final.textContent=String(Math.max(0,Number(score)||0));
+        }catch(e){}
+        return originalEndGame.apply(this,arguments);
+      };
+      window.__techEndScoreGuard=true;
+    }
+  }catch(e){}
+  function expandSettingsLanguage(){
+    const cfg=document.getElementById('langSelect');if(!cfg)return;
+    const opts=[['pt','Português'],['de','Deutsch']];
+    opts.forEach(([v,n])=>{if(!Array.from(cfg.options).some(o=>o.value===v)){const o=document.createElement('option');o.value=v;o.textContent=n;cfg.appendChild(o)}});
+    const code=window.__techLangCurrent||localStorage.getItem('techLang')||'es';if(Array.from(cfg.options).some(o=>o.value===code))cfg.value=code;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',expandSettingsLanguage);else expandSettingsLanguage();
+})();
+</script>
+
+<script>
+/* === Parche de puntuación en vivo y limpieza del inicio === */
+(function(){
+  function syncLiveScore(){
+    try {
+      const n=Math.max(0,Number(score)||0);
+      const el=document.getElementById('gameScore'); if(el && el.textContent!==String(n))el.textContent=String(n);
+      const fin=document.getElementById('finalScore');
+      if(!gameRunning && fin && document.getElementById('gameOverPanel')?.style.display==='block')fin.textContent=String(n);
+      const badge=document.getElementById('techCoinsMainBadge');if(badge)badge.remove();
+    } catch(e){}
+  }
+  try {
+    if(typeof addScore==='function'&&!window.__techLiveScoreWrapped){
+      const originalAddScore=addScore;
+      addScore=function(pts){
+        const before=Number(score)||0;
+        const amount=Number(pts)||0;
+        const result=originalAddScore.apply(this,arguments);
+        if(Number(score)===before && amount>0)score=before+amount;
+        syncLiveScore();
+        return result;
+      };
+      window.__techLiveScoreWrapped=true;
+    }
+  } catch(e){}
+  try {
+    if(typeof destroyEnemy==='function'&&!window.__techLiveDestroyWrapped){
+      const oldDestroy=destroyEnemy;
+      destroyEnemy=function(o,i){
+        if(!o||o.__techDestroyed)return;
+        const before=Number(score)||0;
+        const type=String(o.type||'');
+        const meteor=['meteor','explosive','magnetic','hard','fireball','boss_meteor'].includes(type);
+        oldDestroy.apply(this,arguments);
+        // Fallback only if the normal destruction path did not add score.
+        if(o.__techDestroyed && (Number(score)||0)===before){
+          const boss=type.startsWith('boss');
+          const pts=boss?30:(type==='explosive'||type==='magnetic'?2:meteor?1:2);
+          if(typeof addScoreCombo==='function')addScoreCombo(pts);else addScore(pts);
+        }
+        syncLiveScore();
+        try{if(meteor&&typeof updateTechRunCounters==='function')updateTechRunCounters()}catch(e){}
+      };
+      window.__techLiveDestroyWrapped=true;
+    }
+  } catch(e){}
+  function init(){
+    const badge=document.getElementById('techCoinsMainBadge');if(badge)badge.remove();
+    syncLiveScore();
+    const scoreEl=document.getElementById('gameScore');
+    if(scoreEl && !scoreEl.dataset.liveScoreReady){scoreEl.dataset.liveScoreReady='1';}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  document.addEventListener('click',function(e){if(e.target&&e.target.id==='startGame')setTimeout(function(){try{syncLiveScore()}catch(e){}},50)});
 })();
 </script>
 

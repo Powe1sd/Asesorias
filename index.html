@@ -251,19 +251,18 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     opacity:1 !important;
     visibility:visible !important;
   }
-  /* Fases Goku se quedan con el cuadro (abajo), no suben con los botones */
-  .tech-game-section:fullscreen .goku-forms,
-  .tech-game-section:fullscreen .goku-forms.show{
-    display:flex !important;
-    flex-wrap:wrap !important;
-    justify-content:center !important;
-    gap:4px !important;
-    margin-top:4px !important;
-    max-height:none !important;
-    overflow:visible !important;
+  /* Fases Goku: solo si JS pone .show (nave = Goku). Nunca forzar display */
+  .tech-game-section:fullscreen .goku-forms{
+    display:none;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:4px;
+    margin-top:4px;
     position:relative;
     z-index:31;
-    transform:none !important;
+  }
+  .tech-game-section:fullscreen .goku-forms.show{
+    display:flex !important;
   }
   .tech-game-section:fullscreen .goku-forms-overlay{
     bottom: auto;
@@ -291,13 +290,14 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   background:rgba(0,0,0,.55);padding:5px 8px;border-radius:12px;border:1px solid rgba(255,205,0,.3);
 }
 .goku-forms-overlay.show{display:flex}
-.goku-forms{display:none;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
-.goku-forms.show{display:flex}
+.goku-forms{display:none!important;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:4px;width:100%}
+.goku-forms.show{display:flex!important}
 .goku-form-btn{padding:6px 10px;border-radius:8px;border:1px solid rgba(255,205,0,.35);background:rgba(0,20,50,.85);color:#FFCD00;font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s}
 .goku-form-btn.active{background:linear-gradient(135deg,#FFCD00,#FF8800);color:#111;border-color:#fff;box-shadow:0 0 12px rgba(255,205,0,.45)}
 .goku-form-btn:active{transform:scale(.95)}
 @media(max-width:900px){
-  .tech-game-section:fullscreen .goku-forms{display:flex !important}
+  .tech-game-section:fullscreen .goku-forms{display:none}
+  .tech-game-section:fullscreen .goku-forms.show{display:flex !important}
   .goku-forms-overlay{bottom:8px}
 }
 
@@ -310,15 +310,8 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
     overflow:visible !important;
   }
   /* offset con top en bloque final del pad */
-  .touch-pad .goku-forms,
-  .touch-pad .goku-forms.show{
-    display:flex !important;
-    flex-wrap:wrap !important;
-    justify-content:center !important;
-    margin-top:4px !important;
-    padding-bottom:4px !important;
-    transform:none !important;
-  }
+  .touch-pad .goku-forms{display:none!important;flex-wrap:wrap;justify-content:center;margin-top:4px;padding-bottom:4px}
+  .touch-pad .goku-forms.show{display:flex!important}
 }
 
 #configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
@@ -954,7 +947,7 @@ input:focus,textarea:focus,select:focus{
   gap:5px !important;
   align-items:center;
   justify-items:center;
-  max-width:200px;
+  max-width:190px;
 }
 .touch-mid .touch-util{
   min-width:0 !important;
@@ -989,48 +982,48 @@ input:focus,textarea:focus,select:focus{
 }
 @media(max-width:1100px),(pointer:coarse){
   .touch-pad .touch-move-pad{
-    top:-1.2cm;
+    top:0;
     transform:none !important;
     position:relative;
     z-index:32;
   }
   .touch-pad .touch-mid{
-    top:-1.2cm;
+    top:0;
     transform:none !important;
     position:relative;
     z-index:32;
   }
   .touch-pad .touch-fire-col,
   .touch-pad .touch-fire{
-    top:-1.2cm !important;
+    top:0 !important;
     transform:none !important;
     position:relative;
     z-index:32;
   }
   .touch-pad .touch-fire:active,
   .touch-pad .touch-fire.pressed{
-    top:-1.2cm !important;
+    top:0 !important;
     transform:scale(.96) !important;
   }
 }
 @media(max-width:1100px),(pointer:coarse){
   .tech-game-section:fullscreen .touch-move-pad{
-    top:-2cm !important;
+    top:0 !important; /* bajado 3.5cm: dentro del cuadro */
     transform:none !important;
   }
   .tech-game-section:fullscreen .touch-mid{
-    top:-2cm !important;
+    top:0 !important; /* bajado 3.5cm: dentro del cuadro */
     transform:none !important;
     max-width:210px;
   }
   .tech-game-section:fullscreen .touch-fire-col,
   .tech-game-section:fullscreen .touch-fire{
-    top:-2cm !important;
+    top:0 !important; /* bajado 3.5cm: dentro del cuadro */
     transform:none !important;
   }
   .tech-game-section:fullscreen .touch-fire:active,
   .tech-game-section:fullscreen .touch-fire.pressed{
-    top:-2cm !important;
+    top:0 !important; /* bajado 3.5cm: dentro del cuadro */
     transform:scale(.96) !important;
   }
   .tech-game-section:fullscreen .touch-pad{
@@ -1063,7 +1056,7 @@ input:focus,textarea:focus,select:focus{
 <button class="game-btn game-btn-blue" id="continueGame">↓ CONTINUAR</button>
 </div>
 <div class="game-help"></div>
-<div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku">
+<div class="goku-forms-overlay" id="gokuFormsOverlay" aria-label="Fases de Goku" style="display:none">
   <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
   <button type="button" class="goku-form-btn" data-form="ssj">SSJ</button>
   <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
@@ -1092,15 +1085,12 @@ input:focus,textarea:focus,select:focus{
       <button type="button" class="touch-util" id="touchDash" title="Dash / esquivar">DASH</button>
       <button type="button" class="touch-util" id="touchShield" title="Escudo activo">🛡</button>
       <button type="button" class="touch-util" id="touchWorld" title="Teletransporte a otro mundo">🌍</button>
-      <button type="button" class="touch-util" id="touchDrone" title="Dron aliado">🛸</button>
-      <button type="button" class="touch-util" id="touchBounce" title="Balas con rebote">↻</button>
-      <button type="button" class="touch-util" id="touchFreeze" title="Congelar enemigos">❄</button>
     </div>
     <div class="touch-col touch-fire-col">
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
     </div>
   </div>
-  <div class="goku-forms" id="gokuForms" aria-label="Fases de Goku">
+  <div class="goku-forms" id="gokuForms" aria-label="Fases de Goku" style="display:none">
     <button type="button" class="goku-form-btn" data-form="normal">Normal</button>
     <button type="button" class="goku-form-btn" data-form="ssj">SSJ</button>
     <button type="button" class="goku-form-btn" data-form="ssj1">SSJ1</button>
@@ -1328,6 +1318,9 @@ function applyShipGalleryEntry(entry){
     gokuForm=entry.form||"normal";
     lsSet("techGokuForm",gokuForm);
     try{if(SFX.gokuFase&&SFX.gokuFase.src){try{SFX.gokuFase.currentTime=0}catch(_){}playSfx("gokuFase")}}catch(e){}
+  } else {
+    /* otra nave: ocultar fases Goku de inmediato */
+    gokuForm="normal";
   }
   try{updateGokuFormsUI()}catch(e){}
 }
@@ -1918,23 +1911,24 @@ function showUserManual(){
 function updateGokuFormsUI(){
   const isGoku = shipModel==="goku";
   const unlocked = !!gokuUnlocked;
+  /* Solo Goku: si la nave no es Goku, ocultar siempre las fases abajo y el overlay */
   const show = isGoku && unlocked && (typeof showGokuFormsBar==="undefined" || showGokuFormsBar);
   ["gokuForms","gokuFormsOverlay"].forEach(id=>{
     const wrap=document.getElementById(id);
     if(!wrap)return;
-    wrap.classList.toggle("show", show);
-    if(id==="gokuForms"){
-      /* touch pad: solo móvil */
-      wrap.style.display = show ? "flex" : "none";
+    if(show){
+      wrap.classList.add("show");
+      wrap.style.display = "flex";
+      wrap.style.visibility = "visible";
     } else {
-      /* overlay sobre el canvas */
-      wrap.style.display = show ? "flex" : "none";
+      wrap.classList.remove("show");
+      wrap.style.display = "none";
+      wrap.style.visibility = "hidden";
     }
     wrap.querySelectorAll(".goku-form-btn").forEach(btn=>{
       const f=btn.getAttribute("data-form");
       btn.classList.toggle("active", f===gokuForm);
-      /* ocultar botones de fase si no hay acceso */
-      btn.style.display = unlocked ? "" : "none";
+      btn.style.display = (show && unlocked) ? "" : "none";
     });
   });
   /* Mostrar botón solo si la nave es Goku y está desbloqueado */
@@ -3152,24 +3146,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
     wBtn.addEventListener("touchstart",goW,{passive:false});
     wBtn.addEventListener("mousedown",goW);
   }
-  const drBtn=document.getElementById("touchDrone");
-  if(drBtn){
-    const goDr=e=>{e.preventDefault();activateDronePower()};
-    drBtn.addEventListener("touchstart",goDr,{passive:false});
-    drBtn.addEventListener("mousedown",goDr);
-  }
-  const boBtn=document.getElementById("touchBounce");
-  if(boBtn){
-    const goBo=e=>{e.preventDefault();activateBounceShot()};
-    boBtn.addEventListener("touchstart",goBo,{passive:false});
-    boBtn.addEventListener("mousedown",goBo);
-  }
-  const frBtn=document.getElementById("touchFreeze");
-  if(frBtn){
-    const goFr=e=>{e.preventDefault();activateFreezePower()};
-    frBtn.addEventListener("touchstart",goFr,{passive:false});
-    frBtn.addEventListener("mousedown",goFr);
-  }
+
   /* Doble toque rápido en el pad de movimiento = dash */
   let _dashTapT=0;
   const stickEl=document.getElementById("touchStick");
@@ -3199,6 +3176,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   }
   wireGokuBtns(document.getElementById("gokuForms"));
   wireGokuBtns(document.getElementById("gokuFormsOverlay"));
+  try{updateGokuFormsUI()}catch(e){}
   updateGokuFormsUI();
 
   function fireDown(e){

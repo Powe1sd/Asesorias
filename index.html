@@ -2922,12 +2922,35 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-mode="infinite" class="${gameMode==="infinite"?"active":""}">∞ Infinito</button>
     </div>
     <p style="font-size:9px;color:#888;margin:2px 0 6px">Infinito: oleadas sin jefes, dificultad que sube sin parar</p>
-    <h3>⬆ Mejoras permanentes · ${coins}⭐</h3>
-    <div class="diff-btns" style="flex-wrap:wrap">
-      <button type="button" data-upg="speed">Velocidad ${upgSpeed}/${UPG_MAX}</button>
-      <button type="button" data-upg="ammo">Munición ${upgAmmo}/${UPG_MAX}</button>
-      <button type="button" data-upg="lives">Vidas ${upgLives}/${UPG_MAX}</button>
-      <button type="button" data-upg="damage">Daño ${upgDamage}/${UPG_MAX}</button>
+    <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <span>⬆ Mejoras permanentes</span>
+      <span style="color:#FFCD00;font-size:12px;font-weight:700;letter-spacing:.5px">${coins} ⭐</span>
+    </h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px">
+      ${[
+        {k:"speed",icon:"⚡",name:"Velocidad",lvl:upgSpeed,col:"#00A0E9"},
+        {k:"ammo",icon:"🔫",name:"Munición",lvl:upgAmmo,col:"#FFCD00"},
+        {k:"lives",icon:"❤️",name:"Vidas",lvl:upgLives,col:"#CE1126"},
+        {k:"damage",icon:"💥",name:"Daño",lvl:upgDamage,col:"#FF6B00"}
+      ].map(u=>{
+        const pct=Math.round((u.lvl/UPG_MAX)*100);
+        const maxed=u.lvl>=UPG_MAX;
+        return `<button type="button" data-upg="${u.k}" style="
+          text-align:left;padding:10px 10px 9px;border-radius:12px;cursor:pointer;
+          border:1px solid ${maxed?"rgba(255,205,0,.55)":"rgba(255,255,255,.18)"};
+          background:linear-gradient(160deg,rgba(8,18,40,.95),rgba(0,0,0,.88));
+          color:#fff;font-family:Orbitron,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);
+        ">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px">
+            <span style="font-size:12px;font-weight:700">${u.icon} ${u.name}</span>
+            <span style="font-size:11px;color:${maxed?"#FFCD00":"#9fdfff"};font-weight:800">${u.lvl}/${UPG_MAX}</span>
+          </div>
+          <div style="height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden">
+            <div style="height:100%;width:${pct}%;border-radius:99px;background:linear-gradient(90deg,${u.col},${u.col}cc);box-shadow:0 0 8px ${u.col}66"></div>
+          </div>
+          <div style="margin-top:5px;font-size:9px;color:${maxed?"#FFCD00":"#8899aa"};letter-spacing:.3px">${maxed?"★ MÁXIMO":"Toca para mejorar"}</div>
+        </button>`;
+      }).join("")}
     </div>
     <h3>🌍 Mundo</h3>
     <div class="diff-btns">

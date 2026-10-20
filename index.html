@@ -3200,7 +3200,6 @@ if(startPanel&&!document.getElementById("startExtras")){
   function renderStart(){
     const rank=getRanking().map((r,i)=>(i+1)+". "+r.score).join(" · ")||"Sin récords aún";
     const ach=Object.values(getAchievements()).map(a=>a.title).slice(0,6).join(", ")||"—";
-    const histHtml=formatMatchHistoryHtml(20);
     box.innerHTML=`
     <div class="diff-btns">
       <button type="button" data-d="easy" class="${difficulty==="easy"?"active":""}">FÁCIL</button>
@@ -3371,10 +3370,6 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
-    <h3 style="margin-top:12px;text-transform:lowercase">📜 historial de partidas</h3>
-    <div id="matchHistoryBox">${histHtml}</div>
-    <button type="button" class="game-btn" id="clearHistoryBtn" style="font-size:10px;padding:6px 14px;margin-top:6px">🗑 Borrar historial</button>
-    <p style="color:#888;font-size:10px;margin:8px 0 4px">Ajustes en ⚙ Config (arriba a la izquierda)</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
@@ -3461,8 +3456,6 @@ if(startPanel&&!document.getElementById("startExtras")){
     const bof=box.querySelector("#btnOpenFullConfig");
     if(bof)bof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
-    const chb=document.getElementById("clearHistoryBtn");
-    if(chb)chb.onclick=function(){if(confirm("¿Borrar historial de partidas?")){clearMatchHistory();renderStart();}};
 
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");

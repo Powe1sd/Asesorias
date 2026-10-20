@@ -7851,5 +7851,119 @@ function storyOnWaveComplete(){
   setTimeout(apply,300);setTimeout(apply,1200);
 })();
 </script>
+
+<script id="tech-historial-partidas-fix-final">
+/* Respaldo final del historial: cubre finales normales y rutas alternativas del juego. */
+(function () {
+  "use strict";
+  var KEY = "techMatchHistoryV1";
+  var saveFunctionWasCalled = false;
+  var originalSaveHistory = window.saveCurrentMatchToHistory || (typeof saveCurrentMatchToHistory === "function" ? saveCurrentMatchToHistory : null);
+
+  function readHistorySafe() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      var data = raw ? JSON.parse(raw) : [];
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error("[Historial] No se pudo leer localStorage:", err);
+      return [];
+    }
+  }
+
+  function saveFallback() {
+    try {
+      var history = readHistorySafe();
+      var start = (typeof runStartTime !== "undefined" && Number(runStartTime)) ? Number(runStartTime) : 0;
+      var stamp = Date.now();
+      var scoreNow = (typeof score !== "undefined" && Number.isFinite(Number(score))) ? Number(score) : 0;
+
+      // Evitar duplicar la misma partida si la función original ya alcanzó a guardarla.
+      if (history.length && start && history[0].runStartTime === start) {
+        return true;
+      }
+
+      var item = {
+        ts: stamp,
+        runStartTime: start,
+        score: Math.max(0, Math.floor(scoreNow)),
+        wave: (typeof waveCount !== "undefined" && Number.isFinite(Number(waveCount))) ? Number(waveCount) : 0,
+        world: (typeof selectedWorld !== "undefined" && Number(selectedWorld)) ? Number(selectedWorld) : 1,
+        ship: (typeof shipName !== "undefined" && shipName) ? String(shipName).slice(0, 16) : "Br7",
+        model: (typeof shipModel !== "undefined" && shipModel) ? String(shipModel) : "classic",
+        gokuForm: (typeof gokuForm !== "undefined" && gokuForm) ? String(gokuForm) : "",
+        diff: (typeof difficulty !== "undefined" && difficulty) ? String(difficulty) : "normal",
+        mode: (typeof gameMode !== "undefined" && gameMode) ? String(gameMode) : "classic",
+        duration: start ? Math.max(1, Math.round((performance.now() - start) / 1000)) : 0,
+        record: false,
+        coins: (typeof coins !== "undefined" && Number.isFinite(Number(coins))) ? Number(coins) : 0
+      };
+
+      history.unshift(item);
+      history = history.slice(0, 20);
+      window.localStorage.setItem(KEY, JSON.stringify(history));
+
+      var verify = JSON.parse(window.localStorage.getItem(KEY) || "[]");
+      if (!Array.isArray(verify) || !verify.length) throw new Error("El navegador no confirmó el guardado");
+      console.info("[Historial] Partida guardada. Total:", verify.length);
+      return true;
+    } catch (err) {
+      console.error("[Historial] No se pudo guardar la partida:", err);
+      return false;
+    }
+  }
+
+  if (typeof originalSaveHistory === "function") {
+    var wrappedSaveHistory = function () {
+      saveFunctionWasCalled = false;
+      try {
+        var before = readHistorySafe().length;
+        var result = originalSaveHistory.apply(this, arguments);
+        var after = readHistorySafe();
+        var currentScore = (typeof score !== "undefined") ? Number(score) : NaN;
+        saveFunctionWasCalled = after.length > before || (after.length > 0 && Number(after[0].score) === currentScore && Date.now() - Number(after[0].ts || 0) < 5000);
+        return result;
+      } catch (err) {
+        console.error("[Historial] Falló el guardado original:", err);
+        return false;
+      }
+    };
+    try { window.saveCurrentMatchToHistory = wrappedSaveHistory; } catch (e) {}
+    try { saveCurrentMatchToHistory = wrappedSaveHistory; } catch (e) {}
+  }
+
+  var originalEndGame = (typeof endGame === "function") ? endGame : null;
+  if (originalEndGame && !window.__techHistoryEndGameGuard) {
+    window.__techHistoryEndGameGuard = true;
+    endGame = function () {
+      saveFunctionWasCalled = false;
+      var result;
+      try {
+        result = originalEndGame.apply(this, arguments);
+      } catch (err) {
+        console.error("[Historial] Error al finalizar partida:", err);
+        throw err;
+      } finally {
+        // Si alguna variante de fin de partida no llamó al guardado normal, usar respaldo.
+        if (!saveFunctionWasCalled) saveFallback();
+        try {
+          if (typeof renderStart === "function" && !gameRunning) renderStart();
+        } catch (e) {}
+      }
+      return result;
+    };
+  }
+
+  // Prueba rápida de escritura/lectura al cargar: no borra partidas existentes.
+  try {
+    var existing = window.localStorage.getItem(KEY);
+    if (existing === null) window.localStorage.setItem(KEY, "[]");
+    JSON.parse(window.localStorage.getItem(KEY) || "[]");
+  } catch (err) {
+    console.error("[Historial] localStorage no está disponible en este contexto:", err);
+  }
+})();
+</script>
+
 </body>
 </html>

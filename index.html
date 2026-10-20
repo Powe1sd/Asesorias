@@ -5349,7 +5349,7 @@ function drawShipPreview(){
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
   const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",r13:"R13",c67:"C67",rr1:"RR1",s1000:"S1000",f50:"F50",t200:"T200",s179:"S179",goku:"Goku "+({normal:"Base",ssj:"SSJ",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios",ssblue:"SS Blue"}[gokuForm]||"")};
-  g.fillText((names[shipModel]||shipModel)+" · "+shipSkin,W/2,H-12);
+  g.fillText((window.techTranslateShipName?window.techTranslateShipName(shipModel,names[shipModel]||shipModel):((names[shipModel]||shipModel)))+" · "+shipSkin,W/2,H-12);
 }
 
 function drawPlayer(){
@@ -7230,6 +7230,34 @@ function storyOnWaveComplete(){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   document.addEventListener('click',function(e){if(e.target&&e.target.id==='startGame')setTimeout(function(){try{syncLiveScore()}catch(e){}},50)});
+})();
+</script>
+
+
+<script>
+/* Idioma sincronizado en inicio, configuración y pausa; nombres del carrusel de naves traducidos. */
+(function(){
+ const shipNames={
+  es:{classic:'Clásica',fighter:'Cazadora',interceptor:'Interceptor',heavy:'Pesada',stealth:'Sigilo',wing:'Ala X',needle:'Aguja',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
+  en:{classic:'Classic',fighter:'Hunter',interceptor:'Interceptor',heavy:'Heavy',stealth:'Stealth',wing:'X-Wing',needle:'Needle',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
+  fr:{classic:'Classique',fighter:'Chasseur',interceptor:'Intercepteur',heavy:'Lourd',stealth:'Furtif',wing:'Aile X',needle:'Aiguille',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
+  ja:{classic:'クラシック',fighter:'ハンター',interceptor:'迎撃機',heavy:'重装型',stealth:'ステルス',wing:'Xウイング',needle:'ニードル',delta:'デルタ',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'悟空'},
+  zh:{classic:'经典型',fighter:'猎手',interceptor:'拦截机',heavy:'重型',stealth:'隐形',wing:'X翼',needle:'针式',delta:'三角型',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'悟空'},
+  pt:{classic:'Clássica',fighter:'Caçadora',interceptor:'Interceptadora',heavy:'Pesada',stealth:'Furtiva',wing:'Asa X',needle:'Agulha',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
+  de:{classic:'Klassisch',fighter:'Jäger',interceptor:'Abfangjäger',heavy:'Schwer',stealth:'Tarnkappe',wing:'X-Flügel',needle:'Nadel',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'}
+ };
+ const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch']];
+ function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
+ window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul'},en:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue'},fr:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu'},ja:{normal:'基本',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー'},zh:{normal:'基础',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝'},pt:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul'},de:{normal:'Basis',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
+ function makeSelect(id){let el=document.getElementById(id);if(el)return el;el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Idioma / Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';langs.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
+ function sync(){let c=code();['langSelect','startLangSelect','pauseLangSelect'].forEach(id=>{let e=document.getElementById(id);if(e)e.value=c});let cfg=document.getElementById('configPanel');if(cfg){let title=cfg.querySelector('h2');if(title){title.style.display='block';title.style.visibility='visible'}}}
+ function addPauseLanguage(){const p=document.getElementById('pausePanel');if(!p||document.getElementById('pauseLanguageBlock'))return;const block=document.createElement('div');block.id='pauseLanguageBlock';block.style.cssText='margin:10px 0 14px;padding:10px;border:1px solid rgba(255,205,0,.45);border-radius:9px;text-align:left;';const label=document.createElement('label');label.htmlFor='pauseLangSelect';label.textContent='🌐 Idioma / Language';label.style.cssText='display:block;color:#ffcd00;font-size:12px;font-weight:700;margin-bottom:6px';const sel=makeSelect('pauseLangSelect');block.append(label,sel);const heading=p.querySelector('h3');if(heading&&heading.parentElement)heading.parentElement.insertBefore(block,heading.nextSibling);else p.insertBefore(block,p.firstChild);}
+ function addConfigLanguage(){const cfg=document.getElementById('configPanel');if(!cfg)return;const old=document.getElementById('langSelect');if(old){const par=old.parentElement; if(par){par.style.display='block';par.style.visibility='visible';par.style.opacity='1';}}}
+ const prior=window.setLanguage;window.setLanguage=function(c){if(typeof prior==='function')prior(c);else{try{localStorage.setItem('techLang',c)}catch(e){}window.__techLangCurrent=c;}try{window.__techLangCurrent=c;const l=document.getElementById('langSelect');if(l)l.value=c;const st=document.getElementById('startLangSelect');if(st)st.value=c;const pa=document.getElementById('pauseLangSelect');if(pa)pa.value=c; if(typeof drawShipPreview==='function')drawShipPreview();}catch(e){} };
+ function init(){addPauseLanguage();addConfigLanguage();sync();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+ document.addEventListener('click',e=>{if(e.target&&['btnPause','resumeGame'].includes(e.target.id))setTimeout(init,30)});
+ const ob=new MutationObserver(()=>{if(!document.getElementById('pauseLanguageBlock'))addPauseLanguage();});if(document.body)ob.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
 

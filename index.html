@@ -1675,9 +1675,6 @@ function applyUILanguage(){
 }
 function getConfigHTML(){
   return `<h2 style="font-size:20px;margin-bottom:10px">${T("config")}</h2>
-<p style="color:#FFCD00;font-size:12px;margin:4px 0">${CREDITS.name}</p>
-<p style="color:#888;font-size:10px;margin:2px 0 8px">✉ ${CREDITS.email} · 📞 ${CREDITS.phone}</p>
-<p style="color:#aaa;font-size:10px;margin:0 0 10px">${T("cfgHint")}</p>
 <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">${T("sensMouse")}</p>
 <input type="range" id="sensMouse" min="0.2" max="2.0" step="0.05" value="${sensMouse}" style="width:90%;accent-color:#FFCD00">
 <p id="sensMouseVal" style="color:#aaa;font-size:10px">${Number(sensMouse).toFixed(2)}x</p>
@@ -2815,8 +2812,11 @@ document.getElementById("closeConfig").onclick=()=>{
 }
 wireConfigPanel();
 try{applyUILanguage()}catch(e){}
+// No mostrar la ventana de configuración al cargar el menú inicial.
+try{cfg.style.display="none";cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.display="none"})}catch(e){}
 
 btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
+try{btnCfg.style.display="none"}catch(e){}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
 pp.style.cssText="display:none;z-index:50;max-height:min(88vh,560px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;width:min(360px,94%);padding:16px 14px 18px";
@@ -6524,6 +6524,7 @@ runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
 startPanel.style.display="none";gameOverPanel.style.display="none";
+const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="block";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
@@ -6573,6 +6574,8 @@ function goToStartMenu(){
   const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
   const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
   startPanel.style.display="block";
+  const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="none";
+  const cfgPanel=document.getElementById("configPanel");if(cfgPanel)cfgPanel.style.display="none";
   setTimeout(function(){renderStart();},30);
   setTimeout(drawShipPreview,50);
 }

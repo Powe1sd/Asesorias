@@ -6918,7 +6918,7 @@ runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
 startPanel.style.display="none";gameOverPanel.style.display="none";
-const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="block";
+const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","8px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
@@ -7780,12 +7780,24 @@ function storyOnWaveComplete(){
   const $=id=>document.getElementById(id);
   function button(text,id){const b=document.createElement('button');b.type='button';b.id=id;b.className='game-btn game-btn-blue';b.textContent=text;b.style.cssText='width:100%;margin:0 0 10px;padding:9px;font-size:12px;';return b;}
   function addStartGear(){
-    const sp=$('startPanel'); if(!sp||$('startGearShortcut'))return;
-    const b=button('⚙ Configuraciones','startGearShortcut');
-    b.style.cssText+='border-color:rgba(255,205,0,.6);color:#fff;';
-    const target=sp.querySelector('h2')||sp.firstElementChild;
-    if(target&&target.parentNode)target.parentNode.insertBefore(b,target.nextSibling);else sp.prepend(b);
-    b.addEventListener('click',()=>{const cfg=$('configPanel'),existing=$('btnConfig');if(existing){existing.click();}else if(cfg){cfg.classList.add('config-panel-open');cfg.style.setProperty('display','block','important');} });
+    const sp=$('startPanel'); if(!sp)return;
+    let b=$('startGearShortcut');
+    if(!b){
+      b=document.createElement('button');
+      b.type='button';
+      b.id='startGearShortcut';
+      b.textContent='⚙';
+      b.setAttribute('aria-label','Abrir configuraciones');
+      b.title='Configuraciones';
+      b.style.cssText='position:absolute;top:10px;right:10px;z-index:60;width:38px;height:38px;display:flex;align-items:center;justify-content:center;padding:0;margin:0;border:1px solid rgba(255,205,0,.65);border-radius:50%;background:rgba(8,15,30,.9);color:#FFCD00;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 0 10px rgba(255,205,0,.18);';
+      sp.appendChild(b);
+    }
+    sp.style.position='absolute';
+    b.onclick=()=>{
+      const cfg=$('configPanel'),existing=$('btnConfig');
+      if(existing){existing.click();}
+      else if(cfg){cfg.hidden=false;cfg.classList.add('config-panel-open');cfg.style.setProperty('display','block','important');}
+    };
   }
   function addConfigBack(){
     const cfg=$('configPanel'),save=$('closeConfig');if(!cfg||!save||$('configBackToStart'))return;

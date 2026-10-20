@@ -1052,6 +1052,13 @@ input:focus,textarea:focus,select:focus{
 .touch-pad.layout-stacked .touch-mid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));max-width:100%}
 
 </style>
+
+<style id="tech-statistics-styles">
+#techStatisticsPanel{display:none;position:absolute;z-index:120;inset:3% 2%;max-height:94%;overflow-y:auto;box-sizing:border-box;padding:clamp(12px,3vw,22px);border:1px solid rgba(80,220,255,.55);border-radius:18px;background:radial-gradient(circle at top right,rgba(0,113,160,.25),transparent 38%),linear-gradient(145deg,rgba(4,10,25,.98),rgba(9,19,39,.98));color:#fff;text-align:left;box-shadow:0 0 35px rgba(0,170,255,.2);font-family:inherit;-webkit-overflow-scrolling:touch}
+#techStatisticsPanel *{box-sizing:border-box} .tech-stat-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.tech-stat-head h2{margin:0;color:#fff;font-size:clamp(20px,4vw,28px)}.tech-stat-head p,.tech-stat-muted,.tech-stat-note{font-size:11px;color:#a9b8cb;line-height:1.5;margin:5px 0}.tech-stat-close{flex:0 0 38px;width:38px;height:38px;border:1px solid #5de5ff;border-radius:10px;background:#102746;color:#fff;font-size:19px;cursor:pointer}.tech-stat-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.tech-stat-card{min-width:0;padding:11px;border:1px solid rgba(115,190,255,.2);border-radius:12px;background:rgba(13,33,59,.85);display:flex;flex-direction:column;gap:5px}.tech-stat-card span{font-size:11px;color:#c4d6e8}.tech-stat-card strong{font-size:clamp(17px,2.8vw,25px);line-height:1.15;color:#fff;overflow-wrap:anywhere}.tech-stat-card small{font-size:9px;color:#839ab3;line-height:1.35}.tech-stat-section{margin-top:15px;padding:13px;border:1px solid rgba(115,190,255,.18);border-radius:13px;background:rgba(7,20,39,.68)}.tech-stat-section h3{font-size:14px;color:#eaf8ff;margin:0 0 12px}.tech-stat-progresslabel,.tech-stat-bartop{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#dcecff;margin-bottom:7px}.tech-stat-progresslabel b:last-child,.tech-stat-bartop b{color:#5de5ff}.tech-stat-track{height:9px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}.tech-stat-track.big{height:13px}.tech-stat-fill{height:100%;border-radius:99px;transition:width .3s ease}.tech-stat-barrow{margin:10px 0}.tech-stat-chart{height:145px;display:flex;align-items:stretch;gap:7px;padding:10px 5px 0;border-bottom:1px solid rgba(255,255,255,.16)}.tech-stat-chartcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}.tech-stat-chartvalue{font-size:9px;color:#c7eaff;overflow:hidden;max-width:100%;text-overflow:ellipsis}.tech-stat-chartbar{width:min(28px,72%);min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#64f2ff,#1377ff);box-shadow:0 0 10px rgba(0,190,255,.2)}.tech-stat-chartcol span{font-size:9px;color:#92a6bd;padding:3px}.tech-stat-chartcaption{font-size:10px;color:#93a8bf;margin-top:8px}.tech-stat-empty{font-size:11px;color:#9fb3c8;padding:18px 4px}.tech-stat-match{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px;color:#d7e5f4}.tech-stat-match b{color:#ffd34d}.tech-stat-match small{grid-column:1/-1;color:#8ea3ba;font-size:10px}.tech-stat-note{margin-top:12px;padding:0 3px}
+@media(max-width:560px){#techStatisticsPanel{inset:2% 2%;max-height:96%;padding:12px}.tech-stat-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tech-stat-card{padding:10px}.tech-stat-chart{height:120px;gap:4px}.tech-stat-section{padding:10px}}
+</style>
+
 </head>
 <body>
 
@@ -1067,6 +1074,7 @@ input:focus,textarea:focus,select:focus{
 <small>Elige dificultad y nave · Desliza para ver más</small><br>
 <button class="game-btn" id="startGame">🚀 INICIAR</button>
 <button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 MODO HISTORIA</button>
+<button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 GAME OVER</h2>
@@ -7993,6 +8001,73 @@ function storyOnWaveComplete(){
   } catch (err) {
     console.error("[Historial] localStorage no está disponible en este contexto:", err);
   }
+})();
+</script>
+
+
+<script id="tech-statistics-dashboard">
+(function(){
+  'use strict';
+  const STORE='techGlobalStatsV1';
+  function readJSON(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch(e){return fallback}}
+  function readStats(){const x=readJSON(STORE,{});return Object.assign({games:0,wins:0,losses:0,enemies:0,shots:0,totalSeconds:0,storyWins:0,storyAttempts:0,highScore:0,updated:0},x)}
+  function writeStats(s){try{localStorage.setItem(STORE,JSON.stringify(s))}catch(e){}}
+  function safeNum(v){return Number.isFinite(Number(v))?Number(v):0}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function history(){let a=readJSON('techMatchHistoryV1',null);if(!Array.isArray(a))a=readJSON('techMatchHistory',[]);return Array.isArray(a)?a:[]}
+  function storyData(){return readJSON('techStoryProgress',{})||{}}
+  function campaignTotal(){try{return Array.isArray(window.STORY_CAMPAIGN)?window.STORY_CAMPAIGN.length:90}catch(e){return 90}}
+  function completedMissions(){const d=storyData();return Object.keys(d).filter(k=>d[k]&&d[k].done).length}
+  function fmtTime(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?`${h} h ${m} min`:(m?`${m} min ${s} s`:`${s} s`)}
+  function bar(label,value,max,color,display){const pct=max>0?Math.max(0,Math.min(100,value/max*100)):0;return `<div class="tech-stat-barrow"><div class="tech-stat-bartop"><span>${label}</span><b>${display==null?value:display}</b></div><div class="tech-stat-track"><div class="tech-stat-fill" style="width:${pct}%;background:${color}"></div></div></div>`}
+  function buildChart(matches){const recent=matches.slice(0,8).reverse();if(!recent.length)return '<div class="tech-stat-empty">Juega algunas partidas para generar la gráfica de puntuaciones.</div>';const max=Math.max(1,...recent.map(m=>safeNum(m.score)));return `<div class="tech-stat-chart">${recent.map((m,i)=>{const score=safeNum(m.score),height=Math.max(5,score/max*100);return `<div class="tech-stat-chartcol" title="Partida ${matches.length-i}: ${score} puntos"><div class="tech-stat-chartvalue">${score}</div><div class="tech-stat-chartbar" style="height:${height}%;"></div><span>${i+1}</span></div>`}).join('')}</div><div class="tech-stat-chartcaption">Puntuación de las últimas ${recent.length} partidas (de la más antigua a la más reciente)</div>`}
+  function render(){
+    const panel=document.getElementById('techStatisticsPanel');if(!panel)return;
+    const st=readStats(),h=history(),story=storyData(),total=campaignTotal(),done=completedMissions();
+    const scores=h.map(m=>safeNum(m.score));const best=Math.max(st.highScore||0,...scores, safeNum(localStorage.getItem('techRunRecordV4')));
+    const totalTime=Math.max(st.totalSeconds,h.reduce((sum,m)=>sum+safeNum(m.duration),0));
+    const storyWins=Math.max(st.storyWins,done);
+    const attempts=Math.max(st.storyAttempts,storyWins);
+    const kills=st.enemies;
+    const shots=st.shots;
+    const accuracy=shots>0?Math.min(100,Math.round(kills/shots*100)):0;
+    const achievements=readJSON('techAchievements',[]);
+    const achievementCount=Array.isArray(achievements)?achievements.filter(Boolean).length:(achievements&&typeof achievements==='object'?Object.values(achievements).filter(Boolean).length:0);
+    const totalGames=Math.max(st.games,h.length);
+    const losses=Math.max(st.losses,h.length);
+    const wins=storyWins+st.wins;
+    const ratio=totalGames+attempts>0?Math.round((wins/Math.max(1,totalGames+attempts))*100):0;
+    panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Estadísticas</h2><p>Tu progreso en TECH se guarda en este navegador.</p></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
+      <div class="tech-stat-cards">
+       <div class="tech-stat-card"><span>Partidas</span><strong>${totalGames}</strong><small>Registradas</small></div>
+       <div class="tech-stat-card"><span>Récord personal</span><strong>${best}</strong><small>Puntos</small></div>
+       <div class="tech-stat-card"><span>Enemigos eliminados</span><strong>${kills}</strong><small>Desde que activaste las estadísticas</small></div>
+       <div class="tech-stat-card"><span>Tiempo jugado</span><strong>${fmtTime(totalTime)}</strong><small>Tiempo acumulado disponible</small></div>
+       <div class="tech-stat-card"><span>Victorias de historia</span><strong>${storyWins}</strong><small>Misiones completadas</small></div>
+       <div class="tech-stat-card"><span>Derrotas arcade</span><strong>${losses}</strong><small>Finales registrados</small></div>
+       <div class="tech-stat-card"><span>Disparos</span><strong>${shots}</strong><small>Proyectiles lanzados</small></div>
+       <div class="tech-stat-card"><span>Efectividad estimada</span><strong>${shots?accuracy+'%':'—'}</strong><small>Eliminaciones frente a disparos; no es precisión exacta</small></div>
+      </div>
+      <section class="tech-stat-section"><h3>🚀 Progreso del modo historia</h3><div class="tech-stat-progresslabel"><b>${done} / ${total} misiones</b><b>${Math.round(done/Math.max(1,total)*100)}%</b></div><div class="tech-stat-track big"><div class="tech-stat-fill" style="width:${Math.min(100,done/Math.max(1,total)*100)}%;background:linear-gradient(90deg,#00d4ff,#72ff9c)"></div></div><p class="tech-stat-muted">${done>=total?'¡Campaña completada!':`Te faltan ${Math.max(0,total-done)} misiones para completar la campaña.`}</p></section>
+      <section class="tech-stat-section"><h3>📈 Gráfica de puntuaciones</h3>${buildChart(h)}</section>
+      <section class="tech-stat-section"><h3>📊 Resumen del rendimiento</h3>${bar('Progreso de campaña',done,total,'linear-gradient(90deg,#00d4ff,#72ff9c)',`${done}/${total}`)}${bar('Misiones completadas',storyWins,total,'#ffd34d',`${Math.min(storyWins,total)}/${total}`)}${bar('Victorias de historia vs intentos',storyWins,Math.max(1,attempts),'#69f0ae',`${storyWins}/${attempts}`)}${bar('Logros desbloqueados',achievementCount,Math.max(10,achievementCount),'#c58cff',achievementCount)}</section>
+      <section class="tech-stat-section"><h3>🕹️ Últimas partidas</h3>${h.length?h.slice(0,8).map((m,i)=>`<div class="tech-stat-match"><span>#${i+1} · ${esc(m.mode||'Clásico')} · ${esc(m.diff||'Normal')}</span><b>${safeNum(m.score)} pts</b><small>${esc(m.duration||0)} s · ${esc(m.ship||'Nave')}</small></div>`).join(''):'<p class="tech-stat-muted">Todavía no hay partidas guardadas en el historial.</p>'}</section>
+      <p class="tech-stat-note">Nota: los datos nuevos se cuentan desde que se habilitó este panel. Las partidas antiguas solo aportan la información que ya quedó guardada en el historial.</p>`;
+    const close=document.getElementById('closeStatistics');if(close)close.onclick=closePanel;
+  }
+  function openPanel(){let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=document.createElement('div');panel.id='techStatisticsPanel';panel.className='tech-stat-panel';(document.querySelector('.tech-game')||document.body).appendChild(panel)}
+    ['startPanel','gameOverPanel','storyMenuPanel','storyBriefPanel','storyResultPanel','configPanel','pausePanel'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display!=='none'){el.dataset.statsWasVisible='1';el.style.display='none'}});
+    panel.style.display='block';render();
+  }
+  function closePanel(){const panel=document.getElementById('techStatisticsPanel');if(panel)panel.style.display='none';const start=document.getElementById('startPanel');if(start)start.style.display='block';}
+  function patchFunctions(){
+    if(typeof window.shoot==='function'&&!window.__techStatsShootPatched){window.__techStatsShootPatched=true;const original=window.shoot;window.shoot=function(){const before=Array.isArray(window.bullets)?window.bullets.length:0;const result=original.apply(this,arguments);const after=Array.isArray(window.bullets)?window.bullets.length:before;if(after>before){const st=readStats();st.shots+=after-before;st.updated=Date.now();writeStats(st)}return result}}
+    if(typeof window.destroyEnemy==='function'&&!window.__techStatsEnemyPatched){window.__techStatsEnemyPatched=true;const original=window.destroyEnemy;window.destroyEnemy=function(o,i){const was=o&&o.__techDestroyed;const result=original.apply(this,arguments);if(o&&!was&&o.__techDestroyed){const st=readStats();st.enemies++;st.updated=Date.now();writeStats(st)}return result}}
+    if(typeof window.endGame==='function'&&!window.__techStatsEndPatched){window.__techStatsEndPatched=true;const original=window.endGame;window.endGame=function(){const wasRunning=typeof gameRunning!=='undefined'&&gameRunning;const start=typeof runStartTime!=='undefined'?Number(runStartTime):0;const oldScore=typeof score!=='undefined'?safeNum(score):0;const result=original.apply(this,arguments);if(wasRunning){const st=readStats();st.games++;st.losses++;st.highScore=Math.max(st.highScore,oldScore);if(start)st.totalSeconds+=Math.max(0,Math.round((performance.now()-start)/1000));st.updated=Date.now();writeStats(st)}return result}}
+    if(typeof window.completeStoryMission==='function'&&!window.__techStatsStoryPatched){window.__techStatsStoryPatched=true;const original=window.completeStoryMission;window.completeStoryMission=function(ok){const active=typeof storyMissionActive!=='undefined'&&storyMissionActive;const result=original.apply(this,arguments);if(active){const st=readStats();st.storyAttempts++;if(ok)st.storyWins++;st.highScore=Math.max(st.highScore,typeof score!=='undefined'?safeNum(score):0);st.updated=Date.now();writeStats(st)}return result}}
+  }
+  function init(){const btn=document.getElementById('openStatistics');if(btn)btn.addEventListener('click',openPanel);patchFunctions();setInterval(patchFunctions,1200);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
 

@@ -7257,9 +7257,7 @@ function storyOnWaveComplete(){
 (function(){function hideInitialConfig(){var c=document.getElementById("configPanel");if(c&&!c.classList.contains("config-panel-open")){c.style.setProperty("display","none","important");}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",hideInitialConfig,{once:true});}else{hideInitialConfig();}window.addEventListener("pageshow",hideInitialConfig);})();
 </script>
 </body>
-</html>
-
-
+<script>
 /* === CIERRE UNIFICADO: botón X en ventanas y paneles emergentes === */
 (function installPanelCloseButtons(){
   const excluded=new Set(["startPanel"]);
@@ -7290,3 +7288,5 @@ function storyOnWaveComplete(){
   function init(){scan(document.body);const observer=new MutationObserver(records=>records.forEach(rec=>{rec.addedNodes.forEach(scan);if(rec.target&&rec.target.nodeType===1&&rec.target.classList&&rec.target.classList.contains("game-panel")&&!rec.target.querySelector(".panel-close-x")){delete rec.target.dataset.closeXReady;addClose(rec.target)}}));observer.observe(document.body,{childList:true,subtree:true});}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
+</script>
+</html>

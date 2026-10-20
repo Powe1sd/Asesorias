@@ -4418,6 +4418,7 @@ function getMatchHistory(){
 function pushMatchHistory(entry){
   try{
     const history = getMatchHistory();
+    const prevCount = history.length;
     history.unshift({...entry, ts:Number(entry && entry.ts) || Date.now()});
     const limited = history.slice(0,20);
     const serialized = JSON.stringify(limited);
@@ -4425,6 +4426,21 @@ function pushMatchHistory(entry){
     window.localStorage.setItem(MATCH_HISTORY_KEY, serialized);
     const saved = JSON.parse(window.localStorage.getItem(MATCH_HISTORY_KEY) || "[]");
     if(!Array.isArray(saved) || saved.length !== limited.length) throw new Error("No se pudo verificar el historial");
+    // Contador total de partidas jugadas (sin tope; el historial visible sigue en 20)
+    try{
+      let total = Number(localStorage.getItem("techTotalGamesPlayed")||0)||0;
+      // Migración: si nunca se guardó el total, arrancar desde las partidas ya en historial
+      if(total < prevCount) total = prevCount;
+      total += 1;
+      localStorage.setItem("techTotalGamesPlayed", String(total));
+      try{
+        const stRaw = localStorage.getItem("techGlobalStatsV1");
+        const st = stRaw ? JSON.parse(stRaw) : {};
+        st.games = Math.max(Number(st.games)||0, total);
+        st.updated = Date.now();
+        localStorage.setItem("techGlobalStatsV1", JSON.stringify(st));
+      }catch(_e){}
+    }catch(_e){}
     return true;
   }catch(e){
     console.error("No se pudo guardar el historial de partidas en localStorage:", e);
@@ -7947,9 +7963,26 @@ function storyOnWaveComplete(){
         coins: (typeof coins !== "undefined" && Number.isFinite(Number(coins))) ? Number(coins) : 0
       };
 
+      var prevHistLen = history.length;
       history.unshift(item);
       history = history.slice(0, 20);
       window.localStorage.setItem(KEY, JSON.stringify(history));
+      try {
+        // Solo sumar si el guardado original no incrementó ya (evitar doble conteo)
+        if (!saveFunctionWasCalled) {
+          var total = Number(window.localStorage.getItem("techTotalGamesPlayed") || 0) || 0;
+          if (total < prevHistLen) total = prevHistLen;
+          total += 1;
+          window.localStorage.setItem("techTotalGamesPlayed", String(total));
+          try {
+            var stRaw = window.localStorage.getItem("techGlobalStatsV1");
+            var st = stRaw ? JSON.parse(stRaw) : {};
+            st.games = Math.max(Number(st.games) || 0, total);
+            st.updated = Date.now();
+            window.localStorage.setItem("techGlobalStatsV1", JSON.stringify(st));
+          } catch (_e) {}
+        }
+      } catch (_e) {}
 
       var verify = JSON.parse(window.localStorage.getItem(KEY) || "[]");
       if (!Array.isArray(verify) || !verify.length) throw new Error("El navegador no confirmó el guardado");
@@ -8067,7 +8100,12 @@ function storyOnWaveComplete(){
     const accuracy=shots>0?Math.min(100,Math.round(kills/shots*100)):0;
     const achievementData=readJSON('techAchievements',[]);
     const achievementCount=Array.isArray(achievementData)?achievementData.filter(Boolean).length:(achievementData&&typeof achievementData==='object'?Object.values(achievementData).filter(Boolean).length:0);
-    const totalGames=Math.max(st.games,h.length),losses=st.losses;
+    let _totalPlayed=0;try{_totalPlayed=Number(localStorage.getItem('techTotalGamesPlayed')||0)||0}catch(e){}
+    if(_totalPlayed<h.length)_totalPlayed=h.length;
+    if(_totalPlayed<(Number(st.games)||0))_totalPlayed=Number(st.games)||0;
+    // sincronizar clave persistente si estaba desfasada
+    try{if(Number(localStorage.getItem('techTotalGamesPlayed')||0)<_totalPlayed)localStorage.setItem('techTotalGamesPlayed',String(_totalPlayed))}catch(e){}
+    const totalGames=_totalPlayed,losses=st.losses;
     const avgScore=h.length?Math.round(h.reduce((sum,m)=>sum+safeNum(m.score),0)/h.length):0;
     const avgDuration=h.length?Math.round(h.reduce((sum,m)=>sum+safeNum(m.duration),0)/h.length):0;
     const bestWave=Math.max(0,...h.map(m=>safeNum(m.wave))),coinsRecorded=h.reduce((sum,m)=>sum+safeNum(m.coins),0);
@@ -8079,7 +8117,7 @@ function storyOnWaveComplete(){
     const progressPct=Math.round(Math.min(total,done)/Math.max(1,total)*100);
     panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Centro de estadísticas TECH</h2><p>Panel de rendimiento, progresión y actividad. Los datos dependen del historial guardado en este navegador.</p></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
       <div class="tech-stat-cards">
-       <div class="tech-stat-card"><span>Partidas jugadas</span><strong>${totalGames}</strong><small>Todas las partidas contabilizadas · historial: ${h.length}</small></div>
+       <div class="tech-stat-card"><span>Partidas jugadas</span><strong>${totalGames}</strong><small>Total acumulado (sin límite) · últimas en historial: ${h.length}</small></div>
        <div class="tech-stat-card"><span>Récord personal</span><strong>${best.toLocaleString('es-CO')}</strong><small>Puntuación máxima conocida</small></div>
        <div class="tech-stat-card"><span>Puntuación promedio</span><strong>${avgScore.toLocaleString('es-CO')}</strong><small>Sobre ${h.length} partidas del historial</small></div>
        <div class="tech-stat-card"><span>Mediana de puntuación</span><strong>${median.toLocaleString('es-CO')}</strong><small>Valor central del historial disponible</small></div>
@@ -8135,7 +8173,11 @@ function storyOnWaveComplete(){
   function patchFunctions(){
     if(typeof window.shoot==='function'&&!window.__techStatsShootPatched){window.__techStatsShootPatched=true;const original=window.shoot;window.shoot=function(){const before=Array.isArray(window.bullets)?window.bullets.length:0;const result=original.apply(this,arguments);const after=Array.isArray(window.bullets)?window.bullets.length:before;if(after>before){const st=readStats();st.shots+=after-before;st.updated=Date.now();writeStats(st)}return result}}
     if(typeof window.destroyEnemy==='function'&&!window.__techStatsEnemyPatched){window.__techStatsEnemyPatched=true;const original=window.destroyEnemy;window.destroyEnemy=function(o,i){const was=o&&o.__techDestroyed;const result=original.apply(this,arguments);if(o&&!was&&o.__techDestroyed){const st=readStats();st.enemies++;st.updated=Date.now();writeStats(st)}return result}}
-    if(typeof window.endGame==='function'&&!window.__techStatsEndPatched){window.__techStatsEndPatched=true;const original=window.endGame;window.endGame=function(){const wasRunning=typeof gameRunning!=='undefined'&&gameRunning;const start=typeof runStartTime!=='undefined'?Number(runStartTime):0;const oldScore=typeof score!=='undefined'?safeNum(score):0;const result=original.apply(this,arguments);if(wasRunning){const st=readStats();st.games++;st.losses++;st.highScore=Math.max(st.highScore,oldScore);if(start)st.totalSeconds+=Math.max(0,Math.round((performance.now()-start)/1000));st.updated=Date.now();writeStats(st)}return result}}
+    if(typeof window.endGame==='function'&&!window.__techStatsEndPatched){window.__techStatsEndPatched=true;const original=window.endGame;window.endGame=function(){const wasRunning=typeof gameRunning!=='undefined'&&gameRunning;const start=typeof runStartTime!=='undefined'?Number(runStartTime):0;const oldScore=typeof score!=='undefined'?safeNum(score):0;const result=original.apply(this,arguments);if(wasRunning){const st=readStats();
+      // Partidas jugadas: contadas en pushMatchHistory (techTotalGamesPlayed); aquí solo sincronizamos
+      let totalPlayed=0;try{totalPlayed=Number(localStorage.getItem('techTotalGamesPlayed')||0)||0}catch(e){}
+      st.games=Math.max(Number(st.games)||0,totalPlayed);
+      st.losses++;st.highScore=Math.max(st.highScore,oldScore);if(start)st.totalSeconds+=Math.max(0,Math.round((performance.now()-start)/1000));st.updated=Date.now();writeStats(st)}return result}}
     if(typeof window.completeStoryMission==='function'&&!window.__techStatsStoryPatched){window.__techStatsStoryPatched=true;const original=window.completeStoryMission;window.completeStoryMission=function(ok){const active=typeof storyMissionActive!=='undefined'&&storyMissionActive;const result=original.apply(this,arguments);if(active){const st=readStats();st.storyAttempts++;if(ok)st.storyWins++;st.highScore=Math.max(st.highScore,typeof score!=='undefined'?safeNum(score):0);st.updated=Date.now();writeStats(st)}return result}}
   }
   function init(){const btn=document.getElementById('openStatistics');if(btn)btn.addEventListener('click',openPanel);patchFunctions();setInterval(patchFunctions,1200);}

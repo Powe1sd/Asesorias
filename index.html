@@ -7889,3 +7889,51 @@ function storyOnWaveComplete(){
 </script>
 y>
 </html>
+n<script>
+/* Navegación de vuelta para Modo Historia y acceso a Configuración desde el inicio */
+(function(){
+  const $=id=>document.getElementById(id);
+  function button(text,id){const b=document.createElement('button');b.type='button';b.id=id;b.className='game-btn game-btn-blue';b.textContent=text;b.style.cssText='width:100%;margin:0 0 10px;padding:9px;font-size:12px;';return b;}
+  function addStartGear(){
+    const sp=$('startPanel'); if(!sp||$('startGearShortcut'))return;
+    const b=button('⚙ Configuraciones','startGearShortcut');
+    b.style.cssText+='border-color:rgba(255,205,0,.6);color:#fff;';
+    const target=sp.querySelector('h2')||sp.firstElementChild;
+    if(target&&target.parentNode)target.parentNode.insertBefore(b,target.nextSibling);else sp.prepend(b);
+    b.addEventListener('click',()=>{const cfg=$('configPanel'),existing=$('btnConfig');if(existing){existing.click();}else if(cfg){cfg.classList.add('config-panel-open');cfg.style.setProperty('display','block','important');} });
+  }
+  function addConfigBack(){
+    const cfg=$('configPanel'),save=$('closeConfig');if(!cfg||!save||$('configBackToStart'))return;
+    const b=button('⬅ Volver','configBackToStart');b.style.marginTop='8px';
+    save.insertAdjacentElement('afterend',b);
+    b.addEventListener('click',()=>{
+      try{save.click()}catch(e){cfg.classList.remove('config-panel-open');cfg.style.setProperty('display','none','important')}
+      cfg.classList.remove('config-panel-open');cfg.style.setProperty('display','none','important');
+      const sp=$('startPanel');if(sp)sp.style.display='block';
+      const live=$('btnConfig');if(live)live.style.display='none';
+    });
+  }
+  function addStoryBacks(){
+    const menu=$('storyMenuPanel');
+    if(menu&&menu.style.display!=='none'&&!$('storyMenuBackTop')){
+      const b=button('⬅ Volver al inicio','storyMenuBackTop');
+      const h=menu.querySelector('h2');if(h)h.insertAdjacentElement('afterend',b);else menu.prepend(b);
+      b.addEventListener('click',()=>{menu.style.display='none';const sp=$('startPanel');if(sp)sp.style.display='block';});
+    }
+    const brief=$('storyBriefPanel');
+    if(brief&&brief.style.display!=='none'&&!$('storyBriefBackTop')){
+      const b=button('← Atrás a las misiones','storyBriefBackTop');
+      const h=brief.querySelector('h2');if(h)h.insertAdjacentElement('beforebegin',b);else brief.prepend(b);
+      b.addEventListener('click',()=>{brief.style.display='none';if(typeof openStoryMenu==='function')openStoryMenu();});
+    }
+    const result=$('storyResultPanel');
+    if(result&&result.style.display!=='none'){
+      const old=$('storyMenuBtn');if(old&&!old._backLabelSet){old._backLabelSet=true;old.textContent='⬅ Volver a las misiones';}
+    }
+  }
+  function apply(){addStartGear();addConfigBack();addStoryBacks();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+  const obs=new MutationObserver(()=>apply());obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+  setTimeout(apply,300);setTimeout(apply,1200);
+})();
+</script>

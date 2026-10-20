@@ -3183,7 +3183,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   function renderStart(){
     const rank=getRanking().map((r,i)=>(i+1)+". "+r.score).join(" · ")||"Sin récords aún";
     const ach=Object.values(getAchievements()).map(a=>a.title).slice(0,6).join(", ")||"—";
-    const histHtml=formatMatchHistoryHtml(6);
+    const histHtml=formatMatchHistoryHtml(20);
     box.innerHTML=`
     <div class="diff-btns">
       <button type="button" data-d="easy" class="${difficulty==="easy"?"active":""}">FÁCIL</button>

@@ -2048,10 +2048,10 @@ function getConfigHTML(){
 <p style="color:#FFCD00;font-size:11px;margin:8px 0 2px">${T("language")}</p>
 <select id="langSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
 <option value="es" ${lang==="es"?"selected":""}>Español</option>
-<option value="en" ${lang==="en"?"selected":""}>English</option>
-<option value="fr" ${lang==="fr"?"selected":""}>Français</option>
-<option value="ja" ${lang==="ja"?"selected":""}>日本語</option>
-<option value="zh" ${lang==="zh"?"selected":""}>中文</option>
+<option value="en" ${lang==="en"?"selected":""}>Inglés</option>
+<option value="fr" ${lang==="fr"?"selected":""}>Francés</option>
+<option value="ja" ${lang==="ja"?"selected":""}>Japonés</option>
+<option value="zh" ${lang==="zh"?"selected":""}>Chino</option>
 </select>
 <p style="color:#FFCD00;font-size:11px;margin:10px 0 2px">${T("touchLayout")}</p>
 <select id="touchLayoutSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
@@ -3131,6 +3131,7 @@ function rebuildConfigPanel(){
     cfg.innerHTML=getConfigHTML();
     if(typeof wireConfigPanel==="function")wireConfigPanel();
     if(wasOpen)cfg.style.display="block";
+    if(typeof window.refreshTechLangSelects==="function")window.refreshTechLangSelects(window.__techLangCurrent||lang||"es");
   }catch(e){console&&console.warn&&console.warn(e)}
 }
 function rebuildConfigLabels(){rebuildConfigPanel()}
@@ -7663,7 +7664,7 @@ function storyOnWaveComplete(){
     return out;
   }
   function run(root){const code=current();window.__techLangCurrent=code; if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;if(p.closest('#startLanguagePicker'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;if(p.closest('#startLanguagePicker,#pauseLanguageBlock,#langSelect,.tech-lang-safe'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
     let n;while((n=walker.nextNode())){const before=n.nodeValue,after=translateText(before,code);if(before!==after)n.nodeValue=after;}
     if(root.querySelectorAll)root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>['placeholder','title','aria-label'].forEach(a=>{const v=el.getAttribute(a);if(v){const nv=translateText(v,code);if(nv!==v)el.setAttribute(a,nv)}}));
     const picker=document.getElementById('startLangSelect');if(picker){picker.value=code;const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;}
@@ -7696,6 +7697,94 @@ function storyOnWaveComplete(){
 })();
 </script>
 
+
+
+<script id="tech-lang-fixed-5">
+(function(){
+  const ALLOWED = ['es','en','fr','ja','zh'];
+  const LABELS = {
+    es:{es:'Español',en:'Inglés',fr:'Francés',ja:'Japonés',zh:'Chino',label:'Idioma'},
+    en:{es:'Spanish',en:'English',fr:'French',ja:'Japanese',zh:'Chinese',label:'Language'},
+    fr:{es:'Espagnol',en:'Anglais',fr:'Français',ja:'Japonais',zh:'Chinois',label:'Langue'},
+    ja:{es:'スペイン語',en:'英語',fr:'フランス語',ja:'日本語',zh:'中国語',label:'言語'},
+    zh:{es:'西班牙语',en:'英语',fr:'法语',ja:'日语',zh:'中文',label:'语言'}
+  };
+  function norm(code){
+    code = String(code||'es').toLowerCase();
+    return ALLOWED.indexOf(code)>=0 ? code : 'es';
+  }
+  window.__techAllowedLangs = ALLOWED;
+  window.getTechLangLabel = function(code, ui){
+    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
+    code = norm(code);
+    return (LABELS[ui]||LABELS.es)[code] || code;
+  };
+  window.getTechLangOptions = function(ui){
+    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
+    const L = LABELS[ui]||LABELS.es;
+    return ALLOWED.map(function(v){ return [v, L[v]]; });
+  };
+  window.getTechLangMetaLabel = function(ui){
+    ui = norm(ui);
+    return (LABELS[ui]||LABELS.es).label;
+  };
+  function fillSelect(sel, ui){
+    if(!sel) return;
+    ui = norm(ui);
+    const cur = norm(sel.value || ui);
+    const opts = window.getTechLangOptions(ui);
+    const keep = sel.value;
+    sel.innerHTML = '';
+    opts.forEach(function(pair){
+      const o = document.createElement('option');
+      o.value = pair[0];
+      o.textContent = pair[1];
+      sel.appendChild(o);
+    });
+    sel.value = ALLOWED.indexOf(keep)>=0 ? keep : cur;
+    if(ALLOWED.indexOf(sel.value)<0) sel.value = 'es';
+  }
+  window.refreshTechLangSelects = function(ui){
+    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
+    window.__techLangCurrent = ui;
+    try{ localStorage.setItem('techLang', ui); }catch(e){}
+    ['startLangSelect','langSelect','pauseLangSelect'].forEach(function(id){
+      fillSelect(document.getElementById(id), ui);
+    });
+    const label = document.querySelector('#startLanguagePicker label');
+    if(label) label.textContent = window.getTechLangMetaLabel(ui);
+    const pauseLab = document.querySelector('#pauseLanguageBlock label');
+    if(pauseLab) pauseLab.textContent = '🌐 ' + window.getTechLangMetaLabel(ui);
+  };
+  // Clamp invalid stored language
+  try{
+    const stored = localStorage.getItem('techLang');
+    if(stored && ALLOWED.indexOf(stored)<0) localStorage.setItem('techLang','es');
+  }catch(e){}
+
+  function wrapSetLanguage(){
+    const prev = window.setLanguage;
+    if(typeof prev !== 'function' || prev.__techLangFixed5) return;
+    window.setLanguage = function(code){
+      code = norm(code);
+      try{ window.__techLangCurrent = code; }catch(e){}
+      try{ localStorage.setItem('techLang', code); }catch(e){}
+      let result;
+      try{ result = prev.apply(this, [code]); }catch(e){ try{ prev(code); }catch(_e){} }
+      try{ window.refreshTechLangSelects(code); }catch(e){}
+      return result;
+    };
+    window.setLanguage.__techLangFixed5 = true;
+  }
+  function boot(){
+    wrapSetLanguage();
+    try{ window.refreshTechLangSelects(norm(window.__techLangCurrent||localStorage.getItem('techLang')||'es')); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  setInterval(wrapSetLanguage, 1500);
+})();
+</script>
 
 <script>
 /* === Corrección ligera: contador de meteoritos, puntos visibles e idioma principal === */
@@ -7735,12 +7824,18 @@ function storyOnWaveComplete(){
       const label=document.createElement('label');label.htmlFor='startLangSelect';label.style.cssText='color:#fff;font-size:12px;font-weight:700';
       const select=document.createElement('select');select.id='startLangSelect';select.setAttribute('aria-label','Language');
       select.style.cssText='max-width:180px;padding:7px 10px;border-radius:8px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';
-      [['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']].forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
+      const opts=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions(getLang()):[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];
+      opts.forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
       picker.append(label,select); panel.insertBefore(picker,panel.firstChild);
-      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage()}});
+      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage();if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(select.value);}});
     }
-    const code=getLang(); const sel=document.getElementById('startLangSelect');if(sel)sel.value=LANGS[code]?code:'es';
-    const label=picker.querySelector('label');if(label)label.textContent=(LANGS[code]||LANGS.es).label;
+    let code=getLang();
+    if(window.__techAllowedLangs&&window.__techAllowedLangs.indexOf(code)<0)code='es';
+    if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(code);
+    else{
+      const sel=document.getElementById('startLangSelect');if(sel)sel.value=code;
+      const lab=picker.querySelector('label');if(lab)lab.textContent=(typeof window.getTechLangMetaLabel==='function')?window.getTechLangMetaLabel(code):((LANGS[code]||LANGS.es).label);
+    }
     const badge=document.getElementById('techCoinsMainBadge'); if(badge)badge.remove();
   }
   const priorSetLanguage=window.setLanguage;
@@ -7798,10 +7893,7 @@ function storyOnWaveComplete(){
     }
   }catch(e){}
   function expandSettingsLanguage(){
-    const cfg=document.getElementById('langSelect');if(!cfg)return;
-    const opts=[['pt','Português'],['de','Deutsch']];
-    opts.forEach(([v,n])=>{if(!Array.from(cfg.options).some(o=>o.value===v)){const o=document.createElement('option');o.value=v;o.textContent=n;cfg.appendChild(o)}});
-    const code=window.__techLangCurrent||localStorage.getItem('techLang')||'es';if(Array.from(cfg.options).some(o=>o.value===code))cfg.value=code;
+    if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(window.__techLangCurrent||localStorage.getItem('techLang')||'es');
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',expandSettingsLanguage);else expandSettingsLanguage();
 })();
@@ -7878,10 +7970,10 @@ function storyOnWaveComplete(){
   pt:{classic:'Clássica',fighter:'Caçadora',interceptor:'Interceptadora',heavy:'Pesada',stealth:'Furtiva',wing:'Asa X',needle:'Agulha',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
   de:{classic:'Klassisch',fighter:'Jäger',interceptor:'Abfangjäger',heavy:'Schwer',stealth:'Tarnkappe',wing:'X-Flügel',needle:'Nadel',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'}
  };
- const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']];
+ const langs=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions():[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];
  function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
  window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul',black:'Black',rose:'Rose'},en:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue',black:'Black',rose:'Rose'},fr:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu',black:'Black',rose:'Rose'},ja:{normal:'基本',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー',black:'Black',rose:'Rose'},zh:{normal:'基础',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝',black:'Black',rose:'Rose'},pt:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul',black:'Black',rose:'Rose'},de:{normal:'Basis',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau',black:'Black',rose:'Rose'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
- function makeSelect(id){let el=document.getElementById(id);if(el)return el;el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Idioma / Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';langs.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
+ function makeSelect(id){let el=document.getElementById(id);if(el){if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(code());return el;}el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';const list=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions(code()):[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];list.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
  function sync(){let c=code();['langSelect','startLangSelect','pauseLangSelect'].forEach(id=>{let e=document.getElementById(id);if(e)e.value=c});let cfg=document.getElementById('configPanel');if(cfg){let title=cfg.querySelector('h2');if(title){title.style.display='block';title.style.visibility='visible'}}}
  function addPauseLanguage(){const p=document.getElementById('pausePanel');if(!p||document.getElementById('pauseLanguageBlock'))return;const block=document.createElement('div');block.id='pauseLanguageBlock';block.style.cssText='margin:10px 0 14px;padding:10px;border:1px solid rgba(255,205,0,.45);border-radius:9px;text-align:left;';const label=document.createElement('label');label.htmlFor='pauseLangSelect';label.textContent='🌐 Idioma / Language';label.style.cssText='display:block;color:#ffcd00;font-size:12px;font-weight:700;margin-bottom:6px';const sel=makeSelect('pauseLangSelect');block.append(label,sel);const heading=p.querySelector('h3');if(heading&&heading.parentElement)heading.parentElement.insertBefore(block,heading.nextSibling);else p.insertBefore(block,p.firstChild);}
  function addConfigLanguage(){const cfg=document.getElementById('configPanel');if(!cfg)return;const old=document.getElementById('langSelect');if(old){const par=old.parentElement; if(par){par.style.display='block';par.style.visibility='visible';par.style.opacity='1';}}}

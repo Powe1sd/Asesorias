@@ -2701,6 +2701,13 @@ function useSpecialPower(){
 }
 
 
+/* Resolución segura de rutas de audio para proyectos publicados en subcarpetas.
+   Nota CSP: no se detectaron llamadas directas a ejecución dinámica de código en el archivo original. */
+function techAudioUrl(ruta) {
+  const limpia = String(ruta || "").replace(/^\/+/, "");
+  return new URL(limpia, new URL("./", document.baseURI)).href;
+}
+
 const SFX = {
   bg: null, shoot: null, explode: null, power: null, hit: null, gameover: null,
   laser: null, bomb: null, rapid: null, hammer: null, missile: null,
@@ -2716,35 +2723,35 @@ const SFX = {
 
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
-  SFX.bg = new Audio("audios/fondo.mp3");
-  SFX.shoot = new Audio("audios/disparo.mp3"); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
-  SFX.ki = new Audio("audios/poder-goku.mp3"); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
-  SFX.gokuFase = new Audio("audios/goku-fasee.mp3"); /* cambio de fase Goku */
-  SFX.explode = new Audio("audios/explosion.mp3");
-  SFX.power = new Audio("audios/poder.mp3");
-  SFX.hit = new Audio("audios/dano.mp3");
-  SFX.gameover = new Audio("audios/gameover.mp3");
-  SFX.laser = new Audio("audios/laser.mp3");
-  SFX.bomb = new Audio("audios/bomba.mp3");
-  SFX.hammer = new Audio("audios/rayo.mp3");
-  SFX.chrono = new Audio("audios/crono.mp3");
-  SFX.barrier = new Audio("audios/barrera.mp3");
-  SFX.stormbolt = new Audio("audios/tormenta.mp3");
-  SFX.bazooka = new Audio("audios/bazuca.mp3");
-  SFX.trapNet = new Audio("audios/trampa-red.mp3");
-  SFX.trapBomb = new Audio("audios/trampa-bomba.mp3");
-  SFX.missile = new Audio("audios/misil.mp3");
-  SFX.shield = new Audio("audios/escudo.mp3");
-  SFX.overdrive = new Audio("audios/turbo.mp3");
-  SFX.allies = new Audio("audios/aliados.mp3");
-  try{SFX.engine = new Audio("audios/motor.mp3"); SFX.engine.loop = true; SFX.engine.preload = "auto";}catch(e){}
+  SFX.bg = new Audio(techAudioUrl("audios/fondo.mp3"));
+  SFX.shoot = new Audio(techAudioUrl("audios/disparo.mp3")); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
+  SFX.ki = new Audio(techAudioUrl("audios/poder-goku.mp3")); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
+  SFX.gokuFase = new Audio(techAudioUrl("audios/goku-fasee.mp3")); /* cambio de fase Goku */
+  SFX.explode = new Audio(techAudioUrl("audios/explosion.mp3"));
+  SFX.power = new Audio(techAudioUrl("audios/poder.mp3"));
+  SFX.hit = new Audio(techAudioUrl("audios/dano.mp3"));
+  SFX.gameover = new Audio(techAudioUrl("audios/gameover.mp3"));
+  SFX.laser = new Audio(techAudioUrl("audios/laser.mp3"));
+  SFX.bomb = new Audio(techAudioUrl("audios/bomba.mp3"));
+  SFX.hammer = new Audio(techAudioUrl("audios/rayo.mp3"));
+  SFX.chrono = new Audio(techAudioUrl("audios/crono.mp3"));
+  SFX.barrier = new Audio(techAudioUrl("audios/barrera.mp3"));
+  SFX.stormbolt = new Audio(techAudioUrl("audios/tormenta.mp3"));
+  SFX.bazooka = new Audio(techAudioUrl("audios/bazuca.mp3"));
+  SFX.trapNet = new Audio(techAudioUrl("audios/trampa-red.mp3"));
+  SFX.trapBomb = new Audio(techAudioUrl("audios/trampa-bomba.mp3"));
+  SFX.missile = new Audio(techAudioUrl("audios/misil.mp3"));
+  SFX.shield = new Audio(techAudioUrl("audios/escudo.mp3"));
+  SFX.overdrive = new Audio(techAudioUrl("audios/turbo.mp3"));
+  SFX.allies = new Audio(techAudioUrl("audios/aliados.mp3"));
+  try{SFX.engine = new Audio(techAudioUrl("audios/motor.mp3")); SFX.engine.loop = true; SFX.engine.preload = "auto";}catch(e){}
   /* TRAMPAS */
-  try{SFX.trapNet = SFX.trapNet || new Audio("audios/trampa-red.mp3")}catch(e){}
-  try{SFX.trapBomb = SFX.trapBomb || new Audio("audios/trampa-bomba.mp3")}catch(e){}
+  try{SFX.trapNet = SFX.trapNet || new Audio(techAudioUrl("audios/trampa-red.mp3"))}catch(e){}
+  try{SFX.trapBomb = SFX.trapBomb || new Audio(techAudioUrl("audios/trampa-bomba.mp3"))}catch(e){}
   /* PODERES */
-  try{SFX.shield = SFX.shield || new Audio("audios/escudo.mp3")}catch(e){}
-  try{SFX.power = SFX.power || new Audio("audios/poder.mp3")}catch(e){}
-  try{SFX.laser = SFX.laser || new Audio("audios/laser.mp3")}catch(e){}
+  try{SFX.shield = SFX.shield || new Audio(techAudioUrl("audios/escudo.mp3"))}catch(e){}
+  try{SFX.power = SFX.power || new Audio(techAudioUrl("audios/poder.mp3"))}catch(e){}
+  try{SFX.laser = SFX.laser || new Audio(techAudioUrl("audios/laser.mp3"))}catch(e){}
 } catch(e) {}
 
 function applyAudioVolumes(){

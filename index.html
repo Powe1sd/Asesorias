@@ -7702,6 +7702,7 @@ function storyOnWaveComplete(){
 <script id="tech-lang-fixed-5">
 (function(){
   const ALLOWED = ['es','en','fr','ja','zh'];
+  const NATIVE = {es:'Español',en:'English',fr:'Français',ja:'日本語',zh:'中文'};
   const LABELS = {
     es:{es:'Español',en:'Inglés',fr:'Francés',ja:'Japonés',zh:'Chino',label:'Idioma'},
     en:{es:'Spanish',en:'English',fr:'French',ja:'Japanese',zh:'Chinese',label:'Language'},
@@ -7709,6 +7710,11 @@ function storyOnWaveComplete(){
     ja:{es:'スペイン語',en:'英語',fr:'フランス語',ja:'日本語',zh:'中国語',label:'言語'},
     zh:{es:'西班牙语',en:'英语',fr:'法语',ja:'日语',zh:'中文',label:'语言'}
   };
+  function formatLangName(translated, code){
+    const nat = NATIVE[code] || code;
+    if(!translated || translated === nat) return nat;
+    return translated + ' (' + nat + ')';
+  }
   function norm(code){
     code = String(code||'es').toLowerCase();
     return ALLOWED.indexOf(code)>=0 ? code : 'es';
@@ -7717,12 +7723,13 @@ function storyOnWaveComplete(){
   window.getTechLangLabel = function(code, ui){
     ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
     code = norm(code);
-    return (LABELS[ui]||LABELS.es)[code] || code;
+    const translated = (LABELS[ui]||LABELS.es)[code] || code;
+    return formatLangName(translated, code);
   };
   window.getTechLangOptions = function(ui){
     ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
     const L = LABELS[ui]||LABELS.es;
-    return ALLOWED.map(function(v){ return [v, L[v]]; });
+    return ALLOWED.map(function(v){ return [v, formatLangName(L[v], v)]; });
   };
   window.getTechLangMetaLabel = function(ui){
     ui = norm(ui);

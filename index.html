@@ -7729,36 +7729,5 @@ function storyOnWaveComplete(){
 (function(){function hideInitialConfig(){var c=document.getElementById("configPanel");if(c&&!c.classList.contains("config-panel-open")){c.style.setProperty("display","none","important");}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",hideInitialConfig,{once:true});}else{hideInitialConfig();}window.addEventListener("pageshow",hideInitialConfig);})();
 </script>
 </body>
-<script>
-/* === CIERRE UNIFICADO: botón X en ventanas y paneles emergentes === */
-(function installPanelCloseButtons(){
-  const excluded=new Set(["startPanel"]);
-  function addClose(panel){
-    if(!panel || excluded.has(panel.id) || panel.dataset.closeXReady==="1") return;
-    if(!panel.classList || !panel.classList.contains("game-panel")) return;
-    panel.dataset.closeXReady="1";
-    if(getComputedStyle(panel).position==="static") panel.style.position="relative";
-    const x=document.createElement("button");
-    x.type="button";x.className="panel-close-x";x.setAttribute("aria-label","Cerrar ventana");x.title="Cerrar";x.textContent="×";
-    x.style.cssText="position:absolute;top:7px;right:7px;z-index:1000;width:30px;height:30px;border:1px solid rgba(255,255,255,.35);border-radius:8px;background:#CE1126;color:#fff;font-size:24px;line-height:24px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.35)";
-    x.addEventListener("click",function(){
-      if(panel.id==="pausePanel"){if(typeof togglePause==="function")togglePause(false);else panel.style.display="none";return;}
-      if(panel.id==="configPanel"){
-        panel.classList.remove("config-panel-open");panel.style.setProperty("display","none","important");
-        if(window.__configOpenedFromPause){window.__configOpenedFromPause=false;const p=document.getElementById("pausePanel");if(p)p.style.display="none";if(gameRunning&&gamePaused)togglePause(false);}
-        return;
-      }
-      panel.style.display="none";
-    });
-    panel.appendChild(x);
-  }
-  function scan(root){
-    if(root.nodeType!==1)return;
-    if(root.matches&&root.matches(".game-panel"))addClose(root);
-    if(root.querySelectorAll)root.querySelectorAll(".game-panel").forEach(addClose);
-  }
-  function init(){scan(document.body);const observer=new MutationObserver(records=>records.forEach(rec=>{rec.addedNodes.forEach(scan);if(rec.target&&rec.target.nodeType===1&&rec.target.classList&&rec.target.classList.contains("game-panel")&&!rec.target.querySelector(".panel-close-x")){delete rec.target.dataset.closeXReady;addClose(rec.target)}}));observer.observe(document.body,{childList:true,subtree:true});}
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-})();
-</script>
+
 </html>

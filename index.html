@@ -2717,9 +2717,6 @@ const SFX = {
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
   SFX.bg = new Audio("audios/fondo.mp3");
-  // SFX.bg2 = new Audio("audios/fondo-asteroides.mp3");
-  // SFX.bg3 = new Audio("audios/fondo-alien.mp3");
-  // SFX.bg4 = new Audio("audios/fondo-agujero.mp3");
   SFX.shoot = new Audio("audios/disparo.mp3"); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
   SFX.ki = new Audio("audios/poder-goku.mp3"); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
   SFX.gokuFase = new Audio("audios/goku-fasee.mp3"); /* cambio de fase Goku */
@@ -2729,37 +2726,24 @@ try {
   SFX.gameover = new Audio("audios/gameover.mp3");
   SFX.laser = new Audio("audios/laser.mp3");
   SFX.bomb = new Audio("audios/bomba.mp3");
-  SFX.rapid = new Audio("audios/rapido.mp3");
   SFX.hammer = new Audio("audios/rayo.mp3");
   SFX.chrono = new Audio("audios/crono.mp3");
   SFX.barrier = new Audio("audios/barrera.mp3");
   SFX.stormbolt = new Audio("audios/tormenta.mp3");
   SFX.bazooka = new Audio("audios/bazuca.mp3");
-  SFX.trapBlade = new Audio("audios/trampa-sierra.mp3");
   SFX.trapNet = new Audio("audios/trampa-red.mp3");
   SFX.trapBomb = new Audio("audios/trampa-bomba.mp3");
-
   SFX.missile = new Audio("audios/misil.mp3");
   SFX.shield = new Audio("audios/escudo.mp3");
-  SFX.triple = new Audio("audios/triple.mp3");
-  SFX.nova = new Audio("audios/nova.mp3");
   SFX.overdrive = new Audio("audios/turbo.mp3");
   SFX.allies = new Audio("audios/aliados.mp3");
   try{SFX.engine = new Audio("audios/motor.mp3"); SFX.engine.loop = true; SFX.engine.preload = "auto";}catch(e){}
   /* TRAMPAS */
-  try{SFX.trap = new Audio("audios/trampa.mp3")}catch(e){}
-  try{SFX.laserTrap = new Audio("audios/laser-trampa.mp3")}catch(e){}
-  try{SFX.mineTrap = new Audio("audios/mina.mp3")}catch(e){}
-  try{SFX.trapBlade = SFX.trapBlade || new Audio("audios/trampa-sierra.mp3")}catch(e){}
   try{SFX.trapNet = SFX.trapNet || new Audio("audios/trampa-red.mp3")}catch(e){}
   try{SFX.trapBomb = SFX.trapBomb || new Audio("audios/trampa-bomba.mp3")}catch(e){}
   /* PODERES */
-  try{SFX.reflect = new Audio("audios/reflect.mp3")}catch(e){}
-  try{SFX.burst = new Audio("audios/burst.mp3")}catch(e){}
-  try{SFX.repair = new Audio("audios/repair.mp3")}catch(e){}
   try{SFX.shield = SFX.shield || new Audio("audios/escudo.mp3")}catch(e){}
   try{SFX.power = SFX.power || new Audio("audios/poder.mp3")}catch(e){}
-  try{SFX.nova = SFX.nova || new Audio("audios/nova.mp3")}catch(e){}
   try{SFX.laser = SFX.laser || new Audio("audios/laser.mp3")}catch(e){}
 } catch(e) {}
 

@@ -3211,7 +3211,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-mode="classic" class="${gameMode==="classic"?"active":""}">Clásico</button>
       <button type="button" data-mode="infinite" class="${gameMode==="infinite"?"active":""}">∞ Infinito</button>
     </div>
-    <p style="font-size:9px;color:#888;margin:2px 0 6px">Infinito: oleadas sin jefes, dificultad que sube sin parar</p>
+    <p style="font-size:9px;color:#888;margin:2px 0 6px">Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.</p>
     <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <span>⬆ Mejoras permanentes</span>
       <span style="color:#FFCD00;font-size:12px;font-weight:700;letter-spacing:.5px">${coins} ⭐</span>
@@ -3604,7 +3604,9 @@ let _mobCache=null,_mobCacheT=0;
 function mob(){const t=performance.now();if(_mobCache!==null&&t-_mobCacheT<1000)return _mobCache;_mobCache=isMobile();_mobCacheT=t;return _mobCache}
 function getProgressSpeed(){
   const base=1 + Math.min(1.15, waveCount*0.07 + score*0.002);
-  const inf=gameMode==="infinite"?1+Math.min(1.5,waveCount*0.04):1;
+  // Modo infinito: la dificultad sigue aumentando con cada oleada, sin tope fijo.
+  // El crecimiento es gradual para conservar la fluidez y el equilibrio.
+  const inf=gameMode==="infinite"?1+Math.log1p(Math.max(0,waveCount))*0.12+Math.max(0,waveCount)*0.002:1;
   return base*(typeof diffSpeedMult==="function"?diffSpeedMult():1)*inf;
 }
 function playerSpeedBonus(){return 1+Math.min(0.35,(upgSpeed||0)*0.07)}
@@ -4104,9 +4106,10 @@ function updatePhase(){
     if((left===0&&phaseTimer>45)||phaseTimer>18*60){
       advanceLevel();
       if(gameMode==="infinite"){
-        /* Infinito: sin jefe cada 4; oleadas más densas */
+        /* Infinito: cada oleada vuelve al ciclo de meteoros; nunca termina por nivel ni genera jefes. */
         startMeteorPhase();
-        if(waveCount%5===0){scenarioMsg="∞ OLEADA "+waveCount;scenarioTransition=60}
+        scenarioMsg="∞ OLEADA "+waveCount;
+        scenarioTransition=60;
       } else startMeteorPhase();
     }
   }
@@ -7728,6 +7731,33 @@ function storyOnWaveComplete(){
 // Guardar el panel de sensibilidad/audio oculto en cada carga; solo abrirlo desde el botón de configuración.
 (function(){function hideInitialConfig(){var c=document.getElementById("configPanel");if(c&&!c.classList.contains("config-panel-open")){c.style.setProperty("display","none","important");}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",hideInitialConfig,{once:true});}else{hideInitialConfig();}window.addEventListener("pageshow",hideInitialConfig);})();
 </script>
-</body>
 
+<script id="tech-fix-mode-label-infinito">
+(function(){
+  function fixModeLabel(root){
+    if(!root) return;
+    // The mode selector is recreated by renderStart(), so fix it on every DOM update.
+    root.querySelectorAll('[data-mode="infinite"]').forEach(function(btn){
+      if(btn.textContent.trim() !== '∞ Infinito') btn.textContent = '∞ Infinito';
+      btn.setAttribute('aria-label','Infinito');
+      btn.setAttribute('title','Modo Infinito');
+    });
+    // Correct the misspelling wherever it appears in visible text or accessibility labels.
+    var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[],n;
+    while((n=walker.nextNode())) nodes.push(n);
+    nodes.forEach(function(node){
+      if(/infinitoto/i.test(node.nodeValue||'')) node.nodeValue=node.nodeValue.replace(/infinitoto/ig,'Infinito');
+    });
+    root.querySelectorAll('[aria-label],[title],[placeholder]').forEach(function(el){
+      ['aria-label','title','placeholder'].forEach(function(a){
+        var v=el.getAttribute(a); if(v&&/infinitoto/i.test(v)) el.setAttribute(a,v.replace(/infinitoto/ig,'Infinito'));
+      });
+    });
+  }
+  function run(){fixModeLabel(document.body);}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+  if(document.documentElement) new MutationObserver(run).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+})();
+</script>
+</body>
 </html>

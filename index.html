@@ -1157,6 +1157,48 @@ input:focus,textarea:focus,select:focus{
 </div>
 </div>
 </section>
+
+<section class="contact-section" id="creditos-creador" style="padding-top:10px;margin-bottom:30px">
+<div class="contact-card" style="text-align:center;padding:18px 16px 16px">
+  <button type="button" id="btnCreditosCreador" aria-expanded="false" aria-controls="creditosCreadorDatos" style="
+    width:100%;max-width:420px;margin:0 auto;padding:14px 18px;cursor:pointer;
+    border:1px solid rgba(255,205,0,.55);border-radius:12px;
+    background:linear-gradient(165deg,rgba(8,18,40,.95),rgba(0,0,0,.9));
+    color:#FFCD00;font-family:Orbitron,sans-serif;font-weight:800;font-size:13px;
+    letter-spacing:1.2px;text-transform:uppercase;
+    box-shadow:0 4px 16px rgba(0,0,0,.35);display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  ">
+    <span>⚡ Créditos · Creador del juego</span>
+    <span id="creditosCreadorChevron" style="font-size:12px;opacity:.85">▼</span>
+  </button>
+  <div id="creditosCreadorDatos" hidden style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,205,0,.25);text-align:center">
+    <h2 style="color:#fff;font-size:1.45rem;margin:0 0 10px;letter-spacing:1px">Brayhan Rubio</h2>
+    <p style="color:#c8d6e8;font-size:0.92rem;line-height:1.65;max-width:720px;margin:0 auto 14px;font-family:'Share Tech Mono',monospace">
+      Desarrollador de software de aplicaciones web, móvil y de escritorio.
+      Trabajo con metodologías ágiles y desarrollo profesional de cualquier plataforma web a la medida.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:4px">
+      <a href="tel:3052076713" class="btn-neoprimary" style="text-decoration:none"><i class="fa-solid fa-phone"></i> 3052076713</a>
+      <a href="mailto:brayan32455415@gmail.com" class="btn-neoprimary" style="text-decoration:none"><i class="fa-solid fa-envelope"></i> brayan32455415@gmail.com</a>
+    </div>
+    <p style="color:#7a8aa0;font-size:0.8rem;margin:14px 0 0">TECH RUN · Desarrollo de Software · Consultas y proyectos</p>
+  </div>
+</div>
+</section>
+<script>
+(function(){
+  var btn=document.getElementById("btnCreditosCreador");
+  var box=document.getElementById("creditosCreadorDatos");
+  var chev=document.getElementById("creditosCreadorChevron");
+  if(!btn||!box)return;
+  btn.addEventListener("click",function(){
+    var open=box.hasAttribute("hidden");
+    if(open){box.removeAttribute("hidden");btn.setAttribute("aria-expanded","true");if(chev)chev.textContent="▲";}
+    else{box.setAttribute("hidden","");btn.setAttribute("aria-expanded","false");if(chev)chev.textContent="▼";}
+  });
+})();
+</script>
+
 <footer class="cyber-footer">
 <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
 <p>Versión 1.0.1.1.3</p>
@@ -2979,6 +3021,17 @@ if(startPanel&&!document.getElementById("startExtras")){
       · 30+ balas · 60+ vida · 100+ ágil
     </p>
     <button type="button" class="game-btn" id="btnManualStart" style="width:100%;margin-top:6px;padding:8px">📖 Manual de usuario</button>
+    <button type="button" class="game-btn" id="btnGameCredits" style="width:100%;margin-top:6px;padding:8px;border-color:rgba(255,205,0,.55);color:#FFCD00">⚡ Créditos · Creador</button>
+    <div id="gameCreditsBox" style="display:none;margin-top:8px;padding:12px 10px;border:1px solid rgba(255,205,0,.3);border-radius:10px;background:rgba(0,10,28,.75);text-align:center">
+      <p style="color:#FFCD00;font-size:11px;font-weight:800;letter-spacing:1px;margin:0 0 6px;text-transform:uppercase">Creador del juego</p>
+      <p style="color:#fff;font-size:14px;font-weight:800;margin:0 0 6px">Brayhan Rubio</p>
+      <p style="color:#c8d6e8;font-size:11px;line-height:1.5;margin:0 0 8px;font-family:'Share Tech Mono',monospace">
+        Desarrollador de software de aplicaciones web, móvil y de escritorio.
+        Metodologías ágiles · plataformas web profesionales a la medida.
+      </p>
+      <p style="color:#FFCD00;font-size:11px;margin:0 0 4px;font-family:'Share Tech Mono',monospace">📞 3052076713</p>
+      <p style="margin:0"><a href="mailto:brayan32455415@gmail.com" style="color:#9fdfff;font-size:11px;text-decoration:none;font-family:'Share Tech Mono',monospace">✉ brayan32455415@gmail.com</a></p>
+    </div>
     <button type="button" class="game-btn" id="btnWeaponShop" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#FFCD00,#CE1126);color:#111;border-color:#fff;font-weight:700">🛡️ Equipamiento · ${coins}⭐</button>
     <button type="button" class="game-btn" id="btnDailyMissions" style="width:100%;margin-top:6px;padding:8px;background:linear-gradient(135deg,#0038A8,#CE1126);color:#fff;border-color:#FFCD00">📋 Misiones diarias · ${typeof dailyLabel==="function"?dailyLabel():""}</button>
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
@@ -3087,6 +3140,15 @@ if(startPanel&&!document.getElementById("startExtras")){
       currentWeapon=w;lsSet("techWeapon",w);renderStart();
     });
     const bms=box.querySelector("#btnManualStart");if(bms)bms.onclick=()=>showUserManual();
+    const bgc=box.querySelector("#btnGameCredits");
+    const gcb=box.querySelector("#gameCreditsBox");
+    if(bgc&&gcb){
+      bgc.onclick=function(){
+        const open=gcb.style.display==="none"||!gcb.style.display;
+        gcb.style.display=open?"block":"none";
+        bgc.textContent=open?"⚡ Créditos · Cerrar":"⚡ Créditos · Creador";
+      };
+    }
     const bdm=box.querySelector("#btnDailyMissions");if(bdm)bdm.onclick=()=>showDailyMissionsMenu();
     const bws=box.querySelector("#btnWeaponShop");if(bws)bws.onclick=()=>showWeaponShop();
     const bl=box.querySelector("#btnLoadSave");

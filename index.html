@@ -2701,13 +2701,6 @@ function useSpecialPower(){
 }
 
 
-/* Resolución segura de rutas de audio para proyectos publicados en subcarpetas.
-   Nota CSP: no se detectaron llamadas directas a ejecución dinámica de código en el archivo original. */
-function techAudioUrl(ruta) {
-  const limpia = String(ruta || "").replace(/^\/+/, "");
-  return new URL(limpia, new URL("./", document.baseURI)).href;
-}
-
 const SFX = {
   bg: null, shoot: null, explode: null, power: null, hit: null, gameover: null,
   laser: null, bomb: null, rapid: null, hammer: null, missile: null,
@@ -2723,35 +2716,35 @@ const SFX = {
 
 /* Rutas en carpeta audios/ — cambia el nombre si tu archivo se llama distinto */
 try {
-  SFX.bg = new Audio(techAudioUrl("audios/fondo.mp3"));
-  SFX.shoot = new Audio(techAudioUrl("audios/disparo.mp3")); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
-  SFX.ki = new Audio(techAudioUrl("audios/poder-goku.mp3")); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
-  SFX.gokuFase = new Audio(techAudioUrl("audios/goku-fasee.mp3")); /* cambio de fase Goku */
-  SFX.explode = new Audio(techAudioUrl("audios/explosion.mp3"));
-  SFX.power = new Audio(techAudioUrl("audios/poder.mp3"));
-  SFX.hit = new Audio(techAudioUrl("audios/dano.mp3"));
-  SFX.gameover = new Audio(techAudioUrl("audios/gameover.mp3"));
-  SFX.laser = new Audio(techAudioUrl("audios/laser.mp3"));
-  SFX.bomb = new Audio(techAudioUrl("audios/bomba.mp3"));
-  SFX.hammer = new Audio(techAudioUrl("audios/rayo.mp3"));
-  SFX.chrono = new Audio(techAudioUrl("audios/crono.mp3"));
-  SFX.barrier = new Audio(techAudioUrl("audios/barrera.mp3"));
-  SFX.stormbolt = new Audio(techAudioUrl("audios/tormenta.mp3"));
-  SFX.bazooka = new Audio(techAudioUrl("audios/bazuca.mp3"));
-  SFX.trapNet = new Audio(techAudioUrl("audios/trampa-red.mp3"));
-  SFX.trapBomb = new Audio(techAudioUrl("audios/trampa-bomba.mp3"));
-  SFX.missile = new Audio(techAudioUrl("audios/misil.mp3"));
-  SFX.shield = new Audio(techAudioUrl("audios/escudo.mp3"));
-  SFX.overdrive = new Audio(techAudioUrl("audios/turbo.mp3"));
-  SFX.allies = new Audio(techAudioUrl("audios/aliados.mp3"));
-  try{SFX.engine = new Audio(techAudioUrl("audios/motor.mp3")); SFX.engine.loop = true; SFX.engine.preload = "auto";}catch(e){}
+  SFX.bg = new Audio("audios/fondo.mp3");
+  SFX.shoot = new Audio("audios/disparo.mp3"); try{SFX.shoot.preload="auto";SFX.shoot.load()}catch(e){}
+  SFX.ki = new Audio("audios/poder-goku.mp3"); try{SFX.ki.preload="auto";SFX.ki.load()}catch(e){} /* disparo Goku */
+  SFX.gokuFase = new Audio("audios/goku-fasee.mp3"); /* cambio de fase Goku */
+  SFX.explode = new Audio("audios/explosion.mp3");
+  SFX.power = new Audio("audios/poder.mp3");
+  SFX.hit = new Audio("audios/dano.mp3");
+  SFX.gameover = new Audio("audios/gameover.mp3");
+  SFX.laser = new Audio("audios/laser.mp3");
+  SFX.bomb = new Audio("audios/bomba.mp3");
+  SFX.hammer = new Audio("audios/rayo.mp3");
+  SFX.chrono = new Audio("audios/crono.mp3");
+  SFX.barrier = new Audio("audios/barrera.mp3");
+  SFX.stormbolt = new Audio("audios/tormenta.mp3");
+  SFX.bazooka = new Audio("audios/bazuca.mp3");
+  SFX.trapNet = new Audio("audios/trampa-red.mp3");
+  SFX.trapBomb = new Audio("audios/trampa-bomba.mp3");
+  SFX.missile = new Audio("audios/misil.mp3");
+  SFX.shield = new Audio("audios/escudo.mp3");
+  SFX.overdrive = new Audio("audios/turbo.mp3");
+  SFX.allies = new Audio("audios/aliados.mp3");
+  try{SFX.engine = new Audio("audios/motor.mp3"); SFX.engine.loop = true; SFX.engine.preload = "auto";}catch(e){}
   /* TRAMPAS */
-  try{SFX.trapNet = SFX.trapNet || new Audio(techAudioUrl("audios/trampa-red.mp3"))}catch(e){}
-  try{SFX.trapBomb = SFX.trapBomb || new Audio(techAudioUrl("audios/trampa-bomba.mp3"))}catch(e){}
+  try{SFX.trapNet = SFX.trapNet || new Audio("audios/trampa-red.mp3")}catch(e){}
+  try{SFX.trapBomb = SFX.trapBomb || new Audio("audios/trampa-bomba.mp3")}catch(e){}
   /* PODERES */
-  try{SFX.shield = SFX.shield || new Audio(techAudioUrl("audios/escudo.mp3"))}catch(e){}
-  try{SFX.power = SFX.power || new Audio(techAudioUrl("audios/poder.mp3"))}catch(e){}
-  try{SFX.laser = SFX.laser || new Audio(techAudioUrl("audios/laser.mp3"))}catch(e){}
+  try{SFX.shield = SFX.shield || new Audio("audios/escudo.mp3")}catch(e){}
+  try{SFX.power = SFX.power || new Audio("audios/poder.mp3")}catch(e){}
+  try{SFX.laser = SFX.laser || new Audio("audios/laser.mp3")}catch(e){}
 } catch(e) {}
 
 function applyAudioVolumes(){
@@ -7782,102 +7775,7 @@ function storyOnWaveComplete(){
 })();
 </script>
 </bod
-<script>
-/* === FIX i18n MODO HISTORIA: traducir menú, lista de misiones y briefing al cambiar idioma === */
-(function(){
- const UI={
- es:{title:'📖 MODO HISTORIA',campaign:'Operación Br7 — Recuperación del Sistema TECH',locked:'Completa la misión anterior',play:'JUGAR',replay:'REJUGAR',back:'⬅ VOLVER',reward:'Recompensa:',start:'🚀 INICIAR MISIÓN',back2:'⬅ ATRÁS',intro:'Briefing'},
- en:{title:'📖 STORY MODE',campaign:'Operation Br7 — Recovery of the TECH System',locked:'Complete the previous mission',play:'PLAY',replay:'REPLAY',back:'⬅ BACK',reward:'Reward:',start:'🚀 START MISSION',back2:'⬅ BACK',intro:'Briefing'},
- fr:{title:'📖 MODE HISTOIRE',campaign:'Opération Br7 — Récupération du système TECH',locked:'Terminez la mission précédente',play:'JOUER',replay:'REJOUER',back:'⬅ RETOUR',reward:'Récompense :',start:'🚀 DÉMARRER LA MISSION',back2:'⬅ RETOUR',intro:'Briefing'},
- pt:{title:'📖 MODO HISTÓRIA',campaign:'Operação Br7 — Recuperação do Sistema TECH',locked:'Complete a missão anterior',play:'JOGAR',replay:'JOGAR NOVAMENTE',back:'⬅ VOLTAR',reward:'Recompensa:',start:'🚀 INICIAR MISSÃO',back2:'⬅ VOLTAR',intro:'Briefing'},
- ja:{title:'📖 ストーリーモード',campaign:'作戦 Br7 — TECH システムの復旧',locked:'前のミッションをクリアしてください',play:'プレイ',replay:'もう一度プレイ',back:'⬅ 戻る',reward:'報酬：',start:'🚀 ミッション開始',back2:'⬅ 戻る',intro:'ブリーフィング'},
- zh:{title:'📖 故事模式',campaign:'Br7行动 — 恢复TECH系统',locked:'请先完成上一项任务',play:'开始',replay:'重新挑战',back:'⬅ 返回',reward:'奖励：',start:'🚀 开始任务',back2:'⬅ 返回',intro:'任务简报'},
- de:{title:'📖 STORY-MODUS',campaign:'Operation Br7 — Wiederherstellung des TECH-Systems',locked:'Schließe die vorherige Mission ab',play:'SPIELEN',replay:'ERNEUT SPIELEN',back:'⬅ ZURÜCK',reward:'Belohnung:',start:'🚀 MISSION STARTEN',back2:'⬅ ZURÜCK',intro:'Briefing'},
- it:{title:'📖 MODALITÀ STORIA',campaign:'Operazione Br7 — Recupero del sistema TECH',locked:'Completa la missione precedente',play:'GIOCA',replay:'RIGIOCA',back:'⬅ INDIETRO',reward:'Ricompensa:',start:'🚀 INIZIA MISSIONE',back2:'⬅ INDIETRO',intro:'Briefing'},
- ru:{title:'📖 РЕЖИМ ИСТОРИИ',campaign:'Операция Br7 — Восстановление системы TECH',locked:'Сначала завершите предыдущую миссию',play:'ИГРАТЬ',replay:'ПОВТОРИТЬ',back:'⬅ НАЗАД',reward:'Награда:',start:'🚀 НАЧАТЬ МИССИЮ',back2:'⬅ НАЗАД',intro:'Брифинг'},
- ko:{title:'📖 스토리 모드',campaign:'작전 Br7 — TECH 시스템 복구',locked:'이전 임무를 완료하세요',play:'플레이',replay:'다시 플레이',back:'⬅ 뒤로',reward:'보상:',start:'🚀 임무 시작',back2:'⬅ 뒤로',intro:'브리핑'},
- ar:{title:'📖 نمط القصة',campaign:'العملية Br7 — استعادة نظام TECH',locked:'أكمل المهمة السابقة',play:'العب',replay:'أعد اللعب',back:'⬅ رجوع',reward:'المكافأة:',start:'🚀 ابدأ المهمة',back2:'⬅ رجوع',intro:'إحاطة'},
- hi:{title:'📖 कहानी मोड',campaign:'ऑपरेशन Br7 — TECH सिस्टम की बहाली',locked:'पहले पिछला मिशन पूरा करें',play:'खेलें',replay:'फिर खेलें',back:'⬅ वापस',reward:'इनाम:',start:'🚀 मिशन शुरू करें',back2:'⬅ वापस',intro:'ब्रीफिंग'},
- tr:{title:'📖 HİKÂYE MODU',campaign:'Br7 Operasyonu — TECH Sistemini Kurtarma',locked:'Önceki görevi tamamla',play:'OYNA',replay:'TEKRAR OYNA',back:'⬅ GERİ',reward:'Ödül:',start:'🚀 GÖREVİ BAŞLAT',back2:'⬅ GERİ',intro:'Brifing'},
- nl:{title:'📖 VERHAALMODUS',campaign:'Operatie Br7 — Herstel van het TECH-systeem',locked:'Voltooi de vorige missie',play:'SPELEN',replay:'OPNIEUW SPELEN',back:'⬅ TERUG',reward:'Beloning:',start:'🚀 MISSIE STARTEN',back2:'⬅ TERUG',intro:'Briefing'},
- pl:{title:'📖 TRYB FABULARNY',campaign:'Operacja Br7 — Odzyskanie systemu TECH',locked:'Ukończ poprzednią misję',play:'GRAJ',replay:'ZAGRAJ PONOWNIE',back:'⬅ WRÓĆ',reward:'Nagroda:',start:'🚀 ROZPOCZNIJ MISJĘ',back2:'⬅ WRÓĆ',intro:'Odprawa'}
- };
- const NAMES={
- en:['Briefing','The Phantom Signal','Omega Code','Starlight Convoy','The Beacon Will Hold','Mechanical Heart','Rain of Blades','Six Star Keys','Escort the Phoenix','Three Minutes of Glory','The Dark Factory','The Last Medic','Forbidden Files','Bridge of Fire','Neon Wall','Eye of the Void','Prisoners of Ice','Fleet Map','Titanium in Flames','The Endless Night','Crimson Bastion','Voices in the Storm','Map Fragments','The Last Caravan','Five Alarms','World Destroyer','The Commander’s Capsule','Master Archive','Human Shield','Siege of the Star Gate','Operation: Absolute Zero'],
- fr:['Briefing','Le signal fantôme','Code Oméga','Convoi Étincelle','La balise tiendra','Cœur mécanique','Pluie de lames','Six clés stellaires','Escorte du Phénix','Trois minutes de gloire','L’usine sombre','Le dernier médecin','Archives interdites','Pont de feu','Mur de Néon','L’œil du vide','Prisonniers de glace','Carte de la flotte','Titane en flammes','La nuit sans fin','Bastion cramoisi','Voix dans la tempête','Fragments de carte','La dernière caravane','Cinq alarmes','Le destructeur de mondes','La capsule du commandant','Archive maîtresse','Bouclier humain','Siège de la porte stellaire','Opération : Zéro absolu'],
- pt:['Briefing','O sinal fantasma','Código Ômega','Comboio Centelha','A baliza resistirá','Coração mecânico','Chuva de lâminas','Seis chaves estelares','Escolta à Fênix','Três minutos de glória','A fábrica escura','O último médico','Arquivos proibidos','Ponte de fogo','Muralha de Neon','O olho do vazio','Prisioneiros do gelo','Mapa da armada','Titânio em chamas','A noite interminável','Bastião carmesim','Vozes na tempestade','Fragmentos do mapa','A última caravana','Cinco alarmes','O destruidor de mundos','A cápsula do comandante','Arquivo mestre','Escudo humano','Cerco ao portal estelar','Operação: Zero Absoluto'],
- ja:['ブリーフィング','幻の信号','オメガコード','センテラ輸送隊','ビーコンを守れ','機械の心臓','刃の雨','星の鍵6個','フェニックス護衛','栄光の3分間','暗黒工場','最後の医師','禁断のファイル','炎の橋','ネオンの壁','虚無の目','氷の囚人','艦隊マップ','燃えるチタン','終わらない夜','深紅の要塞','嵐の声','地図の断片','最後のキャラバン','5つの警報','世界破壊兵器','司令官のカプセル','マスターアーカイブ','人間の盾','星門包囲戦','作戦：絶対零度'],
- zh:['任务简报','幽灵信号','欧米伽代码','闪光护航队','守住信标','机械之心','刀刃之雨','六把星钥','护送凤凰号','荣耀的三分钟','黑暗工厂','最后的医生','禁忌档案','火焰之桥','霓虹壁垒','虚空之眼','冰之囚徒','舰队地图','燃烧的钛','无尽之夜','赤红堡垒','风暴中的声音','地图碎片','最后的车队','五重警报','世界毁灭者','指挥官的逃生舱','主档案','人盾','围攻星际之门','行动：绝对零度']
- };
- const SUBS={
- en:['Operation Br7','Rescue Under Fire','Data Recovery','Supply Escort','Perimeter Defense','Destroy the Generator','Emergency Rescue','Data Hunt','Convoy Under Siege','Forward Defense','Industrial Sabotage','High-Risk Rescue','Intelligence Theft','Evacuation Escort','Last Line of Defense','Disable the Reactor','Rescue Operation','Navigation Data','Freighter Escort','Rift Defense','Bastion Assault','Critical-Zone Rescue','Strategic Recovery','Resistance Escort','Total Defense','Orbital Weapon Sabotage','Legendary Extraction','Final Code Theft','Heavy-Fire Escort','Star Gate Defense','Final Assault on the Mothership'],
- fr:['Opération Br7','Sauvetage sous le feu','Récupération de données','Escorte de ravitaillement','Défense du périmètre','Détruire le générateur','Sauvetage d’urgence','Chasse aux données','Convoi assiégé','Défense avancée','Sabotage industriel','Sauvetage à haut risque','Vol de renseignements','Escorte d’évacuation','Dernière ligne de défense','Désactiver le réacteur','Opération de sauvetage','Données de navigation','Escorte du cargo','Défense de la faille','Assaut du bastion','Sauvetage en zone critique','Récupération stratégique','Escorte de la résistance','Défense totale','Sabotage de l’arme orbitale','Extraction légendaire','Vol du code final','Escorte sous tirs lourds','Défense de la porte','Assaut final du vaisseau-mère'],
- pt:['Operação Br7','Resgate sob fogo','Recuperação de dados','Escolta de suprimentos','Defesa do perímetro','Destruir o gerador','Resgate de emergência','Caça aos dados','Comboio sob cerco','Defesa avançada','Sabotagem industrial','Resgate de alto risco','Roubo de inteligência','Escolta de evacuação','Última linha defensiva','Desativar o reator','Operação de resgate','Dados de navegação','Escolta do cargueiro','Defesa da fenda','Assalto ao bastião','Resgate em zona crítica','Recuperação estratégica','Escolta da resistência','Defesa total','Sabotagem da arma orbital','Extração lendária','Roubo do código final','Escolta sob fogo pesado','Defesa do portal','Assalto final à nave-mãe'],
- ja:['作戦 Br7','銃撃下の救助','データ回収','補給船の護衛','境界防衛','発電機を破壊','緊急救助','データ捜索','包囲された輸送隊','前線防衛','工場の破壊工作','危険な救助','情報奪取','避難護衛','最後の防衛線','炉心を停止','救助作戦','航行データ','貨物船護衛','裂け目の防衛','要塞への攻撃','危険区域での救助','戦略データ回収','抵抗軍の護衛','全面防衛','軌道兵器の破壊工作','伝説の脱出','最終コード奪取','激しい攻撃下の護衛','星門防衛','母艦への最終攻撃'],
- zh:['Br7行动','火力下救援','数据回收','补给护航','外围防御','摧毁发电机','紧急救援','数据搜寻','护航队遭围攻','前线防御','工业破坏','高危救援','情报窃取','撤离护航','最后防线','关闭反应堆','救援行动','导航数据','货船护航','裂隙防御','突袭堡垒','危急区域救援','战略回收','抵抗军护航','全面防御','破坏轨道武器','传奇撤离','窃取最终代码','重火力下护航','星门防御','最终突袭母舰']
- };
 
- // Nombres traducidos para las misiones 31–60; evita que el menú mezcle idiomas.
- const EXTRA_NAMES={
- en:['Aurora in Danger','Lost Blueprints','Comet Route','Beacon of Hope','Blue Energy Core','Orbital Gardens','Rescue Frequency','Light Cargo','Dawn Gates','Automated Workshop','Space Cartographers','Shelter Coordinates','Silver Bridge','Defense Ring','Storm Engine','Nebula Crew','Stellar Library','Satellite Route','Sky Dome','Silent Reactor','Professor’s Capsule','Portal Map','Alliance Wings','Horizon Sentinels','Central Repeater','Terraforming Team','Memory Fragments','The Last Shuttle','Barrier of Stars','New Horizon'],
- fr:['Aurore en danger','Plans perdus','Route des comètes','Phare de l’espoir','Noyau d’énergie bleue','Jardins orbitaux','Fréquence de secours','Cargo de lumière','Portes de l’aube','Atelier automatisé','Cartographes spatiaux','Coordonnées du refuge','Pont d’argent','Anneau de défense','Moteur de tempête','Équipage de la Nébuleuse','Bibliothèque stellaire','Route des satellites','Dôme céleste','Réacteur silencieux','Capsule du professeur','Carte des portails','Ailes de l’alliance','Sentinelles de l’horizon','Répéteur central','Équipe de terraformation','Fragments de mémoire','Dernière navette','Barrière des étoiles','Nouvel horizon'],
- pt:['Aurora em perigo','Planos perdidos','Rota dos cometas','Farol da esperança','Núcleo de energia azul','Jardins orbitais','Frequência de resgate','Carga de luz','Portões do amanhecer','Oficina automatizada','Cartógrafos espaciais','Coordenadas do abrigo','Ponte de prata','Anel de defesa','Motor da tempestade','Tripulação da Nebulosa','Biblioteca estelar','Rota dos satélites','Cúpula celeste','Reator silencioso','Cápsula do professor','Mapa dos portais','Asas da aliança','Sentinelas do horizonte','Repetidor central','Equipe de terraformação','Fragmentos de memória','Último transporte','Barreira das estrelas','Novo horizonte'],
- ja:['危機のオーロラ','失われた設計図','彗星ルート','希望のビーコン','青いエネルギーコア','軌道庭園','救助周波数','光の貨物','夜明けの門','自動工場','宇宙地図製作者','避難所の座標','銀の橋','防衛リング','嵐のエンジン','星雲の乗組員','星の図書館','衛星ルート','天空ドーム','静かな炉心','教授のカプセル','ポータル地図','同盟の翼','地平線の哨戒隊','中央中継器','テラフォーミング班','記憶の断片','最後のシャトル','星の障壁','新たな地平'],
- zh:['危急的极光号','遗失的蓝图','彗星航线','希望信标','蓝色能源核心','轨道花园','救援频率','光之货运','黎明之门','自动化工坊','太空制图师','避难所坐标','银色之桥','防御环','风暴引擎','星云船员','星际图书馆','卫星航线','天空穹顶','静默反应堆','教授的逃生舱','传送门地图','联盟之翼','地平线哨兵','中央中继器','地形改造小队','记忆碎片','最后的穿梭机','群星屏障','新地平线']
- };
- const EXTRA_SUBS={
- en:['Rescue among crystals','Recover the blueprints','Escort through the comet field','Defend the beacon','Disable the energy core','Rescue the botanists','Recover communications','Protect the supply cargo','Defend the station','Stop automated production','Rescue the cartographers','Recover shelter coordinates','Escort the transport','Protect the defense ring','Destroy the storm engine','Rescue the Nebula crew','Recover the archives','Escort the maintenance ship','Defend the sky dome','Shut down the reactor','Rescue the scientist','Collect portal data','Escort the evacuation ship','Defend the landing zone','Restore communications','Rescue the terraforming team','Recover memory fragments','Escort the shuttle','Defend the star barrier','Free the system'],
- fr:['Sauvetage parmi les cristaux','Récupérer les plans','Escorte dans le champ de comètes','Défendre le phare','Désactiver le noyau','Sauver les botanistes','Récupérer les communications','Protéger le cargo','Défendre la station','Arrêter la production automatisée','Sauver les cartographes','Récupérer les coordonnées','Escorte du transport','Protéger l’anneau','Détruire le moteur de tempête','Sauver l’équipage de la Nébuleuse','Récupérer les archives','Escorte de maintenance','Défendre le dôme','Arrêter le réacteur','Sauver le scientifique','Collecter les données des portails','Escorte d’évacuation','Défendre la zone d’atterrissage','Rétablir les communications','Sauver l’équipe','Récupérer les souvenirs','Escorte de la navette','Défendre la barrière','Libérer le système'],
- pt:['Resgate entre cristais','Recuperar os planos','Escolta pelo campo de cometas','Defender o farol','Desativar o núcleo','Resgatar os botânicos','Recuperar comunicações','Proteger a carga','Defender a estação','Parar a produção automatizada','Resgatar os cartógrafos','Recuperar coordenadas','Escoltar o transporte','Proteger o anel','Destruir o motor da tempestade','Resgatar a tripulação','Recuperar os arquivos','Escolta de manutenção','Defender a cúpula','Desligar o reator','Resgatar o cientista','Coletar dados dos portais','Escoltar a evacuação','Defender a zona de pouso','Restaurar comunicações','Resgatar a equipe','Recuperar fragmentos','Escoltar o transporte','Defender a barreira','Libertar o sistema'],
- ja:['結晶地帯で救助','設計図を回収','彗星地帯を護衛','ビーコンを守る','コアを停止','植物学者を救助','通信記録を回収','貨物を守る','ステーション防衛','自動生産を停止','地図製作者を救助','避難所座標を回収','輸送船を護衛','防衛リングを守る','嵐のエンジンを破壊','乗組員を救助','記録を回収','整備船を護衛','ドームを守る','炉心を停止','科学者を救助','ポータルデータを集める','避難船を護衛','着陸地点を守る','通信を復旧','チームを救助','記憶片を回収','シャトルを護衛','星の障壁を守る','システムを解放'],
- zh:['晶体区救援','找回蓝图','护送穿越彗星区','守护信标','关闭能源核心','救援植物学家','恢复通信记录','保护货物','防守空间站','停止自动化生产','救援制图师','找回避难所坐标','护送运输船','保护防御环','摧毁风暴引擎','救援星云船员','回收档案','护送维修船','守护天空穹顶','关闭反应堆','救援科学家','收集传送门数据','护送撤离船','守住着陆区','恢复通信','救援改造团队','找回记忆碎片','护送穿梭机','守护群星屏障','解放系统']
- };
- for(const c of Object.keys(EXTRA_NAMES)){if(NAMES[c])NAMES[c].push(...EXTRA_NAMES[c]);if(SUBS[c])SUBS[c].push(...EXTRA_SUBS[c]);}
-// Reemplazo de misiones de escolta por objetivos de defensa/recuperación, con títulos traducidos.
-(function(){
- const ids=[2,7,12,17,22,27,32,37,42,47,52,57];
- const titles={
- es:['Radar Centella','Código Fénix','Corredor de fuego','Blindaje Titán','Última resistencia','Zona médica segura','Ruta de los cometas','Baterías de luz','Puente de plata','Satélites en reparación','Alianza en pie','Puerto orbital'],
- en:['Stellar Radar','Phoenix Code','Evacuation Corridor','Titan Armor','Last Stand','Medical Zone Secured','Comet Route','Light Batteries','Silver Bridge','Satellite Repairs','Alliance Stands','Orbital Port'],
- fr:['Radar Centella','Code Phénix','Couloir d’évacuation','Blindage Titan','Dernière résistance','Zone médicale sécurisée','Route des comètes','Batteries lumineuses','Pont d’argent','Réparation des satellites','Alliance debout','Port orbital'],
- pt:['Radar Centelha','Código Fênix','Corredor de evacuação','Blindagem Titã','Última resistência','Zona médica segura','Rota dos cometas','Baterias de luz','Ponte de prata','Reparo dos satélites','Aliança de pé','Porto orbital'],
- de:['Sternenradar','Phönix-Code','Evakuierungskorridor','Titan-Panzerung','Letzter Widerstand','Sicherer Medizinsektor','Kometenroute','Lichtbatterien','Silberbrücke','Satellitenreparatur','Allianz hält stand','Orbitalhafen'],
- it:['Radar Centella','Codice Fenice','Corridoio di evacuazione','Corazza Titano','Ultima resistenza','Zona medica sicura','Rotta delle comete','Batterie di luce','Ponte d’argento','Riparazione satelliti','Alleanza in piedi','Porto orbitale'],
- ja:['ステラレーダー','フェニックスコード','避難回廊','タイタン装甲','最後の抵抗','医療区域の確保','彗星ルート','光のバッテリー','銀の橋','衛星修理','同盟の防衛','軌道港'],
- zh:['星际雷达','凤凰代码','撤离走廊','泰坦装甲','最后防线','医疗区安全','彗星航线','光能电池','银色之桥','卫星维修','联盟坚守','轨道港'],
- ru:['Звёздный радар','Код Феникса','Коридор эвакуации','Броня Титана','Последний рубеж','Безопасная медзона','Маршрут комет','Световые батареи','Серебряный мост','Ремонт спутников','Союз держится','Орбитальный порт'],
- ko:['항성 레이더','피닉스 코드','대피 통로','타이탄 장갑','최후의 저항','의료 구역 확보','혜성 경로','빛 에너지 배터리','은빛 다리','위성 수리','동맹의 수호','궤도 항구'],
- ar:['رادار النجوم','رمز العنقاء','ممر الإخلاء','درع تيتان','المقاومة الأخيرة','تأمين المنطقة الطبية','مسار المذنبات','بطاريات الضوء','الجسر الفضي','إصلاح الأقمار','التحالف صامد','الميناء المداري'],
- hi:['स्टार रडार','फीनिक्स कोड','निकासी गलियारा','टाइटन कवच','आखिरी मोर्चा','चिकित्सा क्षेत्र सुरक्षित','धूमकेतु मार्ग','प्रकाश बैटरियाँ','चाँदी का पुल','उपग्रह मरम्मत','गठबंधन अडिग','कक्षीय बंदरगाह'],
- tr:['Yıldız Radarı','Anka Kodu','Tahliye Koridoru','Titan Zırhı','Son Direniş','Güvenli Sağlık Bölgesi','Kuyruklu Yıldız Rotası','Işık Pilleri','Gümüş Köprü','Uydu Onarımı','İttifak Ayakta','Yörünge Limanı'],
- nl:['Sterrenradar','Feniks-code','Evacuatiecorridor','Titanpantser','Laatste Verzet','Veilige Medische Zone','Komeetroute','Lichtbatterijen','Zilveren Brug','Satellietreparatie','Alliantie Houdt Stand','Ruimtehaven'],
- pl:['Radar Gwiezdny','Kod Feniksa','Korytarz ewakuacji','Pancerz Tytana','Ostatni Opór','Bezpieczna Strefa Medyczna','Trasa Komet','Baterie Światła','Srebrny Most','Naprawa Satelitów','Sojusz Trwa','Port Orbitalny'],
- vi:['Ra-đa Sao','Mã Phượng Hoàng','Hành lang sơ tán','Giáp Titan','Phòng tuyến cuối','Khu y tế an toàn','Tuyến sao chổi','Pin ánh sáng','Cầu bạc','Sửa vệ tinh','Liên minh vững vàng','Cảng quỹ đạo'],
- th:['เรดาร์ดวงดาว','รหัสฟีนิกซ์','ทางอพยพ','เกราะไททัน','การต่อต้านครั้งสุดท้าย','เขตแพทย์ปลอดภัย','เส้นทางดาวหาง','แบตเตอรี่แสง','สะพานเงิน','ซ่อมดาวเทียม','พันธมิตรยืนหยัด','ท่าอวกาศ']
- };
- const subs={es:'Defensa y recuperación',en:'Defense and recovery',fr:'Défense et récupération',pt:'Defesa e recuperação',de:'Verteidigung und Bergung',it:'Difesa e recupero',ja:'防衛と回収',zh:'防御与回收',ru:'Оборона и сбор',ko:'방어 및 회수',ar:'الدفاع والاستعادة',hi:'रक्षा और पुनर्प्राप्ति',tr:'Savunma ve kurtarma',nl:'Verdediging en herstel',pl:'Obrona i odzyskiwanie',vi:'Phòng thủ và thu hồi',th:'ป้องกันและกู้คืน'};
- try{for(const c of Object.keys(titles)){if(Array.isArray(NAMES[c]))ids.forEach((idx,j)=>{if(NAMES[c].length>idx)NAMES[c][idx]=titles[c][j]||titles.es[j]});if(Array.isArray(SUBS[c]))ids.forEach(idx=>{if(SUBS[c].length>idx)SUBS[c][idx]=subs[c]||subs.es})}}catch(e){}
-})();
-
-
- function code(){let c='es';try{if(window.__techLangCurrent&&UI[window.__techLangCurrent])c=window.__techLangCurrent;else if(typeof lang==='string'&&UI[lang])c=lang;else if(localStorage.getItem('techLang')&&UI[localStorage.getItem('techLang')])c=localStorage.getItem('techLang')}catch(e){}return UI[c]?c:'es'}
- function t(ch,k){const c=code(),u=UI[c]||UI.es;return u[k]||UI.es[k]}
- function applyStory(){const c=code();if(c==='es')return;const u=UI[c]||UI.es;
-  const m=document.getElementById('storyMenuPanel');if(m&&m.style.display!=='none'){
-   const h=m.querySelector('h2');if(h)h.textContent=u.title;
-   const ps=m.querySelectorAll(':scope > p');if(ps[0])ps[0].textContent=u.campaign;
-   const cards=[...m.querySelectorAll(':scope > div')];cards.forEach((card,i)=>{const ch=STORY_CAMPAIGN&&STORY_CAMPAIGN[i];if(!ch)return;const spans=card.querySelectorAll('span');if(spans[0])spans[0].textContent=(spans[0].textContent.match(/^(🔒|✅|▶)/)||['▶'])[0]+' '+((NAMES[c]||[])[i]||ch.title);if(spans[1])spans[1].textContent='+'+ch.reward+'⭐';const p=card.querySelector('p');if(p)p.textContent=(SUBS[c]||[])[i]||ch.subtitle;const locked=card.querySelector('p:nth-of-type(2)');if(locked)locked.textContent=u.locked;const b=card.querySelector('button');if(b)b.textContent=(storyProgress[ch.id]&&storyProgress[ch.id].done)?u.replay:u.play;});const back=document.getElementById('storyCloseMenu');if(back)back.textContent=u.back;
-  }
-  const p=document.getElementById('storyBriefPanel');if(p&&p.style.display!=='none'&&typeof storyChapterIdx!=='undefined'){const ch=STORY_CAMPAIGN[storyChapterIdx];if(ch){const h=p.querySelector('h2');if(h)h.textContent='📋 '+((NAMES[c]||[])[storyChapterIdx]||ch.title);const ps=p.querySelectorAll('p');if(ps[0])ps[0].textContent=(SUBS[c]||[])[storyChapterIdx]||ch.subtitle;if(ps[1]){const type=ch.type;ps[1].textContent=({rescue:{en:'Find the blinking rescue capsule and bring it safely to the green extraction zone.',fr:'Trouvez la capsule de secours clignotante et amenez-la dans la zone verte.',pt:'Encontre a cápsula de resgate piscante e leve-a até a zona verde.',ja:'点滅する救助カプセルを見つけ、緑の回収地点まで運びましょう。',zh:'找到闪烁的救援舱，并将其安全带到绿色撤离区。'},collect:{en:'Collect all the data boxes before they are lost.',fr:'Récupérez toutes les boîtes de données avant leur disparition.',pt:'Recolha todas as caixas de dados antes que desapareçam.',ja:'データボックスをすべて回収しましょう。',zh:'在数据箱消失前收集全部数据箱。'},escort:{en:'Protect the allied transport until the escort is complete.',fr:'Protégez le transport allié jusqu’à la fin de l’escorte.',pt:'Proteja o transporte aliado até concluir a escolta.',ja:'護衛が完了するまで味方の輸送船を守りましょう。',zh:'保护友军运输船，直到护送任务完成。'},defend:{en:'Defend the area and survive the required enemy waves.',fr:'Défendez la zone et survivez aux vagues ennemies requises.',pt:'Defenda a área e sobreviva às ondas inimigas necessárias.',ja:'エリアを守り、必要な敵のウェーブを生き延びましょう。',zh:'守住区域并撑过指定的敌人波次。'},destroy:{en:'Find and destroy the enemy generator.',fr:'Trouvez et détruisez le générateur ennemi.',pt:'Encontre e destrua o gerador inimigo.',ja:'敵の発電機を見つけて破壊しましょう。',zh:'找到并摧毁敌方发电机。'}}[type]||{})[c]||ch.briefing;}if(ps[2])ps[2].firstChild.textContent=u.reward+' ';const bs=p.querySelectorAll('button');if(bs[0])bs[0].textContent=u.start;if(bs[1])bs[1].textContent=u.back2;}}
- }
- const _open=window.openStoryMenu; if(typeof _open==='function')window.openStoryMenu=function(){_open.apply(this,arguments);setTimeout(applyStory,0);setTimeout(applyStory,120)};
- const _brief=window.showStoryBriefing; if(typeof _brief==='function')window.showStoryBriefing=function(){storyChapterIdx=arguments[0];_brief.apply(this,arguments);setTimeout(applyStory,0)};
- if(typeof window.setLanguage==='function'){const _set=window.setLanguage;window.setLanguage=function(){const r=_set.apply(this,arguments);setTimeout(applyStory,0);return r}}
- document.addEventListener('click',e=>{if(e.target.closest('#openStoryMode,.story-play-btn,#storyBackMenu')){setTimeout(applyStory,30);setTimeout(applyStory,120)}});
- const storyObserver=new MutationObserver(()=>{const m=document.getElementById('storyMenuPanel');const b=document.getElementById('storyBriefPanel');if((m&&m.style.display!=='none')||(b&&b.style.display!=='none')){if(!storyObserver._queued){storyObserver._queued=true;setTimeout(()=>{storyObserver._queued=false;applyStory()},20)}}});
- storyObserver.observe(document.documentElement,{childList:true,subtree:true});
-})();
-</script>
 y>
 </html>
 n<script>

@@ -3354,7 +3354,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
-    <h3 style="margin-top:12px">📜 Historial de partidas</h3>
+    <h3 style="margin-top:12px;text-transform:lowercase">📜 historial de partidas</h3>
     <div id="matchHistoryBox">${histHtml}</div>
     <button type="button" class="game-btn" id="clearHistoryBtn" style="font-size:10px;padding:6px 14px;margin-top:6px">🗑 Borrar historial</button>
     <p style="color:#888;font-size:10px;margin:8px 0 4px">Ajustes en ⚙ Config (arriba a la izquierda)</p>
@@ -4385,23 +4385,40 @@ function createParticle(){if(isMobile()||particles.length>5||Math.random()>.75)r
 
 
 /* ===== Historial de partidas (últimas 20) ===== */
+const MATCH_HISTORY_KEY = "techMatchHistoryV1";
 function getMatchHistory(){
   try{
-    const raw=lsGet("techMatchHistoryV1","[]");
-    const arr=JSON.parse(raw);
-    return Array.isArray(arr)?arr:[];
-  }catch(e){return []}
+    let raw = window.localStorage.getItem(MATCH_HISTORY_KEY);
+    // Recuperar historial anterior si existe y la clave actual está vacía.
+    if(!raw){
+      raw = window.localStorage.getItem("techMatchHistory");
+      if(!raw) raw = "[]";
+    }
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){ return []; }
 }
 function pushMatchHistory(entry){
   try{
-    let h=getMatchHistory();
-    h.unshift(entry);
-    if(h.length>20)h=h.slice(0,20);
-    lsSet("techMatchHistoryV1",JSON.stringify(h));
-  }catch(e){}
+    const history = getMatchHistory();
+    history.unshift({...entry, ts:Number(entry && entry.ts) || Date.now()});
+    const limited = history.slice(0,20);
+    const serialized = JSON.stringify(limited);
+    // Escritura directa y comprobación: no ocultar fallos de almacenamiento.
+    window.localStorage.setItem(MATCH_HISTORY_KEY, serialized);
+    const saved = JSON.parse(window.localStorage.getItem(MATCH_HISTORY_KEY) || "[]");
+    if(!Array.isArray(saved) || saved.length !== limited.length) throw new Error("No se pudo verificar el historial");
+    return true;
+  }catch(e){
+    console.error("No se pudo guardar el historial de partidas en localStorage:", e);
+    return false;
+  }
 }
 function clearMatchHistory(){
-  try{lsSet("techMatchHistoryV1","[]")}catch(e){}
+  try{
+    window.localStorage.setItem(MATCH_HISTORY_KEY, "[]");
+    window.localStorage.removeItem("techMatchHistory");
+  }catch(e){ console.error("No se pudo borrar el historial:", e); }
 }
 function formatMatchDate(ts){
   try{
@@ -6945,7 +6962,7 @@ if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(a
 try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gameover")}catch(e){}
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
-if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory()}catch(e){}pushRanking(score);
+if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
 checkAchievements();
 gameOverPanel.style.display="block";
 let extra=document.getElementById("goExtra");

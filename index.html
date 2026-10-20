@@ -2926,29 +2926,47 @@ if(startPanel&&!document.getElementById("startExtras")){
       <span>⬆ Mejoras permanentes</span>
       <span style="color:#FFCD00;font-size:12px;font-weight:700;letter-spacing:.5px">${coins} ⭐</span>
     </h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px">
       ${[
-        {k:"speed",icon:"⚡",name:"Velocidad",lvl:upgSpeed,col:"#00A0E9"},
-        {k:"ammo",icon:"🔫",name:"Munición",lvl:upgAmmo,col:"#FFCD00"},
-        {k:"lives",icon:"❤️",name:"Vidas",lvl:upgLives,col:"#CE1126"},
-        {k:"damage",icon:"💥",name:"Daño",lvl:upgDamage,col:"#FF6B00"}
+        {k:"speed",name:"Velocidad",lvl:upgSpeed,c1:"#7ad7ff",c2:"#0066aa",c3:"#003355"},
+        {k:"ammo",name:"Munición",lvl:upgAmmo,c1:"#ffe566",c2:"#c99000",c3:"#4a3000"},
+        {k:"lives",name:"Vidas",lvl:upgLives,c1:"#ff8a8a",c2:"#ce1126",c3:"#4a0008"},
+        {k:"damage",name:"Daño",lvl:upgDamage,c1:"#ffb070",c2:"#ff6b00",c3:"#4a1a00"}
       ].map(u=>{
         const pct=Math.round((u.lvl/UPG_MAX)*100);
         const maxed=u.lvl>=UPG_MAX;
+        const meteor=`<svg width="22" height="22" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 0 4px ${u.c2}88)">
+          <defs>
+            <radialGradient id="mg${u.k}" cx="32%" cy="28%" r="62%">
+              <stop offset="0%" stop-color="${u.c1}"/>
+              <stop offset="50%" stop-color="${u.c2}"/>
+              <stop offset="100%" stop-color="${u.c3}"/>
+            </radialGradient>
+          </defs>
+          <circle cx="32" cy="32" r="20" fill="url(#mg${u.k})" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>
+          <circle cx="24" cy="27" r="3.2" fill="rgba(0,0,0,.28)"/>
+          <circle cx="39" cy="38" r="2.6" fill="rgba(0,0,0,.24)"/>
+          <circle cx="35" cy="23" r="2" fill="rgba(0,0,0,.2)"/>
+          <circle cx="23" cy="22" r="3.5" fill="rgba(255,255,255,.16)"/>
+        </svg>`;
         return `<button type="button" data-upg="${u.k}" style="
-          text-align:left;padding:10px 10px 9px;border-radius:12px;cursor:pointer;
-          border:1px solid ${maxed?"rgba(255,205,0,.55)":"rgba(255,255,255,.18)"};
-          background:linear-gradient(160deg,rgba(8,18,40,.95),rgba(0,0,0,.88));
-          color:#fff;font-family:Orbitron,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);
+          text-align:left;padding:10px;border-radius:14px;cursor:pointer;
+          border:1px solid ${maxed?"rgba(255,205,0,.6)":"rgba(255,255,255,.16)"};
+          background:linear-gradient(155deg,rgba(10,20,42,.96),rgba(0,0,0,.9));
+          color:#fff;font-family:Orbitron,sans-serif;
+          box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
         ">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px">
-            <span style="font-size:12px;font-weight:700">${u.icon} ${u.name}</span>
-            <span style="font-size:11px;color:${maxed?"#FFCD00":"#9fdfff"};font-weight:800">${u.lvl}/${UPG_MAX}</span>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+            ${meteor}
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:800;letter-spacing:.3px">${u.name}</div>
+              <div style="font-size:11px;color:${maxed?"#FFCD00":"#9fdfff"};font-weight:800;margin-top:2px">${u.lvl}/${UPG_MAX}</div>
+            </div>
           </div>
-          <div style="height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden">
-            <div style="height:100%;width:${pct}%;border-radius:99px;background:linear-gradient(90deg,${u.col},${u.col}cc);box-shadow:0 0 8px ${u.col}66"></div>
+          <div style="height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden">
+            <div style="height:100%;width:${pct}%;border-radius:99px;background:linear-gradient(90deg,${u.c1},${u.c2});box-shadow:0 0 10px ${u.c2}88"></div>
           </div>
-          <div style="margin-top:5px;font-size:9px;color:${maxed?"#FFCD00":"#8899aa"};letter-spacing:.3px">${maxed?"★ MÁXIMO":"Toca para mejorar"}</div>
+          <div style="margin-top:6px;font-size:9px;color:${maxed?"#FFCD00":"#8899aa"};letter-spacing:.3px">${maxed?"★ MÁXIMO":"☄ Toca para mejorar"}</div>
         </button>`;
       }).join("")}
     </div>

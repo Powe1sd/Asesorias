@@ -316,6 +316,9 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 }
 
 #configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+/* FIX DEFINITIVO: el panel de sensibilidad/audio no aparece al iniciar */
+#configPanel{display:none!important}
+#configPanel.config-panel-open{display:block!important}
 #configPanel .game-btn{position:sticky;bottom:0;margin-top:12px}
 
 .extra-panel{margin-top:10px;text-align:left;font-size:11px;color:#ccc;max-height:140px;overflow-y:auto}
@@ -2808,14 +2811,14 @@ document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);try{applyTouchLayout();applyUILanguage()}catch(e){}
-  cfg.style.display="none"};
+  cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important")};
 }
 wireConfigPanel();
 try{applyUILanguage()}catch(e){}
 // No mostrar la ventana de configuración al cargar el menú inicial.
-try{cfg.style.display="none";cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.display="none"})}catch(e){}
+try{cfg.style.setProperty("display","none","important");cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.setProperty("display","none","important")})}catch(e){}
 
-btnCfg.onclick=()=>{const open=cfg.style.display==="none"||!cfg.style.display;cfg.style.display=open?"block":"none";if(open&&gameRunning&&!gamePaused)togglePause(true)}}
+btnCfg.onclick=()=>{const open=!cfg.classList.contains("config-panel-open");cfg.classList.toggle("config-panel-open",open);cfg.style.setProperty("display",open?"block":"none","important");if(open&&gameRunning&&!gamePaused)togglePause(true)}}
 try{btnCfg.style.display="none"}catch(e){}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
@@ -6526,7 +6529,7 @@ try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}c
 startPanel.style.display="none";gameOverPanel.style.display="none";
 const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="block";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
-const cp=document.getElementById("configPanel");if(cp)cp.style.display="none";
+const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
 score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
@@ -6575,7 +6578,7 @@ function goToStartMenu(){
   const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
   startPanel.style.display="block";
   const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="none";
-  const cfgPanel=document.getElementById("configPanel");if(cfgPanel)cfgPanel.style.display="none";
+  const cfgPanel=document.getElementById("configPanel");if(cfgPanel){cfgPanel.classList.remove("config-panel-open");cfgPanel.style.setProperty("display","none","important");}
   setTimeout(function(){renderStart();},30);
   setTimeout(drawShipPreview,50);
 }
@@ -7264,5 +7267,9 @@ function storyOnWaveComplete(){
 })();
 </script>
 
+<script>
+// Guardar el panel de sensibilidad/audio oculto en cada carga; solo abrirlo desde el botón de configuración.
+(function(){function hideInitialConfig(){var c=document.getElementById("configPanel");if(c&&!c.classList.contains("config-panel-open")){c.style.setProperty("display","none","important");}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",hideInitialConfig,{once:true});}else{hideInitialConfig();}window.addEventListener("pageshow",hideInitialConfig);})();
+</script>
 </body>
 </html>

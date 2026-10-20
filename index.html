@@ -315,11 +315,11 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
   .touch-pad .goku-forms.show{display:flex!important}
 }
 
-#configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+#configPanel{max-height:min(85vh,520px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:125px!important}
 /* FIX DEFINITIVO: el panel de sensibilidad/audio no aparece al iniciar */
 #configPanel{display:none!important}
 #configPanel.config-panel-open{display:block!important}
-#configPanel .game-btn{position:sticky;bottom:0;margin-top:12px}
+#configPanel #closeConfig{position:sticky;bottom:110px!important;z-index:20;margin-top:12px;box-shadow:0 0 0 6px rgba(3,12,32,.88)}
 
 .extra-panel{margin-top:10px;text-align:left;font-size:11px;color:#ccc;max-height:140px;overflow-y:auto}
 .extra-panel h3{color:#fff;font-size:12px;margin:8px 0 4px}
@@ -2811,14 +2811,14 @@ document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);try{applyTouchLayout();applyUILanguage()}catch(e){}
-  cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important")};
+  cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important");if(window.__configOpenedFromPause){window.__configOpenedFromPause=false;const p=document.getElementById("pausePanel");if(p)p.style.display="none";if(gameRunning&&gamePaused)togglePause(false)}};
 }
 wireConfigPanel();
 try{applyUILanguage()}catch(e){}
 // No mostrar la ventana de configuración al cargar el menú inicial.
 try{cfg.style.setProperty("display","none","important");cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.setProperty("display","none","important")})}catch(e){}
 
-btnCfg.onclick=()=>{const open=!cfg.classList.contains("config-panel-open");cfg.classList.toggle("config-panel-open",open);cfg.style.setProperty("display",open?"block":"none","important");if(open&&gameRunning&&!gamePaused)togglePause(true)}}
+btnCfg.onclick=()=>{const open=!cfg.classList.contains("config-panel-open");if(open&&gameRunning){window.__configOpenedFromPause=true;if(!gamePaused)togglePause(true)}cfg.classList.toggle("config-panel-open",open);cfg.style.setProperty("display",open?"block":"none","important");if(!open&&window.__configOpenedFromPause){window.__configOpenedFromPause=false;if(gameRunning&&gamePaused)togglePause(false)}}}
 try{btnCfg.style.display="none"}catch(e){}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
@@ -2827,30 +2827,10 @@ pp.innerHTML=`<h2 style="margin-bottom:6px;font-size:22px">⏸ PAUSA</h2>
 <button class="game-btn" id="resumeGame" style="margin-top:6px;width:100%">▶ CONTINUAR</button>
 <button class="game-btn game-btn-blue" id="restartFromPause" style="margin-top:8px;margin-left:0;width:100%">🔄 REINICIAR</button>
 <button class="game-btn" id="saveFromPause" style="margin-top:8px;margin-left:0;width:100%">💾 GUARDAR</button>
-<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;width:100%;background:#0038A8;color:#fff">🏠 INICIO</button>
+<button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;width:100%;background:#0038A8;color:#fff">INICIO</button>
 <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:left">
-  <h3 style="color:#FFCD00;font-size:13px;margin:0 0 8px;text-align:center">⚙ CONFIGURACIÓN</h3>
-  <p style="color:#ccc;font-size:10px;margin:4px 0 2px">Sensibilidad touch · <span id="pauseSensPadVal">${Number(sensPad).toFixed(2)}x</span></p>
-  <input type="range" id="pauseSensPad" min="0" max="2" step="0.01" value="${sensPad}" style="width:100%;accent-color:#00A0E9">
-  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Música · <span id="pauseVolMusicVal">${Math.round(volMusic*100)}%</span></p>
-  <input type="range" id="pauseVolMusic" min="0" max="1" step="0.01" value="${volMusic}" style="width:100%;accent-color:#CE1126">
-  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Efectos · <span id="pauseVolSfxVal">${Math.round(volSfx*100)}%</span></p>
-  <input type="range" id="pauseVolSfx" min="0" max="1" step="0.01" value="${volSfx}" style="width:100%;accent-color:#FFCD00">
-  <label style="display:flex;align-items:center;gap:8px;margin:10px 0 4px;color:#ddd;font-size:11px;cursor:pointer">
-    <input type="checkbox" id="pauseLowPower" ${lowPower?"checked":""} style="accent-color:#00C8FF"> Bajo consumo (más FPS)
-  </label>
-  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
-    <input type="checkbox" id="pauseMute" ${audioMuted?"checked":""} style="accent-color:#CE1126"> Silenciar audio
-  </label>
-  <label style="display:flex;align-items:center;gap:8px;margin:4px 0;color:#ddd;font-size:11px;cursor:pointer">
-    <input type="checkbox" id="pauseVibrate" ${vibrateOn?"checked":""} style="accent-color:#FFCD00"> Vibración
-  </label>
-  <p style="color:#ccc;font-size:10px;margin:8px 0 2px">Poderes al recoger</p>
-  <select id="pausePowerMode" style="width:100%;padding:7px;border-radius:6px;background:#111;color:#fff;border:1px solid #444;font-size:11px">
-    <option value="auto" ${powerMode==="auto"?"selected":""}>Automático</option>
-    <option value="manual" ${powerMode==="manual"?"selected":""}>Manual (G / ⚡)</option>
-  </select>
-  <button type="button" class="game-btn" id="pauseOpenFullCfg" style="width:100%;margin-top:10px;padding:8px;font-size:12px">⚙ Más opciones</button>
+  <button type="button" class="game-btn" id="pauseOpenFullCfg" style="width:100%;margin-top:4px;padding:11px;font-size:13px">⚙ CONFIGURACIONES</button>
+  <p style="color:#aaa;font-size:10px;text-align:center;margin:6px 0 0">Abre la pantalla completa de configuraciones</p>
 </div>`;
 gameBox.appendChild(pp);
 function wirePauseControls(){
@@ -2869,7 +2849,12 @@ function wirePauseControls(){
   const ppm=document.getElementById("pausePowerMode");
   if(ppm){ppm.value=powerMode;ppm.onchange=()=>{powerMode=ppm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
   const pof=document.getElementById("pauseOpenFullCfg");
-  if(pof)pof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
+  if(pof)pof.onclick=()=>{
+    window.__configOpenedFromPause=true;
+    const pause=document.getElementById("pausePanel");if(pause)pause.style.display="none";
+    const cfg=document.getElementById("configPanel");
+    if(cfg){cfg.classList.add("config-panel-open");cfg.style.setProperty("display","block","important");}
+  };
 }
 wirePauseControls();
 document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
@@ -6563,7 +6548,7 @@ const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br
 extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:8px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:6px">TOP 5</p><p style="color:#ddd;font-size:11px">'+rank+'</p>'+'<p style="color:#FFCD00;font-size:11px;margin-top:10px;margin-bottom:2px">📜 HISTORIAL</p>'+formatMatchHistoryHtml(5)
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0">📤 COMPARTIR</button>'
-  +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">🏠 INICIO</button>'
+  +'<button class="game-btn" id="btnInicio" style="margin:0;background:#0038A8;color:#fff">INICIO</button>'
   +'</div>';
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
 const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
@@ -7273,3 +7258,35 @@ function storyOnWaveComplete(){
 </script>
 </body>
 </html>
+
+
+/* === CIERRE UNIFICADO: botón X en ventanas y paneles emergentes === */
+(function installPanelCloseButtons(){
+  const excluded=new Set(["startPanel"]);
+  function addClose(panel){
+    if(!panel || excluded.has(panel.id) || panel.dataset.closeXReady==="1") return;
+    if(!panel.classList || !panel.classList.contains("game-panel")) return;
+    panel.dataset.closeXReady="1";
+    if(getComputedStyle(panel).position==="static") panel.style.position="relative";
+    const x=document.createElement("button");
+    x.type="button";x.className="panel-close-x";x.setAttribute("aria-label","Cerrar ventana");x.title="Cerrar";x.textContent="×";
+    x.style.cssText="position:absolute;top:7px;right:7px;z-index:1000;width:30px;height:30px;border:1px solid rgba(255,255,255,.35);border-radius:8px;background:#CE1126;color:#fff;font-size:24px;line-height:24px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.35)";
+    x.addEventListener("click",function(){
+      if(panel.id==="pausePanel"){if(typeof togglePause==="function")togglePause(false);else panel.style.display="none";return;}
+      if(panel.id==="configPanel"){
+        panel.classList.remove("config-panel-open");panel.style.setProperty("display","none","important");
+        if(window.__configOpenedFromPause){window.__configOpenedFromPause=false;const p=document.getElementById("pausePanel");if(p)p.style.display="none";if(gameRunning&&gamePaused)togglePause(false);}
+        return;
+      }
+      panel.style.display="none";
+    });
+    panel.appendChild(x);
+  }
+  function scan(root){
+    if(root.nodeType!==1)return;
+    if(root.matches&&root.matches(".game-panel"))addClose(root);
+    if(root.querySelectorAll)root.querySelectorAll(".game-panel").forEach(addClose);
+  }
+  function init(){scan(document.body);const observer=new MutationObserver(records=>records.forEach(rec=>{rec.addedNodes.forEach(scan);if(rec.target&&rec.target.nodeType===1&&rec.target.classList&&rec.target.classList.contains("game-panel")&&!rec.target.querySelector(".panel-close-x")){delete rec.target.dataset.closeXReady;addClose(rec.target)}}));observer.observe(document.body,{childList:true,subtree:true});}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();

@@ -1533,7 +1533,7 @@ function promptGokuAccessAsync(){
 }
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
-let selectedWorld=Number(lsGet("techWorld","1"))||1; // 1-8 mundos
+let selectedWorld=Math.min(14,Math.max(1,Number(lsGet("techWorld","1"))||1)); // 1-14 mundos
 
 let metaCoins=Number(lsGet("techCoins",0))||0;
 let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
@@ -3280,6 +3280,12 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-world="6" class="${selectedWorld===6?"active":""}">6 Neón</button>
       <button type="button" data-world="7" class="${selectedWorld===7?"active":""}">7 Tóxico</button>
       <button type="button" data-world="8" class="${selectedWorld===8?"active":""}">8 Vacío</button>
+      <button type="button" data-world="9" class="${selectedWorld===9?"active":""}">9 Océano</button>
+      <button type="button" data-world="10" class="${selectedWorld===10?"active":""}">10 Desierto</button>
+      <button type="button" data-world="11" class="${selectedWorld===11?"active":""}">11 Tormenta</button>
+      <button type="button" data-world="12" class="${selectedWorld===12?"active":""}">12 Aurora</button>
+      <button type="button" data-world="13" class="${selectedWorld===13?"active":""}">13 Volcán</button>
+      <button type="button" data-world="14" class="${selectedWorld===14?"active":""}">14 Glitch</button>
     </div>
         <h3>🚀 Seleccionar nave</h3>
     <div id="shipCarousel" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 4px;user-select:none;-webkit-user-select:none">
@@ -4317,7 +4323,7 @@ function createExplosion(x,y,size,color){
 
 /* Suelta un poder al azar (máx. pocos en pantalla) */
 function maybeSpawnPickup(x,y){
-  /* Poderes en TODOS los mundos (1–8), sin filtro por escenario */
+  /* Poderes en TODOS los mundos (1–14), sin filtro por escenario */
   if(pickups.length>=(isMobile()?2:4))return;
   const r=Math.random(),s=16*getScale();
   if(r<.10){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
@@ -4463,7 +4469,7 @@ function formatMatchDate(ts){
   }catch(e){return "—"}
 }
 function worldNameHist(w){
-  const n={1:"Espacio",2:"Nieve",3:"Fuego",4:"Cristal",5:"Halloween",6:"Neón",7:"Tóxico",8:"Vacío"};
+  const n={1:"Espacio",2:"Nieve",3:"Fuego",4:"Cristal",5:"Halloween",6:"Neón",7:"Tóxico",8:"Vacío",9:"Océano",10:"Desierto",11:"Tormenta",12:"Aurora",13:"Volcán",14:"Glitch"};
   return n[w]||("M"+w);
 }
 function formatMatchHistoryHtml(limit){
@@ -5069,14 +5075,14 @@ function updateTraps(){
 function teleportWorld(){
   if(!gameRunning||gamePaused)return;
   if(worldTeleportCd>0){doVibrate(8);return}
-  const worlds=[1,2,3,4,5,6,7,8];
+  const worlds=[1,2,3,4,5,6,7,8,9,10,11,12,13,14];
   let next=selectedWorld;
   /* siguiente mundo (ciclo) */
-  next = (selectedWorld % 8) + 1;
+  next = (selectedWorld % 14) + 1;
   selectedWorld=next;
   lsSet("techWorld",selectedWorld);
   scenario=selectedWorld;
-  const names={1:"ESPACIO",2:"NIEVE",3:"FUEGO",4:"CRISTAL",5:"HALLOWEEN",6:"NEÓN",7:"TÓXICO",8:"VACÍO"};
+  const names={1:"ESPACIO",2:"NIEVE",3:"FUEGO",4:"CRISTAL",5:"HALLOWEEN",6:"NEÓN",7:"TÓXICO",8:"VACÍO",9:"OCÉANO",10:"DESIERTO",11:"TORMENTA",12:"AURORA",13:"VOLCÁN",14:"GLITCH"};
   scenarioMsg="🌍 TELEPORTE → "+(names[selectedWorld]||("MUNDO "+selectedWorld));
   scenarioTransition=100;
   worldTeleportCd=30*60; /* 30 s cooldown */
@@ -5797,6 +5803,12 @@ function drawShipPreview(){
   else if(selectedWorld===6){bg.addColorStop(0,"#050010");bg.addColorStop(1,"#001018")}
   else if(selectedWorld===7){bg.addColorStop(0,"#030a02");bg.addColorStop(1,"#0a1a05")}
   else if(selectedWorld===8){bg.addColorStop(0,"#000");bg.addColorStop(1,"#0a0015")}
+  else if(selectedWorld===9){bg.addColorStop(0,"#001428");bg.addColorStop(1,"#003050")}
+  else if(selectedWorld===10){bg.addColorStop(0,"#1a1000");bg.addColorStop(1,"#3a2808")}
+  else if(selectedWorld===11){bg.addColorStop(0,"#0a0e18");bg.addColorStop(1,"#1a2030")}
+  else if(selectedWorld===12){bg.addColorStop(0,"#040818");bg.addColorStop(1,"#0a2030")}
+  else if(selectedWorld===13){bg.addColorStop(0,"#1a0400");bg.addColorStop(1,"#2a0a00")}
+  else if(selectedWorld===14){bg.addColorStop(0,"#0a0010");bg.addColorStop(1,"#001a12")}
   else{bg.addColorStop(0,"#020b22");bg.addColorStop(1,"#0a1a40")}
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(let i=0;i<30;i++){g.fillStyle="rgba(255,255,255,"+(0.2+Math.random()*0.5)+")";g.beginPath();g.arc(Math.random()*W,Math.random()*H,1,0,Math.PI*2);g.fill()}
@@ -6667,6 +6679,89 @@ function drawSpaceBG(){
       const t=performance.now()/900;
       ctx.strokeStyle=`rgba(120,60,200,${0.1+Math.sin(t)*.05})`;ctx.lineWidth=1.5;
       for(let k=1;k<=3;k++){ctx.beginPath();ctx.ellipse(canvas.width*.5,canvas.height*.42,20*k+Math.sin(t+k)*4,12*k,t*.2,0,Math.PI*2);ctx.stroke()}
+    }
+  } else if(selectedWorld===9){
+    /* OCÉANO / ABISMO MARINO */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#001428");g.addColorStop(.45,"#003050");g.addColorStop(1,"#001820");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const t=performance.now()/800;
+      for(let i=0;i<(isMobile()?4:8);i++){
+        const y=((i*47+t*12)%canvas.height);
+        ctx.strokeStyle=`rgba(80,200,255,${0.08+((i%3)*0.03)})`;ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(0,y);ctx.quadraticCurveTo(canvas.width*.5,y+Math.sin(t+i)*6,canvas.width,y);ctx.stroke();
+      }
+    }
+  } else if(selectedWorld===10){
+    /* DESIERTO */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#1a1200");g.addColorStop(.5,"#3a2808");g.addColorStop(1,"#120a00");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const haze=ctx.createRadialGradient(canvas.width*.5,canvas.height*.2,5,canvas.width*.5,canvas.height*.2,canvas.width*.6);
+      haze.addColorStop(0,"rgba(255,200,80,.12)");haze.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle=haze;ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+  } else if(selectedWorld===11){
+    /* TORMENTA */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#0a0e18");g.addColorStop(.5,"#121a28");g.addColorStop(1,"#060a12");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const t=performance.now();
+      if(Math.floor(t/1800)%5===0){
+        ctx.fillStyle=`rgba(180,220,255,${0.08+Math.random()*0.1})`;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+      }
+      for(let i=0;i<(isMobile()?6:12);i++){
+        const x=(i*73+t/30)%(canvas.width+20)-10;
+        const y=(i*41+t/18)%canvas.height;
+        ctx.strokeStyle="rgba(150,190,255,.25)";ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-2,y+8);ctx.stroke();
+      }
+    }
+  } else if(selectedWorld===12){
+    /* AURORA */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#040818");g.addColorStop(.4,"#0a1828");g.addColorStop(1,"#020610");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const t=performance.now()/1200;
+      for(let i=0;i<3;i++){
+        const ag=ctx.createLinearGradient(0,0,canvas.width,0);
+        const a=0.07+Math.sin(t+i)*0.03;
+        ag.addColorStop(0,`rgba(40,255,180,0)`);
+        ag.addColorStop(.3+i*.1,`rgba(${40+i*40},${200+i*20},255,${a})`);
+        ag.addColorStop(.7,`rgba(120,80,255,${a*.7})`);
+        ag.addColorStop(1,`rgba(40,255,180,0)`);
+        ctx.fillStyle=ag;
+        const y=canvas.height*(.15+i*.12)+Math.sin(t*1.2+i)*10;
+        ctx.fillRect(0,y,canvas.width,18);
+      }
+    }
+  } else if(selectedWorld===13){
+    /* VOLCÁN */
+    const g=ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,"#120200");g.addColorStop(.45,"#2a0800");g.addColorStop(1,"#1a0400");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const glow=ctx.createRadialGradient(canvas.width*.5,canvas.height,8,canvas.width*.5,canvas.height,canvas.width*.55);
+      glow.addColorStop(0,"rgba(255,60,0,.22)");glow.addColorStop(.5,"rgba(180,20,0,.08)");glow.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle=glow;ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+  } else if(selectedWorld===14){
+    /* GLITCH / DIGITAL */
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,"#050010");g.addColorStop(.5,"#001a12");g.addColorStop(1,"#0a0018");
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!lowPower){
+      const t=performance.now()/200;
+      for(let i=0;i<(isMobile()?3:6);i++){
+        const y=((i*61+t*9)%canvas.height);
+        ctx.fillStyle=`rgba(${i%2?0:255},${i%2?255:0},180,${0.04+((i%3)*0.02)})`;
+        ctx.fillRect(0,y,canvas.width,2+(i%2));
+      }
     }
   } else if(scenario===1||selectedWorld===1){
     /* Mundo clásico: azul espacial */

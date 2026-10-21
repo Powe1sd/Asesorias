@@ -1059,14 +1059,14 @@ input:focus,textarea:focus,select:focus{
 .tech-stat-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tech-stat-action{border:1px solid rgba(93,229,255,.55);background:linear-gradient(135deg,#102748,#07546b);color:#effcff;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:700;cursor:pointer}.tech-stat-action:hover{filter:brightness(1.18)}
 .tech-stat-linewrap{width:100%;overflow:hidden}.tech-stat-line{width:100%;height:auto;display:block;min-height:145px}.tech-stat-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:#9fb4c9;margin-top:7px}.tech-stat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.tech-stat-trend{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.tech-stat-trend span{font-size:10px;border-radius:8px;padding:7px 9px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);color:#bcd0e4}.tech-stat-trend b{color:#fff}.tech-stat-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tech-stat-breakdown .tech-stat-section{margin-top:0}.tech-stat-pill{display:inline-block;padding:3px 7px;border:1px solid rgba(93,229,255,.3);border-radius:99px;color:#a8f4ff;font-size:9px;margin:2px 3px 2px 0}
 @media(max-width:560px){.tech-stat-breakdown{grid-template-columns:1fr}.tech-stat-line{min-height:120px}}
-
-.tech-stat-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(93,229,255,.4);border-radius:10px;background:rgba(16,39,70,.9);color:#eaf8ff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left}
-.tech-stat-toggle:hover{filter:brightness(1.12)}
-.tech-stat-chevron{font-size:12px;opacity:.85}
-.tech-stat-collapse-body{margin-top:12px}
-.tech-stat-collapsible{padding-top:10px;padding-bottom:10px}
 @media(max-width:560px){#techStatisticsPanel{inset:2% 2%;max-height:96%;padding:12px}.tech-stat-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.tech-stat-card{padding:10px}.tech-stat-chart{height:120px;gap:4px}.tech-stat-section{padding:10px}}
 </style>
+<style id="tech-statistics-pro-styles">
+.tech-stat-filtergrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.tech-stat-filtergrid label{display:flex;flex-direction:column;gap:6px;color:#b9cee2;font-size:11px}.tech-stat-filtergrid select,.tech-stat-filtergrid input{width:100%;min-width:0;border:1px solid rgba(93,229,255,.35);border-radius:8px;background:#07172b;color:#fff;padding:9px;font:inherit;color-scheme:dark}.tech-stat-notices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tech-stat-notice{display:flex;flex-direction:column;gap:5px;padding:10px;border:1px solid rgba(93,229,255,.2);border-radius:10px;background:rgba(14,38,64,.72);font-size:11px;color:#e5f5ff;overflow-wrap:anywhere}.tech-stat-notice b{color:#62efff}.tech-stat-notice small{color:#8fa8c2;font-size:9px}.tech-stat-notice.record b{color:#ffd34d}.tech-stat-notice.mission b,.tech-stat-notice.success b{color:#69f0ae}.tech-stat-mission-list{display:flex;flex-direction:column;gap:6px;max-height:540px;overflow:auto;padding-right:3px}.tech-stat-mission{display:grid;grid-template-columns:32px minmax(0,1fr) 44px;align-items:center;gap:9px;padding:8px;border:1px solid rgba(130,190,255,.12);border-radius:9px;background:rgba(255,255,255,.025)}.tech-stat-mission-n{color:#62efff;font:700 12px monospace}.tech-stat-mission-info{min-width:0;display:flex;flex-direction:column;gap:5px}.tech-stat-mission-info b{font-size:11px;color:#eaf8ff}.tech-stat-mission-info small{font-size:9px;line-height:1.35;color:#91a9c1}.tech-stat-mission strong{text-align:right;color:#69f0ae;font-size:12px}.tech-stat-mission .tech-stat-track{height:5px}.tech-stat-filtergrid select:focus,.tech-stat-filtergrid input:focus{outline:2px solid #62efff;outline-offset:1px}.tech-stat-section{min-width:0}.tech-stat-linewrap{overflow-x:auto}.tech-stat-line{min-width:420px}.tech-stat-match{overflow-wrap:anywhere}
+@media(max-width:680px){.tech-stat-filtergrid{grid-template-columns:repeat(2,minmax(0,1fr))}.tech-stat-notices{grid-template-columns:1fr}.tech-stat-line{min-width:520px}.tech-stat-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:380px){.tech-stat-filtergrid{grid-template-columns:1fr}.tech-stat-mission{grid-template-columns:25px minmax(0,1fr) 36px}.tech-stat-card strong{font-size:16px}}
+</style>
+
 
 </head>
 <body>
@@ -2048,10 +2048,10 @@ function getConfigHTML(){
 <p style="color:#FFCD00;font-size:11px;margin:8px 0 2px">${T("language")}</p>
 <select id="langSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
 <option value="es" ${lang==="es"?"selected":""}>Español</option>
-<option value="en" ${lang==="en"?"selected":""}>Inglés</option>
-<option value="fr" ${lang==="fr"?"selected":""}>Francés</option>
-<option value="ja" ${lang==="ja"?"selected":""}>Japonés</option>
-<option value="zh" ${lang==="zh"?"selected":""}>Chino</option>
+<option value="en" ${lang==="en"?"selected":""}>English</option>
+<option value="fr" ${lang==="fr"?"selected":""}>Français</option>
+<option value="ja" ${lang==="ja"?"selected":""}>日本語</option>
+<option value="zh" ${lang==="zh"?"selected":""}>中文</option>
 </select>
 <p style="color:#FFCD00;font-size:11px;margin:10px 0 2px">${T("touchLayout")}</p>
 <select id="touchLayoutSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
@@ -2212,7 +2212,7 @@ function showDailyMissionsMenu(){
   <p style="text-align:center;color:#888;font-size:10px;margin:0 0 8px">Se renuevan cada día · Recompensa automática al completar</p>
   ${cards}
   <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,205,0,.25);text-align:center">
-    <p style="color:#aaa;font-size:11px;margin:4px 0">Puntos de juego: <b style="color:#FFD700">${coins}⭐</b></p>
+    <p style="color:#aaa;font-size:11px;margin:4px 0">Puntosjuego: <b style="color:#FFD700">${coins}⭐</b></p>
     <button class="game-btn" id="closeDailyMissions" style="width:100%;margin-top:10px">CERRAR</button>
   </div>`;
   m.style.display="block";
@@ -3131,7 +3131,6 @@ function rebuildConfigPanel(){
     cfg.innerHTML=getConfigHTML();
     if(typeof wireConfigPanel==="function")wireConfigPanel();
     if(wasOpen)cfg.style.display="block";
-    if(typeof window.refreshTechLangSelects==="function")window.refreshTechLangSelects(window.__techLangCurrent||lang||"es");
   }catch(e){console&&console.warn&&console.warn(e)}
 }
 function rebuildConfigLabels(){rebuildConfigPanel()}
@@ -3201,6 +3200,7 @@ if(startPanel&&!document.getElementById("startExtras")){
   function renderStart(){
     const rank=getRanking().map((r,i)=>(i+1)+". "+r.score).join(" · ")||"Sin récords aún";
     const ach=Object.values(getAchievements()).map(a=>a.title).slice(0,6).join(", ")||"—";
+    const histHtml=formatMatchHistoryHtml(20);
     box.innerHTML=`
     <div class="diff-btns">
       <button type="button" data-d="easy" class="${difficulty==="easy"?"active":""}">FÁCIL</button>
@@ -3342,7 +3342,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-skin="steel" class="${shipSkin==="steel"?"active":""}">Acero</button>
       <button type="button" data-skin="orange" class="${shipSkin==="orange"?"active":""}">Naranja</button>
     </div>
-    <h3>⭐ Puntos de juego: ${coins}</h3>
+    <h3>⭐ Puntosjuego: ${coins}</h3>
     <div class="diff-btns">
       <button type="button" data-w="basic" class="${currentWeapon==="basic"?"active":""}">Básica</button>
       <button type="button" data-w="double" class="${currentWeapon==="double"?"active":""}">Doble · 40</button>
@@ -3371,6 +3371,10 @@ if(startPanel&&!document.getElementById("startExtras")){
     <p style="font-size:9px;color:#aaa;margin:4px 0 6px;text-align:center">${(dailyMissions||[]).filter(x=>!x.claimed).map(x=>x.icon+" "+x.title).slice(0,2).join(" · ")||"Todas completadas ✅"}</p>
     <h3>TOP: ${rank}</h3>
     <p style="font-size:9px;opacity:.8">${ach}</p>
+    <h3 style="margin-top:12px;text-transform:lowercase">📜 historial de partidas</h3>
+    <div id="matchHistoryBox">${histHtml}</div>
+    <button type="button" class="game-btn" id="clearHistoryBtn" style="font-size:10px;padding:6px 14px;margin-top:6px">🗑 Borrar historial</button>
+    <p style="color:#888;font-size:10px;margin:8px 0 4px">Ajustes en ⚙ Config (arriba a la izquierda)</p>
     <button class="game-btn game-btn-blue" id="btnLoadSave" style="margin-top:6px;width:100%;padding:8px">💾 Continuar partida</button>
     `;
     box.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{difficulty=b.getAttribute("data-d");lsSet("techDiff",difficulty);renderStart()});
@@ -3457,6 +3461,8 @@ if(startPanel&&!document.getElementById("startExtras")){
     const bof=box.querySelector("#btnOpenFullConfig");
     if(bof)bof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
+    const chb=document.getElementById("clearHistoryBtn");
+    if(chb)chb.onclick=function(){if(confirm("¿Borrar historial de partidas?")){clearMatchHistory();renderStart();}};
 
     box.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{
       const w=b.getAttribute("data-w");
@@ -4412,7 +4418,6 @@ function getMatchHistory(){
 function pushMatchHistory(entry){
   try{
     const history = getMatchHistory();
-    const prevCount = history.length;
     history.unshift({...entry, ts:Number(entry && entry.ts) || Date.now()});
     const limited = history.slice(0,20);
     const serialized = JSON.stringify(limited);
@@ -4420,21 +4425,6 @@ function pushMatchHistory(entry){
     window.localStorage.setItem(MATCH_HISTORY_KEY, serialized);
     const saved = JSON.parse(window.localStorage.getItem(MATCH_HISTORY_KEY) || "[]");
     if(!Array.isArray(saved) || saved.length !== limited.length) throw new Error("No se pudo verificar el historial");
-    // Contador total de partidas jugadas (sin tope; el historial visible sigue en 20)
-    try{
-      let total = Number(localStorage.getItem("techTotalGamesPlayed")||0)||0;
-      // Migración: si nunca se guardó el total, arrancar desde las partidas ya en historial
-      if(total < prevCount) total = prevCount;
-      total += 1;
-      localStorage.setItem("techTotalGamesPlayed", String(total));
-      try{
-        const stRaw = localStorage.getItem("techGlobalStatsV1");
-        const st = stRaw ? JSON.parse(stRaw) : {};
-        st.games = Math.max(Number(st.games)||0, total);
-        st.updated = Date.now();
-        localStorage.setItem("techGlobalStatsV1", JSON.stringify(st));
-      }catch(_e){}
-    }catch(_e){}
     return true;
   }catch(e){
     console.error("No se pudo guardar el historial de partidas en localStorage:", e);
@@ -5269,15 +5259,15 @@ function hitPlayerLaser(x,y){hitPlayer(x,y,{laser:true,soft:true})}
 
 
 function getShipColors(skin){
-  if(skin==="black")return{a:"#2a2a2e",b:"#0e0e12",c:"#050508",stroke:"#9aa0a8",accent:"#5de5ff",glow:"#446688"};
-  if(skin==="gold")return{a:"#ffe566",b:"#FFD700",c:"#8B6914",stroke:"#FFF3A0",accent:"#fff8d0",glow:"#FFB000"};
-  if(skin==="cyan")return{a:"#66f0ff",b:"#00C8E8",c:"#003848",stroke:"#C8FFFF",accent:"#e8ffff",glow:"#00E5FF"};
-  if(skin==="crimson")return{a:"#ff4455",b:"#CE1126",c:"#4a0010",stroke:"#FF8899",accent:"#ffc8d0",glow:"#FF3344"};
-  if(skin==="violet")return{a:"#cc88ff",b:"#8844dd",c:"#2a0055",stroke:"#E8CCFF",accent:"#f0e0ff",glow:"#AA66FF"};
-  if(skin==="lime")return{a:"#b8ff66",b:"#66cc22",c:"#1a4400",stroke:"#D8FFA0",accent:"#f0ffe0",glow:"#88FF44"};
-  if(skin==="steel")return{a:"#d0d8e0",b:"#7890a8",c:"#2a3540",stroke:"#E8F0F8",accent:"#ffffff",glow:"#88AACC"};
-  if(skin==="orange")return{a:"#ffb050",b:"#FF8800",c:"#5a2800",stroke:"#FFD0A0",accent:"#ffe8c8",glow:"#FFAA33"};
-  return{a:"#ffffff",b:"#e8ecf2",c:"#8a929c",stroke:"#CE1126",accent:"#ffffff",glow:"#FFCD00"};
+  if(skin==="black")return{a:"#0a0a0a",b:"#1a1a1a",c:"#050505",stroke:"#888"};
+  if(skin==="gold")return{a:"#B8860B",b:"#FFD700",c:"#8B6914",stroke:"#FFEE88"};
+  if(skin==="cyan")return{a:"#003344",b:"#00E5FF",c:"#006688",stroke:"#AAFFFF"};
+  if(skin==="crimson")return{a:"#2a0008",b:"#CE1126",c:"#5a0010",stroke:"#FF3333"};
+  if(skin==="violet")return{a:"#1a0033",b:"#AA66FF",c:"#440088",stroke:"#DDBBFF"};
+  if(skin==="lime")return{a:"#0a2200",b:"#88FF44",c:"#226600",stroke:"#CCFF88"};
+  if(skin==="steel")return{a:"#222",b:"#99AABB",c:"#445566",stroke:"#CCDDEE"};
+  if(skin==="orange")return{a:"#331500",b:"#FF8800",c:"#994400",stroke:"#FFCC88"};
+  return{a:"#f5f5f5",b:"#ffffff",c:"#c8c8c8",stroke:"#CE1126"};
 }
 /** Dibuja modelo de nave en un context 2D centrado en 0,0 */
 function drawShipModel(g,s,model,skin,label){
@@ -5731,61 +5721,18 @@ function drawShipModel(g,s,model,skin,label){
   }
   if(model!=="goku"){
     g.fill();g.stroke();
-    /* Brillo de borde (luz superior) */
-    try{
-      g.save();
-      g.globalCompositeOperation="lighter";
-      const rim=g.createLinearGradient(0,-s*1.1,0,s*.2);
-      rim.addColorStop(0,"rgba(255,255,255,.35)");rim.addColorStop(.45,"rgba(255,255,255,.08)");rim.addColorStop(1,"rgba(255,255,255,0)");
-      g.fillStyle=rim;
-      g.beginPath();
-      if(model==="classic"||!model||model==="fighter"){
-        g.moveTo(0,-s-5);g.lineTo(s*.22,-s*.35);g.lineTo(s*.5,s*.15);g.lineTo(s*.32,s*.72);g.lineTo(0,s*.5);
-        g.lineTo(-s*.32,s*.72);g.lineTo(-s*.5,s*.15);g.lineTo(-s*.22,-s*.35);g.closePath();
-      } else {
-        g.ellipse(0,0,s*.55,s*.75,0,0,Math.PI*2);
-      }
-      g.fill();
-      g.restore();
-    }catch(_e){}
-    /* Líneas de panel */
-    g.strokeStyle="rgba(0,0,0,.22)";g.lineWidth=Math.max(0.8,s*.04);
-    g.beginPath();g.moveTo(-s*.12,-s*.55);g.lineTo(-s*.18,s*.25);g.stroke();
-    g.beginPath();g.moveTo(s*.12,-s*.55);g.lineTo(s*.18,s*.25);g.stroke();
-    g.strokeStyle="rgba(255,255,255,.18)";g.lineWidth=Math.max(0.6,s*.03);
-    g.beginPath();g.moveTo(0,-s*.9);g.lineTo(0,s*.2);g.stroke();
-    /* Cabina cristal con reflejo */
-    const cab=g.createRadialGradient(-s*.06,-s*.22,1,0,-s*.12,s*.38);
-    cab.addColorStop(0,"#ffffff");cab.addColorStop(.25,"#c8e8ff");cab.addColorStop(.55,"#3a6a9a");cab.addColorStop(1,"#0a1a2a");
-    g.fillStyle=cab;
-    g.beginPath();g.ellipse(0,-s*.18,s*.2,s*.32,0,0,Math.PI*2);g.fill();
-    g.strokeStyle="rgba(255,255,255,.45)";g.lineWidth=Math.max(1,s*.05);
-    g.beginPath();g.ellipse(0,-s*.18,s*.2,s*.32,0,0,Math.PI*2);g.stroke();
-    /* reflejo en cabina */
-    g.fillStyle="rgba(255,255,255,.55)";
-    g.beginPath();g.ellipse(-s*.06,-s*.28,s*.06,s*.12, -0.4,0,Math.PI*2);g.fill();
-    /* Aro de energía / motor core */
-    const core=g.createRadialGradient(0,s*.15,1,0,s*.15,s*.2);
-    core.addColorStop(0,(col.accent||"#fff"));core.addColorStop(.5,(col.glow||"#FFCD00")+"99");core.addColorStop(1,"rgba(0,0,0,0)");
-    g.fillStyle=core;g.beginPath();g.arc(0,s*.12,s*.16,0,Math.PI*2);g.fill();
-    /* Propulsor dual + llama animada */
-    const fl=10+Math.random()*9;
-    const mob=(typeof isMobile==='function'&&isMobile());
-    g.shadowColor=col.glow||"#FF6600";g.shadowBlur=mob?0:16;
-    function thruster(ox){
-      const thr=g.createLinearGradient(ox,s*.4,ox,s*.4+fl);
-      thr.addColorStop(0,"#ffffff");thr.addColorStop(.2,"#FFEEAA");thr.addColorStop(.45,"#FFCD00");thr.addColorStop(.75,"#FF4400");thr.addColorStop(1,"rgba(80,0,0,0)");
-      g.fillStyle=thr;
-      g.beginPath();g.moveTo(ox-s*.14,s*.45);g.lineTo(ox,s*.45+fl);g.lineTo(ox+s*.14,s*.45);g.closePath();g.fill();
-      g.fillStyle="rgba(255,255,255,.65)";
-      g.beginPath();g.moveTo(ox-s*.06,s*.45);g.lineTo(ox,s*.45+fl*0.55);g.lineTo(ox+s*.06,s*.45);g.closePath();g.fill();
-    }
-    thruster(-s*.16);thruster(s*.16);
-    /* llama central */
-    const thrC=g.createLinearGradient(0,s*.42,0,s*.42+fl*1.15);
-    thrC.addColorStop(0,"#ffffff");thrC.addColorStop(.3,"#FFE566");thrC.addColorStop(.6,"#FF8800");thrC.addColorStop(1,"rgba(100,0,0,0)");
-    g.fillStyle=thrC;
-    g.beginPath();g.moveTo(-s*.1,s*.48);g.lineTo(0,s*.48+fl*1.15);g.lineTo(s*.1,s*.48);g.closePath();g.fill();
+    /* cabina */
+    const cab=g.createRadialGradient(0,-2,1,0,0,s*.35);
+    cab.addColorStop(0,"#fff");cab.addColorStop(.6,"#8ab");cab.addColorStop(1,"#345");
+    g.fillStyle=cab;g.beginPath();g.ellipse(0,-s*.15,s*.18,s*.28,0,0,Math.PI*2);g.fill();
+    /* propulsor más visible */
+    const fl=8+Math.random()*7;
+    g.shadowColor="#FF6600";g.shadowBlur=(typeof isMobile==='function'&&isMobile())?0:14;
+    const thr=g.createLinearGradient(0,s*.35,0,s*.35+fl);
+    thr.addColorStop(0,"#ffffff");thr.addColorStop(.25,"#FFEE88");thr.addColorStop(.55,"#FFCD00");thr.addColorStop(1,"rgba(120,0,0,0)");
+    g.fillStyle=thr;
+    g.beginPath();g.moveTo(-s*.22,s*.42);g.lineTo(0,s*.42+fl);g.lineTo(s*.22,s*.42);g.closePath();g.fill();
+    g.beginPath();g.moveTo(-s*.12,s*.42);g.lineTo(0,s*.42+fl*0.7);g.lineTo(s*.12,s*.42);g.closePath();g.fillStyle="rgba(255,255,255,.55)";g.fill();
     g.shadowBlur=0;
     /* Nombre en el centro de la nave */
     if(label){
@@ -5834,17 +5781,10 @@ function drawShipPreview(){
 }
 
 function drawPlayer(){
-  /* Estela de motor + sombra */
+  /* Estela */
   if(!lowPower){
-    const t=performance.now()/90;
-    for(let i=0;i<3;i++){
-      const yy=player.y+player.size*(0.85+i*0.35);
-      const a=0.22-i*0.06;
-      const ww=player.size*(0.4+i*0.12+Math.sin(t+i)*.05);
-      const grd=ctx.createRadialGradient(player.x,yy,0,player.x,yy,ww);
-      grd.addColorStop(0,`rgba(255,220,120,${a})`);grd.addColorStop(.5,`rgba(255,100,30,${a*.5})`);grd.addColorStop(1,"rgba(255,40,0,0)");
-      ctx.fillStyle=grd;ctx.beginPath();ctx.ellipse(player.x,yy,ww,player.size*(0.35+i*0.12),0,0,Math.PI*2);ctx.fill();
-    }
+    ctx.fillStyle="rgba(255,255,255,0.15)";
+    ctx.beginPath();ctx.ellipse(player.x,player.y+player.size*0.9,player.size*0.35,player.size*0.5,0,0,Math.PI*2);ctx.fill();
   }
   ctx.save();ctx.translate(player.x,player.y);
   if(bounceShield>0){
@@ -5889,46 +5829,25 @@ function drawObstacle(o){
       ctx.fillStyle="rgba(255,120,0,.55)";ctx.fill();
       o.rotation=(o.rotation||0)+(o.rotationSpeed||.08);
     } else {
-      /* Meteorito rocoso con volumen y cráteres */
-      const glow=o.type==="hard"?"#AAB":o.type==="magnetic"?"#66AAFF":o.type==="explosive"?"#FF7700":o.type==="boss_meteor"?"#FF9944":"#FF3344";
-      ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?0:(o.type==="hard"?6:14);
+      /* Meteorito rocoso realista */
+      const glow=o.type==="hard"?"#999":o.type==="magnetic"?"#66AAFF":o.type==="explosive"?"#FF7700":o.type==="boss_meteor"?"#FF9944":"#FF2222";
+      ctx.shadowColor=glow;ctx.shadowBlur=isMobile()?0:(o.type==="hard"?4:10);
       ctx.beginPath();(o.points||[]).forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));ctx.closePath();
-      const g=ctx.createRadialGradient(-o.size*.28,-o.size*.32,1,o.size*.1,o.size*.15,o.size*.9);
-      if(o.type==="hard"){g.addColorStop(0,"#e0e4ea");g.addColorStop(.35,"#8a9098");g.addColorStop(.7,"#3a3e44");g.addColorStop(1,"#0c0e10")}
-      else if(o.type==="magnetic"){g.addColorStop(0,"#E8F4FF");g.addColorStop(.3,"#88BBFF");g.addColorStop(.65,"#2a5588");g.addColorStop(1,"#061018")}
-      else if(o.type==="explosive"){g.addColorStop(0,"#FFF0A8");g.addColorStop(.25,"#FFCD00");g.addColorStop(.55,"#FF6600");g.addColorStop(1,"#3a0800")}
-      else{g.addColorStop(0,"#FFAAAA");g.addColorStop(.2,"#FF5555");g.addColorStop(.5,"#C01818");g.addColorStop(.8,"#5a0808");g.addColorStop(1,"#1a0202")}
+      const g=ctx.createRadialGradient(-o.size*.2,-o.size*.25,1,0,0,o.size*.75);
+      if(o.type==="hard"){g.addColorStop(0,"#bbb");g.addColorStop(.45,"#666");g.addColorStop(1,"#1a1a1a")}
+      else if(o.type==="magnetic"){g.addColorStop(0,"#AACCFF");g.addColorStop(.5,"#4477BB");g.addColorStop(1,"#0a1a33")}
+      else if(o.type==="explosive"){g.addColorStop(0,"#FFCC66");g.addColorStop(.35,"#FFCD00");g.addColorStop(1,"#4a1000")}
+      else{g.addColorStop(0,"#FF6666");g.addColorStop(.3,"#E02020");g.addColorStop(.6,"#8B0000");g.addColorStop(1,"#2a0505")}
       ctx.fillStyle=g;ctx.fill();
-      /* borde exterior */
-      ctx.strokeStyle="rgba(0,0,0,.45)";ctx.lineWidth=Math.max(1.2,o.size*.04);ctx.stroke();
-      /* highlight de borde iluminado */
-      ctx.save();
-      ctx.clip();
-      const hi=ctx.createLinearGradient(-o.size,-o.size,o.size*.4,o.size*.4);
-      hi.addColorStop(0,"rgba(255,255,255,.28)");hi.addColorStop(.4,"rgba(255,255,255,.06)");hi.addColorStop(1,"rgba(0,0,0,0)");
-      ctx.fillStyle=hi;ctx.fillRect(-o.size,-o.size,o.size*2,o.size*2);
-      ctx.restore();
-      /* cráteres con profundidad */
-      function crater(cx,cy,r){
-        const cg=ctx.createRadialGradient(cx-r*.3,cy-r*.3,0,cx,cy,r);
-        cg.addColorStop(0,"rgba(0,0,0,.15)");cg.addColorStop(.55,"rgba(0,0,0,.4)");cg.addColorStop(1,"rgba(0,0,0,.05)");
-        ctx.fillStyle=cg;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle="rgba(255,255,255,.12)";ctx.lineWidth=1;
-        ctx.beginPath();ctx.arc(cx-r*.25,cy-r*.25,r*.55, -Math.PI*.2, Math.PI*.6);ctx.stroke();
-      }
-      crater(-o.size*.22,-o.size*.16,o.size*.16);
-      crater(o.size*.24,o.size*.08,o.size*.12);
-      crater(o.size*.02,-o.size*.3,o.size*.09);
-      crater(-o.size*.05,o.size*.22,o.size*.08);
+      ctx.strokeStyle="rgba(0,0,0,.35)";ctx.lineWidth=1.2;ctx.stroke();
+      /* cráteres */
+      ctx.fillStyle="rgba(0,0,0,.3)";
+      ctx.beginPath();ctx.arc(-o.size*.2,-o.size*.15,o.size*.14,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(o.size*.22,o.size*.1,o.size*.1,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(o.size*.05,-o.size*.28,o.size*.07,0,Math.PI*2);ctx.fill();
       if(o.type==="explosive"){
-        ctx.fillStyle="rgba(255,180,40,.5)";
-        ctx.beginPath();ctx.arc(o.size*.12,-o.size*.18,o.size*.14,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle="rgba(255,220,100,.6)";ctx.lineWidth=1.5;
-        ctx.beginPath();ctx.arc(o.size*.12,-o.size*.18,o.size*.18,0,Math.PI*2);ctx.stroke();
-      }
-      if(o.type==="magnetic"){
-        ctx.strokeStyle=`rgba(120,200,255,${0.35+0.25*Math.sin(performance.now()/120)})`;
-        ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,o.size*.72,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle="rgba(255,150,40,.4)";
+        ctx.beginPath();ctx.arc(o.size*.1,-o.size*.2,o.size*.12,0,Math.PI*2);ctx.fill();
       }
       o.rotation=(o.rotation||0)+(o.rotationSpeed||.05);
     }
@@ -6255,23 +6174,17 @@ function drawBullets(){
       ctx.beginPath();ctx.arc(b.x-r*0.15,b.y-r*0.15,r*0.45,0,Math.PI*2);ctx.fill();
       ctx.restore();
     } else {
-    /* Proyectil energético con núcleo y estela */
-    const pierce=!!b.pierce;
-    ctx.shadowColor=pierce?"#FF4466":"#FFCD00";ctx.shadowBlur=isMobile()?2:8;
-    const g=ctx.createLinearGradient(b.x,b.y+12,b.x,b.y-12);
-    if(pierce){g.addColorStop(0,"rgba(255,40,40,0)");g.addColorStop(.35,"#FF2244");g.addColorStop(.7,"#FFEEAA");g.addColorStop(1,"#ffffff")}
-    else{g.addColorStop(0,"rgba(255,180,0,0)");g.addColorStop(.3,"#CE1126");g.addColorStop(.65,"#FFCD00");g.addColorStop(1,"#ffffff")}
+    /* Balas negras con borde rojo */
+    ctx.shadowColor=b.pierce?"#FF3333":"#111";ctx.shadowBlur=isMobile()?0:5;
+    const g=ctx.createLinearGradient(b.x,b.y+10,b.x,b.y-10);
+    if(b.pierce){g.addColorStop(0,"rgba(80,0,0,0)");g.addColorStop(.4,"#440000");g.addColorStop(1,"#FF2222")}
+    else{g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(.3,"#111");g.addColorStop(.7,"#222");g.addColorStop(1,"#CE1126")}
     ctx.fillStyle=g;
     ctx.beginPath();
-    ctx.moveTo(b.x,b.y-12);ctx.lineTo(b.x+3.2,b.y+1);ctx.lineTo(b.x+1.4,b.y+10);
-    ctx.lineTo(b.x-1.4,b.y+10);ctx.lineTo(b.x-3.2,b.y+1);ctx.closePath();ctx.fill();
-    /* núcleo brillante */
-    const core=ctx.createRadialGradient(b.x,b.y-2,0,b.x,b.y-2,4);
-    core.addColorStop(0,"#ffffff");core.addColorStop(.5,pierce?"#FFAABB":"#FFE566");core.addColorStop(1,"rgba(255,200,0,0)");
-    ctx.fillStyle=core;ctx.beginPath();ctx.arc(b.x,b.y-2,3.5,0,Math.PI*2);ctx.fill();
-    /* cuerpo oscuro central */
-    ctx.fillStyle="rgba(10,10,16,.85)";ctx.fillRect(b.x-1.1,b.y-3,2.2,7);
-    ctx.strokeStyle=pierce?"#FF6688":"#FFCD00";ctx.lineWidth=1;ctx.strokeRect(b.x-1.3,b.y-3.2,2.6,7.4);
+    ctx.moveTo(b.x,b.y-11);ctx.lineTo(b.x+2.8,b.y+2);ctx.lineTo(b.x+1.2,b.y+9);
+    ctx.lineTo(b.x-1.2,b.y+9);ctx.lineTo(b.x-2.8,b.y+2);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#0a0a0a";ctx.fillRect(b.x-1,b.y-4,2,8);
+    ctx.strokeStyle="#CE1126";ctx.lineWidth=1;ctx.strokeRect(b.x-1.2,b.y-4,2.4,8);
     ctx.restore();
     }
     /* Rebote de balas del jugador (poder ↻) */
@@ -7072,7 +6985,7 @@ gameOverPanel.style.display="block";
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntos de juego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:5px;padding-bottom:10px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0;transform:translateY(-12px)">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;transform:translateY(-12px);background:#0038A8;color:#fff">INICIO</button>'
@@ -7603,7 +7516,7 @@ function storyOnWaveComplete(){
 /* === Parche final i18n: traducción completa del menú de inicio y textos dinámicos === */
 (function(){
   const LANGS = {
-    es:{label:'Idioma',choose:'Elige dificultad y nave · Desliza para ver más',start:'🚀 INICIAR',easy:'FÁCIL',normal:'NORMAL',hard:'DIFÍCIL',mode:'Modo de juego',classic:'Clásico',infinite:'Infinito',infiniteDesc:'Infinito: oleadas sin jefes, dificultad que sube sin parar',upgrades:'Mejoras permanentes',speed:'Velocidad',ammo:'Munición',lives:'Vidas',damage:'Daño',world:'Mundo',space:'Espacio',snow:'Nieve',fire:'Fuego',crystal:'Cristal',halloween:'Halloween',neon:'Neón',toxic:'Tóxico',void:'Vacío',selectShip:'Seleccionar nave',allShips:'Todas las naves',scroll:'◀ ▶ o desliza · o elige abajo',max:'Máx. 10 letras · se ve en la nave',color:'🎨 Color',white:'Blanca',black:'Negra',gold:'Oro',cyan:'Cian',crimson:'Carmesí',violet:'Violeta',lime:'Lima',steel:'Acero',orange:'Naranja',points:'⭐ Puntos de juego:',basic:'Básica',double:'Doble',piercing:'Perfora',spread:'Abanico',bonuses:'Bonos por récord',record:'Récord:',bullets:'balas',life:'vida',agile:'ágil',manual:'📖 Manual de usuario',equipment:'🛡️ Equipamiento',missions:'📋 Misiones diarias',boss:'Cazador de jefes',combo:'Maestro del combo',top:'TOP: Sin récords aún',history:'📜 Historial de partidas',noHistory:'Sin partidas aún. ¡Juega una!',clear:'🗑 Borrar historial',settings:'Ajustes en ⚙ Config (arriba a la izquierda)',continue:'💾 Continuar partida',story:'📖 MODO HISTORIA',controls:'⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa',shown:'se ve en la nave'},
+    es:{label:'Idioma',choose:'Elige dificultad y nave · Desliza para ver más',start:'🚀 INICIAR',easy:'FÁCIL',normal:'NORMAL',hard:'DIFÍCIL',mode:'Modo de juego',classic:'Clásico',infinite:'Infinito',infiniteDesc:'Infinito: oleadas sin jefes, dificultad que sube sin parar',upgrades:'Mejoras permanentes',speed:'Velocidad',ammo:'Munición',lives:'Vidas',damage:'Daño',world:'Mundo',space:'Espacio',snow:'Nieve',fire:'Fuego',crystal:'Cristal',halloween:'Halloween',neon:'Neón',toxic:'Tóxico',void:'Vacío',selectShip:'Seleccionar nave',allShips:'Todas las naves',scroll:'◀ ▶ o desliza · o elige abajo',max:'Máx. 10 letras · se ve en la nave',color:'🎨 Color',white:'Blanca',black:'Negra',gold:'Oro',cyan:'Cian',crimson:'Carmesí',violet:'Violeta',lime:'Lima',steel:'Acero',orange:'Naranja',points:'⭐ Puntosjuego:',basic:'Básica',double:'Doble',piercing:'Perfora',spread:'Abanico',bonuses:'Bonos por récord',record:'Récord:',bullets:'balas',life:'vida',agile:'ágil',manual:'📖 Manual de usuario',equipment:'🛡️ Equipamiento',missions:'📋 Misiones diarias',boss:'Cazador de jefes',combo:'Maestro del combo',top:'TOP: Sin récords aún',history:'📜 Historial de partidas',noHistory:'Sin partidas aún. ¡Juega una!',clear:'🗑 Borrar historial',settings:'Ajustes en ⚙ Config (arriba a la izquierda)',continue:'💾 Continuar partida',story:'📖 MODO HISTORIA',controls:'⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa',shown:'se ve en la nave'},
     en:{label:'Language',choose:'Choose difficulty and ship · Scroll for more',start:'🚀 START',easy:'EASY',normal:'NORMAL',hard:'HARD',mode:'Game mode',classic:'Classic',infinite:'Infinite',infiniteDesc:'Infinite: endless waves without bosses; difficulty keeps increasing',upgrades:'Permanent upgrades',speed:'Speed',ammo:'Ammo',lives:'Lives',damage:'Damage',world:'World',space:'Space',snow:'Snow',fire:'Fire',crystal:'Crystal',halloween:'Halloween',neon:'Neon',toxic:'Toxic',void:'Void',selectShip:'Select ship',allShips:'All ships',scroll:'◀ ▶ or swipe · or choose below',max:'Max. 10 characters · shown on the ship',color:'🎨 Color',white:'White',black:'Black',gold:'Gold',cyan:'Cyan',crimson:'Crimson',violet:'Violet',lime:'Lime',steel:'Steel',orange:'Orange',points:'⭐ Game points:',basic:'Basic',double:'Double',piercing:'Piercing',spread:'Spread',bonuses:'Record bonuses',record:'Record:',bullets:'bullets',life:'life',agile:'agile',manual:'📖 User manual',equipment:'🛡️ Equipment',missions:'📋 Daily missions',boss:'Boss hunter',combo:'Combo master',top:'TOP: No records yet',history:'📜 Match history',noHistory:'No matches yet. Play one!',clear:'🗑 Clear history',settings:'Settings in ⚙ Config (top left)',continue:'💾 Continue game',story:'📖 STORY MODE',controls:'⌨️ Arrows · Space · 🎮 Gamepad · ⚙ Settings · Pause',shown:'shown on the ship'},
     fr:{label:'Langue',choose:'Choisissez la difficulté et le vaisseau · Faites défiler',start:'🚀 DÉMARRER',easy:'FACILE',normal:'NORMAL',hard:'DIFFICILE',mode:'Mode de jeu',classic:'Classique',infinite:'Infini',infiniteDesc:'Infini : vagues sans fin sans boss, difficulté croissante',upgrades:'Améliorations permanentes',speed:'Vitesse',ammo:'Munitions',lives:'Vies',damage:'Dégâts',world:'Monde',space:'Espace',snow:'Neige',fire:'Feu',crystal:'Cristal',halloween:'Halloween',neon:'Néon',toxic:'Toxique',void:'Vide',selectShip:'Choisir un vaisseau',allShips:'Tous les vaisseaux',scroll:'◀ ▶ ou glissez · ou choisissez ci-dessous',max:'10 caractères max. · visible sur le vaisseau',color:'🎨 Couleur',white:'Blanche',black:'Noire',gold:'Or',cyan:'Cyan',crimson:'Cramoisi',violet:'Violet',lime:'Vert citron',steel:'Acier',orange:'Orange',points:'⭐ Points de jeu :',basic:'Basique',double:'Double',piercing:'Perforant',spread:'Éventail',bonuses:'Bonus de record',record:'Record :',bullets:'balles',life:'vie',agile:'agile',manual:'📖 Manuel utilisateur',equipment:'🛡️ Équipement',missions:'📋 Missions quotidiennes',boss:'Chasseur de boss',combo:'Maître du combo',top:'TOP : aucun record',history:'📜 Historique des parties',noHistory:'Aucune partie. Jouez-en une !',clear:'🗑 Effacer l’historique',settings:'Réglages dans ⚙ Config (en haut à gauche)',continue:'💾 Continuer la partie',story:'📖 MODE HISTOIRE',controls:'⌨️ Flèches · Espace · 🎮 Manette · ⚙ Réglages · Pause',shown:'visible sur le vaisseau'},
     ja:{label:'言語',choose:'難易度と機体を選択 · 下へスクロール',start:'🚀 スタート',easy:'かんたん',normal:'ふつう',hard:'むずかしい',mode:'ゲームモード',classic:'クラシック',infinite:'無限',infiniteDesc:'無限：ボスなしでウェーブが続き、難易度が上がります',upgrades:'恒久アップグレード',speed:'速度',ammo:'弾薬',lives:'ライフ',damage:'ダメージ',world:'世界',space:'宇宙',snow:'雪',fire:'炎',crystal:'クリスタル',halloween:'ハロウィン',neon:'ネオン',toxic:'毒',void:'虚無',selectShip:'機体を選択',allShips:'すべての機体',scroll:'◀ ▶ またはスワイプ・下から選択',max:'最大10文字・機体に表示',color:'🎨 色',white:'白',black:'黒',gold:'金',cyan:'シアン',crimson:'深紅',violet:'紫',lime:'ライム',steel:'スチール',orange:'オレンジ',points:'⭐ ゲームポイント：',basic:'基本',double:'ダブル',piercing:'貫通',spread:'拡散',bonuses:'記録ボーナス',record:'記録：',bullets:'弾',life:'ライフ',agile:'敏捷',manual:'📖 ユーザーマニュアル',equipment:'🛡️ 装備',missions:'📋 デイリーミッション',boss:'ボスハンター',combo:'コンボマスター',top:'TOP：記録なし',history:'📜 プレイ履歴',noHistory:'まだプレイ記録がありません。プレイしましょう！',clear:'🗑 履歴を削除',settings:'設定は左上の ⚙ Config',continue:'💾 ゲームを続ける',story:'📖 ストーリーモード',controls:'⌨️ 矢印 · スペース · 🎮 コントローラー · ⚙ 設定 · 一時停止',shown:'機体に表示'},
@@ -7635,7 +7548,7 @@ function storyOnWaveComplete(){
     '🌍 Mundo':'world','World':'world','Monde':'world','世界':'world','1 Espacio':'space','Space':'space','Espace':'space','宇宙':'space','太空':'space','2 Nieve':'snow','Snow':'snow','Neige':'snow','雪':'snow','雪地':'snow','3 Fuego':'fire','Fire':'fire','Feu':'fire','炎':'fire','火焰':'fire','4 Cristal':'crystal','Crystal':'crystal','Cristal':'crystal','クリスタル':'crystal','水晶':'crystal','5 Halloween':'halloween','Halloween':'halloween','ハロウィン':'halloween','万圣节':'halloween','6 Neón':'neon','Neon':'neon','Néon':'neon','ネオン':'neon','霓虹':'neon','7 Tóxico':'toxic','Toxic':'toxic','Toxique':'toxic','毒':'toxic','毒域':'toxic','8 Vacío':'void','Void':'void','Vide':'void','虚無':'void','虚空':'void',
     '🚀 Seleccionar nave':'selectShip','Select ship':'selectShip','Choisir un vaisseau':'selectShip','機体を選択':'selectShip','选择飞船':'selectShip','🚀 Todas las naves':'allShips','All ships':'allShips','Tous les vaisseaux':'allShips','すべての機体':'allShips','所有飞船':'allShips','◀ ▶ o desliza · o elige abajo':'scroll','◀ ▶ or swipe · or choose below':'scroll','◀ ▶ ou glissez · ou choisissez ci-dessous':'scroll','◀ ▶ またはスワイプ・下から選択':'scroll','◀ ▶ 或滑动 · 也可在下方选择':'scroll',
     'Máx. 10 letras · se ve en la nave':'max','Max. 10 characters · shown on the ship':'max','10 caractères max. · visible sur le vaisseau':'max','最大10文字・機体に表示':'max','最多10个字符·显示在飞船上':'max','🎨 Color':'color','🎨 Couleur':'color','🎨 色':'color','🎨 颜色':'color','Blanca':'white','White':'white','Blanche':'white','白':'white','白色':'white','Negra':'black','Black':'black','Noire':'black','黒':'black','黑色':'black','Oro':'gold','Gold':'gold','Or':'gold','金':'gold','金色':'gold','Cian':'cyan','Cyan':'cyan','シアン':'cyan','青色':'cyan','Carmesí':'crimson','Crimson':'crimson','Cramoisi':'crimson','深紅':'crimson','深红色':'crimson','Violeta':'violet','Violet':'violet','紫':'violet','Lima':'lime','Lime':'lime','Vert citron':'lime','ライム':'lime','青柠绿':'lime','Acero':'steel','Steel':'steel','Acier':'steel','スチール':'steel','钢色':'steel','Naranja':'orange','Orange':'orange','オレンジ':'orange','橙色':'orange',
-    '⭐ Puntos de juego:':'points','⭐ Game points:':'points','Puntos de juego:':'points','Game points:':'points','Points de jeu :':'points','ゲームポイント：':'points','游戏积分：':'points','Básica':'basic','Basic':'basic','Basique':'basic','基本':'basic','基础':'basic','Doble':'double','Double':'double','Perfora':'piercing','Piercing':'piercing','Perforante':'piercing','貫通':'piercing','穿透':'piercing','Abanico':'spread','Spread':'spread','Éventail':'spread','拡散':'spread','散射':'spread',
+    '⭐ Puntosjuego:':'points','⭐ Game points:':'points','Puntosjuego:':'points','Game points:':'points','Points de jeu :':'points','ゲームポイント：':'points','游戏积分：':'points','Básica':'basic','Basic':'basic','Basique':'basic','基本':'basic','基础':'basic','Doble':'double','Double':'double','Perfora':'piercing','Piercing':'piercing','Perforante':'piercing','貫通':'piercing','穿透':'piercing','Abanico':'spread','Spread':'spread','Éventail':'spread','拡散':'spread','散射':'spread',
     'Bonos por récord':'bonuses','Record bonuses':'bonuses','Bonus de record':'bonuses','記録ボーナス':'bonuses','纪录奖励':'bonuses','Récord:':'record','Record:':'record','Record :':'record','記録：':'record','纪录：':'record','balas':'bullets','bullets':'bullets','balles':'bullets','弾':'bullets','子弹':'bullets','vida':'life','life':'life','vie':'life','ライフ':'life','agile':'agile','ágil':'agile','敏捷':'agile',
     '📖 Manual de usuario':'manual','📖 User manual':'manual','📖 Manuel utilisateur':'manual','📖 ユーザーマニュアル':'manual','📖 用户手册':'manual','🛡️ Equipamiento':'equipment','🛡️ Equipment':'equipment','🛡️ Équipement':'equipment','🛡️ 装備':'equipment','🛡️ 装备':'equipment','📋 Misiones diarias':'missions','📋 Daily missions':'missions','📋 Missions quotidiennes':'missions','📋 デイリーミッション':'missions','📋 每日任务':'missions','Cazador de jefes':'boss','Boss hunter':'boss','Chasseur de boss':'boss','ボスハンター':'boss','首领猎手':'boss','Maestro del combo':'combo','Combo master':'combo','Maître du combo':'combo','コンボマスター':'combo','连击大师':'combo',
     'TOP: Sin récords aún':'top','TOP: No records yet':'top','TOP : aucun record':'top','TOP：記録なし':'top','TOP：暂无记录':'top','📜 Historial de partidas':'history','📜 Match history':'history','📜 Historique des parties':'history','📜 プレイ履歴':'history','📜 对局记录':'history','Sin partidas aún. ¡Juega una!':'noHistory','No matches yet. Play one!':'noHistory','Aucune partie. Jouez-en une !':'noHistory','まだプレイ記録がありません。プレイしましょう！':'noHistory','还没有对局，来玩一局吧！':'noHistory','🗑 Borrar historial':'clear','🗑 Clear history':'clear','🗑 Effacer l’historique':'clear','🗑 履歴を削除':'clear','🗑 清除记录':'clear','Ajustes en ⚙ Config (arriba a la izquierda)':'settings','Settings in ⚙ Config (top left)':'settings','Réglages dans ⚙ Config (en haut à gauche)':'settings','設定は左上の ⚙ Config':'settings','设置位于左上角 ⚙ Config':'settings','💾 Continuar partida':'continue','💾 Continue game':'continue','💾 Continuer la partie':'continue','💾 ゲームを続ける':'continue','💾 继续游戏':'continue','📖 MODO HISTORIA':'story','📖 STORY MODE':'story','📖 MODE HISTOIRE':'story','📖 ストーリーモード':'story','⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa':'controls','⌨️ Arrows · Space · 🎮 Gamepad · ⚙ Settings · Pause':'controls','⌨️ Flèches · Espace · 🎮 Manette · ⚙ Réglages · Pause':'controls','⌨️ 矢印 · スペース · 🎮 コントローラー · ⚙ 設定 · 一時停止':'controls','⌨️ 方向键 · 空格 · 🎮 手柄 · ⚙ 设置 · 暂停':'controls'
@@ -7664,7 +7577,7 @@ function storyOnWaveComplete(){
     return out;
   }
   function run(root){const code=current();window.__techLangCurrent=code; if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;if(p.closest('#startLanguagePicker,#pauseLanguageBlock,#langSelect,.tech-lang-safe'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;if(p.closest('#startLanguagePicker'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
     let n;while((n=walker.nextNode())){const before=n.nodeValue,after=translateText(before,code);if(before!==after)n.nodeValue=after;}
     if(root.querySelectorAll)root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>['placeholder','title','aria-label'].forEach(a=>{const v=el.getAttribute(a);if(v){const nv=translateText(v,code);if(nv!==v)el.setAttribute(a,nv)}}));
     const picker=document.getElementById('startLangSelect');if(picker){picker.value=code;const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;}
@@ -7697,101 +7610,6 @@ function storyOnWaveComplete(){
 })();
 </script>
 
-
-
-<script id="tech-lang-fixed-5">
-(function(){
-  const ALLOWED = ['es','en','fr','ja','zh'];
-  const NATIVE = {es:'Español',en:'English',fr:'Français',ja:'日本語',zh:'中文'};
-  const LABELS = {
-    es:{es:'Español',en:'Inglés',fr:'Francés',ja:'Japonés',zh:'Chino',label:'Idioma'},
-    en:{es:'Spanish',en:'English',fr:'French',ja:'Japanese',zh:'Chinese',label:'Language'},
-    fr:{es:'Espagnol',en:'Anglais',fr:'Français',ja:'Japonais',zh:'Chinois',label:'Langue'},
-    ja:{es:'スペイン語',en:'英語',fr:'フランス語',ja:'日本語',zh:'中国語',label:'言語'},
-    zh:{es:'西班牙语',en:'英语',fr:'法语',ja:'日语',zh:'中文',label:'语言'}
-  };
-  function formatLangName(translated, code){
-    const nat = NATIVE[code] || code;
-    if(!translated || translated === nat) return nat;
-    return translated + ' (' + nat + ')';
-  }
-  function norm(code){
-    code = String(code||'es').toLowerCase();
-    return ALLOWED.indexOf(code)>=0 ? code : 'es';
-  }
-  window.__techAllowedLangs = ALLOWED;
-  window.getTechLangLabel = function(code, ui){
-    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
-    code = norm(code);
-    const translated = (LABELS[ui]||LABELS.es)[code] || code;
-    return formatLangName(translated, code);
-  };
-  window.getTechLangOptions = function(ui){
-    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
-    const L = LABELS[ui]||LABELS.es;
-    return ALLOWED.map(function(v){ return [v, formatLangName(L[v], v)]; });
-  };
-  window.getTechLangMetaLabel = function(ui){
-    ui = norm(ui);
-    return (LABELS[ui]||LABELS.es).label;
-  };
-  function fillSelect(sel, ui){
-    if(!sel) return;
-    ui = norm(ui);
-    const cur = norm(sel.value || ui);
-    const opts = window.getTechLangOptions(ui);
-    const keep = sel.value;
-    sel.innerHTML = '';
-    opts.forEach(function(pair){
-      const o = document.createElement('option');
-      o.value = pair[0];
-      o.textContent = pair[1];
-      sel.appendChild(o);
-    });
-    sel.value = ALLOWED.indexOf(keep)>=0 ? keep : cur;
-    if(ALLOWED.indexOf(sel.value)<0) sel.value = 'es';
-  }
-  window.refreshTechLangSelects = function(ui){
-    ui = norm(ui || window.__techLangCurrent || localStorage.getItem('techLang') || 'es');
-    window.__techLangCurrent = ui;
-    try{ localStorage.setItem('techLang', ui); }catch(e){}
-    ['startLangSelect','langSelect','pauseLangSelect'].forEach(function(id){
-      fillSelect(document.getElementById(id), ui);
-    });
-    const label = document.querySelector('#startLanguagePicker label');
-    if(label) label.textContent = window.getTechLangMetaLabel(ui);
-    const pauseLab = document.querySelector('#pauseLanguageBlock label');
-    if(pauseLab) pauseLab.textContent = '🌐 ' + window.getTechLangMetaLabel(ui);
-  };
-  // Clamp invalid stored language
-  try{
-    const stored = localStorage.getItem('techLang');
-    if(stored && ALLOWED.indexOf(stored)<0) localStorage.setItem('techLang','es');
-  }catch(e){}
-
-  function wrapSetLanguage(){
-    const prev = window.setLanguage;
-    if(typeof prev !== 'function' || prev.__techLangFixed5) return;
-    window.setLanguage = function(code){
-      code = norm(code);
-      try{ window.__techLangCurrent = code; }catch(e){}
-      try{ localStorage.setItem('techLang', code); }catch(e){}
-      let result;
-      try{ result = prev.apply(this, [code]); }catch(e){ try{ prev(code); }catch(_e){} }
-      try{ window.refreshTechLangSelects(code); }catch(e){}
-      return result;
-    };
-    window.setLanguage.__techLangFixed5 = true;
-  }
-  function boot(){
-    wrapSetLanguage();
-    try{ window.refreshTechLangSelects(norm(window.__techLangCurrent||localStorage.getItem('techLang')||'es')); }catch(e){}
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-  setInterval(wrapSetLanguage, 1500);
-})();
-</script>
 
 <script>
 /* === Corrección ligera: contador de meteoritos, puntos visibles e idioma principal === */
@@ -7831,18 +7649,12 @@ function storyOnWaveComplete(){
       const label=document.createElement('label');label.htmlFor='startLangSelect';label.style.cssText='color:#fff;font-size:12px;font-weight:700';
       const select=document.createElement('select');select.id='startLangSelect';select.setAttribute('aria-label','Language');
       select.style.cssText='max-width:180px;padding:7px 10px;border-radius:8px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';
-      const opts=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions(getLang()):[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];
-      opts.forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
+      [['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']].forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
       picker.append(label,select); panel.insertBefore(picker,panel.firstChild);
-      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage();if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(select.value);}});
+      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage()}});
     }
-    let code=getLang();
-    if(window.__techAllowedLangs&&window.__techAllowedLangs.indexOf(code)<0)code='es';
-    if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(code);
-    else{
-      const sel=document.getElementById('startLangSelect');if(sel)sel.value=code;
-      const lab=picker.querySelector('label');if(lab)lab.textContent=(typeof window.getTechLangMetaLabel==='function')?window.getTechLangMetaLabel(code):((LANGS[code]||LANGS.es).label);
-    }
+    const code=getLang(); const sel=document.getElementById('startLangSelect');if(sel)sel.value=LANGS[code]?code:'es';
+    const label=picker.querySelector('label');if(label)label.textContent=(LANGS[code]||LANGS.es).label;
     const badge=document.getElementById('techCoinsMainBadge'); if(badge)badge.remove();
   }
   const priorSetLanguage=window.setLanguage;
@@ -7900,7 +7712,10 @@ function storyOnWaveComplete(){
     }
   }catch(e){}
   function expandSettingsLanguage(){
-    if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(window.__techLangCurrent||localStorage.getItem('techLang')||'es');
+    const cfg=document.getElementById('langSelect');if(!cfg)return;
+    const opts=[['pt','Português'],['de','Deutsch']];
+    opts.forEach(([v,n])=>{if(!Array.from(cfg.options).some(o=>o.value===v)){const o=document.createElement('option');o.value=v;o.textContent=n;cfg.appendChild(o)}});
+    const code=window.__techLangCurrent||localStorage.getItem('techLang')||'es';if(Array.from(cfg.options).some(o=>o.value===code))cfg.value=code;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',expandSettingsLanguage);else expandSettingsLanguage();
 })();
@@ -7977,10 +7792,10 @@ function storyOnWaveComplete(){
   pt:{classic:'Clássica',fighter:'Caçadora',interceptor:'Interceptadora',heavy:'Pesada',stealth:'Furtiva',wing:'Asa X',needle:'Agulha',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
   de:{classic:'Klassisch',fighter:'Jäger',interceptor:'Abfangjäger',heavy:'Schwer',stealth:'Tarnkappe',wing:'X-Flügel',needle:'Nadel',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'}
  };
- const langs=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions():[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];
+ const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']];
  function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
  window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul',black:'Black',rose:'Rose'},en:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue',black:'Black',rose:'Rose'},fr:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu',black:'Black',rose:'Rose'},ja:{normal:'基本',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー',black:'Black',rose:'Rose'},zh:{normal:'基础',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝',black:'Black',rose:'Rose'},pt:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul',black:'Black',rose:'Rose'},de:{normal:'Basis',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau',black:'Black',rose:'Rose'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
- function makeSelect(id){let el=document.getElementById(id);if(el){if(typeof window.refreshTechLangSelects==='function')window.refreshTechLangSelects(code());return el;}el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';const list=(typeof window.getTechLangOptions==='function')?window.getTechLangOptions(code()):[['es','Español'],['en','Inglés'],['fr','Francés'],['ja','Japonés'],['zh','Chino']];list.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
+ function makeSelect(id){let el=document.getElementById(id);if(el)return el;el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Idioma / Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';langs.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
  function sync(){let c=code();['langSelect','startLangSelect','pauseLangSelect'].forEach(id=>{let e=document.getElementById(id);if(e)e.value=c});let cfg=document.getElementById('configPanel');if(cfg){let title=cfg.querySelector('h2');if(title){title.style.display='block';title.style.visibility='visible'}}}
  function addPauseLanguage(){const p=document.getElementById('pausePanel');if(!p||document.getElementById('pauseLanguageBlock'))return;const block=document.createElement('div');block.id='pauseLanguageBlock';block.style.cssText='margin:10px 0 14px;padding:10px;border:1px solid rgba(255,205,0,.45);border-radius:9px;text-align:left;';const label=document.createElement('label');label.htmlFor='pauseLangSelect';label.textContent='🌐 Idioma / Language';label.style.cssText='display:block;color:#ffcd00;font-size:12px;font-weight:700;margin-bottom:6px';const sel=makeSelect('pauseLangSelect');block.append(label,sel);const heading=p.querySelector('h3');if(heading&&heading.parentElement)heading.parentElement.insertBefore(block,heading.nextSibling);else p.insertBefore(block,p.firstChild);}
  function addConfigLanguage(){const cfg=document.getElementById('configPanel');if(!cfg)return;const old=document.getElementById('langSelect');if(old){const par=old.parentElement; if(par){par.style.display='block';par.style.visibility='visible';par.style.opacity='1';}}}
@@ -8132,26 +7947,9 @@ function storyOnWaveComplete(){
         coins: (typeof coins !== "undefined" && Number.isFinite(Number(coins))) ? Number(coins) : 0
       };
 
-      var prevHistLen = history.length;
       history.unshift(item);
       history = history.slice(0, 20);
       window.localStorage.setItem(KEY, JSON.stringify(history));
-      try {
-        // Solo sumar si el guardado original no incrementó ya (evitar doble conteo)
-        if (!saveFunctionWasCalled) {
-          var total = Number(window.localStorage.getItem("techTotalGamesPlayed") || 0) || 0;
-          if (total < prevHistLen) total = prevHistLen;
-          total += 1;
-          window.localStorage.setItem("techTotalGamesPlayed", String(total));
-          try {
-            var stRaw = window.localStorage.getItem("techGlobalStatsV1");
-            var st = stRaw ? JSON.parse(stRaw) : {};
-            st.games = Math.max(Number(st.games) || 0, total);
-            st.updated = Date.now();
-            window.localStorage.setItem("techGlobalStatsV1", JSON.stringify(st));
-          } catch (_e) {}
-        }
-      } catch (_e) {}
 
       var verify = JSON.parse(window.localStorage.getItem(KEY) || "[]");
       if (!Array.isArray(verify) || !verify.length) throw new Error("El navegador no confirmó el guardado");
@@ -8219,140 +8017,156 @@ function storyOnWaveComplete(){
 <script id="tech-statistics-dashboard">
 (function(){
   'use strict';
-  const STORE='techGlobalStatsV1';
-  function readJSON(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch(e){return fallback}}
-  function readStats(){const x=readJSON(STORE,{});return Object.assign({games:0,wins:0,losses:0,enemies:0,shots:0,totalSeconds:0,storyWins:0,storyAttempts:0,highScore:0,updated:0},x)}
-  function writeStats(s){try{localStorage.setItem(STORE,JSON.stringify(s))}catch(e){}}
-  function safeNum(v){return Number.isFinite(Number(v))?Number(v):0}
+  const STORE='techGlobalStatsV2';
+  const ARCHIVE='techMatchArchiveV1';
+  const LEGACY='techMatchHistoryV1';
+  const MAX_ARCHIVE=5000;
+  let range='10',filterMode='all',filterFrom='',filterTo='';
+  let panelOpen=false;
+  let run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:'classic',diff:'normal',missionId:'',missionTitle:''};
+
+  function readJSON(key,fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
+  function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){console.warn('[TECH estadísticas] No se pudo guardar '+key,e);return false}}
+  function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  function history(){let a=readJSON('techMatchHistoryV1',null);if(!Array.isArray(a))a=readJSON('techMatchHistory',[]);return Array.isArray(a)?a:[]}
-  function storyData(){return readJSON('techStoryProgress',{})||{}}
-  function campaignTotal(){try{return Array.isArray(window.STORY_CAMPAIGN)?window.STORY_CAMPAIGN.length:90}catch(e){return 90}}
-  function completedMissions(){const d=storyData();return Object.keys(d).filter(k=>d[k]&&d[k].done).length}
-  function fmtTime(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?`${h} h ${m} min`:(m?`${m} min ${s} s`:`${s} s`)}
-  function bar(label,value,max,color,display){const pct=max>0?Math.max(0,Math.min(100,value/max*100)):0;return `<div class="tech-stat-barrow"><div class="tech-stat-bartop"><span>${label}</span><b>${display==null?value:display}</b></div><div class="tech-stat-track"><div class="tech-stat-fill" style="width:${pct}%;background:${color}"></div></div></div>`}
+  function fmtTime(sec){sec=Math.max(0,Math.floor(safeNum(sec)));const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;return h?h+' h '+m+' min':m?m+' min '+s+' s':s+' s'}
+  function readStats(){return Object.assign({games:0,wins:0,losses:0,abandoned:0,enemies:0,shots:0,totalSeconds:0,storyWins:0,storyAttempts:0,highScore:0,updated:0,missionStats:{},noticeLog:[]},readJSON(STORE,{}))}
+  function saveStats(s){s.updated=Date.now();return writeJSON(STORE,s)}
+  function readArchive(){const a=readJSON(ARCHIVE,[]);return Array.isArray(a)?a:[]}
+  function writeArchive(a){return writeJSON(ARCHIVE,a.slice(0,MAX_ARCHIVE))}
+  function getLegacyHistory(){let a=readJSON(LEGACY,null);if(!Array.isArray(a))a=readJSON('techMatchHistory',[]);return Array.isArray(a)?a:[]}
+  function storyProgress(){try{if(typeof storyProgress!=='undefined'&&window.__techStatsNoStoryProgress!==true)return window.__techStatsReadStoryProgress?window.__techStatsReadStoryProgress():readJSON('techStoryProgress',{});}catch(e){}return readJSON('techStoryProgress',{})||{}}
+  function campaign(){try{return typeof STORY_CAMPAIGN!=='undefined'&&Array.isArray(STORY_CAMPAIGN)?STORY_CAMPAIGN.filter(ch=>ch&&ch.id!=='intro'):[]}catch(e){return []}}
+  function progressObject(){return readJSON('techStoryProgress',{})||{}}
+  function completedCount(){const p=progressObject();return campaign().filter(ch=>p[ch.id]&&p[ch.id].done).length}
+  function addNotice(text,type){const s=readStats();s.noticeLog=Array.isArray(s.noticeLog)?s.noticeLog:[];s.noticeLog.unshift({text:String(text),type:type||'info',ts:Date.now(),seen:false});s.noticeLog=s.noticeLog.slice(0,30);saveStats(s);}
+  function toast(text,type){try{let el=document.getElementById('techStatsToast');if(!el){el=document.createElement('div');el.id='techStatsToast';el.style.cssText='position:fixed;z-index:99999;right:14px;top:14px;max-width:min(360px,90vw);padding:12px 15px;border:1px solid #5de5ff;border-radius:12px;background:#06162b;color:#fff;font:600 12px/1.45 Arial,sans-serif;box-shadow:0 8px 30px #0008;transition:opacity .25s';document.body.appendChild(el)}el.textContent=text;el.style.opacity='1';clearTimeout(el.__timer);el.__timer=setTimeout(()=>{el.style.opacity='0'},3500)}catch(e){}}
+  function appendArchive(entry){
+    if(!entry||typeof entry!=='object')return false;
+    const a=readArchive();
+    const id=String(entry.id||'');
+    if(id&&a.some(x=>String(x.id||'')===id))return false;
+    const normalized=Object.assign({id:'m-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),ts:Date.now(),score:0,wave:0,world:1,ship:'Br7',diff:'normal',mode:'classic',duration:0,shots:0,kills:0,meteors:0,ships:0,coins:0,missionId:'',missionTitle:'',result:'finished'},entry);
+    a.unshift(normalized);
+    if(!writeArchive(a))return false;
+    const s=readStats();s.games=safeNum(s.games)+1;s.shots=safeNum(s.shots)+safeNum(normalized.shots);s.enemies=safeNum(s.enemies)+safeNum(normalized.kills);s.totalSeconds=safeNum(s.totalSeconds)+safeNum(normalized.duration);s.highScore=Math.max(safeNum(s.highScore),safeNum(normalized.score));
+    if(normalized.mode==='story'){s.storyAttempts=safeNum(s.storyAttempts)+1;if(normalized.result==='won'){s.storyWins=safeNum(s.storyWins)+1;s.wins=safeNum(s.wins)+1}else if(normalized.result==='lost'){s.losses=safeNum(s.losses)+1}else{s.abandoned=safeNum(s.abandoned)+1}}
+    else if(normalized.result==='won')s.wins=safeNum(s.wins)+1;else if(normalized.result==='lost')s.losses=safeNum(s.losses)+1;
+    saveStats(s);return true;
+  }
+  function migrateLegacy(){
+    const a=readArchive();if(readJSON('techStatsLegacyMigratedV1',false))return;
+    const legacy=getLegacyHistory();let changed=false;
+    legacy.forEach((m,i)=>{const ts=safeNum(m.ts)||0;const score=safeNum(m.score);const id='legacy-'+ts+'-'+score+'-'+i;if(a.some(x=>x.id===id))return;a.push({id,ts:ts||Date.now(),score,wave:safeNum(m.wave),world:m.world||1,ship:m.ship||'Br7',model:m.model||'',diff:m.diff||'normal',mode:m.mode||'classic',duration:safeNum(m.duration),coins:safeNum(m.coins),shots:0,kills:0,meteors:0,ships:0,missionId:'',missionTitle:'',result:'legacy',legacy:true});changed=true;});
+    if(changed){a.sort((x,y)=>safeNum(y.ts)-safeNum(x.ts));writeArchive(a)}
+    writeJSON('techStatsLegacyMigratedV1',true);
+  }
+  function recordMatch(extra){
+    const started=safeNum(run.start)||(typeof runStartTime!=='undefined'?safeNum(runStartTime):0);
+    const now=Date.now();const elapsed=started?Math.max(0,Math.round((performance.now()-started)/1000)):0;
+    const currentScore=typeof score!=='undefined'?safeNum(score):0;
+    let wave=0,world=1,ship='Br7',model='',diff='normal',mode='classic',coinsNow=0;
+    try{wave=typeof waveCount!=='undefined'?safeNum(waveCount):0;world=typeof selectedWorld!=='undefined'?safeNum(selectedWorld)||1:1;ship=typeof shipName!=='undefined'?String(shipName||'Br7'):'Br7';model=typeof shipModel!=='undefined'?String(shipModel||''):' ';diff=typeof difficulty!=='undefined'?String(difficulty||'normal'):'normal';mode=typeof gameMode!=='undefined'?String(gameMode||'classic'):'classic';coinsNow=typeof coins!=='undefined'?safeNum(coins):0}catch(e){}
+    const extraObj=extra||{};
+    const id='run-'+String(started||now)+'-'+String(extraObj.missionId||'arcade');
+    const entry={id,ts:now,runStartTime:started,score:currentScore,wave,world,ship:ship.slice(0,32),model,diff,mode,duration:elapsed,coins:coinsNow,shots:safeNum(run.shots),kills:safeNum(run.kills),meteors:safeNum(run.meteors),ships:safeNum(run.ships),missionId:extraObj.missionId||'',missionTitle:extraObj.missionTitle||'',result:extraObj.result||'finished',objective:extraObj.objective||''};
+    const ok=appendArchive(entry);run.recorded=ok||run.recorded;
+    // Enriquecer también el historial rápido de 20 partidas sin reemplazarlo.
+    try{const h=getLegacyHistory();if(h.length&&(!started||!h[0].runStartTime)){h[0].runStartTime=started;h[0].shots=entry.shots;h[0].kills=entry.kills;h[0].meteors=entry.meteors;h[0].ships=entry.ships;h[0].mode=entry.mode;h[0].missionId=entry.missionId;h[0].missionTitle=entry.missionTitle;localStorage.setItem(LEGACY,JSON.stringify(h.slice(0,20)))}}catch(e){}
+    return entry;
+  }
+  function currentFilters(matches){
+    return matches.filter(m=>{
+      const d=new Date(safeNum(m.ts)||0);if(filterFrom&&d<new Date(filterFrom+'T00:00:00'))return false;if(filterTo&&d>new Date(filterTo+'T23:59:59.999'))return false;
+      if(filterMode!=='all'&&String(m.mode||'classic')!==filterMode)return false;return true;
+    });
+  }
+  function selectedMatches(matches){const filtered=currentFilters(matches);if(range==='all')return filtered;return filtered.slice(0,Math.max(1,Number(range)||10))}
+  function bar(label,value,max,color,display){const pct=max>0?Math.max(0,Math.min(100,safeNum(value)/max*100)):0;return `<div class="tech-stat-barrow"><div class="tech-stat-bartop"><span>${label}</span><b>${display==null?safeNum(value):display}</b></div><div class="tech-stat-track"><div class="tech-stat-fill" style="width:${pct}%;background:${color}"></div></div></div>`}
   function buildChart(matches){
-    const recent=matches.slice(0,10).reverse();
-    if(!recent.length)return '<div class="tech-stat-empty">Juega algunas partidas para generar la gráfica de puntuaciones.</div>';
-    const values=recent.map(m=>safeNum(m.score)),max=Math.max(1,...values),min=Math.min(0,...values),w=640,h=190,pad=28;
-    const x=i=>recent.length===1?w/2:pad+i*(w-pad*2)/(recent.length-1);
-    const y=v=>h-pad-(v-min)/(Math.max(1,max-min))*(h-pad*2);
+    const chronological=matches.slice().sort((a,b)=>safeNum(a.ts)-safeNum(b.ts));
+    if(!chronological.length)return '<div class="tech-stat-empty">No hay partidas con esos filtros. Cambia el rango o juega una partida nueva.</div>';
+    const values=chronological.map(m=>safeNum(m.score)),max=Math.max(1,...values),min=Math.min(0,...values),w=760,h=230,padL=48,padR=18,padT=18,padB=32;
+    const x=i=>chronological.length===1?(w-padL-padR)/2+padL:padL+i*(w-padL-padR)/(chronological.length-1);
+    const y=v=>h-padB-(v-min)/(Math.max(1,max-min))*(h-padT-padB);
     const pts=values.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
-    const grid=[0,.25,.5,.75,1].map(t=>{const yy=pad+t*(h-pad*2);return `<line x1="${pad}" y1="${yy}" x2="${w-pad}" y2="${yy}" stroke="rgba(180,220,255,.12)" stroke-dasharray="4 5"/><text x="${pad-6}" y="${yy+3}" text-anchor="end" fill="#7f9bb8" font-size="9">${Math.round(max*(1-t))}</text>`}).join('');
-    const dots=values.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#62efff" stroke="#071427" stroke-width="2"><title>Partida ${i+1}: ${v} puntos</title></circle>`).join('');
-    const labels=recent.map((m,i)=>`<text x="${x(i)}" y="${h-7}" text-anchor="middle" fill="#8ea8c4" font-size="9">${i+1}</text>`).join('');
-    const delta=values.length>1?values[values.length-1]-values[values.length-2]:0;
-    const trendText=values.length<2?'Se necesitan al menos dos partidas para calcular la tendencia.':delta>0?`Subida de ${delta.toLocaleString('es-CO')} puntos frente a la partida anterior.`:delta<0?`Bajada de ${Math.abs(delta).toLocaleString('es-CO')} puntos frente a la partida anterior.`:'La puntuación se mantuvo igual frente a la partida anterior.';
-    const trendColor=delta>0?'#69f0ae':delta<0?'#ff8c8c':'#62efff';
-    return `<div class="tech-stat-linewrap"><svg class="tech-stat-line" viewBox="0 0 ${w} ${h}" role="img" aria-label="Gráfica de línea de puntuación por partida">${grid}<polyline points="${pts}" fill="none" stroke="#47dfff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}</svg></div><div class="tech-stat-legend"><span><i class="tech-stat-dot" style="background:#47dfff"></i>Puntuación por partida</span><span>Eje horizontal: orden cronológico · vertical: puntos</span></div><div class="tech-stat-trend"><span>Tendencia reciente: <b style="color:${trendColor}">${delta>0?'↗ Subida':delta<0?'↘ Bajada':'→ Estable'}</b></span><span>${trendText}</span></div><div class="tech-stat-chartcaption">Últimas ${recent.length} partidas, de la más antigua a la más reciente. Se grafica únicamente el historial disponible.</div>`;
+    const grid=[0,.25,.5,.75,1].map(t=>{const yy=padT+t*(h-padT-padB);return `<line x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}" stroke="rgba(180,220,255,.14)" stroke-dasharray="4 5"/><text x="${padL-8}" y="${yy+3}" text-anchor="end" fill="#8aa3be" font-size="10">${Math.round(max*(1-t)).toLocaleString('es-CO')}</text>`}).join('');
+    const segments=chronological.slice(1).map((m,i)=>{const delta=safeNum(m.score)-safeNum(chronological[i].score);return `<line x1="${x(i)}" y1="${y(values[i])}" x2="${x(i+1)}" y2="${y(values[i+1])}" stroke="${delta>0?'#69f0ae':delta<0?'#ff7b86':'#62efff'}" stroke-width="3" stroke-linecap="round"/>`}).join('');
+    const dots=chronological.map((m,i)=>`<circle cx="${x(i)}" cy="${y(values[i])}" r="4" fill="#62efff" stroke="#061326" stroke-width="2"><title>${esc(m.missionTitle||('Partida '+(i+1)))} · ${values[i].toLocaleString('es-CO')} pts · ${m.ts?new Date(m.ts).toLocaleString('es-CO'):''}</title></circle>`).join('');
+    const labelStep=Math.max(1,Math.ceil(chronological.length/10));const labels=chronological.map((m,i)=>i%labelStep===0||i===chronological.length-1?`<text x="${x(i)}" y="${h-8}" text-anchor="middle" fill="#8ea8c4" font-size="10">${i+1}</text>`:'').join('');
+    const delta=values.length>1?values[values.length-1]-values[values.length-2]:0;const trendColor=delta>0?'#69f0ae':delta<0?'#ff8c8c':'#62efff';
+    return `<div class="tech-stat-linewrap"><svg class="tech-stat-line" viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución de puntuación, segmentos verdes son subidas y rojos bajadas">${grid}${segments}${dots}${labels}</svg></div><div class="tech-stat-legend"><span><i class="tech-stat-dot" style="background:#62efff"></i>Puntuación por partida</span><span><i class="tech-stat-dot" style="background:#69f0ae"></i>Subida</span><span><i class="tech-stat-dot" style="background:#ff7b86"></i>Bajada</span><span>Eje horizontal: orden cronológico · vertical: puntos</span></div><div class="tech-stat-trend"><span>Variación reciente: <b style="color:${trendColor}">${delta>0?'↗ +':delta<0?'↘ ':'→ '}${Math.abs(delta).toLocaleString('es-CO')} pts</b></span><span>${values.length>1?'Comparación entre las dos últimas partidas del rango.':'Se necesitan dos partidas para calcular la variación.'}</span></div><div class="tech-stat-chartcaption">Mostrando ${chronological.length} partidas filtradas; los datos antiguos importados pueden carecer de métricas de combate.</div>`;
   }
-  function buildBreakdown(matches,key,label){
-    const counts={};matches.forEach(m=>{const name=String(m[key]||'No especificado');counts[name]=(counts[name]||0)+1});
-    const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    if(!entries.length)return '<p class="tech-stat-muted">Aún no hay datos registrados.</p>';
-    const max=Math.max(1,...entries.map(e=>e[1]));
-    return entries.map(([name,n])=>bar(esc(name),n,max,'linear-gradient(90deg,#167cff,#62efff)',`${n} (${Math.round(n/Math.max(1,matches.length)*100)}%)`)).join('');
+
+  function buildScoreBars(matches){
+    const chronological=matches.slice().sort((a,b)=>safeNum(a.ts)-safeNum(b.ts));
+    if(!chronological.length)return '<div class="tech-stat-empty">No hay datos para la gráfica de barras.</div>';
+    const shown=chronological.slice(-20);
+    const max=Math.max(1,...shown.map(m=>safeNum(m.score)));
+    return `<div class="tech-stat-chart" role="img" aria-label="Gráfica de barras de puntuación por partida">${shown.map((m,i)=>{const value=safeNum(m.score);const prev=i>0?safeNum(shown[i-1].score):value;const color=value>prev?'linear-gradient(180deg,#69f0ae,#148d67)':value<prev?'linear-gradient(180deg,#ff7b86,#a52d45)':'linear-gradient(180deg,#64f2ff,#1377ff)';const height=Math.max(3,value/max*100);return `<div class="tech-stat-chartcol" title="${esc(m.missionTitle||('Partida '+(i+1)))}: ${value.toLocaleString('es-CO')} puntos"><div class="tech-stat-chartvalue">${value.toLocaleString('es-CO')}</div><div class="tech-stat-chartbar" style="height:${height}%;background:${color}"></div><span>${i+1}</span></div>`}).join('')}</div><div class="tech-stat-chartcaption">Últimas ${shown.length} puntuaciones del rango filtrado. Verde: subida · rojo: bajada · azul: igual o primera partida.</div>`;
   }
-  function exportHistoryCSV(){
-    const h=history();
-    const rows=[['Fecha','Modo','Dificultad','Puntuacion','Oleada','Mundo','Nave','Duracion_segundos','Puntos'],...h.map(m=>[m.ts?new Date(m.ts).toISOString():'',m.mode||'',m.diff||'',safeNum(m.score),safeNum(m.wave),m.world||'',m.ship||'',safeNum(m.duration),safeNum(m.coins)])];
-    const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='TECH-estadisticas.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  }
-  function render(){
-    const panel=document.getElementById('techStatisticsPanel');if(!panel)return;
-    const st=readStats(),h=history(),story=storyData(),total=campaignTotal(),done=completedMissions();
-    const scores=h.map(m=>safeNum(m.score));
-    const best=Math.max(st.highScore||0,...scores,safeNum(localStorage.getItem('techRunRecordV4')));
-    const totalTime=Math.max(st.totalSeconds,h.reduce((sum,m)=>sum+safeNum(m.duration),0));
-    const storyWins=Math.max(st.storyWins,done),attempts=Math.max(st.storyAttempts,storyWins),kills=st.enemies,shots=st.shots;
-    const accuracy=shots>0?Math.min(100,Math.round(kills/shots*100)):0;
-    const achievementData=readJSON('techAchievements',[]);
-    const achievementCount=Array.isArray(achievementData)?achievementData.filter(Boolean).length:(achievementData&&typeof achievementData==='object'?Object.values(achievementData).filter(Boolean).length:0);
-    let _totalPlayed=0;try{_totalPlayed=Number(localStorage.getItem('techTotalGamesPlayed')||0)||0}catch(e){}
-    if(_totalPlayed<h.length)_totalPlayed=h.length;
-    if(_totalPlayed<(Number(st.games)||0))_totalPlayed=Number(st.games)||0;
-    // sincronizar clave persistente si estaba desfasada
-    try{if(Number(localStorage.getItem('techTotalGamesPlayed')||0)<_totalPlayed)localStorage.setItem('techTotalGamesPlayed',String(_totalPlayed))}catch(e){}
-    const totalGames=_totalPlayed,losses=st.losses;
-    const avgScore=h.length?Math.round(h.reduce((sum,m)=>sum+safeNum(m.score),0)/h.length):0;
-    const avgDuration=h.length?Math.round(h.reduce((sum,m)=>sum+safeNum(m.duration),0)/h.length):0;
-    const bestWave=Math.max(0,...h.map(m=>safeNum(m.wave))),coinsRecorded=h.reduce((sum,m)=>sum+safeNum(m.coins),0);
-    const longestMatch=Math.max(0,...h.map(m=>safeNum(m.duration)));
-    const scoreSorted=[...scores].sort((a,b)=>a-b),median=scores.length?(scores.length%2?scoreSorted[(scores.length-1)/2]:Math.round((scoreSorted[scores.length/2-1]+scoreSorted[scores.length/2])/2)):0;
-    const lastTwo=h.slice(0,2).map(m=>safeNum(m.score));const delta=lastTwo.length===2?lastTwo[0]-lastTwo[1]:0;
-    const up=delta>0,down=delta<0;
-    const winRate=attempts?Math.round(storyWins/attempts*100):0;
-    const progressPct=Math.round(Math.min(total,done)/Math.max(1,total)*100);
-    panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Centro de estadísticas TECH</h2><p>Panel de rendimiento, progresión y actividad. Los datos dependen del historial guardado en este navegador.</p></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
+  function breakdown(matches,key,label){const counts={};matches.forEach(m=>{const n=String(m[key]||'No especificado');counts[n]=(counts[n]||0)+1});const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7);if(!entries.length)return '<p class="tech-stat-muted">Aún no hay datos registrados.</p>';const max=Math.max(1,...entries.map(x=>x[1]));return entries.map(([n,v])=>bar(esc(n),v,max,'linear-gradient(90deg,#167cff,#62efff)',`${v} (${Math.round(v/Math.max(1,matches.length)*100)}%)`)).join('')}
+  function exportCSV(){const a=readArchive().slice().sort((x,y)=>safeNum(y.ts)-safeNum(x.ts));const cols=['Fecha','ID','Modo','Resultado','Dificultad','Puntuacion','Oleada','Mundo','Nave','Modelo','Duracion_segundos','Disparos_registrados','Enemigos_eliminados','Meteoritos_eliminados','Naves_enemigas_eliminadas','Monedas','Mision_ID','Mision','Objetivo','Registro_historico_antiguo'];const rows=[cols,...a.map(m=>[m.ts?new Date(m.ts).toISOString():'',m.id||'',m.mode||'',m.result||'',m.diff||'',safeNum(m.score),safeNum(m.wave),m.world||'',m.ship||'',m.model||'',safeNum(m.duration),safeNum(m.shots),safeNum(m.kills),safeNum(m.meteors),safeNum(m.ships),safeNum(m.coins),m.missionId||'',m.missionTitle||'',m.objective||'',m.legacy?'Sí':'No'])];downloadCSV(rows,'TECH-historial-completo.csv')}
+  function exportMissionsCSV(){const c=campaign(),p=progressObject(),s=readStats(),ms=s.missionStats||{};const rows=[['Mision_ID','Mision','Completada','Intentos_registrados','Victorias','Derrotas','Mejor_puntuacion','Tiempo_total_segundos','Ultima_fecha']];c.forEach(ch=>{const x=ms[ch.id]||{};rows.push([ch.id,ch.title,p[ch.id]&&p[ch.id].done?'Sí':'No',safeNum(x.attempts),safeNum(x.wins),safeNum(x.losses),safeNum(x.bestScore),safeNum(x.totalSeconds),x.lastAt?new Date(x.lastAt).toISOString():''])});downloadCSV(rows,'TECH-estadisticas-misiones.csv')}
+  function downloadCSV(rows,name){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  function noticesHTML(){const s=readStats(),notes=(s.noticeLog||[]).slice(0,5);const c=campaign(),p=progressObject(),next=c.find(ch=>!(p[ch.id]&&p[ch.id].done));const pending=next?`<div class="tech-stat-notice"><b>🎯 Próximo objetivo</b><span>${esc(next.title||next.id)}</span><small>${esc(next.subtitle||next.briefing||'Completa la siguiente misión disponible.')}</small></div>`:'<div class="tech-stat-notice success"><b>🏁 Campaña completada</b><span>Has completado todas las misiones registradas.</span></div>';const items=notes.length?notes.map(n=>`<div class="tech-stat-notice ${esc(n.type||'info')}"><b>${n.type==='record'?'🏆 Nuevo récord':n.type==='mission'?'🚀 Misión registrada':'ℹ️ Aviso'}</b><span>${esc(n.text)}</span><small>${n.ts?new Date(n.ts).toLocaleString('es-CO'):''}</small></div>`).join(''):'<p class="tech-stat-muted">Los avisos aparecerán aquí al lograr un récord o completar una misión.</p>';return pending+items}
+  function missionAnalysis(){const c=campaign(),p=progressObject(),s=readStats(),ms=s.missionStats||{};if(!c.length)return '<p class="tech-stat-muted">No se pudo leer la campaña del juego.</p>';return `<div class="tech-stat-mission-list">${c.map((ch,i)=>{const x=ms[ch.id]||{},done=!!(p[ch.id]&&p[ch.id].done);const attempts=safeNum(x.attempts),wins=safeNum(x.wins),rate=attempts?Math.round(wins/attempts*100):0;return `<div class="tech-stat-mission"><span class="tech-stat-mission-n">${String(i+1).padStart(2,'0')}</span><div class="tech-stat-mission-info"><b>${esc(ch.title||ch.id)}</b><small>${esc(ch.subtitle||ch.type||'Misión')} · ${done?'Completada':'Pendiente'} · Intentos registrados: ${attempts}</small><div class="tech-stat-track"><div class="tech-stat-fill" style="width:${rate}%;background:${done?'#69f0ae':'#168dff'}"></div></div></div><strong>${done?'✓':attempts?rate+'%':'—'}</strong></div>`}).join('')}</div>`}
+  function render(){const panel=document.getElementById('techStatisticsPanel');if(!panel)return;const all=readArchive().slice().sort((a,b)=>safeNum(b.ts)-safeNum(a.ts));const filtered=currentFilters(all);const h=selectedMatches(all);const s=readStats();const legacyCount=all.filter(m=>m.legacy).length;const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),avg=scores.length?Math.round(sum/scores.length):0;const sorted=scores.slice().sort((a,b)=>a-b);const median=sorted.length?(sorted.length%2?sorted[(sorted.length-1)/2]:Math.round((sorted[sorted.length/2-1]+sorted[sorted.length/2])/2)):0;const best=Math.max(safeNum(s.highScore),...all.map(m=>safeNum(m.score)),0);const worst=scores.length?Math.min(...scores):0;const totalKills=all.reduce((n,m)=>n+safeNum(m.kills),0),totalShots=all.reduce((n,m)=>n+safeNum(m.shots),0),totalTime=all.reduce((n,m)=>n+safeNum(m.duration),0);const avgDuration=all.length?Math.round(totalTime/all.length):0;const longest=all.reduce((b,m)=>Math.max(b,safeNum(m.duration)),0);const killsPerMinute=totalTime?Math.round(totalKills/(totalTime/60)*10)/10:0;const wins=all.filter(m=>m.result==='won').length,losses=all.filter(m=>m.result==='lost').length,abandoned=all.filter(m=>m.result==='abandoned').length;const done=completedCount(),total=campaign().length||90,progressPct=Math.round(Math.min(done,total)/Math.max(1,total)*100);const missions=campaign(),p=progressObject(),missionStats=s.missionStats||{};const attempts=safeNum(s.storyAttempts),storyWins=safeNum(s.storyWins),winRate=attempts?Math.round(storyWins/attempts*100):0;const achievements=readJSON('techAch',{})||{};const achievementCount=Object.keys(achievements).length;const currentCoins=readJSON('techCoinsV2',readJSON('techCoins',0));const lastTwo=h.slice(0,2).map(m=>safeNum(m.score));const delta=lastTwo.length===2?lastTwo[0]-lastTwo[1]:0;const recordText=best?best.toLocaleString('es-CO'):'0';
+    panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Centro de estadísticas PRO</h2><p>Datos de juego, combate, campaña y evolución. El archivo histórico se conserva por separado del historial rápido de 20 partidas.</p></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
+      <section class="tech-stat-section tech-stat-filters"><h3>🔎 Filtros y comparación</h3><div class="tech-stat-filtergrid"><label>Comparar<select id="statRange"><option value="5" ${range==='5'?'selected':''}>Últimas 5</option><option value="10" ${range==='10'?'selected':''}>Últimas 10</option><option value="20" ${range==='20'?'selected':''}>Últimas 20</option><option value="all" ${range==='all'?'selected':''}>Todas las filtradas</option></select></label><label>Modo<select id="statMode"><option value="all" ${filterMode==='all'?'selected':''}>Todos los modos</option><option value="classic" ${filterMode==='classic'?'selected':''}>Clásico</option><option value="infinite" ${filterMode==='infinite'?'selected':''}>Infinito</option><option value="story" ${filterMode==='story'?'selected':''}>Historia</option></select></label><label>Desde<input id="statFrom" type="date" value="${esc(filterFrom)}"></label><label>Hasta<input id="statTo" type="date" value="${esc(filterTo)}"></label></div><div class="tech-stat-tools"><button class="tech-stat-action" id="applyStatFilters">Aplicar filtros</button><button class="tech-stat-action" id="clearStatFilters">Limpiar filtros</button><span class="tech-stat-pill">${filtered.length} partidas coinciden</span><span class="tech-stat-pill">${h.length} en comparación</span></div></section>
       <div class="tech-stat-cards">
-       <div class="tech-stat-card"><span>Partidas jugadas</span><strong>${totalGames}</strong><small>Total acumulado (sin límite) · últimas en historial: ${h.length}</small></div>
-       <div class="tech-stat-card"><span>Récord personal</span><strong>${best.toLocaleString('es-CO')}</strong><small>Puntuación máxima conocida</small></div>
-       <div class="tech-stat-card"><span>Puntuación promedio</span><strong>${avgScore.toLocaleString('es-CO')}</strong><small>Sobre ${h.length} partidas del historial</small></div>
-       <div class="tech-stat-card"><span>Mediana de puntuación</span><strong>${median.toLocaleString('es-CO')}</strong><small>Valor central del historial disponible</small></div>
-       <div class="tech-stat-card"><span>Enemigos eliminados</span><strong>${kills.toLocaleString('es-CO')}</strong><small>Contabilizados por el panel</small></div>
-       <div class="tech-stat-card"><span>Tiempo jugado</span><strong>${fmtTime(totalTime)}</strong><small>Tiempo acumulado disponible</small></div>
-       <div class="tech-stat-card"><span>Victorias de historia</span><strong>${storyWins}</strong><small>Misiones completadas detectadas</small></div>
-       <div class="tech-stat-card"><span>Intentos de historia</span><strong>${attempts}</strong><small>Éxito de historia: ${winRate}%</small></div>
-       <div class="tech-stat-card"><span>Derrotas arcade</span><strong>${losses}</strong><small>Finales contados por el panel</small></div>
-       <div class="tech-stat-card"><span>Disparos registrados</span><strong>${shots.toLocaleString('es-CO')}</strong><small>Proyectiles detectados</small></div>
-       <div class="tech-stat-card"><span>Efectividad estimada</span><strong>${shots?accuracy+'%':'—'}</strong><small>Eliminaciones frente a disparos; no es precisión exacta</small></div>
-       <div class="tech-stat-card"><span>Mejor oleada</span><strong>${bestWave}</strong><small>Según el historial guardado</small></div>
-       <div class="tech-stat-card"><span>Duración promedio</span><strong>${h.length?fmtTime(avgDuration):'—'}</strong><small>Por partida registrada</small></div>
-       <div class="tech-stat-card"><span>Partida más larga</span><strong>${h.length?fmtTime(longestMatch):'—'}</strong><small>Duración máxima del historial</small></div>
-       <div class="tech-stat-card"><span>Puntos de juego</span><strong>${coinsRecorded.toLocaleString('es-CO')}</strong><small>Suma de puntos del historial</small></div>
-       <div class="tech-stat-card"><span>Logros detectados</span><strong>${achievementCount}</strong><small>Según los datos de logros disponibles</small></div>
+       <div class="tech-stat-card"><span>Partidas históricas</span><strong>${all.length.toLocaleString('es-CO')}</strong><small>${legacyCount} importadas sin telemetría completa · archivo máximo ${MAX_ARCHIVE}</small></div>
+       <div class="tech-stat-card"><span>Récord personal</span><strong>${recordText}</strong><small>Mejor puntuación guardada</small></div>
+       <div class="tech-stat-card"><span>Promedio seleccionado</span><strong>${avg.toLocaleString('es-CO')}</strong><small>Sobre ${h.length} partidas comparadas</small></div>
+       <div class="tech-stat-card"><span>Mediana seleccionada</span><strong>${median.toLocaleString('es-CO')}</strong><small>Mitad de puntuaciones por encima y por debajo</small></div>
+       <div class="tech-stat-card"><span>Enemigos eliminados</span><strong>${totalKills.toLocaleString('es-CO')}</strong><small>Registros nuevos con telemetría</small></div>
+       <div class="tech-stat-card"><span>Disparos registrados</span><strong>${totalShots.toLocaleString('es-CO')}</strong><small>Proyectiles generados por el disparo principal</small></div>
+       <div class="tech-stat-card"><span>Eliminaciones/minuto</span><strong>${killsPerMinute}</strong><small>Según duración y eliminaciones registradas</small></div>
+       <div class="tech-stat-card"><span>Tiempo acumulado</span><strong>${fmtTime(totalTime)}</strong><small>De partidas archivadas</small></div>
+       <div class="tech-stat-card"><span>Duración promedio</span><strong>${fmtTime(avgDuration)}</strong><small>Por registro de partida</small></div>
+       <div class="tech-stat-card"><span>Partida más larga</span><strong>${fmtTime(longest)}</strong><small>Máxima duración archivada</small></div>
+       <div class="tech-stat-card"><span>Victorias registradas</span><strong>${wins}</strong><small>Misiones completadas con éxito</small></div>
+       <div class="tech-stat-card"><span>Derrotas registradas</span><strong>${losses}</strong><small>Misiones fallidas registradas</small></div>
+       <div class="tech-stat-card"><span>Abandonadas/finalizadas</span><strong>${abandoned}</strong><small>Sesiones sin resultado de victoria/derrota</small></div>
+       <div class="tech-stat-card"><span>Mejor puntuación del filtro</span><strong>${(scores.length?Math.max(...scores):0).toLocaleString('es-CO')}</strong><small>En el rango comparado</small></div>
+       <div class="tech-stat-card"><span>Peor puntuación del filtro</span><strong>${worst.toLocaleString('es-CO')}</strong><small>En el rango comparado</small></div>
+       <div class="tech-stat-card"><span>Monedas actuales</span><strong>${safeNum(currentCoins).toLocaleString('es-CO')}</strong><small>Saldo actual guardado en el navegador</small></div>
+       <div class="tech-stat-card"><span>Logros desbloqueados</span><strong>${achievementCount}</strong><small>Según el registro de logros del juego</small></div>
+       <div class="tech-stat-card"><span>Campaña completada</span><strong>${progressPct}%</strong><small>${Math.min(done,total)} de ${total} misiones marcadas</small></div>
       </div>
-      <section class="tech-stat-section tech-stat-collapsible">
-        <button type="button" class="tech-stat-toggle" id="toggleCampaignStats" aria-expanded="false">
-          <span>🛰️ Progreso de campaña y misiones</span>
-          <span class="tech-stat-chevron">▼</span>
-        </button>
-        <div class="tech-stat-collapse-body" id="campaignStatsBody" hidden>
-          <div class="tech-stat-progresslabel"><b>${Math.min(done,total)} / ${total} misiones completadas</b><b>${progressPct}%</b></div>
-          <div class="tech-stat-track big"><div class="tech-stat-fill" style="width:${progressPct}%;background:linear-gradient(90deg,#00d4ff,#72ff9c)"></div></div>
-          <p class="tech-stat-muted">${done>=total?'¡Campaña completada!':`Te faltan ${Math.max(0,total-done)} misiones para completar la campaña.`}</p>
-          ${bar('Misiones completadas',Math.min(done,total),total,'linear-gradient(90deg,#00d4ff,#72ff9c)',`${Math.min(done,total)}/${total}`)}
-          ${bar('Tasa de éxito de intentos de historia',storyWins,Math.max(1,attempts),'#69f0ae',`${winRate}%`)}
-          ${bar('Logros detectados',achievementCount,Math.max(10,achievementCount),'#c58cff',achievementCount)}
-        </div>
-      </section>
-      <section class="tech-stat-section"><h3>📈 Evolución de puntuación: subidas y bajadas</h3>${buildChart(h)}</section>
-      <div class="tech-stat-breakdown"><section class="tech-stat-section"><h3>🎮 Partidas por modo</h3>${buildBreakdown(h,'mode','Modo')}</section><section class="tech-stat-section"><h3>🌌 Partidas por dificultad</h3>${buildBreakdown(h,'diff','Dificultad')}</section><section class="tech-stat-section"><h3>🪐 Mundos visitados</h3>${buildBreakdown(h,'world','Mundo')}</section><section class="tech-stat-section"><h3>📊 Indicadores de tendencia</h3>${bar('Última puntuación vs anterior',Math.max(0,lastTwo[0]||0),Math.max(1,lastTwo[0]||0,lastTwo[1]||0),up?'#69f0ae':down?'#ff7b86':'#62efff',h.length>1?(up?'↗ +':down?'↘ ':'→ ')+Math.abs(delta).toLocaleString('es-CO')+' pts':'Datos insuficientes')}${bar('Promedio de puntuación',avgScore,Math.max(1,best),'#62efff',avgScore.toLocaleString('es-CO')+' pts')}<p class="tech-stat-muted">${h.length>1?(up?'La última partida subió respecto a la anterior.':down?'La última partida bajó respecto a la anterior.':'Las dos últimas puntuaciones fueron iguales.'):'Juega al menos dos partidas para calcular la tendencia.'}</p></section></div>
-      <section class="tech-stat-section"><h3>🕹️ Últimas partidas</h3>${h.length?h.slice(0,10).map((m,i)=>`<div class="tech-stat-match"><span>#${i+1} · ${esc(m.mode||'Clásico')} · ${esc(m.diff||'Normal')} · ${esc(m.ship||'Nave')}</span><b>${safeNum(m.score).toLocaleString('es-CO')} pts</b><small>${safeNum(m.duration)} s · Oleada ${safeNum(m.wave)} · Mundo ${esc(m.world||'—')} · ${m.ts?esc(new Date(m.ts).toLocaleString()):'Fecha no disponible'}</small></div>`).join(''):'<p class="tech-stat-muted">Todavía no hay partidas guardadas en el historial.</p>'}<div class="tech-stat-tools"><button class="tech-stat-action" id="exportStatsCSV">⬇ Exportar historial a CSV</button><button class="tech-stat-action" id="refreshStats">↻ Actualizar estadísticas</button></div></section>
-`;
+      <section class="tech-stat-section"><h3>📈 Evolución de puntuación: subidas y bajadas</h3>${buildChart(h)}<h3 style="margin-top:18px">📊 Comparación visual de puntuaciones</h3>${buildScoreBars(h)}</section>
+      <div class="tech-stat-breakdown"><section class="tech-stat-section"><h3>🎮 Partidas por modo</h3>${breakdown(filtered,'mode','Modo')}</section><section class="tech-stat-section"><h3>⚙️ Partidas por dificultad</h3>${breakdown(filtered,'diff','Dificultad')}</section><section class="tech-stat-section"><h3>🌌 Mundos visitados</h3>${breakdown(filtered,'world','Mundo')}</section><section class="tech-stat-section"><h3>📊 Tendencia y rendimiento</h3>${bar('Variación de las dos últimas puntuaciones',Math.max(0,lastTwo[0]||0),Math.max(1,lastTwo[0]||0,lastTwo[1]||0),delta>0?'#69f0ae':delta<0?'#ff7b86':'#62efff',h.length>1?(delta>0?'↗ +':delta<0?'↘ ':'→ ')+Math.abs(delta).toLocaleString('es-CO')+' pts':'Datos insuficientes')}${bar('Promedio vs récord personal',avg,Math.max(1,best),'#62efff',avg.toLocaleString('es-CO')+' pts')}<p class="tech-stat-muted">${h.length>1?(delta>0?'La última puntuación subió.':delta<0?'La última puntuación bajó.':'Las dos últimas puntuaciones están iguales.'):'Juega más partidas para comparar tendencias.'}</p><p class="tech-stat-muted">Precisión real: no disponible aún porque el motor no expone un evento centralizado de impactos; no se inventa un porcentaje.</p></section></div>
+      <section class="tech-stat-section"><h3>🛰️ Progreso del modo historia</h3><div class="tech-stat-progresslabel"><b>${Math.min(done,total)} / ${total} misiones completadas</b><b>${progressPct}%</b></div><div class="tech-stat-track big"><div class="tech-stat-fill" style="width:${progressPct}%;background:linear-gradient(90deg,#00d4ff,#72ff9c)"></div></div><p class="tech-stat-muted">${done>=total?'¡Campaña completada!':`Faltan ${Math.max(0,total-done)} misiones por completar.`} · Intentos registrados desde esta versión: ${attempts} · Tasa de éxito: ${winRate}%.</p>${bar('Tasa de éxito de intentos registrados',storyWins,Math.max(1,attempts),'#69f0ae',`${winRate}%`)}<div class="tech-stat-tools"><span class="tech-stat-pill">Misiones con datos: ${Object.keys(missionStats).length}</span><span class="tech-stat-pill">Objetivo pendiente: ${esc((missions.find(ch=>!(p[ch.id]&&p[ch.id].done))||{}).title||'Ninguno')}</span></div></section>
+      <section class="tech-stat-section"><h3>🗺️ Análisis de las ${total} misiones</h3><p class="tech-stat-muted">La finalización viene del progreso de campaña guardado. Intentos, tiempos y puntuaciones por misión empiezan a acumularse con esta versión.</p>${missionAnalysis()}<div class="tech-stat-tools"><button class="tech-stat-action" id="exportMissionCSV">⬇ Exportar análisis de misiones CSV</button></div></section>
+      <section class="tech-stat-section"><h3>🏆 Récords, logros y avisos</h3><div class="tech-stat-notices">${noticesHTML()}</div><div class="tech-stat-tools"><button class="tech-stat-action" id="refreshStats">↻ Actualizar datos</button><button class="tech-stat-action" id="exportStatsCSV">⬇ Exportar historial completo CSV</button></div></section>
+      <section class="tech-stat-section"><h3>🕹️ Historial de partidas</h3>${h.length?h.slice().sort((a,b)=>safeNum(b.ts)-safeNum(a.ts)).slice(0,range==='all'?100:Math.max(10,Number(range)||10)).map((m,i)=>`<div class="tech-stat-match"><span>#${i+1} · ${esc(m.mode||'Clásico')} · ${esc(m.diff||'Normal')} · ${esc(m.ship||'Nave')}${m.missionTitle?' · '+esc(m.missionTitle):''}</span><b>${safeNum(m.score).toLocaleString('es-CO')} pts</b><small>${fmtTime(m.duration)} · Oleada ${safeNum(m.wave)} · Mundo ${esc(m.world||'—')} · Eliminaciones ${safeNum(m.kills)} · Disparos ${safeNum(m.shots)} · ${m.ts?esc(new Date(m.ts).toLocaleString('es-CO')):'Fecha no disponible'}${m.legacy?' · Registro antiguo':''}</small></div>`).join(''):'<p class="tech-stat-muted">No hay partidas registradas con estos filtros. Inicia y termina una partida para generar datos.</p>'}</section>
+      <p class="tech-stat-note">Guardado automático local: el archivo histórico se mantiene independiente del historial rápido (20 partidas) y conserva hasta ${MAX_ARCHIVE} registros en este navegador. Los datos antiguos se importan cuando están disponibles, pero no se pueden reconstruir disparos, eliminaciones ni intentos que el juego no guardó. Los datos permanecen en este navegador/dispositivo y no se sincronizan con otros dispositivos.</p>`;
     const close=document.getElementById('closeStatistics');if(close)close.onclick=closePanel;
-    const exp=document.getElementById('exportStatsCSV');if(exp)exp.onclick=exportHistoryCSV;
-    const refresh=document.getElementById('refreshStats');if(refresh)refresh.onclick=render;
-    const tog=document.getElementById('toggleCampaignStats');
-    const body=document.getElementById('campaignStatsBody');
-    if(tog&&body){
-      tog.onclick=function(){
-        const open=body.hasAttribute('hidden');
-        if(open){body.removeAttribute('hidden');tog.setAttribute('aria-expanded','true');const c=tog.querySelector('.tech-stat-chevron');if(c)c.textContent='▲';}
-        else{body.setAttribute('hidden','');tog.setAttribute('aria-expanded','false');const c=tog.querySelector('.tech-stat-chevron');if(c)c.textContent='▼';}
-      };
-    }
+    const apply=document.getElementById('applyStatFilters');if(apply)apply.onclick=()=>{range=document.getElementById('statRange').value;filterMode=document.getElementById('statMode').value;filterFrom=document.getElementById('statFrom').value;filterTo=document.getElementById('statTo').value;render()};
+    const clear=document.getElementById('clearStatFilters');if(clear)clear.onclick=()=>{range='10';filterMode='all';filterFrom='';filterTo='';render()};
+    const exp=document.getElementById('exportStatsCSV');if(exp)exp.onclick=exportCSV;const expM=document.getElementById('exportMissionCSV');if(expM)expM.onclick=exportMissionsCSV;const refresh=document.getElementById('refreshStats');if(refresh)refresh.onclick=render;
   }
   function openPanel(){let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=document.createElement('div');panel.id='techStatisticsPanel';panel.className='tech-stat-panel';(document.querySelector('.tech-game')||document.body).appendChild(panel)}
-    ['startPanel','gameOverPanel','storyMenuPanel','storyBriefPanel','storyResultPanel','configPanel','pausePanel'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display!=='none'){el.dataset.statsWasVisible='1';el.style.display='none'}});
-    panel.style.display='block';render();
+    ['startPanel','gameOverPanel','storyMenuPanel','storyBriefPanel','storyResultPanel','configPanel','pausePanel'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display!=='none'){el.dataset.statsWasVisible='1';el.style.display='none'}});panel.style.display='block';panelOpen=true;render();
   }
-  function closePanel(){const panel=document.getElementById('techStatisticsPanel');if(panel)panel.style.display='none';const start=document.getElementById('startPanel');if(start)start.style.display='block';}
-  function patchFunctions(){
-    if(typeof window.shoot==='function'&&!window.__techStatsShootPatched){window.__techStatsShootPatched=true;const original=window.shoot;window.shoot=function(){const before=Array.isArray(window.bullets)?window.bullets.length:0;const result=original.apply(this,arguments);const after=Array.isArray(window.bullets)?window.bullets.length:before;if(after>before){const st=readStats();st.shots+=after-before;st.updated=Date.now();writeStats(st)}return result}}
-    if(typeof window.destroyEnemy==='function'&&!window.__techStatsEnemyPatched){window.__techStatsEnemyPatched=true;const original=window.destroyEnemy;window.destroyEnemy=function(o,i){const was=o&&o.__techDestroyed;const result=original.apply(this,arguments);if(o&&!was&&o.__techDestroyed){const st=readStats();st.enemies++;st.updated=Date.now();writeStats(st)}return result}}
-    if(typeof window.endGame==='function'&&!window.__techStatsEndPatched){window.__techStatsEndPatched=true;const original=window.endGame;window.endGame=function(){const wasRunning=typeof gameRunning!=='undefined'&&gameRunning;const start=typeof runStartTime!=='undefined'?Number(runStartTime):0;const oldScore=typeof score!=='undefined'?safeNum(score):0;const result=original.apply(this,arguments);if(wasRunning){const st=readStats();
-      // Partidas jugadas: contadas en pushMatchHistory (techTotalGamesPlayed); aquí solo sincronizamos
-      let totalPlayed=0;try{totalPlayed=Number(localStorage.getItem('techTotalGamesPlayed')||0)||0}catch(e){}
-      st.games=Math.max(Number(st.games)||0,totalPlayed);
-      st.losses++;st.highScore=Math.max(st.highScore,oldScore);if(start)st.totalSeconds+=Math.max(0,Math.round((performance.now()-start)/1000));st.updated=Date.now();writeStats(st)}return result}}
-    if(typeof window.completeStoryMission==='function'&&!window.__techStatsStoryPatched){window.__techStatsStoryPatched=true;const original=window.completeStoryMission;window.completeStoryMission=function(ok){const active=typeof storyMissionActive!=='undefined'&&storyMissionActive;const result=original.apply(this,arguments);if(active){const st=readStats();st.storyAttempts++;if(ok)st.storyWins++;st.highScore=Math.max(st.highScore,typeof score!=='undefined'?safeNum(score):0);st.updated=Date.now();writeStats(st)}return result}}
+  function closePanel(){const panel=document.getElementById('techStatisticsPanel');if(panel)panel.style.display='none';panelOpen=false;const start=document.getElementById('startPanel');if(start)start.style.display='block';}
+  function wrapGameplay(){
+    try{if(typeof startGame==='function'&&!startGame.__techStatsWrapped){const orig=startGame;const wrapped=function(){run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:(typeof gameMode!=='undefined'?String(gameMode):'classic'),diff:(typeof difficulty!=='undefined'?String(difficulty):'normal'),missionId:'',missionTitle:''};const r=orig.apply(this,arguments);run.start=typeof runStartTime!=='undefined'?safeNum(runStartTime):performance.now();run.mode=typeof gameMode!=='undefined'?String(gameMode):run.mode;run.diff=typeof difficulty!=='undefined'?String(difficulty):run.diff;if(typeof storyMode!=='undefined'&&storyMode&&typeof STORY_CAMPAIGN!=='undefined'&&STORY_CAMPAIGN[storyChapterIdx]){run.missionId=STORY_CAMPAIGN[storyChapterIdx].id;run.missionTitle=STORY_CAMPAIGN[storyChapterIdx].title}return r};wrapped.__techStatsWrapped=true;startGame=wrapped;window.startGame=wrapped}}
+    catch(e){console.warn('No se pudo instrumentar inicio de partida',e)}
+    try{if(typeof shoot==='function'&&!shoot.__techStatsWrapped){const orig=shoot;const wrapped=function(){const before=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:0;const r=orig.apply(this,arguments);const after=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:before;const n=Math.max(0,after-before);if(n&&typeof gameRunning!=='undefined'&&gameRunning&&!gamePaused){run.shots+=n;const s=readStats();s.shots=safeNum(s.shots)+n;saveStats(s)}return r};wrapped.__techStatsWrapped=true;shoot=wrapped;window.shoot=wrapped}}
+    catch(e){console.warn('No se pudo instrumentar disparos',e)}
+    try{if(typeof destroyEnemy==='function'&&!destroyEnemy.__techStatsWrapped){const orig=destroyEnemy;const wrapped=function(o,i){const before=!!(o&&o.__techDestroyed);const type=o&&o.type?String(o.type):'';const r=orig.apply(this,arguments);if(o&&!before&&o.__techDestroyed){run.kills++;if(/meteor|explosive|magnetic|hard|fireball/i.test(type))run.meteors++;else run.ships++;}return r};wrapped.__techStatsWrapped=true;destroyEnemy=wrapped;window.destroyEnemy=wrapped}}
+    catch(e){console.warn('No se pudo instrumentar eliminaciones',e)}
+    try{if(typeof completeStoryMission==='function'&&!completeStoryMission.__techStatsWrapped){const orig=completeStoryMission;const wrapped=function(ok){const active=typeof storyMissionActive!=='undefined'&&storyMissionActive;const ch=typeof STORY_CAMPAIGN!=='undefined'?STORY_CAMPAIGN[storyChapterIdx]:null;const success=!!ok;const scoreAtEnd=typeof score!=='undefined'?safeNum(score):0;const result=orig.apply(this,arguments);if(active&&ch&&!run.recorded){const s=readStats();s.missionStats=s.missionStats||{};const x=s.missionStats[ch.id]||{title:ch.title,attempts:0,wins:0,losses:0,bestScore:0,totalSeconds:0,lastAt:0};x.title=ch.title;x.attempts=safeNum(x.attempts)+1;if(success)x.wins=safeNum(x.wins)+1;else x.losses=safeNum(x.losses)+1;x.bestScore=Math.max(safeNum(x.bestScore),scoreAtEnd);const elapsed=run.start?Math.max(0,Math.round((performance.now()-run.start)/1000)):0;x.totalSeconds=safeNum(x.totalSeconds)+elapsed;x.lastAt=Date.now();s.missionStats[ch.id]=x;saveStats(s);run.mode='story';run.missionId=ch.id;run.missionTitle=ch.title;recordMatch({missionId:ch.id,missionTitle:ch.title,result:success?'won':'lost',objective:ch.type||''});if(success){addNotice('Misión completada: '+ch.title,'mission');toast('🚀 Misión completada: '+ch.title,'mission')}else{addNotice('Misión fallida: '+ch.title,'info');toast('Misión fallida: '+ch.title,'info')}if(panelOpen)render()}return result};wrapped.__techStatsWrapped=true;completeStoryMission=wrapped;window.completeStoryMission=wrapped}}
+    catch(e){console.warn('No se pudo instrumentar misiones',e)}
+    try{if(typeof endGame==='function'&&!endGame.__techStatsWrapped){const orig=endGame;const wrapped=function(){const wasRunning=typeof gameRunning!=='undefined'&&gameRunning;const scoreAtEnd=typeof score!=='undefined'?safeNum(score):0;const oldBest=Math.max(safeNum(readStats().highScore),safeNum(record));const activeStory=typeof storyMissionActive!=='undefined'&&storyMissionActive;const r=orig.apply(this,arguments);if(wasRunning&&!run.recorded){const mode=activeStory||run.mode==='story'?'story':(typeof gameMode!=='undefined'?String(gameMode):run.mode);run.mode=mode;const result=activeStory?'abandoned':'lost';const entry=recordMatch({missionId:run.missionId,missionTitle:run.missionTitle,result,objective:activeStory?'Abandonada':''});if(scoreAtEnd>oldBest){addNotice('Nuevo récord personal: '+scoreAtEnd.toLocaleString('es-CO')+' puntos','record');toast('🏆 ¡Nuevo récord personal: '+scoreAtEnd.toLocaleString('es-CO')+' puntos!','record')}if(panelOpen)render();run.recorded=true}return r};wrapped.__techStatsWrapped=true;endGame=wrapped;window.endGame=wrapped}}
+    catch(e){console.warn('No se pudo instrumentar fin de partida',e)}
   }
-  function init(){const btn=document.getElementById('openStatistics');if(btn)btn.addEventListener('click',openPanel);patchFunctions();setInterval(patchFunctions,1200);}
+  function init(){migrateLegacy();const btn=document.getElementById('openStatistics');if(btn&&!btn.__techStatsBound){btn.addEventListener('click',openPanel);btn.__techStatsBound=true}wrapGameplay();setInterval(wrapGameplay,1000);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
 
 </body>
 </html>

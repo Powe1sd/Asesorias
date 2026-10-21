@@ -1376,7 +1376,7 @@ const SHIP_GALLERY=[
   {model:"f50",form:null,name:"F50",icon:"🛩️"},
   {model:"t200",form:null,name:"T200",icon:"🧱"},
   {model:"s179",form:null,name:"S179",icon:"✅"},
-  {model:"goku",form:"normal",name:"Goku Base",icon:"🥋"},
+  {model:"goku",form:"normal",name:"Goku Normal",icon:"🥋"},
   {model:"goku",form:"ssj",name:"Goku SSJ",icon:"🔴"},
   {model:"goku",form:"ssj1",name:"Goku SSJ1",icon:"⚡"},
   {model:"goku",form:"ssj2",name:"Goku SSJ2",icon:"⚡"},
@@ -2564,7 +2564,7 @@ function applyGokuFormPower(form){
   if(!gameRunning||gamePaused)return;
   if(form==="normal"){
     shield=Math.max(shield,80);
-    scenarioMsg="🥋 Goku Base";scenarioTransition=50;
+    scenarioMsg="🥋 Goku Normal";scenarioTransition=50;
   } else if(form==="ssj"){
     rapidFire=Math.max(rapidFire,300);
     shield=Math.max(shield,160);
@@ -5416,7 +5416,7 @@ function drawShipModel(g,s,model,skin,label){
     } else if(form==="ssblue"){
       auraCol="#00BFFF"; hairCol="#3AA0FF"; hairStroke="#0077CC"; auraAlpha=0.42; eyeCol="#111";
     } else {
-      // normal (Base)
+      // normal (Normal)
       auraCol="#66AAFF"; hairCol="#1a1a1a"; hairStroke="#333"; auraAlpha=0.12; eyeCol="#111";
     }
 
@@ -5807,7 +5807,7 @@ function drawShipPreview(){
   drawShipModel(g,shipScale,shipModel,shipSkin,shipName);
   g.restore();
   g.fillStyle="rgba(255,205,0,.9)";g.font="bold 12px Orbitron";g.textAlign="center";
-  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",r13:"R13",c67:"C67",rr1:"RR1",s1000:"S1000",f50:"F50",t200:"T200",s179:"S179",goku:"Goku "+({normal:"Base",ssj:"SSJ",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios",ssblue:"SS Blue"}[gokuForm]||"")};
+  const names={classic:"Clásica",fighter:"Cazadora",interceptor:"Interceptor",heavy:"Pesada",stealth:"Sigilo",wing:"Ala X",needle:"Aguja",delta:"Delta",r13:"R13",c67:"C67",rr1:"RR1",s1000:"S1000",f50:"F50",t200:"T200",s179:"S179",goku:"Goku "+({normal:"Normal",ssj:"SSJ",ssj1:"SSJ1",ssj2:"SSJ2",ssj3:"SSJ3",ssj4:"SSJ4",bru:"Bru",golden:"Golden",ultra:"Ultra",superdios:"S.Dios",ssblue:"SS Blue"}[gokuForm]||"")};
   g.fillText((window.techTranslateShipName?window.techTranslateShipName(shipModel,names[shipModel]||shipModel):((names[shipModel]||shipModel)))+" · "+shipSkin,W/2,H-12);
 }
 
@@ -7826,7 +7826,7 @@ function storyOnWaveComplete(){
  };
  const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']];
  function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
- window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul',black:'Black',rose:'Rose'},en:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue',black:'Black',rose:'Rose'},fr:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu',black:'Black',rose:'Rose'},ja:{normal:'基本',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー',black:'Black',rose:'Rose'},zh:{normal:'基础',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝',black:'Black',rose:'Rose'},pt:{normal:'Base',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul',black:'Black',rose:'Rose'},de:{normal:'Basis',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau',black:'Black',rose:'Rose'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
+ window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul',black:'Black',rose:'Rose'},en:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue',black:'Black',rose:'Rose'},fr:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu',black:'Black',rose:'Rose'},ja:{normal:'ノーマル',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー',black:'Black',rose:'Rose'},zh:{normal:'普通',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝',black:'Black',rose:'Rose'},pt:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul',black:'Black',rose:'Rose'},de:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau',black:'Black',rose:'Rose'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
  function makeSelect(id){let el=document.getElementById(id);if(el)return el;el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Idioma / Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';langs.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
  function sync(){let c=code();['langSelect','startLangSelect','pauseLangSelect'].forEach(id=>{let e=document.getElementById(id);if(e)e.value=c});let cfg=document.getElementById('configPanel');if(cfg){let title=cfg.querySelector('h2');if(title){title.style.display='block';title.style.visibility='visible'}}}
  function addPauseLanguage(){const p=document.getElementById('pausePanel');if(!p||document.getElementById('pauseLanguageBlock'))return;const block=document.createElement('div');block.id='pauseLanguageBlock';block.style.cssText='margin:10px 0 14px;padding:10px;border:1px solid rgba(255,205,0,.45);border-radius:9px;text-align:left;';const label=document.createElement('label');label.htmlFor='pauseLangSelect';label.textContent='🌐 Idioma / Language';label.style.cssText='display:block;color:#ffcd00;font-size:12px;font-weight:700;margin-bottom:6px';const sel=makeSelect('pauseLangSelect');block.append(label,sel);const heading=p.querySelector('h3');if(heading&&heading.parentElement)heading.parentElement.insertBefore(block,heading.nextSibling);else p.insertBefore(block,p.firstChild);}

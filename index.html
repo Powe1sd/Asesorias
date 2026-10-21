@@ -7815,10 +7815,11 @@ function storyOnWaveComplete(){
  function addPauseLanguage(){const p=document.getElementById('pausePanel');if(!p||document.getElementById('pauseLanguageBlock'))return;const block=document.createElement('div');block.id='pauseLanguageBlock';block.style.cssText='margin:10px 0 14px;padding:10px;border:1px solid rgba(255,205,0,.45);border-radius:9px;text-align:left;';const label=document.createElement('label');label.htmlFor='pauseLangSelect';label.textContent='🌐 Idioma / Language';label.style.cssText='display:block;color:#ffcd00;font-size:12px;font-weight:700;margin-bottom:6px';const sel=makeSelect('pauseLangSelect');block.append(label,sel);const heading=p.querySelector('h3');if(heading&&heading.parentElement)heading.parentElement.insertBefore(block,heading.nextSibling);else p.insertBefore(block,p.firstChild);}
  function addConfigLanguage(){const cfg=document.getElementById('configPanel');if(!cfg)return;const old=document.getElementById('langSelect');if(old){const par=old.parentElement; if(par){par.style.display='block';par.style.visibility='visible';par.style.opacity='1';}}}
  const prior=window.setLanguage;window.setLanguage=function(c){if(typeof prior==='function')prior(c);else{try{localStorage.setItem('techLang',c)}catch(e){}window.__techLangCurrent=c;}try{window.__techLangCurrent=c;const l=document.getElementById('langSelect');if(l)l.value=c;const st=document.getElementById('startLangSelect');if(st)st.value=c;const pa=document.getElementById('pauseLangSelect');if(pa)pa.value=c; if(typeof drawShipPreview==='function')drawShipPreview();}catch(e){} };
- function init(){addPauseLanguage();addConfigLanguage();sync();}
+ function removePauseLanguage(){try{const b=document.getElementById('pauseLanguageBlock');if(b)b.remove();const s=document.getElementById('pauseLangSelect');if(s&&s.parentElement&&s.parentElement.id==='pauseLanguageBlock')s.parentElement.remove();else if(s)s.remove();}catch(e){}}
+ function init(){removePauseLanguage();addConfigLanguage();sync();}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
- document.addEventListener('click',e=>{if(e.target&&['btnPause','resumeGame'].includes(e.target.id))setTimeout(init,30)});
- const ob=new MutationObserver(()=>{if(!document.getElementById('pauseLanguageBlock'))addPauseLanguage();});if(document.body)ob.observe(document.body,{subtree:true,childList:true});
+ document.addEventListener('click',e=>{if(e.target&&['btnPause','resumeGame'].includes(e.target.id))setTimeout(function(){removePauseLanguage();sync();},30)});
+ const ob=new MutationObserver(()=>{removePauseLanguage();});if(document.body)ob.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
 
@@ -8049,6 +8050,88 @@ function storyOnWaveComplete(){
   let panelOpen=false;
   let run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:'classic',diff:'normal',missionId:'',missionTitle:''};
 
+  /* —— Sesiones, retención y enfriamiento (datos locales de este navegador) —— */
+  const VISITS_KEY='techVisitDaysV1';
+  const SESSIONS_KEY='techSessionsV1';
+  const FIRST_KEY='techFirstVisitV1';
+  function dayKey(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function readVisits(){const a=readJSON(VISITS_KEY,[]);return Array.isArray(a)?a:[]}
+  function readSessions(){const a=readJSON(SESSIONS_KEY,[]);return Array.isArray(a)?a.slice(0,400):[]}
+  function trackVisitDay(){
+    try{
+      const today=dayKey(Date.now());
+      const days=readVisits();
+      if(!days.includes(today)){days.push(today);days.sort();writeJSON(VISITS_KEY,days.slice(-400))}
+      if(!localStorage.getItem(FIRST_KEY))localStorage.setItem(FIRST_KEY,String(Date.now()));
+    }catch(e){}
+  }
+  function startSessionTrack(){
+    try{
+      trackVisitDay();
+      window.__techSessionStart=Date.now();
+      window.__techSessionActive=true;
+    }catch(e){}
+  }
+  function endSessionTrack(){
+    try{
+      if(!window.__techSessionActive)return;
+      const start=Number(window.__techSessionStart)||Date.now();
+      const end=Date.now();
+      const dur=Math.max(1,Math.round((end-start)/1000));
+      const sessions=readSessions();
+      sessions.unshift({start,end,duration:dur,day:dayKey(start)});
+      writeJSON(SESSIONS_KEY,sessions.slice(0,400));
+      window.__techSessionActive=false;
+      trackVisitDay();
+    }catch(e){}
+  }
+  function retentionStats(){
+    const days=readVisits().slice().sort();
+    const sessions=readSessions();
+    const now=Date.now();
+    const first=Number(localStorage.getItem(FIRST_KEY)||0)|| (days[0]?Date.parse(days[0]+'T12:00:00'):0);
+    // Tasa de retorno: % de días activos con otra visita en la ventana N
+    function rate(windowDays){
+      if(days.length<2)return days.length?0:0;
+      let ok=0,base=0;
+      for(let i=0;i<days.length;i++){
+        const t=Date.parse(days[i]+'T12:00:00');
+        if(!Number.isFinite(t))continue;
+        // solo contar días que ya tuvieron oportunidad de completar la ventana
+        if(now-t<windowDays*86400000)continue;
+        base++;
+        const later=days.slice(i+1).some(d=>{
+          const t2=Date.parse(d+'T12:00:00');
+          return Number.isFinite(t2)&&t2>t&&(t2-t)<=windowDays*86400000;
+        });
+        if(later)ok++;
+      }
+      return base?Math.round(ok/base*100):0;
+    }
+    const d1=rate(1),d7=rate(7),d30=rate(30);
+    // Cooldown: tiempo medio entre fin de una sesión y inicio de la siguiente
+    const chrono=sessions.slice().sort((a,b)=>safeNum(a.start)-safeNum(b.start));
+    let gaps=[],sumGap=0;
+    for(let i=1;i<chrono.length;i++){
+      const gap=safeNum(chrono[i].start)-safeNum(chrono[i-1].end||chrono[i-1].start);
+      if(gap>0&&gap<30*86400000){gaps.push(gap);sumGap+=gap}
+    }
+    const avgCooldownSec=gaps.length?Math.round(sumGap/gaps.length/1000):0;
+    const avgSession=sessions.length?Math.round(sessions.reduce((n,s)=>n+safeNum(s.duration),0)/sessions.length):0;
+    const longestSession=sessions.reduce((b,s)=>Math.max(b,safeNum(s.duration)),0);
+    const totalSessions=sessions.length;
+    const activeDays=days.length;
+    const lastSession=sessions[0];
+    const daysSinceLast=lastSession?Math.max(0,Math.floor((now-safeNum(lastSession.end||lastSession.start))/86400000)):0;
+    const daysSinceFirst=first?Math.max(1,Math.floor((now-first)/86400000)+1):1;
+    const sessionsPerWeek=daysSinceFirst>0?Math.round(totalSessions/(daysSinceFirst/7)*10)/10:0;
+    const returnedD1=d1,returnedD7=d7,returnedD30=d30;
+    return {d1:returnedD1,d7:returnedD7,d30:returnedD30,avgCooldownSec,avgSession,longestSession,totalSessions,activeDays,daysSinceLast,sessionsPerWeek,daysSinceFirst};
+  }
+  // iniciar sesión al cargar panel / juego
+  try{startSessionTrack();window.addEventListener('pagehide',endSessionTrack);window.addEventListener('beforeunload',endSessionTrack);}catch(e){}
+
+
   function readJSON(key,fallback){try{const v=localStorage.getItem(key);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
   function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){console.warn('[TECH estadísticas] No se pudo guardar '+key,e);return false}}
   function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
@@ -8189,6 +8272,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
     }
     const filteredCount=filtered.length;
     const compareCount=h.length;
+    const ret=retentionStats();
 
     panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Centro de estadísticas PRO</h2></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
       <section class="tech-stat-section tech-stat-filters"><h3>🔎 Filtros y comparación</h3><div class="tech-stat-filtergrid"><label>Comparar<select id="statRange"><option value="5" ${range==='5'?'selected':''}>Últimas 5</option><option value="10" ${range==='10'?'selected':''}>Últimas 10</option><option value="20" ${range==='20'?'selected':''}>Últimas 20</option><option value="all" ${range==='all'?'selected':''}>Todas las filtradas</option></select></label><label>Modo<select id="statMode"><option value="all" ${filterMode==='all'?'selected':''}>Todos los modos</option><option value="classic" ${filterMode==='classic'?'selected':''}>Clásico</option><option value="infinite" ${filterMode==='infinite'?'selected':''}>Infinito</option><option value="story" ${filterMode==='story'?'selected':''}>Historia</option></select></label><label>Desde<input id="statFrom" type="date" value="${esc(filterFrom)}"></label><label>Hasta<input id="statTo" type="date" value="${esc(filterTo)}"></label></div><div class="tech-stat-tools"><button class="tech-stat-action" id="applyStatFilters">Aplicar filtros</button><button class="tech-stat-action" id="clearStatFilters">Limpiar filtros</button><span class="tech-stat-pill">${filtered.length} partidas coinciden</span><span class="tech-stat-pill">${h.length} en comparación</span></div></section>
@@ -8222,6 +8306,16 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
        <div class="tech-stat-card"><span>Nave más usada</span><strong style="font-size:14px">${topShipLabel}</strong><small>En partidas filtradas</small></div>
        <div class="tech-stat-card"><span>Mundo más jugado</span><strong style="font-size:14px">${topWorldLabel}</strong><small>En partidas filtradas</small></div>
        <div class="tech-stat-card"><span>Partidas filtradas</span><strong>${filteredCount}</strong><small>Coinciden con filtros actuales</small></div>
+       <div class="tech-stat-card"><span>Retención Día 1</span><strong>${ret.d1}%</strong><small>% de días activos con retorno en 24 h</small></div>
+       <div class="tech-stat-card"><span>Retención Día 7</span><strong>${ret.d7}%</strong><small>% de días activos con retorno en 7 días</small></div>
+       <div class="tech-stat-card"><span>Retención Día 30</span><strong>${ret.d30}%</strong><small>% de días activos con retorno en 30 días</small></div>
+       <div class="tech-stat-card"><span>Tiempo de enfriamiento</span><strong>${ret.avgCooldownSec?fmtTime(ret.avgCooldownSec):'—'}</strong><small>Promedio entre fin de una sesión e inicio de la siguiente</small></div>
+       <div class="tech-stat-card"><span>Duración de sesión</span><strong>${ret.avgSession?fmtTime(ret.avgSession):'—'}</strong><small>Tiempo medio por sesión en este navegador</small></div>
+       <div class="tech-stat-card"><span>Sesión más larga</span><strong>${ret.longestSession?fmtTime(ret.longestSession):'—'}</strong><small>Máxima duración de sesión registrada</small></div>
+       <div class="tech-stat-card"><span>Sesiones totales</span><strong>${ret.totalSessions}</strong><small>Aperturas registradas del juego</small></div>
+       <div class="tech-stat-card"><span>Días activos</span><strong>${ret.activeDays}</strong><small>Días distintos con actividad</small></div>
+       <div class="tech-stat-card"><span>Sesiones / semana</span><strong>${ret.sessionsPerWeek}</strong><small>Frecuencia media desde la primera visita</small></div>
+       <div class="tech-stat-card"><span>Días sin jugar</span><strong>${ret.daysSinceLast}</strong><small>Desde la última sesión registrada</small></div>
       </div>
       <section class="tech-stat-section"><h3>📈 Evolución de puntuación: subidas y bajadas</h3>${buildChart(h)}<h3 style="margin-top:18px">📊 Comparación visual de puntuaciones</h3>${buildScoreBars(h)}</section>
       <div class="tech-stat-breakdown"><section class="tech-stat-section"><h3>🎮 Partidas por modo</h3>${breakdown(filtered,'mode','Modo')}</section><section class="tech-stat-section"><h3>⚙️ Partidas por dificultad</h3>${breakdown(filtered,'diff','Dificultad')}</section><section class="tech-stat-section"><h3>🌌 Mundos visitados</h3>${breakdown(filtered,'world','Mundo')}</section><section class="tech-stat-section"><h3>📊 Tendencia y rendimiento</h3>${bar('Variación de las dos últimas puntuaciones',Math.max(0,lastTwo[0]||0),Math.max(1,lastTwo[0]||0,lastTwo[1]||0),delta>0?'#69f0ae':delta<0?'#ff7b86':'#62efff',h.length>1?(delta>0?'↗ +':delta<0?'↘ ':'→ ')+Math.abs(delta).toLocaleString('es-CO')+' pts':'Datos insuficientes')}${bar('Promedio vs récord personal',avg,Math.max(1,best),'#62efff',avg.toLocaleString('es-CO')+' pts')}<p class="tech-stat-muted">${h.length>1?(delta>0?'La última puntuación subió.':delta<0?'La última puntuación bajó.':'Las dos últimas puntuaciones están iguales.'):'Juega más partidas para comparar tendencias.'}</p><p class="tech-stat-muted">Precisión real: no disponible aún porque el motor no expone un evento centralizado de impactos; no se inventa un porcentaje.</p></section></div>
@@ -8293,7 +8387,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
   }
   function closePanel(){const panel=document.getElementById('techStatisticsPanel');if(panel)panel.style.display='none';panelOpen=false;const start=document.getElementById('startPanel');if(start)start.style.display='block';}
   function wrapGameplay(){
-    try{if(typeof startGame==='function'&&!startGame.__techStatsWrapped){const orig=startGame;const wrapped=function(){run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:(typeof gameMode!=='undefined'?String(gameMode):'classic'),diff:(typeof difficulty!=='undefined'?String(difficulty):'normal'),missionId:'',missionTitle:''};const r=orig.apply(this,arguments);run.start=typeof runStartTime!=='undefined'?safeNum(runStartTime):performance.now();run.mode=typeof gameMode!=='undefined'?String(gameMode):run.mode;run.diff=typeof difficulty!=='undefined'?String(difficulty):run.diff;if(typeof storyMode!=='undefined'&&storyMode&&typeof STORY_CAMPAIGN!=='undefined'&&STORY_CAMPAIGN[storyChapterIdx]){run.missionId=STORY_CAMPAIGN[storyChapterIdx].id;run.missionTitle=STORY_CAMPAIGN[storyChapterIdx].title}return r};wrapped.__techStatsWrapped=true;startGame=wrapped;window.startGame=wrapped}}
+    try{if(typeof startGame==='function'&&!startGame.__techStatsWrapped){const orig=startGame;const wrapped=function(){run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:(typeof gameMode!=='undefined'?String(gameMode):'classic'),diff:(typeof difficulty!=='undefined'?String(difficulty):'normal'),missionId:'',missionTitle:''};try{trackVisitDay();if(!window.__techSessionActive)startSessionTrack()}catch(e){}const r=orig.apply(this,arguments);run.start=typeof runStartTime!=='undefined'?safeNum(runStartTime):performance.now();run.mode=typeof gameMode!=='undefined'?String(gameMode):run.mode;run.diff=typeof difficulty!=='undefined'?String(difficulty):run.diff;if(typeof storyMode!=='undefined'&&storyMode&&typeof STORY_CAMPAIGN!=='undefined'&&STORY_CAMPAIGN[storyChapterIdx]){run.missionId=STORY_CAMPAIGN[storyChapterIdx].id;run.missionTitle=STORY_CAMPAIGN[storyChapterIdx].title}return r};wrapped.__techStatsWrapped=true;startGame=wrapped;window.startGame=wrapped}}
     catch(e){console.warn('No se pudo instrumentar inicio de partida',e)}
     try{if(typeof shoot==='function'&&!shoot.__techStatsWrapped){const orig=shoot;const wrapped=function(){const before=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:0;const r=orig.apply(this,arguments);const after=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:before;const n=Math.max(0,after-before);if(n&&typeof gameRunning!=='undefined'&&gameRunning&&!gamePaused){run.shots+=n;const s=readStats();s.shots=safeNum(s.shots)+n;saveStats(s)}return r};wrapped.__techStatsWrapped=true;shoot=wrapped;window.shoot=wrapped}}
     catch(e){console.warn('No se pudo instrumentar disparos',e)}

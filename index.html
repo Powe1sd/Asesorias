@@ -2080,6 +2080,7 @@ function getConfigHTML(){
 <option value="fr" ${lang==="fr"?"selected":""}>Français</option>
 <option value="ja" ${lang==="ja"?"selected":""}>日本語</option>
 <option value="zh" ${lang==="zh"?"selected":""}>中文</option>
+<option value="pt" ${lang==="pt"?"selected":""}>Português</option>
 </select>
 <p style="color:#FFCD00;font-size:11px;margin:10px 0 2px">${T("touchLayout")}</p>
 <select id="touchLayoutSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
@@ -3245,7 +3246,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <button type="button" data-mode="classic" class="${gameMode==="classic"?"active":""}">Clásico</button>
       <button type="button" data-mode="infinite" class="${gameMode==="infinite"?"active":""}">∞ Infinito</button>
     </div>
-    <p style="font-size:9px;color:#888;margin:2px 0 6px">Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.</p>
+    <p style="font-size:9px;color:#888;margin:2px 0 6px" data-i18n-key="infiniteDesc">Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.</p>
     <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <span>⬆ Mejoras permanentes</span>
       <span style="color:#FFCD00;font-size:12px;font-weight:700;letter-spacing:.5px">${coins} ⭐</span>
@@ -7102,7 +7103,7 @@ runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
 startPanel.style.display="none";gameOverPanel.style.display="none";
-const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","8px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
+const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","10px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="block";try{window.refreshMuteLiveIcon()}catch(e){}}
@@ -7708,7 +7709,7 @@ function storyOnWaveComplete(){
   Object.entries(LANGS).forEach(([code,dict])=>Object.entries(dict).forEach(([key,value])=>{if(typeof value==='string'&&key!=='label')phrases[value]=key;}));
   const canonical={}; Object.entries(phrases).forEach(([variant,key])=>{canonical[variant]=key;});
   const sortedPhrases=Object.entries(phrases).sort((a,b)=>b[0].length-a[0].length);
-  const codes=['es','en','fr','ja','zh','pt','de','it','ru','ko','ar','hi','tr','nl','pl','vi','th'];
+  const codes=['es','en','fr','ja','zh','pt'];
   /* —— Extra: claves y variantes para traducir TODO el UI —— */
   const EXTRA={
     es:{
@@ -7937,40 +7938,71 @@ function storyOnWaveComplete(){
 
   function current(){try{if(window.__techLangCurrent&&LANGS[window.__techLangCurrent])return window.__techLangCurrent}catch(e){} try{const s=document.getElementById('startLangSelect')||document.getElementById('langSelect');if(s&&LANGS[s.value])return s.value}catch(e){} try{if(typeof lang!=='undefined'&&LANGS[lang])return lang}catch(e){} return 'es'}
   function translateText(text,code){
-    let out=text;
-    out=String(out||'').replace(/Infinit[eo](?:te){2,}/gi,'Infinito').replace(/Infinite(?:te){2,}/gi,'Infinite');
-    /* Proteger nombres de formas Goku (no traducir Black → Negra) */
-    const _gokuProtect=[];
-    out=out.replace(/Goku Black/gi,()=>{_gokuProtect.push("Goku Black");return "\uE000GOKU_BLACK\uE000"});
-    out=out.replace(/Goku Rose/gi,()=>{_gokuProtect.push("Goku Rose");return "\uE000GOKU_ROSE\uE000"});
-    // Reemplazar primero frases largas para que las cadenas compuestas con contadores se conserven.
+    let out=String(text||'');
+    // Reparar corrupción típica
+    out=out.replace(/∞\s*Infinit[eo]t+/gi,'∞ INF_MARK').replace(/Infinit[eo]t{2,}/gi,'INF_MARK');
+    out=out.replace(/∞\s*Infinit[eo]/gi,'∞ INF_MARK').replace(/\bInfinit[eo]\b/gi,'INF_MARK');
+    out=out.replace(/∞\s*Infinite+/gi,'∞ INF_MARK').replace(/\bInfinite\b/gi,'INF_MARK');
+    /* Proteger nombres de formas Goku */
+    out=out.replace(/Goku Black/gi,"\uE000GOKU_BLACK\uE000");
+    out=out.replace(/Goku Rose/gi,"\uE000GOKU_ROSE\uE000");
     for(const [variant,key] of sortedPhrases){
+      if(!variant||variant.length<2)continue;
+      // Nunca aplicar claves cortas de modo infinito (se asignan por data-mode)
+      if(key==='infinite'||key==='infiniteLabel'||key==='infiniteDesc')continue;
+      if(/infinit/i.test(variant))continue;
       if(!out.includes(variant))continue;
-      const target=LANGS[code][key]; if(target)out=out.split(variant).join(target);
+      const target=LANGS[code]&&LANGS[code][key];
+      if(target) out=out.split(variant).join(target);
     }
     out=out.split("\uE000GOKU_BLACK\uE000").join("Goku Black");
     out=out.split("\uE000GOKU_ROSE\uE000").join("Goku Rose");
-    // Etiquetas variables con contadores: solo se cambia la etiqueta y se conserva el progreso.
     const labelPatterns=[[/Velocidad(?=\s+\d+\/\d+)/g,'speed'],[/Speed(?=\s+\d+\/\d+)/g,'speed'],[/Vitesse(?=\s+\d+\/\d+)/g,'speed'],[/速度(?=\s+\d+\/\d+)/g,'speed'],[/Munición(?=\s+\d+\/\d+)/g,'ammo'],[/Ammo(?=\s+\d+\/\d+)/g,'ammo'],[/Munitions(?=\s+\d+\/\d+)/g,'ammo'],[/弾薬(?=\s+\d+\/\d+)/g,'ammo'],[/Vidas(?=\s+\d+\/\d+)/g,'lives'],[/Lives(?=\s+\d+\/\d+)/g,'lives'],[/Vies(?=\s+\d+\/\d+)/g,'lives'],[/Daño(?=\s+\d+\/\d+)/g,'damage'],[/Damage(?=\s+\d+\/\d+)/g,'damage']];
-    for(const [re,key] of labelPatterns)out=out.replace(re,LANGS[code][key]);
+    for(const [re,key] of labelPatterns){
+      if(LANGS[code]&&LANGS[code][key]) out=out.replace(re,LANGS[code][key]);
+    }
+    // Restaurar infinito desde diccionario (una sola vez, sin concatenar)
+    const infLab=(LANGS[code]&&(LANGS[code].infiniteLabel||(LANGS[code].infinite?('∞ '+LANGS[code].infinite):null)))||'∞ Infinito';
+    const infDesc=(LANGS[code]&&LANGS[code].infiniteDesc)||'Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.';
+    out=out.replace(/∞\s*INF_MARK/g, infLab).replace(/\bINF_MARK\b/g, (LANGS[code]&&LANGS[code].infinite)||'Infinito');
+    // Si el texto completo era solo la descripción
+    if(/^INF_MARK/.test(out)||out==='INF_MARK') out=infDesc;
     return out;
   }
-  function run(root){const code=current();window.__techLangCurrent=code; if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;if(p.closest('#startLanguagePicker'))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
+function run(root){const code=current();window.__techLangCurrent=code; if(!root)return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
+      if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;
+      const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;
+      if(p.closest('#startLanguagePicker'))return NodeFilter.FILTER_REJECT;
+      // No tocar botones de modo infinito aquí (se fijan después)
+      if(p.closest&&p.closest('[data-mode="infinite"]'))return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }});
     let n;while((n=walker.nextNode())){const before=n.nodeValue,after=translateText(before,code);if(before!==after)n.nodeValue=after;}
     if(root.querySelectorAll){
-      root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>['placeholder','title','aria-label'].forEach(a=>{const v=el.getAttribute(a);if(v){const nv=translateText(v,code);if(nv!==v)el.setAttribute(a,nv)}}));
-      // OPTION y botones: traducir textContent completo
-      root.querySelectorAll('option,button,.game-btn,.touch-util,.touch-fire,.touch-special,.goku-form-btn,.tech-stat-toggle span,.tech-stat-card span,.tech-stat-card small,.tech-stat-card strong').forEach(el=>{
+      root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>['placeholder','title','aria-label'].forEach(a=>{const v=el.getAttribute(a);if(v&&!/infinit/i.test(v)){const nv=translateText(v,code);if(nv!==v)el.setAttribute(a,nv)}}));
+      root.querySelectorAll('option,button,.game-btn,.touch-util,.touch-fire,.touch-special,.goku-form-btn,.tech-stat-toggle span,.tech-stat-card span,.tech-stat-card small').forEach(el=>{
         if(el.closest('#startLanguagePicker'))return;
+        if(el.getAttribute&&el.getAttribute('data-mode')==='infinite')return;
         if(el.children&&el.children.length>1)return;
         const before=el.textContent; if(!before||!before.trim())return;
+        if(/infinit/i.test(before))return;
         const after=translateText(before,code); if(after!==before)el.textContent=after;
+      });
+      // Modo infinito: asignación directa, sin substring
+      const infLab=(LANGS[code]&&(LANGS[code].infiniteLabel||(LANGS[code].infinite?('∞ '+LANGS[code].infinite):null)))||'∞ Infinito';
+      const infDesc=(LANGS[code]&&LANGS[code].infiniteDesc)||'';
+      root.querySelectorAll('[data-mode="infinite"]').forEach(btn=>{btn.textContent=infLab;});
+      root.querySelectorAll('[data-i18n-key="infiniteDesc"]').forEach(el=>{if(infDesc)el.textContent=infDesc;});
+      // Párrafos de descripción cerca del botón infinito
+      root.querySelectorAll('p').forEach(p=>{
+        const t=p.textContent||'';
+        if(/infinit[eo].*olead|infinite:.*wave|oleadas interminables|endless waves/i.test(t) && infDesc) p.textContent=infDesc;
       });
     }
     const picker=document.getElementById('startLangSelect');if(picker){picker.value=code;const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;}
   }
-  function runAdded(node){if(!node||node.nodeType!==1)return;run(node);}
+function runAdded(node){if(!node||node.nodeType!==1)return;run(node);}
   window.__techLangs=LANGS;
   window.__techTranslateText=translateText;
   window.__techRunI18n=run;
@@ -8054,20 +8086,13 @@ function storyOnWaveComplete(){
     const hud=document.getElementById('techRunCounterText'); if(hud)hud.textContent=t.meteors+': '+(Number(typeof meteorsDestroyed!=='undefined'?meteorsDestroyed:0)||0);
   };
   function setupMainLanguage(){
-    const panel=document.getElementById('startPanel'); if(!panel)return;
-    let picker=document.getElementById('startLanguagePicker');
-    if(!picker){
-      picker=document.createElement('div'); picker.id='startLanguagePicker';
-      picker.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 auto 10px;padding:6px 8px;position:relative;z-index:5;';
-      const label=document.createElement('label');label.htmlFor='startLangSelect';label.style.cssText='color:#fff;font-size:12px;font-weight:700';
-      const select=document.createElement('select');select.id='startLangSelect';select.setAttribute('aria-label','Language');
-      select.style.cssText='max-width:180px;padding:7px 10px;border-radius:8px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';
-      [['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']].forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;select.appendChild(o)});
-      picker.append(label,select); panel.insertBefore(picker,panel.firstChild);
-      select.addEventListener('change',()=>{if(typeof window.setLanguage==='function')window.setLanguage(select.value);else{try{lang=select.value}catch(e){};try{localStorage.setItem('techLang',select.value)}catch(e){};if(typeof applyUILanguage==='function')applyUILanguage()}});
-    }
-    const code=getLang(); const sel=document.getElementById('startLangSelect');if(sel)sel.value=LANGS[code]?code:'es';
-    const label=picker.querySelector('label');if(label)label.textContent=(LANGS[code]||LANGS.es).label;
+    /* Idioma solo en Configuración — quitar selector del menú de inicio */
+    try{
+      const picker=document.getElementById('startLanguagePicker');
+      if(picker) picker.remove();
+      const sel=document.getElementById('startLangSelect');
+      if(sel && sel.closest && !sel.closest('#configPanel')) sel.remove();
+    }catch(e){}
     const badge=document.getElementById('techCoinsMainBadge'); if(badge)badge.remove();
   }
   const priorSetLanguage=window.setLanguage;
@@ -8126,7 +8151,7 @@ function storyOnWaveComplete(){
   }catch(e){}
   function expandSettingsLanguage(){
     const cfg=document.getElementById('langSelect');if(!cfg)return;
-    const opts=[['pt','Português'],['de','Deutsch']];
+    const opts=[['pt','Português']];
     opts.forEach(([v,n])=>{if(!Array.from(cfg.options).some(o=>o.value===v)){const o=document.createElement('option');o.value=v;o.textContent=n;cfg.appendChild(o)}});
     const code=window.__techLangCurrent||localStorage.getItem('techLang')||'es';if(Array.from(cfg.options).some(o=>o.value===code))cfg.value=code;
   }
@@ -8205,7 +8230,7 @@ function storyOnWaveComplete(){
   pt:{classic:'Clássica',fighter:'Caçadora',interceptor:'Interceptadora',heavy:'Pesada',stealth:'Furtiva',wing:'Asa X',needle:'Agulha',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'},
   de:{classic:'Klassisch',fighter:'Jäger',interceptor:'Abfangjäger',heavy:'Schwer',stealth:'Tarnkappe',wing:'X-Flügel',needle:'Nadel',delta:'Delta',r13:'R13',c67:'C67',rr1:'RR1',s1000:'S1000',f50:'F50',t200:'T200',s179:'S179',goku:'Goku'}
  };
- const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português'],['de','Deutsch'],['it','Italiano'],['ru','Русский'],['ko','한국어'],['ar','العربية'],['hi','हिन्दी'],['tr','Türkçe'],['nl','Nederlands'],['pl','Polski'],['vi','Tiếng Việt'],['th','ไทย']];
+ const langs=[['es','Español'],['en','English'],['fr','Français'],['ja','日本語'],['zh','简体中文'],['pt','Português']];
  function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
  window.techTranslateShipName=function(id,fallback){let c=code(),t=shipNames[c]||shipNames.es,n=t[id]||fallback||id;if(id==='goku'){let forms={es:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dorado',ultra:'Ultra',superdios:'Super Dios',ssblue:'SS Azul',black:'Black',rose:'Rose'},en:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Super God',ssblue:'SS Blue',black:'Black',rose:'Rose'},fr:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Doré',ultra:'Ultra',superdios:'Super Dieu',ssblue:'SS Bleu',black:'Black',rose:'Rose'},ja:{normal:'ノーマル',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'ブル',golden:'ゴールデン',ultra:'ウルトラ',superdios:'超神',ssblue:'超サイヤ人ブルー',black:'Black',rose:'Rose'},zh:{normal:'普通',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'布鲁',golden:'黄金',ultra:'究极',superdios:'超神',ssblue:'超蓝',black:'Black',rose:'Rose'},pt:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Dourado',ultra:'Ultra',superdios:'Super Deus',ssblue:'SS Azul',black:'Black',rose:'Rose'},de:{normal:'Normal',ssj:'SSJ',ssj1:'SSJ1',ssj2:'SSJ2',ssj3:'SSJ3',ssj4:'SSJ4',bru:'Bru',golden:'Golden',ultra:'Ultra',superdios:'Supergott',ssblue:'SS Blau',black:'Black',rose:'Rose'}};n+=' '+((forms[c]||forms.es)[window.gokuForm]||'');}return n;};
  function makeSelect(id){let el=document.getElementById(id);if(el)return el;el=document.createElement('select');el.id=id;el.setAttribute('aria-label','Idioma / Language');el.style.cssText='width:100%;padding:8px;border-radius:7px;background:#101a2b;color:#fff;border:1px solid #ffcd00;font-size:13px;';langs.forEach(([v,n])=>{let o=document.createElement('option');o.value=v;o.textContent=n;el.appendChild(o)});el.value=code();el.addEventListener('change',()=>window.setLanguage(el.value));return el;}
@@ -8242,7 +8267,7 @@ function storyOnWaveComplete(){
       b.textContent='⚙';
       b.setAttribute('aria-label','Abrir configuraciones');
       b.title='Configuraciones';
-      b.style.cssText='position:absolute;top:10px;right:10px;z-index:60;width:38px;height:38px;display:flex;align-items:center;justify-content:center;padding:0;margin:0;border:1px solid rgba(255,205,0,.65);border-radius:50%;background:rgba(8,15,30,.9);color:#FFCD00;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 0 10px rgba(255,205,0,.18);';
+      b.style.cssText='position:absolute;top:10px;left:10px;right:auto;z-index:60;width:38px;height:38px;display:flex;align-items:center;justify-content:center;padding:0;margin:0;border:1px solid rgba(255,205,0,.65);border-radius:50%;background:rgba(8,15,30,.9);color:#FFCD00;font-size:23px;line-height:1;cursor:pointer;box-shadow:0 0 10px rgba(255,205,0,.18);';
       sp.appendChild(b);
     }
     sp.style.position='absolute';
@@ -8793,10 +8818,18 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
     wireToggle('toggleMissionAnalysis','missionAnalysisBody');
     wireToggle('toggleMatchHistory','matchHistoryBody');
     wireToggle('toggleRecords','recordsBody');
+    try{window.__techStatsRender=render;panel.dataset.lang=String(window.__techLangCurrent||localStorage.getItem('techLang')||'es')}catch(e){}
+    try{if(typeof window.__techRunI18n==='function')window.__techRunI18n(panel)}catch(e){}
 
   }
-  function openPanel(){let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=document.createElement('div');panel.id='techStatisticsPanel';panel.className='tech-stat-panel';(document.querySelector('.tech-game')||document.body).appendChild(panel)}
-    ['startPanel','gameOverPanel','storyMenuPanel','storyBriefPanel','storyResultPanel','configPanel','pausePanel'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display!=='none'){el.dataset.statsWasVisible='1';el.style.display='none'}});try{migrateLegacy();trackVisitDay();startSessionTrack()}catch(e){}panel.style.display='block';panelOpen=true;render();
+  function openPanel(){
+    try{
+      const want=String(window.__techLangCurrent||localStorage.getItem('techLang')||'es');
+      const panel0=document.getElementById('techStatisticsPanel');
+      if(panel0&&panel0.dataset.lang&&panel0.dataset.lang!==want){panel0.innerHTML='';}
+    }catch(e){}
+let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=document.createElement('div');panel.id='techStatisticsPanel';panel.className='tech-stat-panel';(document.querySelector('.tech-game')||document.body).appendChild(panel)}
+    ['startPanel','gameOverPanel','storyMenuPanel','storyBriefPanel','storyResultPanel','configPanel','pausePanel'].forEach(id=>{const el=document.getElementById(id);if(el&&el.style.display!=='none'){el.dataset.statsWasVisible='1';el.style.display='none'}});try{migrateLegacy();trackVisitDay();startSessionTrack()}catch(e){}panel.style.display='block';panelOpen=true;render();try{panel.dataset.lang=String(window.__techLangCurrent||localStorage.getItem('techLang')||'es');if(typeof window.__techRunI18n==='function'){window.__techRunI18n(panel);setTimeout(function(){window.__techRunI18n(panel)},50);setTimeout(function(){window.__techRunI18n(document.body)},120)}}catch(e){}
   }
   function closePanel(){const panel=document.getElementById('techStatisticsPanel');if(panel)panel.style.display='none';panelOpen=false;const start=document.getElementById('startPanel');if(start)start.style.display='block';}
   function wrapGameplay(){
@@ -8849,173 +8882,236 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
 
 
 
-<script id="tech-i18n-full-cover">
+
+
+
+
+
+
+
+
+
+
+
+
+<script id="tech-lang-controller">
 (function(){
-  function retranslateAll(){
-    try{
-      if(typeof window.__techRunI18n==='function')window.__techRunI18n(document.body);
-      else if(typeof window.setLanguage==='function'){
-        const c=window.__techLangCurrent||localStorage.getItem('techLang')||'es';
-        window.setLanguage(c);
+  const ALLOWED=['es','en','fr','ja','zh','pt'];
+  const NAMES={es:'Español',en:'English',fr:'Français',ja:'日本語',zh:'简体中文',pt:'Português'};
+  let applying=false;
+
+  function norm(c){c=String(c||'es').toLowerCase();return ALLOWED.indexOf(c)>=0?c:'es'}
+
+  function prune(sel){
+    if(!sel)return;
+    Array.from(sel.options).forEach(o=>{if(ALLOWED.indexOf(o.value)<0)o.remove()});
+    ALLOWED.forEach(c=>{
+      if(!Array.from(sel.options).some(o=>o.value===c)){
+        const o=document.createElement('option');o.value=c;o.textContent=NAMES[c];sel.appendChild(o);
       }
-    }catch(e){}
-  }
-  // Envolver renderStart para traducir tras regenerar el menú
-  function hookRenderStart(){
-    if(typeof renderStart!=='function'||renderStart.__i18nFullHooked)return;
-    const orig=renderStart;
-    const wrapped=function(){
-      const r=orig.apply(this,arguments);
-      setTimeout(retranslateAll,0);
-      setTimeout(retranslateAll,40);
-      return r;
-    };
-    wrapped.__i18nFullHooked=true;
-    try{renderStart=wrapped;window.renderStart=wrapped}catch(e){}
-  }
-  // Envolver openPanel de estadísticas
-  function hookStats(){
-    try{
-      const btn=document.getElementById('openStatistics');
-      if(btn&&!btn.__i18nStatsHook){
-        btn.addEventListener('click',function(){setTimeout(retranslateAll,80);setTimeout(retranslateAll,250)});
-        btn.__i18nStatsHook=true;
-      }
-    }catch(e){}
-  }
-  function hookPause(){
-    document.addEventListener('click',function(e){
-      if(e.target&&(e.target.id==='btnPause'||e.target.id==='resumeGame'||e.target.id==='pauseOpenFullCfg'||e.target.id==='openStoryMode'||e.target.id==='btnConfig'||e.target.id==='pauseOpenFullCfg'))
-        setTimeout(retranslateAll,50);
-      if(e.target&&e.target.id==='openStoryMode')setTimeout(retranslateAll,100);
     });
   }
-  // Envolver openStoryMenu
-  function hookStory(){
-    if(typeof openStoryMenu!=='function'||openStoryMenu.__i18nHooked)return;
-    const orig=openStoryMenu;
-    openStoryMenu=function(){const r=orig.apply(this,arguments);setTimeout(retranslateAll,0);setTimeout(retranslateAll,50);return r};
-    openStoryMenu.__i18nHooked=true;
-    try{window.openStoryMenu=openStoryMenu}catch(e){}
-  }
-  function init(){
-    hookRenderStart();
-    hookStats();
-    hookPause();
-    hookStory();
-    setInterval(hookStory,2000);
-    setInterval(hookRenderStart,1500);
-    // Primera pasada
-    setTimeout(retranslateAll,200);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();
-</script>
+  function pruneAll(){['startLangSelect','langSelect','pauseLangSelect'].forEach(id=>prune(document.getElementById(id)))}
 
+  function fixInfinite(){
+    const code=norm(window.__techLangCurrent||'es');
+    const L=(window.__techLangs&&window.__techLangs[code])||{};
+    const lab=L.infiniteLabel||(L.infinite?('∞ '+L.infinite):'∞ Infinito');
+    const desc=L.infiniteDesc||'';
+    document.querySelectorAll('[data-mode="infinite"]').forEach(b=>{b.textContent=lab});
+    document.querySelectorAll('[data-i18n-key="infiniteDesc"]').forEach(p=>{if(desc)p.textContent=desc});
+  }
 
-<script id="tech-force-lang-on-load">
-(function(){
-  function bootLang(){
+  function rebuildConfig(){
     try{
-      const code=localStorage.getItem('techLang')||window.__techLangCurrent||'es';
+      const cfg=document.getElementById('configPanel');
+      if(!cfg||typeof getConfigHTML!=='function')return;
+      const open=cfg.classList.contains('config-panel-open')||(cfg.style.display&&cfg.style.display!=='none');
+      cfg.innerHTML=getConfigHTML();
+      if(typeof wireConfigPanel==='function')wireConfigPanel();
+      prune(document.getElementById('langSelect'));
+      const ls=document.getElementById('langSelect');
+      if(ls){ls.value=norm(window.__techLangCurrent);ls.onchange=function(){setLang(ls.value)}}
+      if(open){cfg.classList.add('config-panel-open');cfg.style.setProperty('display','block','important')}
+    }catch(e){}
+  }
+
+  function rebuildStats(){
+    try{
+      const panel=document.getElementById('techStatisticsPanel');
+      if(!panel)return;
+      // Borrar HTML traducido previo y regenerar desde plantilla (español canónico)
+      const wasOpen=panel.style.display==='block';
+      panel.innerHTML='';
+      panel.dataset.lang='';
+      // Llamar render del dashboard si está expuesto
+      if(typeof window.__techStatsRender==='function'){
+        window.__techStatsRender();
+      } else {
+        // Disparar click del botón para reabrir limpio
+        panelOpenForce();
+      }
+      if(wasOpen)panel.style.display='block';
+    }catch(e){}
+  }
+
+  function panelOpenForce(){
+    try{
+      // El render interno está en el closure del dashboard; forzar openPanel vía botón
+      const btn=document.getElementById('openStatistics');
+      // Marcar que el panel debe re-traducirse
+      window.__techStatsNeedsLang=true;
+    }catch(e){}
+  }
+
+  function translateOnce(){
+    try{if(typeof window.__techRunI18n==='function')window.__techRunI18n(document.body)}catch(e){}
+    fixInfinite();
+  }
+
+  function setLang(code){
+    if(applying)return;
+    applying=true;
+    try{
+      code=norm(code);
       window.__techLangCurrent=code;
       try{lang=code}catch(e){}
-      if(typeof window.setLanguage==='function')window.setLanguage(code);
-      else if(typeof applyUILanguage==='function')applyUILanguage();
-    }catch(e){}
+      try{localStorage.setItem('techLang',code)}catch(e){}
+      try{if(typeof lsSet==='function')lsSet('techLang',code)}catch(e){}
+      pruneAll();
+      ['startLangSelect','langSelect','pauseLangSelect'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=code});
+
+      // 1) UI principal (T() + renderStart en español canónico)
+      try{if(typeof applyUILanguage==='function')applyUILanguage()}catch(e){}
+      try{if(typeof renderStart==='function')renderStart()}catch(e){}
+
+      // 2) Config siempre regenerada
+      rebuildConfig();
+
+      // 3) Stats: vaciar para que al abrir se regenere en canónico + traducir
+      try{
+        const panel=document.getElementById('techStatisticsPanel');
+        if(panel){
+          const wasOpen=panel.style.display==='block';
+          panel.innerHTML='';
+          window.__techStatsNeedsLang=true;
+          if(wasOpen){
+            // Reabrir: click en openStatistics
+            const btn=document.getElementById('openStatistics');
+            if(btn) setTimeout(function(){btn.click()},20);
+          }
+        }
+      }catch(e){}
+
+      // 4) Historia abierta
+      try{
+        const sm=document.getElementById('storyMenuPanel');
+        if(sm&&sm.style.display!=='none'&&typeof openStoryMenu==='function')openStoryMenu();
+      }catch(e){}
+
+      // 5) Una sola pasada de traducción + fix infinito
+      translateOnce();
+      setTimeout(function(){translateOnce();fixInfinite()},60);
+    }finally{
+      setTimeout(function(){applying=false},100);
+    }
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bootLang,100)});
-  else setTimeout(bootLang,100);
+
+  // Reemplazar setLanguage por esta versión única
+  window.setLanguage=setLang;
+
+  // Al abrir estadísticas: tras render, traducir una vez
+  document.addEventListener('click',function(e){
+    const id=e.target&&(e.target.id||(e.target.closest&&e.target.closest('[id]')&&e.target.closest('[id]').id));
+    if(id==='openStatistics'){
+      setTimeout(function(){translateOnce();fixInfinite()},80);
+      setTimeout(function(){translateOnce();fixInfinite()},220);
+    }
+    if(id==='btnConfig'||id==='pauseOpenFullCfg'){
+      setTimeout(function(){rebuildConfig();translateOnce()},40);
+    }
+  },true);
+
+  // Exponer render de stats si el dashboard lo permite
+  // Parche: cuando el panel se rellena, traducir
+  try{
+    new MutationObserver(function(muts){
+      for(const m of muts){
+        if(m.target&&m.target.id==='techStatisticsPanel'&&m.type==='childList'){
+          setTimeout(function(){translateOnce()},30);
+        }
+      }
+    }).observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
+
+  function boot(){
+    pruneAll();
+    const code=norm(localStorage.getItem('techLang')||'es');
+    window.__techLangCurrent=code;
+    try{lang=code}catch(e){}
+    ['startLangSelect','langSelect','pauseLangSelect'].forEach(id=>{const el=document.getElementById(id);if(el){el.value=code;el.onchange=function(){setLang(el.value)}}});
+    setTimeout(function(){translateOnce();fixInfinite()},200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
+  else boot();
 })();
 </script>
 
 
-<script id="tech-i18n-more-phrases">
+<script id="tech-gear-left-no-start-lang">
 (function(){
-  const PH = {
-    es:{
-      'Combo x10':'Combo x10','Combo x15':'Combo x15','Fiebre de combo':'Fiebre de combo',
-      '50 puntos':'50 puntos','150 puntos':'150 puntos','300 puntos':'300 puntos',
-      '50 meteoritos':'50 meteoritos','20 naves':'20 naves',
-      'Misión diaria completada':'Misión diaria completada',
-      'Partidas jugadas':'Partidas jugadas','Récord personal':'Récord personal',
-      'Enemigos eliminados':'Enemigos eliminados','Disparos registrados':'Disparos registrados',
-      'Misiones completadas':'Misiones completadas','Puntos juego':'Puntos juego',
-      'Historial de partidas':'Historial de partidas','Estadísticas':'Estadísticas',
-      'Centro de estadísticas PRO':'Centro de estadísticas PRO',
-      'Aplicar filtros':'Aplicar filtros','Limpiar filtros':'Limpiar filtros',
-      'Modo historia':'Modo historia','Iniciar':'Iniciar','Config':'Config'
-    },
-    en:{
-      'Combo x10':'Combo x10','Combo x15':'Combo x15','Fiebre de combo':'Combo fever',
-      '50 puntos':'50 points','150 puntos':'150 points','300 puntos':'300 points',
-      '50 meteoritos':'50 meteors','20 naves':'20 ships',
-      'Misión diaria completada':'Daily mission completed',
-      'Misión diaria:':'Daily mission:',
-      'Partidas jugadas':'Games played','Récord personal':'Personal record',
-      'Enemigos eliminados':'Enemies defeated','Disparos registrados':'Shots logged',
-      'Misiones completadas':'Missions completed','Puntos juego':'Game points',
-      'Historial de partidas':'Match history','Estadísticas':'Statistics',
-      'Centro de estadísticas PRO':'PRO Statistics Center',
-      'Aplicar filtros':'Apply filters','Limpiar filtros':'Clear filters',
-      'Modo historia':'Story mode','Iniciar':'Start','Config':'Settings',
-      'Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.':'Infinite: endless waves, no bosses; speed and difficulty rise with each wave.',
-      '∞ Infinito':'∞ Infinite','Infinito':'Infinite',
-      'Oleadas de meteoritos y naves. Esquiva, dispara, sube de puntuación. Escenarios cambian al avanzar. Comparte tu récord al terminar.':'Meteor and ship waves. Dodge, shoot, climb the score. Stages change as you progress. Share your record at the end.'
-    },
-    fr:{
-      'Fiebre de combo':'Fièvre de combo','50 puntos':'50 points','50 meteoritos':'50 météores','20 naves':'20 vaisseaux',
-      'Misión diaria completada':'Mission quotidienne terminée','Partidas jugadas':'Parties jouées',
-      'Estadísticas':'Statistiques','Modo historia':'Mode histoire','Iniciar':'Démarrer',
-      '∞ Infinito':'∞ Infini','Infinito':'Infini'
-    },
-    pt:{
-      'Fiebre de combo':'Febre de combo','50 puntos':'50 pontos','50 meteoritos':'50 meteoros','20 naves':'20 naves',
-      'Misión diaria completada':'Missão diária concluída','Partidas jugadas':'Partidas jogadas',
-      'Estadísticas':'Estatísticas','Modo historia':'Modo história','Iniciar':'Iniciar',
-      '∞ Infinito':'∞ Infinito'
-    },
-    de:{
-      'Fiebre de combo':'Combo-Fieber','50 puntos':'50 Punkte','50 meteoritos':'50 Meteoriten','20 naves':'20 Schiffe',
-      'Misión diaria completada':'Tägliche Mission abgeschlossen','Partidas jugadas':'Gespielte Partien',
-      'Estadísticas':'Statistiken','Modo historia':'Story-Modus','Iniciar':'Start',
-      '∞ Infinito':'∞ Endlos','Infinito':'Endlos'
-    }
-  };
-  function code(){return window.__techLangCurrent||localStorage.getItem('techLang')||'es'}
-  function tr(s){
-    if(!s)return s;
-    let out=String(s).replace(/Infinit[eo](?:te){2,}/gi,'Infinito').replace(/Infinite(?:te){2,}/gi,'Infinite');
-    const pack=PH[code()]||PH.en;
-    // longest keys first
-    Object.keys(pack).sort((a,b)=>b.length-a.length).forEach(k=>{
-      if(out.indexOf(k)>=0) out=out.split(k).join(pack[k]);
-    });
-    return out;
+  function removeStartLang(){
+    try{
+      const p=document.getElementById('startLanguagePicker');
+      if(p)p.remove();
+      // no dejar select de idioma fuera de config
+      document.querySelectorAll('#startLangSelect').forEach(el=>{
+        if(!el.closest('#configPanel')) el.remove();
+      });
+    }catch(e){}
   }
-  function walk(root){
-    if(!root)return;
-    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
-      if(!n.nodeValue||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;
-      const p=n.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA|CANVAS)$/.test(p.tagName))return NodeFilter.FILTER_REJECT;
-      return NodeFilter.FILTER_ACCEPT;
-    }});
-    let n;while((n=w.nextNode())){const a=n.nodeValue,b=tr(a);if(a!==b)n.nodeValue=b}
+  function pinGearLeft(){
+    try{
+      const ids=['btnConfig','startConfigBtn','configShortcut'];
+      // botón ⚙ del menú inicio (puede ser botón sin id fijo dentro de startPanel)
+      const sp=document.getElementById('startPanel');
+      if(sp){
+        sp.querySelectorAll('button').forEach(b=>{
+          const t=(b.textContent||'').trim();
+          if(t==='⚙'||t.indexOf('⚙')===0){
+            b.style.setProperty('position','absolute','important');
+            b.style.setProperty('top','10px','important');
+            b.style.setProperty('left','10px','important');
+            b.style.setProperty('right','auto','important');
+            b.style.setProperty('z-index','60','important');
+          }
+        });
+      }
+      const cfg=document.getElementById('btnConfig');
+      if(cfg){
+        cfg.style.setProperty('position','absolute','important');
+        cfg.style.setProperty('top','8px','important');
+        cfg.style.setProperty('left','10px','important');
+        cfg.style.setProperty('right','auto','important');
+        cfg.style.setProperty('z-index','60','important');
+      }
+    }catch(e){}
   }
-  const _set=window.setLanguage;
-  if(typeof _set==='function'){
-    window.setLanguage=function(c){
-      const r=_set.apply(this,arguments);
-      setTimeout(function(){walk(document.body)},20);
-      setTimeout(function(){walk(document.body)},120);
-      return r;
-    };
-  }
+  function run(){removeStartLang();pinGearLeft()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);
+  else run();
+  setInterval(run,1500);
+  // Al abrir config, idioma solo ahí
   document.addEventListener('click',function(e){
-    if(e.target&&(e.target.id==='openStatistics'||e.target.id==='openStoryMode'||e.target.id==='btnConfig'))
-      setTimeout(function(){walk(document.body)},80);
-  });
-  setTimeout(function(){walk(document.body)},300);
+    if(e.target&&(e.target.id==='btnConfig'||(e.target.textContent||'').indexOf('⚙')>=0))
+      setTimeout(function(){
+        removeStartLang();
+        const ls=document.getElementById('langSelect');
+        if(ls&&typeof window.setLanguage==='function'){
+          ls.onchange=function(){window.setLanguage(ls.value)};
+        }
+      },50);
+  },true);
 })();
 </script>
 

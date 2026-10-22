@@ -7938,35 +7938,83 @@ function storyOnWaveComplete(){
 
   function current(){try{if(window.__techLangCurrent&&LANGS[window.__techLangCurrent])return window.__techLangCurrent}catch(e){} try{const s=document.getElementById('startLangSelect')||document.getElementById('langSelect');if(s&&LANGS[s.value])return s.value}catch(e){} try{if(typeof lang!=='undefined'&&LANGS[lang])return lang}catch(e){} return 'es'}
   function translateText(text,code){
-    let out=String(text||'');
-    // Reparar corrupción típica
-    out=out.replace(/∞\s*Infinit[eo]t+/gi,'∞ INF_MARK').replace(/Infinit[eo]t{2,}/gi,'INF_MARK');
-    out=out.replace(/∞\s*Infinit[eo]/gi,'∞ INF_MARK').replace(/\bInfinit[eo]\b/gi,'INF_MARK');
-    out=out.replace(/∞\s*Infinite+/gi,'∞ INF_MARK').replace(/\bInfinite\b/gi,'INF_MARK');
-    /* Proteger nombres de formas Goku */
-    out=out.replace(/Goku Black/gi,"\uE000GOKU_BLACK\uE000");
-    out=out.replace(/Goku Rose/gi,"\uE000GOKU_ROSE\uE000");
+    let out=String(text==null?'':text);
+    if(!out.trim())return out;
+    // —— Reparar corrupciones por reemplazos parciales repetidos ——
+    out=out.replace(/Des(?:des)+ierto/gi,'Desierto')
+           .replace(/Des(?:des)+ert(?:o)?/gi,'Desert')
+           .replace(/∞\s*Infinit[eo]t+/gi,'∞ Infinito')
+           .replace(/Infinit[eo]t{2,}/gi,'Infinito')
+           .replace(/Infinite(?:te)+/gi,'Infinite')
+           .replace(/(?:Océ|Oce)(?:(?:océ|oce|é)+)ano/gi,'Océano')
+           .replace(/Torn(?:torn)+menta/gi,'Tormenta')
+           .replace(/Volc(?:volc)+án/gi,'Volcán')
+           .replace(/Espa(?:espa)+cio/gi,'Espacio')
+           .replace(/Nie(?:nie)+ve/gi,'Nieve')
+           .replace(/Crist(?:crist)+al/gi,'Cristal');
+    // Proteger Goku Black / Rose
+    out=out.replace(/Goku Black/gi,'\uE000GOKU_BLACK\uE000')
+           .replace(/Goku Rose/gi,'\uE000GOKU_ROSE\uE000');
+    // Proteger tokens de mundos e infinito (se fijan después por data-*)
+    const protect=[];
+    out=out.replace(/\b\d{1,2}\s+(?:Espacio|Space|Nieve|Snow|Fuego|Fire|Cristal|Crystal|Halloween|Neón|Neon|Tóxico|Toxic|Vacío|Void|Océano|Oceano|Ocean|Desierto|Deserto|Desert|Tormenta|Storm|Tempête|Aurora|Volcán|Volcan|Volcano|Glitch|Infinito|Infinite|Infini)\b/gi,function(m){protect.push(m);return '\uE001P'+ (protect.length-1) +'\uE001'});
+    out=out.replace(/\b(?:Espacio|Space|Nieve|Snow|Fuego|Fire|Cristal|Crystal|Halloween|Neón|Neon|Tóxico|Toxic|Vacío|Void|Océano|Oceano|Ocean|Desierto|Deserto|Desert|Tormenta|Storm|Tempête|Aurora|Volcán|Volcan|Volcano|Glitch)\b/gi,function(m){protect.push(m);return '\uE001P'+ (protect.length-1) +'\uE001'});
+    out=out.replace(/∞\s*(?:Infinito|Infinite|Infini|Endlos)/gi,function(m){protect.push(m);return '\uE001P'+ (protect.length-1) +'\uE001'});
+
     for(const [variant,key] of sortedPhrases){
-      if(!variant||variant.length<2)continue;
-      // Nunca aplicar claves cortas de modo infinito (se asignan por data-mode)
+      if(!variant||variant.length<3)continue;
       if(key==='infinite'||key==='infiniteLabel'||key==='infiniteDesc')continue;
-      if(/infinit/i.test(variant))continue;
+      if(/^(ocean|desert|storm|aurora|volcano|glitch|space|snow|fire|crystal|neon|toxic|voidW|void)$/i.test(key))continue;
+      if(/infinit|desierto|desert|deserto|océano|oceano|ocean/i.test(variant))continue;
       if(!out.includes(variant))continue;
       const target=LANGS[code]&&LANGS[code][key];
-      if(target) out=out.split(variant).join(target);
+      if(!target||target===variant)continue;
+      // Evitar expansión: si el target contiene la variante como subcadena propia distinta, saltar
+      if(target.length>variant.length && target.indexOf(variant)>=0)continue;
+      // Para variantes cortas (<12), solo reemplazo de palabra completa
+      if(variant.length<12){
+        try{
+          const re=new RegExp('(^|[^\\wÀ-ÿ])('+variant.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?=[^\\wÀ-ÿ]|$)','gi');
+          out=out.replace(re,function(_,pre){return pre+target});
+        }catch(e){}
+      }else{
+        out=out.split(variant).join(target);
+      }
     }
-    out=out.split("\uE000GOKU_BLACK\uE000").join("Goku Black");
-    out=out.split("\uE000GOKU_ROSE\uE000").join("Goku Rose");
-    const labelPatterns=[[/Velocidad(?=\s+\d+\/\d+)/g,'speed'],[/Speed(?=\s+\d+\/\d+)/g,'speed'],[/Vitesse(?=\s+\d+\/\d+)/g,'speed'],[/速度(?=\s+\d+\/\d+)/g,'speed'],[/Munición(?=\s+\d+\/\d+)/g,'ammo'],[/Ammo(?=\s+\d+\/\d+)/g,'ammo'],[/Munitions(?=\s+\d+\/\d+)/g,'ammo'],[/弾薬(?=\s+\d+\/\d+)/g,'ammo'],[/Vidas(?=\s+\d+\/\d+)/g,'lives'],[/Lives(?=\s+\d+\/\d+)/g,'lives'],[/Vies(?=\s+\d+\/\d+)/g,'lives'],[/Daño(?=\s+\d+\/\d+)/g,'damage'],[/Damage(?=\s+\d+\/\d+)/g,'damage']];
-    for(const [re,key] of labelPatterns){
-      if(LANGS[code]&&LANGS[code][key]) out=out.replace(re,LANGS[code][key]);
-    }
-    // Restaurar infinito desde diccionario (una sola vez, sin concatenar)
-    const infLab=(LANGS[code]&&(LANGS[code].infiniteLabel||(LANGS[code].infinite?('∞ '+LANGS[code].infinite):null)))||'∞ Infinito';
-    const infDesc=(LANGS[code]&&LANGS[code].infiniteDesc)||'Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.';
-    out=out.replace(/∞\s*INF_MARK/g, infLab).replace(/\bINF_MARK\b/g, (LANGS[code]&&LANGS[code].infinite)||'Infinito');
-    // Si el texto completo era solo la descripción
-    if(/^INF_MARK/.test(out)||out==='INF_MARK') out=infDesc;
+    out=out.replace(/\uE000GOKU_BLACK\uE000/g,'Goku Black').replace(/\uE000GOKU_ROSE\uE000/g,'Goku Rose');
+    // Restaurar protegidos y traducir mundos de forma segura
+    const worldMap={
+      es:{1:'Espacio',2:'Nieve',3:'Fuego',4:'Cristal',5:'Halloween',6:'Neón',7:'Tóxico',8:'Vacío',9:'Océano',10:'Desierto',11:'Tormenta',12:'Aurora',13:'Volcán',14:'Glitch'},
+      en:{1:'Space',2:'Snow',3:'Fire',4:'Crystal',5:'Halloween',6:'Neon',7:'Toxic',8:'Void',9:'Ocean',10:'Desert',11:'Storm',12:'Aurora',13:'Volcano',14:'Glitch'},
+      fr:{1:'Espace',2:'Neige',3:'Feu',4:'Cristal',5:'Halloween',6:'Néon',7:'Toxique',8:'Vide',9:'Océan',10:'Désert',11:'Tempête',12:'Aurore',13:'Volcan',14:'Glitch'},
+      ja:{1:'宇宙',2:'雪',3:'火',4:'クリスタル',5:'ハロウィン',6:'ネオン',7:'有毒',8:'虚無',9:'海洋',10:'砂漠',11:'嵐',12:'オーロラ',13:'火山',14:'グリッチ'},
+      zh:{1:'太空',2:'雪',3:'火',4:'水晶',5:'万圣节',6:'霓虹',7:'毒素',8:'虚空',9:'海洋',10:'沙漠',11:'风暴',12:'极光',13:'火山',14:'故障'},
+      pt:{1:'Espaço',2:'Neve',3:'Fogo',4:'Cristal',5:'Halloween',6:'Neon',7:'Tóxico',8:'Vazio',9:'Oceano',10:'Deserto',11:'Tempestade',12:'Aurora',13:'Vulcão',14:'Glitch'}
+    };
+    const wm=worldMap[code]||worldMap.es;
+    out=out.replace(/\uE001P(\d+)\uE001/g,function(_,i){
+      let s=protect[Number(i)]||'';
+      // Si es "10 Desierto" / "10 Desert" etc., normalizar
+      const m=s.match(/^(\d{1,2})\s+(.+)$/);
+      if(m){
+        const num=Number(m[1]);
+        if(wm[num]) return num+' '+wm[num];
+      }
+      // Solo nombre de mundo
+      for(const [num,name] of Object.entries(wm)){
+        if(new RegExp('^'+name+'$','i').test(s.trim())) return name;
+      }
+      // Infinito
+      if(/infinit|∞/i.test(s)){
+        const lab=(LANGS[code]&&(LANGS[code].infiniteLabel||(LANGS[code].infinite?('∞ '+LANGS[code].infinite):null)))||'∞ Infinito';
+        return lab;
+      }
+      return s;
+    });
+    // Sanitizado final
+    out=out.replace(/Des(?:des)+ierto/gi,'Desierto').replace(/Des(?:des)+ert(?:o)?/gi,'Desert');
+    const labelPatterns=[[/Velocidad(?=\s+\d+\/\d+)/g,'speed'],[/Speed(?=\s+\d+\/\d+)/g,'speed'],[/Vitesse(?=\s+\d+\/\d+)/g,'speed'],[/Munición(?=\s+\d+\/\d+)/g,'ammo'],[/Ammo(?=\s+\d+\/\d+)/g,'ammo'],[/Vidas(?=\s+\d+\/\d+)/g,'lives'],[/Lives(?=\s+\d+\/\d+)/g,'lives'],[/Daño(?=\s+\d+\/\d+)/g,'damage'],[/Damage(?=\s+\d+\/\d+)/g,'damage']];
+    for(const [re,key] of labelPatterns){if(LANGS[code]&&LANGS[code][key])out=out.replace(re,LANGS[code][key])}
     return out;
   }
 function run(root){const code=current();window.__techLangCurrent=code; if(!root)return;
@@ -7989,15 +8037,28 @@ function run(root){const code=current();window.__techLangCurrent=code; if(!root)
         if(/infinit/i.test(before))return;
         const after=translateText(before,code); if(after!==before)el.textContent=after;
       });
-      // Modo infinito: asignación directa, sin substring
+      // Modo infinito: asignación directa
       const infLab=(LANGS[code]&&(LANGS[code].infiniteLabel||(LANGS[code].infinite?('∞ '+LANGS[code].infinite):null)))||'∞ Infinito';
       const infDesc=(LANGS[code]&&LANGS[code].infiniteDesc)||'';
       root.querySelectorAll('[data-mode="infinite"]').forEach(btn=>{btn.textContent=infLab;});
       root.querySelectorAll('[data-i18n-key="infiniteDesc"]').forEach(el=>{if(infDesc)el.textContent=infDesc;});
-      // Párrafos de descripción cerca del botón infinito
       root.querySelectorAll('p').forEach(p=>{
         const t=p.textContent||'';
         if(/infinit[eo].*olead|infinite:.*wave|oleadas interminables|endless waves/i.test(t) && infDesc) p.textContent=infDesc;
+      });
+      // Mundos por data-world (evita Desdesdesierto, etc.)
+      const worldNames={
+        es:{1:'Espacio',2:'Nieve',3:'Fuego',4:'Cristal',5:'Halloween',6:'Neón',7:'Tóxico',8:'Vacío',9:'Océano',10:'Desierto',11:'Tormenta',12:'Aurora',13:'Volcán',14:'Glitch'},
+        en:{1:'Space',2:'Snow',3:'Fire',4:'Crystal',5:'Halloween',6:'Neon',7:'Toxic',8:'Void',9:'Ocean',10:'Desert',11:'Storm',12:'Aurora',13:'Volcano',14:'Glitch'},
+        fr:{1:'Espace',2:'Neige',3:'Feu',4:'Cristal',5:'Halloween',6:'Néon',7:'Toxique',8:'Vide',9:'Océan',10:'Désert',11:'Tempête',12:'Aurore',13:'Volcan',14:'Glitch'},
+        ja:{1:'宇宙',2:'雪',3:'火',4:'クリスタル',5:'ハロウィン',6:'ネオン',7:'有毒',8:'虚無',9:'海洋',10:'砂漠',11:'嵐',12:'オーロラ',13:'火山',14:'グリッチ'},
+        zh:{1:'太空',2:'雪',3:'火',4:'水晶',5:'万圣节',6:'霓虹',7:'毒素',8:'虚空',9:'海洋',10:'沙漠',11:'风暴',12:'极光',13:'火山',14:'故障'},
+        pt:{1:'Espaço',2:'Neve',3:'Fogo',4:'Cristal',5:'Halloween',6:'Neon',7:'Tóxico',8:'Vazio',9:'Oceano',10:'Deserto',11:'Tempestade',12:'Aurora',13:'Vulcão',14:'Glitch'}
+      };
+      const wn=worldNames[code]||worldNames.es;
+      root.querySelectorAll('[data-world]').forEach(btn=>{
+        const w=Number(btn.getAttribute('data-world'));
+        if(wn[w]) btn.textContent=w+' '+wn[w];
       });
     }
     const picker=document.getElementById('startLangSelect');if(picker){picker.value=code;const label=document.querySelector('#startLanguagePicker label');if(label)label.textContent=LANGS[code].label;}

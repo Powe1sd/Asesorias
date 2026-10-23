@@ -9379,7 +9379,258 @@ s.shots=safeNum(s.shots)+safeNum(normalized.shots);s.enemies=safeNum(s.enemies)+
   function breakdown(matches,key,label){const counts={};matches.forEach(m=>{const n=String(m[key]||'No especificado');counts[n]=(counts[n]||0)+1});const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7);if(!entries.length)return '<p class="tech-stat-muted">Aún no hay datos registrados.</p>';const max=Math.max(1,...entries.map(x=>x[1]));return entries.map(([n,v])=>bar(esc(n),v,max,'linear-gradient(90deg,#167cff,#62efff)',`${v} (${Math.round(v/Math.max(1,matches.length)*100)}%)`)).join('')}
   function exportCSV(){const a=readArchive().slice().sort((x,y)=>safeNum(y.ts)-safeNum(x.ts));const cols=['Fecha','ID','Modo','Resultado','Dificultad','Puntuacion','Oleada','Mundo','Nave','Modelo','Duracion_segundos','Disparos_registrados','Enemigos_eliminados','Meteoritos_eliminados','Naves_enemigas_eliminadas','Monedas','Mision_ID','Mision','Objetivo','Registro_historico_antiguo'];const rows=[cols,...a.map(m=>[m.ts?new Date(m.ts).toISOString():'',m.id||'',m.mode||'',m.result||'',m.diff||'',safeNum(m.score),safeNum(m.wave),m.world||'',m.ship||'',m.model||'',safeNum(m.duration),safeNum(m.shots),safeNum(m.kills),safeNum(m.meteors),safeNum(m.ships),safeNum(m.coins),m.missionId||'',m.missionTitle||'',m.objective||'',m.legacy?'Sí':'No'])];downloadCSV(rows,'TECH-historial-completo.csv')}
   function exportMissionsCSV(){const c=campaign(),p=progressObject(),s=readStats(),ms=s.missionStats||{};const rows=[['Mision_ID','Mision','Completada','Intentos_registrados','Victorias','Derrotas','Mejor_puntuacion','Tiempo_total_segundos','Ultima_fecha']];c.forEach(ch=>{const x=ms[ch.id]||{};rows.push([ch.id,ch.title,p[ch.id]&&p[ch.id].done?'Sí':'No',safeNum(x.attempts),safeNum(x.wins),safeNum(x.losses),safeNum(x.bestScore),safeNum(x.totalSeconds),x.lastAt?new Date(x.lastAt).toISOString():''])});downloadCSV(rows,'TECH-estadisticas-misiones.csv')}
-  function downloadCSV(rows,name){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+  
+function downloadCSV(rows,name){const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+
+  /* —— Métricas avanzadas —— */
+  function advancedMetrics(matches){
+    const m=(matches||[]).slice().sort((a,b)=>safeNum(a.ts)-safeNum(b.ts));
+    const scores=m.map(x=>safeNum(x.score));
+    const n=scores.length;
+    const sum=scores.reduce((a,b)=>a+b,0);
+    const avg=n?sum/n:0;
+    const variance=n?scores.reduce((a,s)=>a+(s-avg)*(s-avg),0)/n:0;
+    const std=Math.sqrt(variance);
+    const cv=avg>0?std/avg:0;
+    const consistency=Math.max(0,Math.min(100,Math.round((1-Math.min(1,cv))*100)));
+    const mid=Math.floor(n/2);
+    const first=scores.slice(0,mid), second=scores.slice(mid);
+    const avgFirst=first.length?first.reduce((a,b)=>a+b,0)/first.length:0;
+    const avgSecond=second.length?second.reduce((a,b)=>a+b,0)/second.length:0;
+    const growth=avgFirst>0?Math.round(((avgSecond-avgFirst)/avgFirst)*100):0;
+    let bestStreak=0,cur=0;
+    for(let i=1;i<scores.length;i++){
+      if(scores[i]>scores[i-1]){cur++;bestStreak=Math.max(bestStreak,cur)}else cur=0;
+    }
+    const last=n?scores[n-1]:0;
+    const sorted=scores.slice().sort((a,b)=>a-b);
+    let percentile=0;
+    if(n>1){
+      let below=0;sorted.forEach(s=>{if(s<last)below++});
+      percentile=Math.round(below/(n-1)*100);
+    }
+    const totalShots=m.reduce((a,x)=>a+safeNum(x.shots),0);
+    const totalKills=m.reduce((a,x)=>a+safeNum(x.kills),0);
+    const efficiency=totalShots>0?Math.round(totalKills/totalShots*1000)/10:0;
+    const avgCoins=n?Math.round(m.reduce((a,x)=>a+safeNum(x.coins),0)/n):0;
+    const byDow={}, byHour={}, byModel={};
+    const dowNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    m.forEach(x=>{
+      const d=new Date(safeNum(x.ts)||0);
+      if(!Number.isFinite(d.getTime()))return;
+      const dn=dowNames[d.getDay()];byDow[dn]=(byDow[dn]||0)+1;
+      const h=d.getHours();byHour[h]=(byHour[h]||0)+1;
+      const model=String(x.model||x.ship||'—');byModel[model]=(byModel[model]||0)+1;
+    });
+    const topDow=Object.entries(byDow).sort((a,b)=>b[1]-a[1])[0];
+    const topHour=Object.entries(byHour).sort((a,b)=>b[1]-a[1])[0];
+    const modelsUsed=Object.keys(byModel).length;
+    const wins=m.filter(x=>x.result==='won').length;
+    const losses=m.filter(x=>x.result==='lost').length;
+    const decided=wins+losses;
+    const winRate=decided?Math.round(wins/decided*100):null;
+    const q1=n?sorted[Math.floor((n-1)*0.25)]:0;
+    const q3=n?sorted[Math.floor((n-1)*0.75)]:0;
+    const iqr=q3-q1;
+    const highVol=n?scores.filter(s=>s>=avg+std).length:0;
+    const lowVol=n?scores.filter(s=>s<=avg-std).length:0;
+    return {
+      n,avg:Math.round(avg),std:Math.round(std),consistency,growth,bestStreak,percentile,last,
+      efficiency,avgCoins,topDow:topDow?topDow[0]+' ('+topDow[1]+')':'—',
+      topHour:topHour?String(topHour[0]).padStart(2,'0')+':00 ('+topHour[1]+')':'—',
+      modelsUsed,winRate,q1:Math.round(q1),q3:Math.round(q3),iqr:Math.round(iqr),
+      highVol,lowVol,avgFirst:Math.round(avgFirst),avgSecond:Math.round(avgSecond)
+    };
+  }
+
+  /* —— Exportar gráfica + informe a PDF (sin librerías externas) —— */
+  function _pdfEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+  function _pdfUtf16BE(str){
+    /* Texto legible en PDF con acentos vía UTF-16BE BOM */
+    let out='\xfe\xff';
+    for(let i=0;i<str.length;i++){
+      const c=str.charCodeAt(i);
+      out+=String.fromCharCode((c>>8)&0xff,c&0xff);
+    }
+    return out;
+  }
+  function _canvasToPDF(canvas, meta){
+    const w=canvas.width,h=canvas.height;
+    const jpeg=canvas.toDataURL('image/jpeg',0.92);
+    const b64=jpeg.split(',')[1]||'';
+    const binStr=atob(b64);
+    const imgBytes=new Uint8Array(binStr.length);
+    for(let i=0;i<binStr.length;i++)imgBytes[i]=binStr.charCodeAt(i);
+
+    const pageW=842, pageH=595;
+    const margin=36;
+    const maxW=pageW-margin*2, maxH=pageH-margin*2-70;
+    const scale=Math.min(maxW/w, maxH/h);
+    const imgW=w*scale, imgH=h*scale;
+    const imgX=margin+(maxW-imgW)/2, imgY=pageH-margin-40-imgH;
+
+    function esc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+    const title=esc(meta.title||'TECH RUN - Estadisticas');
+    const sub=esc(meta.subtitle||'');
+    const lines=(meta.lines||[]).slice(0,8).map(esc);
+
+    let content=`BT /F2 14 Tf 36 560 Td (${title}) Tj ET\n`;
+    content+=`BT /F1 9 Tf 36 544 Td (${sub}) Tj ET\n`;
+    content+=`q ${imgW.toFixed(2)} 0 0 ${imgH.toFixed(2)} ${imgX.toFixed(2)} ${imgY.toFixed(2)} cm /Im0 Do Q\n`;
+    lines.forEach((ln,i)=>{content+=`BT /F1 8 Tf 36 ${28+i*11} Td (${ln}) Tj ET\n`});
+
+    /* Ensamblado binario seguro */
+    const enc=new TextEncoder();
+    const parts=[];
+    function addText(t){parts.push(enc.encode(t))}
+    function addBytes(u8){parts.push(u8)}
+
+    addText('%PDF-1.4\n');
+    const offsets=[];
+    function startObj(n){offsets[n]=parts.reduce((a,p)=>a+p.length,0);addText(`${n} 0 obj\n`)}
+    function endObj(){addText('\nendobj\n')}
+
+    startObj(1);addText('<< /Type /Catalog /Pages 2 0 R >>');endObj();
+    startObj(2);addText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');endObj();
+    startObj(3);addText(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> /XObject << /Im0 6 0 R >> >> /Contents 7 0 R >>`);endObj();
+    startObj(4);addText('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');endObj();
+    startObj(5);addText('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');endObj();
+    startObj(6);
+    addText(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imgBytes.length} >>\nstream\n`);
+    addBytes(imgBytes);
+    addText('\nendstream');endObj();
+    startObj(7);addText(`<< /Length ${content.length} >>\nstream\n${content}endstream`);endObj();
+
+    const bodyLen=parts.reduce((a,p)=>a+p.length,0);
+    addText(`xref\n0 8\n0000000000 65535 f \n`);
+    for(let i=1;i<=7;i++){
+      addText(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
+    }
+    addText(`trailer\n<< /Size 8 /Root 1 0 R >>\nstartxref\n${bodyLen}\n%%EOF`);
+
+    let total=0;parts.forEach(p=>total+=p.length);
+    const out=new Uint8Array(total);
+    let off=0;parts.forEach(p=>{out.set(p,off);off+=p.length});
+    return out;
+  }
+  function drawStatsReportCanvas(matches, am){
+    const chrono=(matches||[]).slice().sort((a,b)=>safeNum(a.ts)-safeNum(b.ts));
+    const W=1100, H=720;
+    const c=document.createElement('canvas');
+    c.width=W;c.height=H;
+    const g=c.getContext('2d');
+    /* fondo */
+    const bg=g.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#07101f');bg.addColorStop(1,'#0a1a32');
+    g.fillStyle=bg;g.fillRect(0,0,W,H);
+    g.fillStyle='#5de5ff';g.font='bold 28px sans-serif';
+    g.fillText('TECH RUN — Informe de estadísticas',32,44);
+    g.fillStyle='#9fb4c9';g.font='14px sans-serif';
+    g.fillText(new Date().toLocaleString('es-CO')+' · '+chrono.length+' partidas en el rango',32,68);
+
+    /* panel métricas */
+    const cards=[
+      ['Partidas',String(am.n)],
+      ['Promedio',String(am.avg)],
+      ['Desv. estándar',String(am.std)],
+      ['Consistencia',am.consistency+'%'],
+      ['Crecimiento', (am.growth>0?'+':'')+am.growth+'%'],
+      ['Racha subidas',String(am.bestStreak)],
+      ['Eficiencia',am.efficiency+'%'],
+      ['Win rate',am.winRate==null?'—':am.winRate+'%'],
+      ['Percentil última',am.percentile+'%'],
+      ['IQR',String(am.iqr)],
+      ['Día pico',String(am.topDow)],
+      ['Hora pico',String(am.topHour)]
+    ];
+    cards.forEach((card,i)=>{
+      const col=i%4, row=Math.floor(i/4);
+      const x=32+col*265, y=90+row*64;
+      g.fillStyle='rgba(13,33,59,0.9)';
+      g.strokeStyle='rgba(93,229,255,0.35)';
+      g.lineWidth=1;
+      g.fillRect(x,y,250,54);g.strokeRect(x,y,250,54);
+      g.fillStyle='#9fb4c9';g.font='12px sans-serif';g.fillText(card[0],x+12,y+20);
+      g.fillStyle='#fff';g.font='bold 18px sans-serif';g.fillText(card[1],x+12,y+42);
+    });
+
+    /* gráfica de líneas */
+    const plotX=48, plotY=300, plotW=1000, plotH=280;
+    g.fillStyle='rgba(7,20,39,0.85)';
+    g.fillRect(plotX-10,plotY-30,plotW+20,plotH+60);
+    g.strokeStyle='rgba(255,255,255,0.12)';g.strokeRect(plotX-10,plotY-30,plotW+20,plotH+60);
+    g.fillStyle='#eaf8ff';g.font='bold 14px sans-serif';
+    g.fillText('Evolución de puntuación',plotX,plotY-10);
+
+    if(!chrono.length){
+      g.fillStyle='#9fb4c9';g.font='14px sans-serif';
+      g.fillText('Sin partidas para graficar.',plotX+20,plotY+plotH/2);
+      return c;
+    }
+    const values=chrono.map(m=>safeNum(m.score));
+    const max=Math.max(1,...values), min=Math.min(0,...values);
+    const xAt=i=>chrono.length===1?plotX+plotW/2:plotX+i*(plotW/(chrono.length-1));
+    const yAt=v=>plotY+plotH-((v-min)/Math.max(1,max-min))*plotH;
+
+    /* grid */
+    g.strokeStyle='rgba(180,220,255,0.12)';g.lineWidth=1;
+    for(let t=0;t<=4;t++){
+      const yy=plotY+(t/4)*plotH;
+      g.beginPath();g.moveTo(plotX,yy);g.lineTo(plotX+plotW,yy);g.stroke();
+      g.fillStyle='#8aa3be';g.font='11px sans-serif';
+      g.fillText(String(Math.round(max*(1-t/4))),plotX-6,yy+4);
+    }
+    /* line segments */
+    for(let i=1;i<values.length;i++){
+      const d=values[i]-values[i-1];
+      g.strokeStyle=d>0?'#69f0ae':d<0?'#ff7b86':'#62efff';
+      g.lineWidth=3;g.lineCap='round';
+      g.beginPath();g.moveTo(xAt(i-1),yAt(values[i-1]));g.lineTo(xAt(i),yAt(values[i]));g.stroke();
+    }
+    values.forEach((v,i)=>{
+      g.fillStyle='#62efff';
+      g.beginPath();g.arc(xAt(i),yAt(v),4,0,Math.PI*2);g.fill();
+      g.fillStyle='#c7eaff';g.font='10px sans-serif';
+      if(i%Math.max(1,Math.ceil(values.length/12))===0||i===values.length-1){
+        g.fillText(String(v),xAt(i)-10,yAt(v)-10);
+      }
+    });
+    g.fillStyle='#93a8bf';g.font='11px sans-serif';
+    g.fillText('Verde = subida · Rojo = bajada · Eje X = orden cronológico',plotX,plotY+plotH+22);
+    g.fillText('1.ª mitad Ø '+am.avgFirst+'  →  2.ª mitad Ø '+am.avgSecond+'  ·  Modelos distintos: '+am.modelsUsed,plotX,plotY+plotH+40);
+    return c;
+  }
+  function exportStatsPDF(){
+    try{
+      const all=readArchive().slice().sort((a,b)=>safeNum(b.ts)-safeNum(a.ts));
+      const filtered=currentFilters(all);
+      const h=selectedMatches(all);
+      const pool=filtered.length?filtered:all;
+      const am=advancedMetrics(h.length?h:pool);
+      const canvas=drawStatsReportCanvas(h.length?h:pool, am);
+      const pdf=_canvasToPDF(canvas,{
+        title:'TECH RUN - Estadisticas',
+        subtitle:new Date().toLocaleString('es-CO')+' | Rango filtrado: '+(h.length||pool.length)+' partidas',
+        lines:[
+          'Promedio '+am.avg+' | Desv. '+am.std+' | Consistencia '+am.consistency+'%',
+          'Crecimiento '+am.growth+'% | Racha '+am.bestStreak+' | Eficiencia '+am.efficiency+'%',
+          'Win rate '+(am.winRate==null?'n/d':am.winRate+'%')+' | Percentil ultima '+am.percentile+'%',
+          'Dia pico '+am.topDow+' | Hora pico '+am.topHour+' | Modelos '+am.modelsUsed
+        ]
+      });
+      const blob=new Blob([pdf],{type:'application/pdf'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download='TECH-estadisticas-'+new Date().toISOString().slice(0,10)+'.pdf';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      try{toast('📄 PDF descargado','success')}catch(e){}
+    }catch(err){
+      console.error('[TECH PDF]',err);
+      alert('No se pudo generar el PDF: '+(err&&err.message?err.message:err));
+    }
+  }
+
   function noticesHTML(){const s=readStats(),notes=(s.noticeLog||[]).slice(0,5);const c=campaign(),p=progressObject(),next=c.find(ch=>!(p[ch.id]&&p[ch.id].done));const pending=next?`<div class="tech-stat-notice"><b>🎯 Próximo objetivo</b><span>${esc(next.title||next.id)}</span><small>${esc(next.subtitle||next.briefing||'Completa la siguiente misión disponible.')}</small></div>`:'<div class="tech-stat-notice success"><b>🏁 Campaña completada</b><span>Has completado todas las misiones registradas.</span></div>';const items=notes.length?notes.map(n=>`<div class="tech-stat-notice ${esc(n.type||'info')}"><b>${n.type==='record'?'🏆 Nuevo récord':n.type==='mission'?'🚀 Misión registrada':'ℹ️ Aviso'}</b><span>${esc(n.text)}</span><small>${n.ts?new Date(n.ts).toLocaleString('es-CO'):''}</small></div>`).join(''):'<p class="tech-stat-muted">Los avisos aparecerán aquí al lograr un récord o completar una misión.</p>';return pending+items}
   function missionAnalysis(){const c=campaign(),p=progressObject(),s=readStats(),ms=s.missionStats||{};if(!c.length)return '<p class="tech-stat-muted">No se pudo leer la campaña del juego.</p>';return `<div class="tech-stat-mission-list">${c.map((ch,i)=>{const x=ms[ch.id]||{},done=!!(p[ch.id]&&p[ch.id].done);const attempts=safeNum(x.attempts),wins=safeNum(x.wins),rate=attempts?Math.round(wins/attempts*100):0;return `<div class="tech-stat-mission"><span class="tech-stat-mission-n">${String(i+1).padStart(2,'0')}</span><div class="tech-stat-mission-info"><b>${esc(ch.title||ch.id)}</b><small>${esc(ch.subtitle||ch.type||'Misión')} · ${done?'Completada':'Pendiente'} · Intentos registrados: ${attempts}</small><div class="tech-stat-track"><div class="tech-stat-fill" style="width:${rate}%;background:${done?'#69f0ae':'#168dff'}"></div></div></div><strong>${done?'✓':attempts?rate+'%':'—'}</strong></div>`}).join('')}</div>`}
   function render(){const panel=document.getElementById('techStatisticsPanel');if(!panel)return;const all=readArchive().slice().sort((a,b)=>safeNum(b.ts)-safeNum(a.ts));const filtered=currentFilters(all);const h=selectedMatches(all);const s=readStats();const legacyCount=all.filter(m=>m.legacy).length;
@@ -9401,6 +9652,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
     const pool=filtered.length?filtered:all;
     function buildStats(matches){const byBuild={},byWeapon={};(matches||[]).forEach(m=>{const b=String(m.build||((m.model||'classic')+(m.gokuForm&&String(m.model)==='goku'?'/'+m.gokuForm:'')+' · '+(m.weapon||'basic')));if(!byBuild[b])byBuild[b]={n:0,time:0,kills:0,score:0};byBuild[b].n++;byBuild[b].time+=safeNum(m.duration);byBuild[b].kills+=safeNum(m.kills);byBuild[b].score+=safeNum(m.score);const w=String(m.weapon||'basic');if(!byWeapon[w])byWeapon[w]={n:0,kills:0,wk:0};byWeapon[w].n++;byWeapon[w].kills+=safeNum(m.kills);byWeapon[w].wk+=safeNum(m.weaponKills||m.kills)});const builds=Object.entries(byBuild).sort((a,b)=>b[1].n-a[1].n).slice(0,8);const weapons=Object.entries(byWeapon).sort((a,b)=>(b[1].wk||b[1].kills)-(a[1].wk||a[1].kills)).slice(0,8);function listBuild(rows){if(!rows.length)return '<p class="tech-stat-muted">Juega partidas para registrar builds (nave + arma).</p>';const max=Math.max(1,...rows.map(r=>r[1].n));return rows.map(([name,v])=>{const avgT=v.n?Math.round(v.time/v.n):0;return bar(esc(name),v.n,max,'linear-gradient(90deg,#ffcd00,#ff8800)',v.n+' · Ø '+fmtTime(avgT)+' · '+safeNum(v.kills)+' elim.')}).join('')}function listWeapon(rows){if(!rows.length)return '<p class="tech-stat-muted">Sin datos de arma aún.</p>';const max=Math.max(1,...rows.map(r=>r[1].wk||r[1].kills));return rows.map(([name,v])=>{const k=v.wk||v.kills;return bar(esc(name),k,max,'linear-gradient(90deg,#62efff,#167cff)',k.toLocaleString('es-CO')+' elim. · '+v.n+' partidas')}).join('')}return {buildsHtml:listBuild(builds),weaponsHtml:listWeapon(weapons),topBuild:builds[0]?builds[0][0]:'—',topWeapon:weapons[0]?weapons[0][0]:'—',avgBuildTime:builds.length?Math.round(builds.reduce((s,x)=>s+(x[1].n?x[1].time/x[1].n:0),0)/builds.length):0};}
     const bs=buildStats(pool);
+    const am=advancedMetrics(h.length?h:pool);
     const totalKills=pool.reduce((n,m)=>n+safeNum(m.kills),0),totalShots=pool.reduce((n,m)=>n+safeNum(m.shots),0),totalTime=pool.reduce((n,m)=>n+safeNum(m.duration),0);const avgDuration=pool.length?Math.round(totalTime/pool.length):0;const longest=pool.reduce((b,m)=>Math.max(b,safeNum(m.duration)),0);const killsPerMinute=totalTime?Math.round(totalKills/(totalTime/60)*10)/10:0;const wins=pool.filter(m=>m.result==='won').length,losses=pool.filter(m=>m.result==='lost').length,abandoned=pool.filter(m=>m.result==='abandoned').length;const done=completedCount(),total=campaign().length||90,progressPct=Math.round(Math.min(done,total)/Math.max(1,total)*100);const missions=campaign(),p=progressObject(),missionStats=s.missionStats||{};const attempts=safeNum(s.storyAttempts),storyWins=safeNum(s.storyWins),winRate=attempts?Math.round(storyWins/attempts*100):0;const achievements=readJSON('techAch',{})||{};const achievementCount=Object.keys(achievements).length;const currentCoins=readJSON('techCoinsV2',readJSON('techCoins',0));const lastTwo=h.slice(0,2).map(m=>safeNum(m.score));const delta=lastTwo.length===2?lastTwo[0]-lastTwo[1]:0;const recordText=best?best.toLocaleString('es-CO'):'0';
     const bestWave=pool.reduce((b,m)=>Math.max(b,safeNum(m.wave)),0);
     const avgWave=pool.length?Math.round(pool.reduce((n,m)=>n+safeNum(m.wave),0)/pool.length):0;
@@ -9469,6 +9721,29 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
        <div class="tech-stat-card"><span>Sesiones / semana</span><strong>${ret.sessionsPerWeek}</strong><small>Frecuencia media desde la primera visita</small></div>
        <div class="tech-stat-card"><span>Días sin jugar</span><strong>${ret.daysSinceLast}</strong><small>Desde la última sesión registrada</small></div>
       </div>
+      <section class="tech-stat-section"><h3>📐 Análisis avanzado</h3>
+      <div class="tech-stat-cards">
+        <div class="tech-stat-card"><span>Desviación estándar</span><strong>${am.std.toLocaleString('es-CO')}</strong><small>Dispersión de puntuaciones del rango</small></div>
+        <div class="tech-stat-card"><span>Consistencia</span><strong>${am.consistency}%</strong><small>Qué tan estables son tus resultados</small></div>
+        <div class="tech-stat-card"><span>Crecimiento 1.ª→2.ª mitad</span><strong>${am.growth>0?'+':''}${am.growth}%</strong><small>Ø ${am.avgFirst.toLocaleString('es-CO')} → ${am.avgSecond.toLocaleString('es-CO')}</small></div>
+        <div class="tech-stat-card"><span>Mejor racha de subidas</span><strong>${am.bestStreak}</strong><small>Partidas seguidas mejorando puntuación</small></div>
+        <div class="tech-stat-card"><span>Percentil de la última</span><strong>${am.percentile}%</strong><small>Última partida vs el resto del rango</small></div>
+        <div class="tech-stat-card"><span>Eficiencia (elim/disparo)</span><strong>${am.efficiency}%</strong><small>Eliminaciones por cada 100 disparos</small></div>
+        <div class="tech-stat-card"><span>Win rate decidido</span><strong>${am.winRate==null?'—':am.winRate+'%'}</strong><small>Solo victorias/derrotas registradas</small></div>
+        <div class="tech-stat-card"><span>Rango intercuartílico</span><strong>${am.iqr.toLocaleString('es-CO')}</strong><small>Q1 ${am.q1.toLocaleString('es-CO')} · Q3 ${am.q3.toLocaleString('es-CO')}</small></div>
+        <div class="tech-stat-card"><span>Día más activo</span><strong style="font-size:14px">${esc(am.topDow)}</strong><small>Según partidas del rango</small></div>
+        <div class="tech-stat-card"><span>Hora pico</span><strong style="font-size:14px">${esc(am.topHour)}</strong><small>Franja horaria más jugada</small></div>
+        <div class="tech-stat-card"><span>Modelos distintos</span><strong>${am.modelsUsed}</strong><small>Variedad de naves usadas</small></div>
+        <div class="tech-stat-card"><span>⭐ promedio / partida</span><strong>${am.avgCoins.toLocaleString('es-CO')}</strong><small>Monedas registradas por partida</small></div>
+        <div class="tech-stat-card"><span>Partidas altas (+1σ)</span><strong>${am.highVol}</strong><small>Por encima del promedio + desv.</small></div>
+        <div class="tech-stat-card"><span>Partidas bajas (−1σ)</span><strong>${am.lowVol}</strong><small>Por debajo del promedio − desv.</small></div>
+      </div>
+      <div class="tech-stat-tools" style="margin-top:12px">
+        <button class="tech-stat-action" id="exportStatsPDF">📄 Descargar gráfica PDF</button>
+        <button class="tech-stat-action" id="exportStatsCSV2">⬇ CSV historial</button>
+        <span class="tech-stat-pill">Incluye gráfica de evolución + resumen de métricas</span>
+      </div>
+    </section>
       <section class="tech-stat-section"><h3>📈 Evolución de puntuación: subidas y bajadas</h3>${buildChart(h)}<h3 style="margin-top:18px">📊 Comparación visual de puntuaciones</h3>${buildScoreBars(h)}</section>
       <section class="tech-stat-section"><h3>🧰 Builds y loadouts</h3>
       <div class="tech-stat-cards" style="margin-bottom:12px">
@@ -9514,7 +9789,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
         </button>
         <div class="tech-stat-collapse-body" id="recordsBody" hidden>
           <div class="tech-stat-notices">${noticesHTML()}</div>
-          <div class="tech-stat-tools"><button class="tech-stat-action" id="refreshStats">↻ Actualizar datos</button><button class="tech-stat-action" id="exportStatsCSV">⬇ Exportar historial completo CSV</button></div>
+          <div class="tech-stat-tools"><button class="tech-stat-action" id="refreshStats">↻ Actualizar datos</button><button class="tech-stat-action" id="exportStatsCSV">⬇ Exportar historial completo CSV</button><button class="tech-stat-action" id="exportStatsPDF2">📄 Descargar gráfica PDF</button></div>
         </div>
       </section>
       <section class="tech-stat-section tech-stat-collapsible">
@@ -9530,7 +9805,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
     const close=document.getElementById('closeStatistics');if(close)close.onclick=closePanel;
     const apply=document.getElementById('applyStatFilters');if(apply)apply.onclick=()=>{range=document.getElementById('statRange').value;filterMode=document.getElementById('statMode').value;filterFrom=document.getElementById('statFrom').value;filterTo=document.getElementById('statTo').value;render()};
     const clear=document.getElementById('clearStatFilters');if(clear)clear.onclick=()=>{range='10';filterMode='all';filterFrom='';filterTo='';render()};
-    const exp=document.getElementById('exportStatsCSV');if(exp)exp.onclick=exportCSV;const expM=document.getElementById('exportMissionCSV');if(expM)expM.onclick=exportMissionsCSV;const refresh=document.getElementById('refreshStats');if(refresh)refresh.onclick=render;
+    const exp=document.getElementById('exportStatsCSV');if(exp)exp.onclick=exportCSV;const exp2=document.getElementById('exportStatsCSV2');if(exp2)exp2.onclick=exportCSV;const expM=document.getElementById('exportMissionCSV');if(expM)expM.onclick=exportMissionsCSV;const refresh=document.getElementById('refreshStats');if(refresh)refresh.onclick=render;const pdfBtn=document.getElementById('exportStatsPDF');if(pdfBtn)pdfBtn.onclick=exportStatsPDF;const pdfBtn2=document.getElementById('exportStatsPDF2');if(pdfBtn2)pdfBtn2.onclick=exportStatsPDF;
     function wireToggle(btnId,bodyId){
       const tog=document.getElementById(btnId), body=document.getElementById(bodyId);
       if(!tog||!body)return;

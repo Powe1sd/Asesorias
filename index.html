@@ -1382,6 +1382,10 @@ let dashCd=0,dashInvuln=0,dashTrail=[],_lastDashTap=0;
 let shieldCd=0,activeShield=0,chargeShot=0,chargeMax=90;
 let worldTeleportCd=0;
 let droneCd=0,bounceShot=0,bounceShotCd=0,freezeCd=0;
+/* —— Poderes nuevos (solo motor, sin touch pad) —— */
+let phaseShift=0,railgun=0,lootVacuum=0;
+let orbitalMines=[],decoys=[],chainFX=[];
+
 let runStartTime=0;
 const keys={up:false,down:false,left:false,right:false};
 let sensMouse=Number(lsGet("techSensMouse",0.85)); if(isNaN(sensMouse)||sensMouse<=0)sensMouse=0.85;
@@ -2797,6 +2801,314 @@ function updateKamehameha(){
     if(Math.abs(b.x-player.x)<bw&&b.y<player.y)enemyBullets.splice(i,1);
   }
 }
+
+/* =========================================================
+   PODERES NUEVOS: cadena, phase, minas, vacuum, decoy, railgun
+   (integrados en el juego; no en el touch pad)
+   ========================================================= */
+function damageObstacleAt(j, dmg){
+  try{
+    if(j<0||j>=obstacles.length)return false;
+    const o=obstacles[j];
+    if(!o||o.__techDestroyed)return false;
+    if(o.hp==null)o.hp=1;
+    o.hp-=dmg;
+    if(o.hp<=0){try{destroyEnemy(o,j)}catch(e){try{obstacles.splice(j,1)}catch(_){}}}
+    return true;
+  }catch(e){return false}
+}
+function activateChainLightning(originX, originY){
+  if(!gameRunning||gamePaused)return;
+  const ox=originX!=null?originX:player.x;
+  const oy=originY!=null?originY:player.y;
+  const maxJumps=isMobile()?3:5;
+  const range=150*((typeof getScale==="function")?getScale():1);
+  const dmgBase=3.5+(typeof bulletDamage==="function"?bulletDamage():1);
+  let cx=ox,cy=oy;
+  const hitIdx=new Set();
+  const segs=[];
+  for(let jump=0;jump<maxJumps;jump++){
+    let best=-1,bestD=range;
+    for(let i=0;i<obstacles.length;i++){
+      if(hitIdx.has(i))continue;
+      const o=obstacles[i];
+      if(!o||o.__techDestroyed)continue;
+      const tx=o.x+(o.size||10)/2, ty=o.y+(o.size||10)/2;
+      const d=Math.hypot(tx-cx,ty-cy);
+      if(d<bestD){bestD=d;best=i}
+    }
+    if(best<0)break;
+    hitIdx.add(best);
+    const o=obstacles[best];
+    const tx=o.x+(o.size||10)/2, ty=o.y+(o.size||10)/2;
+    segs.push({x1:cx,y1:cy,x2:tx,y2:ty,life:14});
+    damageObstacleAt(best, dmgBase*(1-jump*0.12));
+    createExplosion(tx,ty,10,"120,220,255");
+    cx=tx;cy=ty;
+  }
+  if(segs.length){
+    chainFX.push(...segs);
+    try{playSfx("stormbolt")}catch(e){try{playSfx("laser")}catch(_){try{playSfx("power")}catch(__){}}}
+    scenarioMsg="⚡ CADENA ELÉCTRICA";scenarioTransition=55;
+    try{doVibrate(18)}catch(e){}
+  } else {
+    /* sin enemigos: arco visual corto */
+    chainFX.push({x1:ox,y1:oy,x2:ox+(Math.random()-0.5)*40,y2:oy-60,life:10});
+    try{playSfx("power")}catch(e){}
+  }
+}
+function activatePhaseShift(){
+  if(!gameRunning||gamePaused)return;
+  phaseShift=Math.max(phaseShift,52); /* ~0.85s a 60fps */
+  invisible=Math.max(invisible,52);
+  dashInvuln=Math.max(dashInvuln,52);
+  createExplosion(player.x,player.y,18,"180,220,255");
+  try{playSfx("chrono")}catch(e){try{playSfx("power")}catch(_){}}
+  scenarioMsg="👻 PHASE SHIFT";scenarioTransition=50;
+  try{doVibrate(14)}catch(e){}
+}
+function activateOrbitalMines(){
+  if(!gameRunning||gamePaused)return;
+  const s=((typeof getScale==="function")?getScale():1);
+  const n=isMobile()?2:3;
+  for(let k=0;k<n;k++){
+    const ang=(k/n)*Math.PI*2+Math.random()*0.4;
+    orbitalMines.push({
+      x:player.x+Math.cos(ang)*28*s,
+      y:player.y+Math.sin(ang)*20*s,
+      size:9*s,
+      life:420,
+      arm:30,
+      pulse:Math.random()*Math.PI
+    });
+  }
+  try{playSfx("bomb")}catch(e){try{playSfx("power")}catch(_){}}
+  scenarioMsg="💣 MINAS ORBITALES";scenarioTransition=55;
+  try{doVibrate(16)}catch(e){}
+}
+function activateLootVacuum(){
+  if(!gameRunning||gamePaused)return;
+  lootVacuum=1;
+  const pull=22;
+  for(let i=0;i<pickups.length;i++){
+    const p=pickups[i];
+    const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;
+    p.x+=dx/d*Math.min(d,pull*3);
+    p.y+=dy/d*Math.min(d,pull*3);
+    p.vy=0.4;
+  }
+  /* también cajas de suministro cercanas */
+  try{
+    if(typeof supplyCrates!=="undefined"){
+      supplyCrates.forEach(c=>{
+        const dx=player.x-c.x,dy=player.y-c.y,d=Math.hypot(dx,dy)||1;
+        c.x+=dx/d*18;c.y+=dy/d*18;
+      });
+    }
+  }catch(e){}
+  createExplosion(player.x,player.y,40,"255,205,0");
+  try{playSfx("power")}catch(e){}
+  scenarioMsg="🧲 LOOT VACUUM";scenarioTransition=50;
+  try{doVibrate(12)}catch(e){}
+}
+function activateDecoy(){
+  if(!gameRunning||gamePaused)return;
+  if(decoys.length>=2)decoys.shift();
+  const s=((typeof getScale==="function")?getScale():1);
+  decoys.push({
+    x:player.x+(Math.random()-0.5)*30,
+    y:player.y+10,
+    size:player.size*0.95,
+    life:240, /* 4s */
+    pulse:0
+  });
+  createExplosion(player.x,player.y,14,"255,180,80");
+  try{playSfx("allies")}catch(e){try{playSfx("power")}catch(_){}}
+  scenarioMsg="👤 DECOY";scenarioTransition=50;
+  try{doVibrate(12)}catch(e){}
+}
+function activateRailgunBuff(){
+  if(!gameRunning||gamePaused)return;
+  railgun=Math.max(railgun,480); /* ~8s de railgun en carga */
+  try{playSfx("bazooka")}catch(e){try{playSfx("laser")}catch(_){try{playSfx("power")}catch(__){}}}
+  scenarioMsg="══ RAILGUN LISTO (mantén FIRE)";scenarioTransition=70;
+  try{doVibrate(15)}catch(e){}
+}
+function fireRailgunBeam(power){
+  if(!gameRunning||gamePaused)return;
+  power=Math.max(0.35,Math.min(1,power||1));
+  const s=((typeof getScale==="function")?getScale():1);
+  const dmg=(8+power*14)*(typeof bulletDamage==="function"?bulletDamage():1);
+  const x=player.x;
+  /* rayo vertical hacia arriba */
+  chainFX.push({x1:x,y1:player.y-player.size,x2:x,y2:0,life:16,rail:true,w:3+power*5});
+  for(let j=obstacles.length-1;j>=0;j--){
+    const o=obstacles[j];
+    if(!o||o.__techDestroyed)continue;
+    const ox=o.x+(o.size||10)/2;
+    const half=(o.size||10)*0.55+6*s;
+    if(Math.abs(ox-x)<half && o.y<player.y){
+      damageObstacleAt(j, dmg);
+      createExplosion(ox,o.y+(o.size||10)/2,12+power*8,"255,240,120");
+    }
+  }
+  /* limpia balas enemigas en el carril */
+  for(let i=enemyBullets.length-1;i>=0;i--){
+    const b=enemyBullets[i];
+    if(Math.abs(b.x-x)<14*s && b.y<player.y)enemyBullets.splice(i,1);
+  }
+  ammo=Math.max(0,ammo-Math.ceil(3+power*5));
+  createExplosion(player.x,player.y-player.size,10+power*12,"255,230,100");
+  try{playSfx("laser")}catch(e){try{playSfx("shoot")}catch(_){}}
+  try{doVibrate(10+Math.floor(power*20))}catch(e){}
+  try{triggerShake(6+power*8)}catch(e){}
+}
+function updateNewPowers(){
+  /* cadena visual */
+  for(let i=chainFX.length-1;i>=0;i--){
+    const c=chainFX[i];
+    c.life--;
+    const a=Math.max(0,c.life/16);
+    ctx.save();
+    if(c.rail){
+      ctx.strokeStyle=`rgba(255,240,120,${0.35+a*0.55})`;
+      ctx.lineWidth=(c.w||4)*a+1;
+      ctx.shadowColor="#FFEE88";ctx.shadowBlur=12;
+      ctx.beginPath();ctx.moveTo(c.x1,c.y1);ctx.lineTo(c.x2,c.y2);ctx.stroke();
+      ctx.strokeStyle=`rgba(255,255,255,${0.5*a})`;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(c.x1,c.y1);ctx.lineTo(c.x2,c.y2);ctx.stroke();
+    } else {
+      ctx.strokeStyle=`rgba(120,220,255,${0.4+a*0.5})`;
+      ctx.lineWidth=2+a*2;
+      ctx.shadowColor="#66DDFF";ctx.shadowBlur=10;
+      ctx.beginPath();
+      const mx=(c.x1+c.x2)/2+(Math.random()-0.5)*12;
+      const my=(c.y1+c.y2)/2+(Math.random()-0.5)*12;
+      ctx.moveTo(c.x1,c.y1);ctx.lineTo(mx,my);ctx.lineTo(c.x2,c.y2);
+      ctx.stroke();
+    }
+    ctx.shadowBlur=0;ctx.restore();
+    if(c.life<=0)chainFX.splice(i,1);
+  }
+  /* minas orbitales del jugador */
+  for(let i=orbitalMines.length-1;i>=0;i--){
+    const m=orbitalMines[i];
+    m.life--;m.arm=Math.max(0,m.arm-1);m.pulse+=0.12;
+    const r=m.size*(0.85+Math.sin(m.pulse)*0.15);
+    ctx.save();
+    ctx.strokeStyle=m.arm>0?`rgba(255,200,50,0.25)`:`rgba(255,120,40,0.45)`;
+    ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.arc(m.x,m.y,r*2.2,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=m.arm>0?"#FFD700":"#FF6622";
+    ctx.beginPath();ctx.arc(m.x,m.y,r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#FFF";ctx.beginPath();ctx.arc(m.x,m.y,r*0.3,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    if(m.arm<=0){
+      let boom=false;
+      for(let j=obstacles.length-1;j>=0;j--){
+        const o=obstacles[j];
+        if(!o||o.__techDestroyed)continue;
+        const ox=o.x+(o.size||10)/2,oy=o.y+(o.size||10)/2;
+        if(Math.hypot(ox-m.x,oy-m.y)<r+(o.size||10)*0.45){
+          damageObstacleAt(j, 6+(typeof bulletDamage==="function"?bulletDamage():1));
+          boom=true;
+        }
+      }
+      if(boom||m.life<=0){
+        createExplosion(m.x,m.y,22,"255,100,30");
+        try{playSfx("explode")}catch(e){}
+        orbitalMines.splice(i,1);
+        continue;
+      }
+    }
+    if(m.life<=0)orbitalMines.splice(i,1);
+  }
+  /* decoy: atrae balas enemigas */
+  for(let i=decoys.length-1;i>=0;i--){
+    const d=decoys[i];
+    d.life--;d.pulse+=0.1;
+    const a=0.45+Math.sin(d.pulse)*0.15;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0.25,Math.min(0.85,d.life/240))*0.9;
+    ctx.translate(d.x,d.y);
+    ctx.fillStyle=`rgba(255,200,80,${a})`;
+    ctx.beginPath();
+    ctx.moveTo(0,-d.size);ctx.lineTo(d.size*0.7,d.size*0.6);ctx.lineTo(-d.size*0.7,d.size*0.6);
+    ctx.closePath();ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,0.5)";ctx.lineWidth=1;ctx.stroke();
+    ctx.restore();
+    /* desviar balas enemigas hacia el decoy */
+    for(let j=0;j<enemyBullets.length;j++){
+      const b=enemyBullets[j];
+      const dx=d.x-b.x,dy=d.y-b.y,dist=Math.hypot(dx,dy)||1;
+      if(dist<120){
+        b.vx=(b.vx||0)+dx/dist*0.35;
+        b.vy=(b.vy||0)+dy/dist*0.35;
+      }
+      if(dist<d.size+ (b.size||3)){
+        createExplosion(b.x,b.y,8,"255,180,50");
+        enemyBullets.splice(j,1);j--;
+        d.life-=25;
+      }
+    }
+    /* enemigos tipo nave se desvían un poco */
+    for(let j=0;j<obstacles.length;j++){
+      const o=obstacles[j];
+      if(!o||["meteor","hard","explosive","magnetic","fireball"].includes(String(o.type)))continue;
+      const ox=o.x+(o.size||10)/2,oy=o.y+(o.size||10)/2;
+      const dx=d.x-ox,dy=d.y-oy,dist=Math.hypot(dx,dy)||1;
+      if(dist<100){o.x+=dx/dist*0.25;o.y+=dy/dist*0.15}
+    }
+    if(d.life<=0){
+      createExplosion(d.x,d.y,16,"255,200,80");
+      decoys.splice(i,1);
+    }
+  }
+  /* vacuum residual: 1 frame flag already applied; keep magnet-like brief */
+  if(lootVacuum>0){
+    lootVacuum--;
+    for(let i=0;i<pickups.length;i++){
+      const p=pickups[i];
+      const dx=player.x-p.x,dy=player.y-p.y,dist=Math.hypot(dx,dy)||1;
+      p.x+=dx/dist*4.5;p.y+=dy/dist*4.5;
+    }
+  }
+}
+function applyNewPowerPickup(type){
+  powersCollected++;
+  if(type==="chain"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="⚡ Cadena lista";scenarioTransition=45}
+    else activateChainLightning();
+    return true;
+  }
+  if(type==="phase"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="👻 Phase listo";scenarioTransition=45}
+    else activatePhaseShift();
+    return true;
+  }
+  if(type==="orbmine"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="💣 Minas listas";scenarioTransition=45}
+    else activateOrbitalMines();
+    return true;
+  }
+  if(type==="vacuum"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="🧲 Vacuum listo";scenarioTransition=45}
+    else activateLootVacuum();
+    return true;
+  }
+  if(type==="decoy"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="👤 Decoy listo";scenarioTransition=45}
+    else activateDecoy();
+    return true;
+  }
+  if(type==="railgun"){
+    if(powerMode==="manual"){specialCharges=Math.min(9,specialCharges+1);playSfx("power");scenarioMsg="══ Railgun listo";scenarioTransition=45}
+    else activateRailgunBuff();
+    return true;
+  }
+  return false;
+}
+
 function useSpecialPower(){
   if(!gameRunning||gamePaused)return;
   if(specialCharges<=0){doVibrate(8);return}
@@ -2807,7 +3119,7 @@ function useSpecialPower(){
     fireKamehameha();
     return;
   }
-  const opts=["hammer","nova","bomb","burst","shield","rapid","missile"];
+  const opts=["hammer","nova","bomb","burst","shield","rapid","missile","chain","phase","orbmine","vacuum","decoy","railgun"];
   const pick=opts[Math.floor(Math.random()*opts.length)];
   if(pick==="hammer"){activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power");try{playSfx("explode")}catch(e){}}
   else if(pick==="nova"){activateNova();playSfx("nova");if(!SFX.nova)playSfx("explode")}
@@ -2816,7 +3128,13 @@ function useSpecialPower(){
   else if(pick==="shield"){shield=320;playSfx("shield");if(!SFX.shield)playSfx("power")}
   else if(pick==="rapid"){rapidFire=400;playSfx("rapid");if(!SFX.rapid)playSfx("power")}
   else if(pick==="missile"){missilePower=420;playSfx("missile");if(!SFX.missile)playSfx("power");for(let k=0;k<3;k++)setTimeout(()=>{if(gameRunning&&!gamePaused)fireMissile()},k*120)}
-  scenarioMsg="⚡ "+pick.toUpperCase();scenarioTransition=50;
+  else if(pick==="chain"){activateChainLightning()}
+  else if(pick==="phase"){activatePhaseShift()}
+  else if(pick==="orbmine"){activateOrbitalMines()}
+  else if(pick==="vacuum"){activateLootVacuum()}
+  else if(pick==="decoy"){activateDecoy()}
+  else if(pick==="railgun"){activateRailgunBuff()}
+  scenarioMsg="⚡ "+String(pick).toUpperCase();scenarioTransition=50;
 }
 
 
@@ -4426,7 +4744,7 @@ function maybeSpawnPickup(x,y){
   if(r<.10){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
   /* pool de poderes especiales (hammer, chrono, barrier, stormbolt, bazooka, etc.) */
   if(r<.55){
-    const pool=["ammo","hammer","shield","bounce","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka","vortex","ion","emp"];
+    const pool=["ammo","hammer","shield","bounce","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka","vortex","ion","emp","chain","phase","orbmine","vacuum","decoy","railgun"];
     const type=pool[Math.floor(Math.random()*pool.length)];
     pickups.push({x,y,type,size:s,vy:1.5});
   }
@@ -4490,7 +4808,7 @@ function openSupplyCrate(x,y){
   createExplosion(x,y,18,"206,17,38");
   try{playSfx("power")}catch(e){}
   try{doVibrate(25)}catch(e){}
-  const rewards=["ammo","shield","rapid","coin","coin","missile","triple","life","overdrive","nova"];
+  const rewards=["ammo","shield","rapid","coin","coin","missile","triple","life","overdrive","nova","chain","phase","orbmine","vacuum","decoy","railgun"];
   const n=2+Math.floor(Math.random()*2);
   for(let k=0;k<n;k++){
     const type=rewards[Math.floor(Math.random()*rewards.length)];
@@ -5300,6 +5618,7 @@ function fireChargedShot(){
   if(!gameRunning||gamePaused||ammo<=0){chargeShot=0;return}
   const power=Math.min(1, (chargeShot||0)/chargeMax);
   if(power<0.25){chargeShot=0;shoot();return}
+  if(railgun>0&&power>=0.35){fireRailgunBeam(power);chargeShot=0;return}
   const sp=10.5*getSpeedScale()*bufScale()*(1+power*0.45);
   const s=getScale();
   const dmgMul=(1+power*3)*(typeof bulletDamage==="function"?bulletDamage():1);
@@ -5408,7 +5727,7 @@ function updateDashTrail(){
 }
 function hitPlayer(x,y,opts){
   opts=opts||{};
-  if(invisible>0||dashInvuln>0)return;
+  if(invisible>0||dashInvuln>0||phaseShift>0)return;
   /* Escudo rebote: no recibe daño (las balas se devuelven en updateEnemyBullets) */
   if(bounceShield>0){createExplosion(x,y,12,"200,255,255");playSfx("reflect");if(!SFX.reflect)playSfx("shield");return}
   if(opts.soft||opts.laser){
@@ -6556,8 +6875,8 @@ function updateEnemyBullets(){
   }
 }
 
-function updatePickups(){const labels={ammo:"+40",coin:"⭐",shield:"S",bounce:"↻",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",drone:"🛸",freeze:"❄",chrono:"⏱",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀",vortex:"🌀",ion:"💠",emp:"💥"};
-const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",bounce:"#AAFFFF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF3333",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",drone:"#88DDFF",freeze:"#AADDFF",chrono:"#FFE066",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844",vortex:"#CC66FF",ion:"#66FFEE",emp:"#FFEE66"};
+function updatePickups(){const labels={ammo:"+40",coin:"⭐",shield:"S",bounce:"↻",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",drone:"🛸",freeze:"❄",chrono:"⏱",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀",vortex:"🌀",ion:"💠",emp:"💥",chain:"⚡⚡",phase:"👻",orbmine:"💣",vacuum:"🧲",decoy:"👤",railgun:"══"};
+const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",bounce:"#AAFFFF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF3333",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",drone:"#88DDFF",freeze:"#AADDFF",chrono:"#FFE066",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844",vortex:"#CC66FF",ion:"#66FFEE",emp:"#FFEE66",chain:"#66EEFF",phase:"#CCDDEE",orbmine:"#FF9944",vacuum:"#FFD700",decoy:"#FFCC66",railgun:"#FFE566"};
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];
 if(magnet>0){const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=(dx/d)*2.5;p.y+=(dy/d)*2.5}
 p.y+=p.vy;
@@ -6569,9 +6888,10 @@ ctx.fillText(labels[p.type]||"?",p.x,p.y);
 ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
 
-if(p.type==="ammo"){ammo=Math.min(ammo+40,250);playSfx("power")}
+if(["chain","phase","orbmine","vacuum","decoy","railgun"].includes(p.type)){applyNewPowerPickup(p.type)}
+else if(p.type==="ammo"){ammo=Math.min(ammo+40,250);playSfx("power")}
 else if(p.type==="coin"){coins+=(p.value||5)*2;lsSet("techCoinsV2",coins);playSfx("power");scenarioMsg="⭐ +"+(p.value||5)*2+" puntosjuego";scenarioTransition=40}
-else if(powerMode==="manual"&&["hammer","nova","bomb","burst","shield","bounce","rapid","missile","laser","triple","pierce","reflect","vortex","ion","emp"].includes(p.type)){
+else if(powerMode==="manual"&&["hammer","nova","bomb","burst","shield","bounce","rapid","missile","laser","triple","pierce","reflect","vortex","ion","emp","chain","phase","orbmine","vacuum","decoy","railgun"].includes(p.type)){
   specialCharges=Math.min(9,specialCharges+1);powersCollected++;playSfx("power");
 }else if(p.type==="shield"){shield=320;specialCharges=Math.min(6,specialCharges+1);powersCollected++;playSfx("shield");if(!SFX.shield)playSfx("power")}
 else if(p.type==="bounce"){bounceShield=420;specialCharges=Math.min(6,specialCharges+1);powersCollected++;playSfx("reflect");if(!SFX.reflect)playSfx("shield");scenarioMsg="↻ ESCUDO REBOTE";scenarioTransition=70}
@@ -6675,6 +6995,10 @@ ctx.fillText("☄ "+meteorsDestroyed,P(8),canvas.height-P(34));
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("¡SIN MUNICIÓN! +40",canvas.width/2,canvas.height-P(10))}
 const pows=[];
 if(shield>0)pows.push(["ESC","#00C8FF"]);
+if(phaseShift>0)pows.push(["PHS","#CCDDEE"]);
+if(railgun>0)pows.push(["RAIL","#FFE566"]);
+if(orbitalMines&&orbitalMines.length)pows.push(["MIN"+orbitalMines.length,"#FF9944"]);
+if(decoys&&decoys.length)pows.push(["DCY","#FFCC66"]);
 if(bounceShield>0)pows.push(["REB","#AAFFFF"]);
 if(bounceShot>0)pows.push(["↻","#AAFFFF"]);
 if(drones&&drones.length)pows.push(["DRN","#88DDFF"]);
@@ -7226,7 +7550,7 @@ if(introTimer>0){
   ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+18);
 }
 
-if(shield>0)shield--;if(bounceShield>0)bounceShield--;if(vortex>0)vortex--;if(ion>0)ion--;if(emp>0)emp--;if(laserGrace>0)laserGrace--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;
+if(shield>0)shield--;if(bounceShield>0)bounceShield--;if(vortex>0)vortex--;if(ion>0)ion--;if(emp>0)emp--;if(laserGrace>0)laserGrace--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;if(phaseShift>0)phaseShift--;if(railgun>0)railgun--;
 if(comboTimer>0){comboTimer--}else{combo=0;comboMult=1}
 if(feverMode>0){
   feverMode--;
@@ -7381,7 +7705,7 @@ for(let i=obstacles.length-1;i>=0;i--){
 }
 updateTraps();updateExtraTraps();if(!gameRunning)return;
 updateDashTrail();updateLaser();updateKamehameha();drawBullets();updateMissiles();updateEnemyBullets();if(!gameRunning)return;
-updatePickups();updateSupplyCrates();
+updatePickups();try{updateNewPowers()}catch(e){}updateSupplyCrates();
 if(phase==="meteors"&&gameRunning&&!gamePaused){
   const nowTs=performance.now();
   if(nowTs-lastSupplyDrop>18000){
@@ -7433,7 +7757,7 @@ const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
 const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="block";try{window.refreshMuteLiveIcon()}catch(e){}}
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
-score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
+score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;phaseShift=0;railgun=0;lootVacuum=0;orbitalMines=[];decoys=[];chainFX=[];ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
 if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;

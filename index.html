@@ -2737,7 +2737,7 @@ function useSpecialPower(){
   }
   const opts=["hammer","nova","bomb","burst","shield","rapid","missile"];
   const pick=opts[Math.floor(Math.random()*opts.length)];
-  if(pick==="hammer"){activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power")}
+  if(pick==="hammer"){activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power");try{playSfx("explode")}catch(e){}}
   else if(pick==="nova"){activateNova();playSfx("nova");if(!SFX.nova)playSfx("explode")}
   else if(pick==="bomb"){activateBomb();playSfx("bomb");if(!SFX.bomb)playSfx("explode")}
   else if(pick==="burst"){activateBurst();playSfx("burst");if(!SFX.burst)playSfx("shoot")}
@@ -4657,25 +4657,63 @@ function activateBomb(){
 }
 
 function activateHammer(){
-  /* Máximo 4 rayos por uso */
+  /* Martillo: rayos a enemigos cercanos + onda expansiva */
+  try{doVibrate(40)}catch(e){}
+  const px0=player.x, py0=player.y;
+  const maxRays=isMobile()?5:8;
   const targets=[];
   for(let i=0;i<obstacles.length;i++){
     const o=obstacles[i];
+    if(!o||o.__techDestroyed)continue;
     if(o.type==="hard"||o.indestructible)continue;
-    targets.push({o,i,d:Math.hypot(player.x-(o.x+o.size/2),player.y-(o.y+o.size/2))});
+    const cx=o.x+(o.size||0)/2, cy=o.y+(o.size||0)/2;
+    targets.push({o,i,cx,cy,d:Math.hypot(px0-cx,py0-cy)});
   }
   targets.sort((a,b)=>a.d-b.d);
-  const hit=targets.slice(0,4); /* solo 4 rayos */
+  const hit=targets.slice(0,maxRays);
   const killIdx=[];
-  hit.forEach(({o,i})=>{
-    const cx=o.x+o.size/2,cy=o.y+o.size/2;
-    const br=[];for(let s=1;s<5;s++){const t=s/5;br.push({x:player.x+(cx-player.x)*t+(Math.random()-.5)*40,y:player.y+(cy-player.y)*t+(Math.random()-.5)*30})}
-    if(lightningFX.length<(isMobile()?2:8))lightningFX.push({x1:player.x,y1:player.y,x2:cx,y2:cy,life:28,maxLife:28,branches:br});
-    if(String(o.type).startsWith("boss")){o.hp-=14;createExplosion(cx,cy,50,"180,220,255");if(o.hp<=0)killIdx.push(i)}
-    else killIdx.push(i);
+  // Onda expansiva central (siempre visible)
+  createExplosion(px0,py0,70,"220,240,255");
+  createExplosion(px0,py0,40,"120,180,255");
+  if(typeof particles!=="undefined"){
+    for(let k=0;k<12;k++){
+      particles.push({x:px0,y:py0,size:2+Math.random()*3,speed:(Math.random()-.5)*4,opacity:.9,color:"180,220,255",vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6});
+    }
+  }
+  hit.forEach(({o,i,cx,cy})=>{
+    const br=[];
+    for(let s=1;s<6;s++){
+      const t=s/6;
+      br.push({x:px0+(cx-px0)*t+(Math.random()-.5)*36,y:py0+(cy-py0)*t+(Math.random()-.5)*28});
+    }
+    if(lightningFX.length<(isMobile()?6:12)){
+      lightningFX.push({x1:px0,y1:py0,x2:cx,y2:cy,life:34,maxLife:34,branches:br});
+    }
+    createExplosion(cx,cy,36,"180,220,255");
+    if(String(o.type||"").startsWith("boss")){
+      o.hp=(o.hp||20)-18;
+      createExplosion(cx,cy,55,"255,200,100");
+      if(o.hp<=0) killIdx.push(i);
+    } else {
+      killIdx.push(i);
+    }
   });
-  killIdx.sort((a,b)=>b-a).forEach(i=>{if(obstacles[i])destroyEnemy(obstacles[i],i)});
-  createExplosion(player.x,player.y,40,"200,230,255");
+  // Destruir de atrás hacia adelante
+  killIdx.sort((a,b)=>b-a).forEach(idx=>{
+    const o=obstacles[idx];
+    if(!o||o.__techDestroyed)return;
+    try{destroyEnemy(o,idx)}catch(e){
+      // fallback si destroyEnemy falla
+      try{o.__techDestroyed=true;obstacles.splice(idx,1)}catch(_){}
+    }
+  });
+  // Si no había enemigos, igual se ve el estallido
+  if(!hit.length){
+    createExplosion(px0,py0-20,50,"200,230,255");
+    scenarioMsg="🔨 ¡Martillazo!";scenarioTransition=50;
+  } else {
+    scenarioMsg="🔨 MARTILLAZO x"+hit.length;scenarioTransition=60;
+  }
 }
 function updateLightning(){
   for(let i=lightningFX.length-1;i>=0;i--){
@@ -6481,7 +6519,11 @@ else if(p.type==="pierce"){pierce=360;playSfx("power")}
 else if(p.type==="life"){lives=Math.min(lives+1,3);updateLivesUI();playSfx("power")}
 else if(p.type==="invisible"){invisible=360;playSfx("power")}
 else if(p.type==="magnet"){magnet=400;playSfx("power")}
-else if(p.type==="hammer"){specialCharges=Math.min(6,specialCharges+1);powersCollected++;playSfx("power")}
+else if(p.type==="hammer"){
+  powersCollected++;
+  if(powerMode==="manual"){specialCharges=Math.min(6,specialCharges+1);playSfx("power");scenarioMsg="🔨 Martillo listo";scenarioTransition=50}
+  else{activateHammer();playSfx("hammer");if(!SFX.hammer)playSfx("power");playSfx("explode");scenarioMsg="🔨 MARTILLAZO";scenarioTransition=70}
+}
 else if(p.type==="missile"){missilePower=420;playSfx("missile");if(!SFX.missile)playSfx("power");for(let k=0;k<3;k++)setTimeout(()=>{if(gameRunning&&!gamePaused)fireMissile()},k*120)}
 else if(p.type==="allies"){spawnAllies();playSfx("allies");if(!SFX.allies)playSfx("power")}
 else if(p.type==="overdrive"){overdrive=360;playSfx("overdrive");if(!SFX.overdrive)playSfx("power")}
@@ -7275,7 +7317,7 @@ if(phase==="meteors"&&gameRunning&&!gamePaused){
     if(Math.random()<0.55)spawnSupplyCrate();
   }
 }
-updateExplosions();if(!((selectedWorld===5||scenario===5)&&(typeof isMobile==="function"&&isMobile()))&&(!(typeof mob==="function"?mob():isMobile())||!lowPower)){updateLightning()}updateAllies();updateDrones();drawPlayer();
+updateExplosions();if(lightningFX&&lightningFX.length){updateLightning()}else if(!((selectedWorld===5||scenario===5)&&(typeof isMobile==="function"&&isMobile()))&&(!(typeof mob==="function"?mob():isMobile())||!lowPower)){updateLightning()}updateAllies();updateDrones();drawPlayer();
 try{updateEngineSound()}catch(e){}
 
 /* Vórtice: atrae enemigos */

@@ -15,9 +15,9 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 @keyframes stars{to{transform:translateY(-50%)}}
 .tech-game-section{width:100%;max-width:1200px;margin:25px auto 10px;padding:0 25px}
 .tech-game{position:relative;width:100%;height:420px;overflow:hidden;border-radius:20px;background:radial-gradient(ellipse at 50% 0%,#0a1228 0%,#000 70%);border:1px solid rgba(255,205,0,.28);box-shadow:0 0 0 1px rgba(0,56,168,.35),0 0 32px rgba(206,17,38,.12),0 12px 40px rgba(0,0,0,.55);touch-action:none}
-.tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:1;opacity:.7}
-.tech-game::after{content:"";position:absolute;inset:0;border-radius:20px;pointer-events:none;z-index:3;box-shadow:inset 0 0 40px rgba(0,56,168,.12),inset 0 1px 0 rgba(255,205,0,.12)}
-#gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;cursor:crosshair;touch-action:none;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(0)}
+.tech-game::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:1;opacity:.35}
+.tech-game::after{content:"";position:absolute;inset:0;border-radius:20px;pointer-events:none;z-index:1;box-shadow:inset 0 0 40px rgba(0,56,168,.08),inset 0 1px 0 rgba(255,205,0,.08)}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:5;cursor:crosshair;touch-action:none;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(0)}
 .game-top{position:absolute;top:8px;left:44px;right:150px;display:flex;flex-direction:column;align-items:flex-start;z-index:12;pointer-events:none;gap:3px}
 .game-title{color:#fff;font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:none;text-shadow:0 0 12px rgba(0,160,233,.45),0 1px 2px #000;white-space:nowrap}
 .game-score{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:left;line-height:1.5;color:#c8d6e8;text-shadow:0 0 8px rgba(0,0,0,.95),0 1px 2px #000;letter-spacing:.4px;padding:4px 8px 4px 0;border-left:2px solid rgba(255,205,0,.55);padding-left:8px}
@@ -1262,8 +1262,8 @@ input,select,textarea{
     var(--shadow),
     0 0 0 1px rgba(79,210,255,.08),
     inset 0 1px 0 rgba(255,255,255,.07) !important;
-  backdrop-filter:blur(16px) saturate(1.2) !important;
-  -webkit-backdrop-filter:blur(16px) saturate(1.2) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }
 .game-panel h2{
   font-size:1.55rem !important;
@@ -1679,6 +1679,57 @@ select,textarea{
   .tech-game-section{padding:0 10px}
   .game-panel h2{font-size:1.3rem !important}
   .contact-icon{border-radius:12px !important}
+}
+</style>
+
+
+<style id="tech-playing-clear-overlay">
+/* Al jugar: nada transparente encima del canvas */
+.tech-game.is-playing > .game-panel:not(.config-panel-open):not(.pause-open),
+.tech-game.is-playing #startPanel,
+.tech-game.is-playing #gameOverPanel,
+.tech-game.is-playing #storyMenuPanel,
+.tech-game.is-playing #storyBriefPanel,
+.tech-game.is-playing #storyResultPanel,
+.tech-game.is-playing #techStatisticsPanel,
+.tech-game.is-playing #gokuAccessModal:not(.show),
+.tech-game.is-playing #manualPanel,
+.tech-game.is-playing #dailyMissionsPanel{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+.tech-game.is-playing #configPanel:not(.config-panel-open){
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+.tech-game.is-playing #pausePanel:not(.pause-open){
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+/* Capas decorativas nunca tapan el juego */
+.tech-game::before,
+.tech-game::after{
+  z-index:1 !important;
+  pointer-events:none !important;
+}
+#gameCanvas{
+  z-index:5 !important;
+  position:absolute !important;
+}
+.game-top{z-index:12 !important;pointer-events:none !important}
+.game-help{z-index:10 !important;pointer-events:none !important}
+/* Quitar velo del panel si quedó a medias */
+.game-panel[style*="display: none"],
+.game-panel[style*="display:none"]{
+  display:none !important;
+  pointer-events:none !important;
+  opacity:0 !important;
 }
 </style>
 
@@ -4502,7 +4553,8 @@ function togglePause(force){if(!gameRunning)return;
   gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
 if(gamePaused){
   if(pp){
-    pp.style.display="block";
+    pp.classList.add("pause-open");
+    pp.style.setProperty("display","block","important");
     try{
       const psp=document.getElementById("pauseSensPad"),pspv=document.getElementById("pauseSensPadVal");
       if(psp){psp.value=sensPad;if(pspv)pspv.textContent=Number(sensPad).toFixed(2)+"x"}
@@ -4520,7 +4572,7 @@ if(gamePaused){
   try{pauseEngineSound()}catch(e){}
   stopLoopWatchdog();
 }
-else{if(pp)pp.style.display="none";if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}try{resumeEngineSound()}catch(e){}kickGameLoop();startLoopWatchdog()}}
+else{if(pp){pp.classList.remove("pause-open");pp.style.setProperty("display","none","important")}if(bp)bp.innerHTML="⏸";lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now();if(SFX.bg&&!audioMuted){try{SFX.bg.volume=volMusic;SFX.bg.play().catch(()=>{})}catch(e){}}try{resumeEngineSound()}catch(e){}kickGameLoop();startLoopWatchdog()}}
 
 /* Al volver a la pestaña / desbloquear pantalla: reanudar bucle (no pausar solo) */
 document.addEventListener("visibilitychange",function(){
@@ -7498,13 +7550,6 @@ if(dashCd>0||dashInvuln>0){
   ctx.textAlign="center";
   ctx.fillText(dashInvuln>0?"ESQUIVE":("DASH "+Math.ceil(dashCd/60)+"s"),canvas.width/2,P(mob?42:40));
 }
-if(chargeShot>15){
-  const pct=Math.min(1,chargeShot/chargeMax);
-  const bw=P(mob?80:100),bh=P(5);
-  ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(canvas.width/2-bw/2,P(mob?48:50),bw,bh);
-  ctx.fillStyle=pct>0.85?"#FFEE66":"#FFAA44";
-  ctx.fillRect(canvas.width/2-bw/2,P(mob?48:50),bw*pct,bh);
-}
 if(activeShield>0){
   ctx.strokeStyle="rgba(80,200,255,.55)";ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(player.x,player.y,player.size+10+Math.sin(performance.now()/50)*2,0,Math.PI*2);ctx.stroke();
@@ -8079,12 +8124,12 @@ if(typeof mob==="function"?mob():isMobile()){try{ctx.shadowBlur=0;ctx.shadowColo
 if(damageFlash>0){ctx.fillStyle=`rgba(180,0,0,${0.12+damageFlash*0.01})`;ctx.fillRect(0,0,canvas.width,canvas.height)}
 /* fiebre: sin barras laterales (evita mareo) */
 if(introTimer>0){
-  const a=Math.min(1,introTimer/40);
-  ctx.fillStyle=`rgba(0,0,0,${0.35*a})`;ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle=`rgba(255,205,0,${a})`;ctx.font=`bold ${Math.min(22,canvas.width*0.05)}px Orbitron`;ctx.textAlign="center";
-  ctx.fillText(T("launching"),canvas.width/2,canvas.height/2-10);
-  ctx.fillStyle=`rgba(255,255,255,${a*0.8})`;ctx.font="12px Share Tech Mono";
-  ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+18);
+  const a=Math.min(1,introTimer/24);
+  /* Solo texto breve, sin velo oscuro que tape el juego */
+  ctx.fillStyle=`rgba(255,205,0,${0.85*a})`;ctx.font=`bold ${Math.min(20,canvas.width*0.045)}px Orbitron`;ctx.textAlign="center";
+  ctx.fillText(T("launching"),canvas.width/2,canvas.height/2-8);
+  ctx.fillStyle=`rgba(255,255,255,${0.7*a})`;ctx.font="12px Share Tech Mono";
+  ctx.fillText(difficulty.toUpperCase(),canvas.width/2,canvas.height/2+16);
 }
 
 if(shield>0)shield--;if(bounceShield>0)bounceShield--;if(vortex>0)vortex--;if(ion>0)ion--;if(emp>0)emp--;if(laserGrace>0)laserGrace--;if(rapidFire>0)rapidFire--;if(tripleShot>0)tripleShot--;if(slowMo>0)slowMo--;if(laser>0)laser--;if(pierce>0)pierce--;if(invisible>0)invisible--;if(magnet>0)magnet--;if(missilePower>0)missilePower--;if(allyPower>0)allyPower--;if(storm>0)storm--;if(overdrive>0)overdrive--;if(nova>0)nova=0;if(reflect>0)reflect--;if(burst>0)burst=0;if(freezeEnemies>0)freezeEnemies--;if(barrier>0)barrier--;if(phaseShift>0)phaseShift--;if(railgun>0)railgun--;
@@ -8101,13 +8146,17 @@ const reach=90*sensKeys;if(keys.left)mouse.x=player.x-reach;if(keys.right)mouse.
 if(gyroOn&&window._gyro){mouse.x=player.x+window._gyro.x*100*sensPad;mouse.y=player.y+window._gyro.y*100*sensPad}
 
 if(isShooting){
-  /* Disparo normal a cadencia completa (sin trabarse) */
+  /* Solo disparo normal: sin barra de carga ni velo semitransparente */
   shoot();
-  chargeShot=Math.min(chargeMax,(chargeShot||0)+1.4);
-} else if(chargeShot>=40){
-  /* Al soltar con carga alta → disparo cargado extra */
-  fireChargedShot();
-} else {chargeShot=0}
+  chargeShot=0;
+  /* Railgun activo: disparo de riel ocasional sin barra de carga */
+  if(railgun>0&&(!window.__railCd||performance.now()>=window.__railCd)){
+    window.__railCd=performance.now()+650;
+    try{fireRailgunBeam(0.85)}catch(e){}
+  }
+} else {
+  chargeShot=0;
+}
 if(typeof updateShieldBtn==="function")updateShieldBtn();
 if(missilePower>0&&isShooting&&Math.random()<.04)fireMissile();
 if(bazooka>0&&isShooting&&Math.random()<.06){bazooka--;fireBazooka()}
@@ -8288,7 +8337,14 @@ function startGame(){
 runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
-startPanel.style.display="none";gameOverPanel.style.display="none";
+try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.add("is-playing")}catch(e){}
+startPanel.style.setProperty("display","none","important");
+gameOverPanel.style.setProperty("display","none","important");
+["pausePanel","storyMenuPanel","storyBriefPanel","storyResultPanel","techStatisticsPanel","manualPanel","dailyMissionsPanel","gokuAccessModal"].forEach(function(id){
+  var el=document.getElementById(id);if(!el)return;
+  el.style.setProperty("display","none","important");
+  el.classList&&el.classList.remove("show","config-panel-open","pause-open");
+});
 const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","10px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
@@ -8300,7 +8356,7 @@ if(scoreElement)scoreElement.textContent="0";
 record=Number(lsGet("techRunRecordV4",0))||0;if(recordElement)recordElement.textContent=record;
 updateLivesUI();
 player.x=canvas.width/2;player.y=canvas.height/2;mouse.x=player.x;mouse.y=player.y;gameRunning=true;
-combo=0;comboTimer=0;comboMult=1;feverMode=0;feverAnnounced=false;supplyCrates=[];lastSupplyDrop=performance.now();damageFlash=0;introTimer=120;screenShake=0;hitSparks=[];
+combo=0;comboTimer=0;comboMult=1;feverMode=0;feverAnnounced=false;supplyCrates=[];lastSupplyDrop=performance.now();damageFlash=0;introTimer=36;screenShake=0;hitSparks=[];
 const rec=Number(lsGet("techRunRecordV4",0))||0;
 ammo=100+(rec>=30?20:0)+Math.min(50,(upgAmmo||0)*12);lives=1+(rec>=60?1:0)+Math.min(2,upgLives||0);updateLivesUI();
 if(rec>=100)upgSpeed=Math.max(upgSpeed,2);
@@ -8318,7 +8374,8 @@ const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
 checkAchievements();
-gameOverPanel.style.display="block";
+try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+gameOverPanel.style.setProperty("display","block","important");
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
@@ -8330,7 +8387,7 @@ extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bo
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
 const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
 }
-function continueToSite(){gameOverPanel.style.display="none";startPanel.style.display="block"}
+function continueToSite(){try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}gameOverPanel.style.setProperty("display","none","important");startPanel.style.setProperty("display","block","important")}
 function goToStartMenu(){
   gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
   stopBgMusic&&stopBgMusic();

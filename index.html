@@ -1038,6 +1038,78 @@ input:focus,textarea:focus,select:focus{
 }
 
 
+
+/* === Touch pad: todos los poderes visibles con nombre === */
+.touch-mid{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  gap:6px !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  max-width:min(240px, 42vw) !important;
+  width:100%;
+}
+.touch-mid .touch-util{
+  min-width:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  height:auto !important;
+  min-height:44px !important;
+  padding:5px 3px !important;
+  font-size:9px !important;
+  line-height:1.15 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:2px !important;
+  border-radius:10px !important;
+}
+.touch-mid .touch-util .tu-ico{
+  display:block;
+  font-size:14px;
+  line-height:1;
+}
+.touch-mid .touch-util .tu-lab{
+  display:block;
+  font-family:Orbitron,sans-serif;
+  font-weight:800;
+  font-size:9px;
+  letter-spacing:.3px;
+  color:inherit;
+  -webkit-text-fill-color:inherit;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#touchPowerMode .tu-lab{font-size:8px}
+@media(max-width:1100px),(pointer:coarse){
+  .touch-pad .touch-mid{
+    max-width:min(260px, 48vw) !important;
+  }
+  .touch-mid .touch-util{
+    min-height:48px !important;
+    padding:6px 2px !important;
+  }
+  .touch-mid .touch-util .tu-ico{font-size:15px}
+  .touch-mid .touch-util .tu-lab{font-size:9px}
+}
+.tech-game-section:fullscreen .touch-mid,
+.tech-game-section:-webkit-full-screen .touch-mid{
+  max-width:min(280px, 52vw) !important;
+}
+.tech-game-section:fullscreen .touch-mid .touch-util,
+.tech-game-section:-webkit-full-screen .touch-mid .touch-util{
+  min-height:50px !important;
+}
+@media(max-width:380px){
+  .touch-mid .touch-util .tu-lab{font-size:8px}
+  .touch-mid .touch-util{min-height:42px !important}
+}
+
 /* Layouts del touch pad (configurables) */
 .touch-pad.layout-left .touch-pad-inner{flex-direction:row}
 .touch-pad.layout-right .touch-pad-inner{flex-direction:row-reverse}
@@ -1122,13 +1194,13 @@ input:focus,textarea:focus,select:focus{
         <span class="touch-move-hint">Mover</span>
       </div>
     </div>
-    <div class="touch-mid">
-      <button type="button" class="touch-util" id="touchPause">⏸</button>
-      <button type="button" class="touch-util" id="touchPowerMode" title="Poderes auto/manual">AUTO</button>
-      <button type="button" class="touch-util" id="touchSpecial">⚡</button>
-      <button type="button" class="touch-util" id="touchDash" title="Dash / esquivar">DASH</button>
-      <button type="button" class="touch-util" id="touchShield" title="Escudo activo">🛡</button>
-      <button type="button" class="touch-util" id="touchWorld" title="Teletransporte a otro mundo">🌍</button>
+    <div class="touch-mid" id="touchPowersGrid" aria-label="Poderes">
+      <button type="button" class="touch-util" id="touchPause" title="Pausa"><span class="tu-ico">⏸</span><span class="tu-lab">PAUSA</span></button>
+      <button type="button" class="touch-util" id="touchPowerMode" title="Poderes auto/manual"><span class="tu-ico">⚙</span><span class="tu-lab">AUTO</span></button>
+      <button type="button" class="touch-util" id="touchSpecial" title="Poder especial"><span class="tu-ico">⚡</span><span class="tu-lab">PODER</span></button>
+      <button type="button" class="touch-util" id="touchDash" title="Dash / esquivar"><span class="tu-ico">💨</span><span class="tu-lab">DASH</span></button>
+      <button type="button" class="touch-util" id="touchShield" title="Escudo activo"><span class="tu-ico">🛡</span><span class="tu-lab">ESCUDO</span></button>
+      <button type="button" class="touch-util" id="touchWorld" title="Teletransporte a otro mundo"><span class="tu-ico">🌍</span><span class="tu-lab">MUNDO</span></button>
     </div>
     <div class="touch-col touch-fire-col">
       <button type="button" class="touch-fire" id="touchFire">FIRE</button>
@@ -3171,7 +3243,7 @@ function rebuildConfigLabels(){rebuildConfigPanel()}
 
 
 const pms=document.getElementById("powerModeSelect");
-if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
+if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)(function(){var lab=tpm.querySelector(".tu-lab");var t=powerMode==="auto"?"AUTO":"MANUAL";if(lab)lab.textContent=t;else tpm.textContent=t;})()}}
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
@@ -3214,7 +3286,7 @@ function wirePauseControls(){
   const pvb=document.getElementById("pauseVibrate");
   if(pvb){pvb.checked=!!vibrateOn;pvb.onchange=()=>{vibrateOn=pvb.checked;lsSet("techVibrate",vibrateOn?"1":"0")}}
   const ppm=document.getElementById("pausePowerMode");
-  if(ppm){ppm.value=powerMode;ppm.onchange=()=>{powerMode=ppm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"}}
+  if(ppm){ppm.value=powerMode;ppm.onchange=()=>{powerMode=ppm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)(function(){var lab=tpm.querySelector(".tu-lab");var t=powerMode==="auto"?"AUTO":"MANUAL";if(lab)lab.textContent=t;else tpm.textContent=t;})()}}
   const pof=document.getElementById("pauseOpenFullCfg");
   if(pof)pof.onclick=()=>{
     window.__configOpenedFromPause=true;
@@ -3494,7 +3566,7 @@ if(startPanel&&!document.getElementById("startExtras")){
     const svb=box.querySelector("#startVibrate");
     if(svb)svb.onchange=()=>{vibrateOn=svb.checked;lsSet("techVibrate",vibrateOn?"1":"0")};
     const spm=box.querySelector("#startPowerMode");
-    if(spm)spm.onchange=()=>{powerMode=spm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL"};
+    if(spm)spm.onchange=()=>{powerMode=spm.value;lsSet("techPowerMode",powerMode);const tpm=document.getElementById("touchPowerMode");if(tpm)(function(){var lab=tpm.querySelector(".tu-lab");var t=powerMode==="auto"?"AUTO":"MANUAL";if(lab)lab.textContent=t;else tpm.textContent=t;})()};
     const bof=box.querySelector("#btnOpenFullConfig");
     if(bof)bof.onclick=()=>{const cfg=document.getElementById("configPanel");const btn=document.getElementById("btnConfig");if(btn)btn.click();else if(cfg)cfg.style.display="block"};
     setTimeout(()=>{drawShipPreview();updateGokuFormsUI()},30);
@@ -3827,8 +3899,8 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
   if(tpause){tpause.addEventListener("touchstart",e=>{e.preventDefault();if(gameRunning)togglePause()},{passive:false});tpause.addEventListener("click",()=>{if(gameRunning)togglePause()})}
   const tpm=document.getElementById("touchPowerMode");
   if(tpm){
-    tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL";
-    const tog=e=>{e.preventDefault();powerMode=powerMode==="auto"?"manual":"auto";lsSet("techPowerMode",powerMode);tpm.textContent=powerMode==="auto"?"AUTO":"MANUAL";doVibrate(12)};
+    (function(){var lab=tpm.querySelector(".tu-lab");var t=powerMode==="auto"?"AUTO":"MANUAL";if(lab)lab.textContent=t;else tpm.textContent=t;})();
+    const tog=e=>{e.preventDefault();powerMode=powerMode==="auto"?"manual":"auto";lsSet("techPowerMode",powerMode);(function(){var lab=tpm.querySelector(".tu-lab");var t=powerMode==="auto"?"AUTO":"MANUAL";if(lab)lab.textContent=t;else tpm.textContent=t;})();doVibrate(12)};
     tpm.addEventListener("touchstart",tog,{passive:false});tpm.addEventListener("click",tog);
   }
   /* Fases Goku en touch pad */
@@ -8759,7 +8831,7 @@ function runAdded(node){if(!node||node.nodeType!==1)return;run(node);}
   const MAX_ARCHIVE=5000;
   let range='10',filterMode='all',filterFrom='',filterTo='';
   let panelOpen=false;
-  let run={start:0,shots:0,kills:0,meteors:0,ships:0,recorded:false,mode:'classic',diff:'normal',missionId:'',missionTitle:''};
+  let run={start:0,shots:0,kills:0,meteors:0,ships:0,weaponKills:0,recorded:false,mode:'classic',diff:'normal',missionId:'',missionTitle:''};
 
 
 
@@ -8930,7 +9002,9 @@ s.shots=safeNum(s.shots)+safeNum(normalized.shots);s.enemies=safeNum(s.enemies)+
     try{wave=typeof waveCount!=='undefined'?safeNum(waveCount):0;world=typeof selectedWorld!=='undefined'?safeNum(selectedWorld)||1:1;ship=typeof shipName!=='undefined'?String(shipName||'Br7'):'Br7';model=typeof shipModel!=='undefined'?String(shipModel||''):' ';diff=typeof difficulty!=='undefined'?String(difficulty||'normal'):'normal';mode=typeof gameMode!=='undefined'?String(gameMode||'classic'):'classic';coinsNow=typeof coins!=='undefined'?safeNum(coins):0}catch(e){}
     const extraObj=extra||{};
     const id='run-'+String(started||now)+'-'+String(extraObj.missionId||'arcade');
-    const entry={id,ts:now,runStartTime:started,score:currentScore,wave,world,ship:ship.slice(0,32),model,diff,mode,duration:elapsed,coins:coinsNow,shots:safeNum(run.shots),kills:safeNum(run.kills),meteors:safeNum(run.meteors),ships:safeNum(run.ships),missionId:extraObj.missionId||'',missionTitle:extraObj.missionTitle||'',result:extraObj.result||'finished',objective:extraObj.objective||''};
+    let weaponNow='basic', formNow='',buildKey='';
+    try{weaponNow=(typeof currentWeapon!=='undefined'&&currentWeapon)?String(currentWeapon):'basic';formNow=(typeof gokuForm!=='undefined'&&gokuForm)?String(gokuForm):'';const m=(typeof shipModel!=='undefined'&&shipModel)?String(shipModel):'classic';buildKey=m+(m==='goku'&&formNow?'/'+formNow:'')+' · '+(weaponNow||'basic')}catch(e){buildKey=(model||'classic')+' · basic'}
+    const entry={id,ts:now,runStartTime:started,score:currentScore,wave,world,ship:ship.slice(0,32),model,diff,mode,duration:elapsed,coins:coinsNow,shots:safeNum(run.shots),kills:safeNum(run.kills),meteors:safeNum(run.meteors),ships:safeNum(run.ships),missionId:extraObj.missionId||'',missionTitle:extraObj.missionTitle||'',result:extraObj.result||'finished',objective:extraObj.objective||'',weapon:weaponNow,gokuForm:formNow,build:buildKey,weaponKills:safeNum(run.weaponKills)};
     const ok=appendArchive(entry);run.recorded=ok||run.recorded;
     if(ok){
       try{
@@ -9001,6 +9075,8 @@ s.shots=safeNum(s.shots)+safeNum(normalized.shots);s.enemies=safeNum(s.enemies)+
 const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),avg=scores.length?Math.round(sum/scores.length):0;const sorted=scores.slice().sort((a,b)=>a-b);const median=sorted.length?(sorted.length%2?sorted[(sorted.length-1)/2]:Math.round((sorted[sorted.length/2-1]+sorted[sorted.length/2])/2)):0;const best=Math.max(safeNum(s.highScore),...all.map(m=>safeNum(m.score)),0);const worst=scores.length?Math.min(...scores):0;
     // Datos de combate y tiempo según el conjunto filtrado/seleccionado
     const pool=filtered.length?filtered:all;
+    function buildStats(matches){const byBuild={},byWeapon={};(matches||[]).forEach(m=>{const b=String(m.build||((m.model||'classic')+(m.gokuForm&&String(m.model)==='goku'?'/'+m.gokuForm:'')+' · '+(m.weapon||'basic')));if(!byBuild[b])byBuild[b]={n:0,time:0,kills:0,score:0};byBuild[b].n++;byBuild[b].time+=safeNum(m.duration);byBuild[b].kills+=safeNum(m.kills);byBuild[b].score+=safeNum(m.score);const w=String(m.weapon||'basic');if(!byWeapon[w])byWeapon[w]={n:0,kills:0,wk:0};byWeapon[w].n++;byWeapon[w].kills+=safeNum(m.kills);byWeapon[w].wk+=safeNum(m.weaponKills||m.kills)});const builds=Object.entries(byBuild).sort((a,b)=>b[1].n-a[1].n).slice(0,8);const weapons=Object.entries(byWeapon).sort((a,b)=>(b[1].wk||b[1].kills)-(a[1].wk||a[1].kills)).slice(0,8);function listBuild(rows){if(!rows.length)return '<p class="tech-stat-muted">Juega partidas para registrar builds (nave + arma).</p>';const max=Math.max(1,...rows.map(r=>r[1].n));return rows.map(([name,v])=>{const avgT=v.n?Math.round(v.time/v.n):0;return bar(esc(name),v.n,max,'linear-gradient(90deg,#ffcd00,#ff8800)',v.n+' · Ø '+fmtTime(avgT)+' · '+safeNum(v.kills)+' elim.')}).join('')}function listWeapon(rows){if(!rows.length)return '<p class="tech-stat-muted">Sin datos de arma aún.</p>';const max=Math.max(1,...rows.map(r=>r[1].wk||r[1].kills));return rows.map(([name,v])=>{const k=v.wk||v.kills;return bar(esc(name),k,max,'linear-gradient(90deg,#62efff,#167cff)',k.toLocaleString('es-CO')+' elim. · '+v.n+' partidas')}).join('')}return {buildsHtml:listBuild(builds),weaponsHtml:listWeapon(weapons),topBuild:builds[0]?builds[0][0]:'—',topWeapon:weapons[0]?weapons[0][0]:'—',avgBuildTime:builds.length?Math.round(builds.reduce((s,x)=>s+(x[1].n?x[1].time/x[1].n:0),0)/builds.length):0};}
+    const bs=buildStats(pool);
     const totalKills=pool.reduce((n,m)=>n+safeNum(m.kills),0),totalShots=pool.reduce((n,m)=>n+safeNum(m.shots),0),totalTime=pool.reduce((n,m)=>n+safeNum(m.duration),0);const avgDuration=pool.length?Math.round(totalTime/pool.length):0;const longest=pool.reduce((b,m)=>Math.max(b,safeNum(m.duration)),0);const killsPerMinute=totalTime?Math.round(totalKills/(totalTime/60)*10)/10:0;const wins=pool.filter(m=>m.result==='won').length,losses=pool.filter(m=>m.result==='lost').length,abandoned=pool.filter(m=>m.result==='abandoned').length;const done=completedCount(),total=campaign().length||90,progressPct=Math.round(Math.min(done,total)/Math.max(1,total)*100);const missions=campaign(),p=progressObject(),missionStats=s.missionStats||{};const attempts=safeNum(s.storyAttempts),storyWins=safeNum(s.storyWins),winRate=attempts?Math.round(storyWins/attempts*100):0;const achievements=readJSON('techAch',{})||{};const achievementCount=Object.keys(achievements).length;const currentCoins=readJSON('techCoinsV2',readJSON('techCoins',0));const lastTwo=h.slice(0,2).map(m=>safeNum(m.score));const delta=lastTwo.length===2?lastTwo[0]-lastTwo[1]:0;const recordText=best?best.toLocaleString('es-CO'):'0';
     const bestWave=pool.reduce((b,m)=>Math.max(b,safeNum(m.wave)),0);
     const avgWave=pool.length?Math.round(pool.reduce((n,m)=>n+safeNum(m.wave),0)/pool.length):0;
@@ -9070,6 +9146,18 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
        <div class="tech-stat-card"><span>Días sin jugar</span><strong>${ret.daysSinceLast}</strong><small>Desde la última sesión registrada</small></div>
       </div>
       <section class="tech-stat-section"><h3>📈 Evolución de puntuación: subidas y bajadas</h3>${buildChart(h)}<h3 style="margin-top:18px">📊 Comparación visual de puntuaciones</h3>${buildScoreBars(h)}</section>
+      <section class="tech-stat-section"><h3>🧰 Builds y loadouts</h3>
+      <div class="tech-stat-cards" style="margin-bottom:12px">
+        <div class="tech-stat-card"><span>Build más usada</span><strong style="font-size:13px">${esc(bs.topBuild)}</strong><small>Nave + arma más frecuente</small></div>
+        <div class="tech-stat-card"><span>Arma con más kills</span><strong style="font-size:13px">${esc(bs.topWeapon)}</strong><small>Según eliminaciones registradas</small></div>
+        <div class="tech-stat-card"><span>Tiempo medio / loadout</span><strong>${fmtTime(bs.avgBuildTime)}</strong><small>Promedio de duración por build</small></div>
+      </div>
+      <h3 style="margin-top:8px;font-size:13px">Builds más usadas</h3>
+      ${bs.buildsHtml}
+      <h3 style="margin-top:14px;font-size:13px">Arma con más eliminaciones</h3>
+      ${bs.weaponsHtml}
+      <p class="tech-stat-muted">Build = nave (y fase Goku si aplica) + arma equipada. El tiempo medio es la duración promedio de partida por cada combinación.</p>
+    </section>
       <div class="tech-stat-breakdown"><section class="tech-stat-section"><h3>🎮 Partidas por modo</h3>${breakdown(filtered,'mode','Modo')}</section><section class="tech-stat-section"><h3>⚙️ Partidas por dificultad</h3>${breakdown(filtered,'diff','Dificultad')}</section><section class="tech-stat-section"><h3>🌌 Mundos visitados</h3>${breakdown(filtered,'world','Mundo')}</section><section class="tech-stat-section"><h3>📊 Tendencia y rendimiento</h3>${bar('Variación de las dos últimas puntuaciones',Math.max(0,lastTwo[0]||0),Math.max(1,lastTwo[0]||0,lastTwo[1]||0),delta>0?'#69f0ae':delta<0?'#ff7b86':'#62efff',h.length>1?(delta>0?'↗ +':delta<0?'↘ ':'→ ')+Math.abs(delta).toLocaleString('es-CO')+' pts':'Datos insuficientes')}${bar('Promedio vs récord personal',avg,Math.max(1,best),'#62efff',avg.toLocaleString('es-CO')+' pts')}<p class="tech-stat-muted">${h.length>1?(delta>0?'La última puntuación subió.':delta<0?'La última puntuación bajó.':'Las dos últimas puntuaciones están iguales.'):'Juega más partidas para comparar tendencias.'}</p><p class="tech-stat-muted">Precisión real: no disponible aún porque el motor no expone un evento centralizado de impactos; no se inventa un porcentaje.</p></section></div>
       <section class="tech-stat-section tech-stat-collapsible">
         <button type="button" class="tech-stat-toggle" id="toggleCampaignStats" aria-expanded="false">
@@ -9151,7 +9239,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     catch(e){console.warn('No se pudo instrumentar inicio de partida',e)}
     try{if(typeof shoot==='function'&&!shoot.__techStatsWrapped){const orig=shoot;const wrapped=function(){const before=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:0;const r=orig.apply(this,arguments);const after=typeof bullets!=='undefined'&&Array.isArray(bullets)?bullets.length:before;const n=Math.max(0,after-before);if(n&&typeof gameRunning!=='undefined'&&gameRunning&&!gamePaused){run.shots+=n;try{window.__techRunTelemetry=window.__techRunTelemetry||{shots:0,kills:0,meteors:0,ships:0};window.__techRunTelemetry.shots=run.shots}catch(e){}const s=readStats();s.shots=safeNum(s.shots)+n;saveStats(s)}return r};wrapped.__techStatsWrapped=true;shoot=wrapped;window.shoot=wrapped}}
     catch(e){console.warn('No se pudo instrumentar disparos',e)}
-    try{if(typeof destroyEnemy==='function'&&!destroyEnemy.__techStatsWrapped){const orig=destroyEnemy;const wrapped=function(o,i){const before=!!(o&&o.__techDestroyed);const type=o&&o.type?String(o.type):'';const r=orig.apply(this,arguments);if(o&&!before&&o.__techDestroyed){run.kills++;if(/meteor|explosive|magnetic|hard|fireball/i.test(type))run.meteors++;else run.ships++;try{window.__techRunTelemetry=window.__techRunTelemetry||{shots:0,kills:0,meteors:0,ships:0};window.__techRunTelemetry.kills=run.kills;window.__techRunTelemetry.meteors=run.meteors;window.__techRunTelemetry.ships=run.ships}catch(e){}}return r};wrapped.__techStatsWrapped=true;destroyEnemy=wrapped;window.destroyEnemy=wrapped}}
+    try{if(typeof destroyEnemy==='function'&&!destroyEnemy.__techStatsWrapped){const orig=destroyEnemy;const wrapped=function(o,i){const before=!!(o&&o.__techDestroyed);const type=o&&o.type?String(o.type):'';const r=orig.apply(this,arguments);if(o&&!before&&o.__techDestroyed){run.kills++;run.weaponKills=(run.weaponKills||0)+1;if(/meteor|explosive|magnetic|hard|fireball/i.test(type))run.meteors++;else run.ships++;try{window.__techRunTelemetry=window.__techRunTelemetry||{shots:0,kills:0,meteors:0,ships:0};window.__techRunTelemetry.kills=run.kills;window.__techRunTelemetry.meteors=run.meteors;window.__techRunTelemetry.ships=run.ships}catch(e){}}return r};wrapped.__techStatsWrapped=true;destroyEnemy=wrapped;window.destroyEnemy=wrapped}}
     catch(e){console.warn('No se pudo instrumentar eliminaciones',e)}
     try{if(typeof completeStoryMission==='function'&&!completeStoryMission.__techStatsWrapped){const orig=completeStoryMission;const wrapped=function(ok){const active=typeof storyMissionActive!=='undefined'&&storyMissionActive;const ch=typeof STORY_CAMPAIGN!=='undefined'?STORY_CAMPAIGN[storyChapterIdx]:null;const success=!!ok;const scoreAtEnd=typeof score!=='undefined'?safeNum(score):0;const result=orig.apply(this,arguments);if(active&&ch&&!run.recorded){const s=readStats();s.missionStats=s.missionStats||{};const x=s.missionStats[ch.id]||{title:ch.title,attempts:0,wins:0,losses:0,bestScore:0,totalSeconds:0,lastAt:0};x.title=ch.title;x.attempts=safeNum(x.attempts)+1;if(success)x.wins=safeNum(x.wins)+1;else x.losses=safeNum(x.losses)+1;x.bestScore=Math.max(safeNum(x.bestScore),scoreAtEnd);const elapsed=run.start?Math.max(0,Math.round((performance.now()-run.start)/1000)):0;x.totalSeconds=safeNum(x.totalSeconds)+elapsed;x.lastAt=Date.now();s.missionStats[ch.id]=x;saveStats(s);run.mode='story';run.missionId=ch.id;run.missionTitle=ch.title;recordMatch({missionId:ch.id,missionTitle:ch.title,result:success?'won':'lost',objective:ch.type||''});if(success){addNotice('Misión completada: '+ch.title,'mission');toast('🚀 Misión completada: '+ch.title,'mission')}else{addNotice('Misión fallida: '+ch.title,'info');toast('Misión fallida: '+ch.title,'info')}if(panelOpen)render()}return result};wrapped.__techStatsWrapped=true;completeStoryMission=wrapped;window.completeStoryMission=wrapped}}
     catch(e){console.warn('No se pudo instrumentar misiones',e)}
@@ -9173,7 +9261,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
           mode:entry.mode||'classic',duration:safeNum(entry.duration),coins:safeNum(entry.coins),
           shots:safeNum(entry.shots)||safeNum(run.shots),kills:safeNum(entry.kills)||safeNum(run.kills),
           meteors:safeNum(entry.meteors)||safeNum(run.meteors),ships:safeNum(entry.ships)||safeNum(run.ships),
-          missionId:entry.missionId||'',missionTitle:entry.missionTitle||'',result:entry.result||'finished'
+          missionId:entry.missionId||'',missionTitle:entry.missionTitle||'',result:entry.result||'finished',weapon:entry.weapon||(typeof currentWeapon!=='undefined'?currentWeapon:'basic'),gokuForm:entry.gokuForm||(typeof gokuForm!=='undefined'?gokuForm:''),build:entry.build||'',weaponKills:safeNum(entry.weaponKills)||safeNum(run.weaponKills)
         };
         appendArchive(full);
         run.recorded=true;

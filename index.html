@@ -8389,23 +8389,13 @@ try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gam
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
-try{if(typeof window.techSubmitOnlineScore==='function')window.techSubmitOnlineScore({
-  score:score,
-  wave:typeof waveCount!=='undefined'?waveCount:0,
-  world:typeof selectedWorld!=='undefined'?selectedWorld:1,
-  ship:typeof shipName!=='undefined'?shipName:'Br7',
-  model:typeof shipModel!=='undefined'?shipModel:'classic',
-  diff:typeof difficulty!=='undefined'?difficulty:'normal',
-  mode:typeof gameMode!=='undefined'?gameMode:'classic',
-  duration:(typeof runStartTime!=='undefined'&&runStartTime)?Math.max(1,Math.round((performance.now()-runStartTime)/1000)):0
-})}catch(e){console.warn('[Ranking online]',e)}
 checkAchievements();
 try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
 gameOverPanel.style.setProperty("display","block","important");
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p id="onlineRankStatus" style="color:#7fd;font-size:11px;margin:4px 0">🌐 Subiendo ranking online…</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:5px;padding-bottom:10px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0;transform:translateY(-12px)">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;transform:translateY(-12px);background:#0038A8;color:#fff">INICIO</button>'
@@ -10740,12 +10730,9 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 (function(){
   'use strict';
   /**
-   * Ranking online — Supabase REST
-   * Proyecto: bkfpvwsahffrrkckjfre
-   * Tabla: record
-   *
-   * IMPORTANTE: pega tu "anon public" key abajo (Settings → API en Supabase).
-   * También puedes guardarla una vez desde el panel Ranking online.
+   * Ranking online SOLO LECTURA (Supabase REST)
+   * URL: https://bkfpvwsahffrrkckjfre.supabase.co/rest/v1/record
+   * No sube ni modifica scores: solo consulta y muestra.
    */
   const SUPABASE_URL = 'https://bkfpvwsahffrrkckjfre.supabase.co';
   const SUPABASE_REST = SUPABASE_URL + '/rest/v1';
@@ -10756,112 +10743,34 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       const fromLs = localStorage.getItem('techSupabaseAnon');
       if(fromLs && fromLs.length > 20) return fromLs.trim();
     }catch(e){}
-    /* ← Pega aquí tu anon key entre las comillas si no quieres usar el panel */
+    /* Opcional: pega aquí la anon public key */
     const HARDCODED = '';
     return HARDCODED;
   }
 
-  function headers(preferReturn){
+  function headers(){
     const key = getAnonKey();
-    const h = {
+    return {
       'apikey': key,
       'Authorization': 'Bearer ' + key,
       'Content-Type': 'application/json'
     };
-    if(preferReturn) h['Prefer'] = 'return=representation';
-    return h;
   }
 
   function hasKey(){ return !!(getAnonKey() && getAnonKey().length > 20); }
 
-  function setStatus(msg, ok){
-    const el = document.getElementById('onlineRankStatus');
-    if(el){
-      el.textContent = msg;
-      el.style.color = ok === false ? '#f88' : (ok ? '#6f6' : '#7fd');
-    }
-  }
-
-  /** Envía score a la tabla record */
-  window.techSubmitOnlineScore = async function(entry){
-    if(!hasKey()){
-      console.warn('[Ranking] Falta anon key de Supabase');
-      setStatus('🌐 Configura la API key en Ranking online', false);
-      return null;
-    }
-    const score = Math.max(0, Math.floor(Number(entry && entry.score) || 0));
-    const player = String((entry && (entry.ship || entry.player_name)) || (typeof shipName !== 'undefined' ? shipName : 'Br7')).slice(0, 32);
-
-    /* Payload flexible: intenta columnas comunes de la tabla record */
-    const full = {
-      score: score,
-      player_name: player,
-      name: player,
-      ship: player,
-      wave: Number(entry && entry.wave) || 0,
-      world: Number(entry && entry.world) || 1,
-      model: String((entry && entry.model) || 'classic').slice(0, 32),
-      difficulty: String((entry && entry.diff) || 'normal').slice(0, 16),
-      mode: String((entry && entry.mode) || 'classic').slice(0, 16),
-      duration: Number(entry && entry.duration) || 0
-    };
-
-    async function post(body){
-      const res = await fetch(SUPABASE_REST + '/' + TABLE, {
-        method: 'POST',
-        headers: headers(true),
-        body: JSON.stringify(body)
-      });
-      const text = await res.text();
-      let data = null;
-      try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
-      return { res, data };
-    }
-
-    try{
-      let { res, data } = await post(full);
-      /* Si falla por columnas inexistentes, reintenta mínimo score + nombre */
-      if(!res.ok){
-        const minimal = { score: score, player_name: player };
-        const r2 = await post(minimal);
-        if(!r2.res.ok){
-          /* último intento: solo score */
-          const r3 = await post({ score: score });
-          if(!r3.res.ok){
-            console.error('[Ranking] Error al subir', r3.res.status, r3.data);
-            setStatus('🌐 Error al subir (' + r3.res.status + '). Revisa columnas de "record"', false);
-            return null;
-          }
-          setStatus('🌐 Ranking online: score guardado', true);
-          return r3.data;
-        }
-        setStatus('🌐 Ranking online: guardado', true);
-        return r2.data;
-      }
-      setStatus('🌐 Ranking online: ¡subido!', true);
-      return data;
-    }catch(err){
-      console.error('[Ranking] Red', err);
-      setStatus('🌐 Sin conexión al ranking', false);
-      return null;
-    }
-  };
-
-  /** Lee top N de la tabla record */
+  /** Solo GET — no escribe en la base */
   window.techFetchOnlineTop = async function(limit){
     limit = Math.max(1, Math.min(50, Number(limit) || 20));
     if(!hasKey()) throw new Error('Falta la anon key de Supabase');
-
-    /* Orden por score descendente; si no existe la columna, Supabase devolverá error */
     const url = SUPABASE_REST + '/' + TABLE
       + '?select=*&order=score.desc.nullslast&limit=' + limit;
-
-    const res = await fetch(url, { headers: headers(false) });
+    const res = await fetch(url, { method: 'GET', headers: headers() });
     const text = await res.text();
     let data;
     try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
     if(!res.ok){
-      const msg = (data && data.message) || (data && data.error) || text || res.status;
+      const msg = (data && (data.message || data.error)) || text || res.status;
       throw new Error(String(msg));
     }
     return Array.isArray(data) ? data : [];
@@ -10877,16 +10786,16 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
-      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Supabase · tabla <b>record</b></p>
+      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>record</b></p>
       <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5)">
-        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon key (Settings → API en Supabase)</label>
+        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon key (Settings → API)</label>
         <input id="onlineRankKeyInput" type="password" autocomplete="off" placeholder="eyJhbGciOi..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #456;background:#07101f;color:#fff;font-size:12px;box-sizing:border-box"/>
         <button type="button" class="game-btn" id="onlineRankSaveKey" style="margin-top:8px;width:100%">Guardar key</button>
         <p id="onlineRankKeyMsg" style="font-size:10px;color:#8a9;margin:6px 0 0"></p>
       </div>
       <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
-        <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar</button>
+        <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar lista</button>
         <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1">Cerrar</button>
       </div>`;
     host.appendChild(p);
@@ -10900,7 +10809,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
         return;
       }
       try{ localStorage.setItem('techSupabaseAnon', v); }catch(e){}
-      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada en este navegador';
+      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada';
       document.getElementById('onlineRankKeyMsg').style.color = '#6f6';
       loadList();
     };
@@ -10920,19 +10829,19 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     const box = document.getElementById('onlineRankList');
     if(!box) return;
     if(!hasKey()){
-      box.innerHTML = '<p style="color:#fa8">Pega tu <b>anon key</b> arriba y pulsa Guardar key.<br><small>Supabase → Project Settings → API → anon public</small></p>';
+      box.innerHTML = '<p style="color:#fa8">Pega la <b>anon public</b> key arriba y pulsa Guardar.<br><small>Supabase → Project Settings → API</small></p>';
       return;
     }
-    box.innerHTML = '<p style="color:#8cf">Cargando ranking…</p>';
+    box.innerHTML = '<p style="color:#8cf">Cargando récords…</p>';
     try{
       const rows = await window.techFetchOnlineTop(20);
       if(!rows.length){
-        box.innerHTML = '<p style="color:#9ab">Aún no hay récords. Juega una partida para subir el primero.</p>';
+        box.innerHTML = '<p style="color:#9ab">No hay récords en la tabla <b>record</b>.</p>';
         return;
       }
       box.innerHTML = rows.map(function(r, i){
-        const name = r.player_name || r.name || r.ship || 'Jugador';
-        const sc = Number(r.score) || 0;
+        const name = r.player_name || r.name || r.ship || r.jugador || 'Jugador';
+        const sc = Number(r.score != null ? r.score : r.puntos) || 0;
         const meta = [r.difficulty || r.diff, r.model, r.wave != null ? ('Ola '+r.wave) : '']
           .filter(Boolean).join(' · ');
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
@@ -10944,7 +10853,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       }).join('');
     }catch(err){
       box.innerHTML = '<p style="color:#f88">Error: '+String(err.message || err).replace(/</g,'&lt;')
-        + '</p><p style="color:#9ab;font-size:11px">Comprueba que la tabla se llame <b>record</b>, tenga columna <b>score</b> y la key sea la anon public.</p>';
+        + '</p><p style="color:#9ab;font-size:11px">Revisa: tabla <b>record</b>, columna <b>score</b>, RLS de lectura y anon key.</p>';
     }
   }
 

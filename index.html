@@ -8389,23 +8389,33 @@ try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gam
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
-try{if(typeof window.techSubmitOnlineScore==='function')window.techSubmitOnlineScore({
-  score: score,
-  ship: (typeof shipName!=='undefined'&&shipName)?String(shipName):(typeof currentShipName!=='undefined'?String(currentShipName):'Nave')
-})}catch(e){console.warn('[Ranking online]',e)}
 checkAchievements();
 try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
 gameOverPanel.style.setProperty("display","block","important");
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p id="onlineRankStatus" style="color:#7fd;font-size:11px;margin:4px 0">🌐 Subiendo al ranking online…</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
+const _goScore=typeof score!=='undefined'?Number(score)||0:0;
+const _goShip=(typeof shipName!=='undefined'&&shipName)?String(shipName):'Nave';
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p>'
+  +'<p id="onlineRankStatus" style="color:#7fd;font-size:11px;margin:4px 0">🌐 Subiendo al ranking online…</p>'
+  +'<p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p>'
+  +'<p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:5px;padding-bottom:10px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0;transform:translateY(-12px)">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;transform:translateY(-12px);background:#0038A8;color:#fff">INICIO</button>'
   +'</div>';
 const sb=document.getElementById("shareScoreBtn");if(sb)sb.onclick=shareScoreNative;
 const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
+/* Subir DESPUÉS de crear el mensaje de estado */
+try{
+  if(typeof window.techSubmitOnlineScore==='function'){
+    window.techSubmitOnlineScore({ score: _goScore, ship: _goShip });
+  } else {
+    var st=document.getElementById('onlineRankStatus');
+    if(st){st.textContent='🌐 Módulo ranking no cargado';st.style.color='#f88';}
+  }
+}catch(e){console.warn('[Ranking online]',e)}
 }
 function continueToSite(){try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}gameOverPanel.style.setProperty("display","none","important");startPanel.style.setProperty("display","block","important")}
 function goToStartMenu(){
@@ -10778,7 +10788,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     }
     var sc = Math.max(0, Math.min(32767, Math.floor(Number(entry && entry.score) || 0)));
     var nave = String((entry && entry.ship) || 'Nave').slice(0, 40);
-    var body = { record: sc, 'nombre-nave': nave };
+    var body = { record: sc };
+    body['nombre-nave'] = nave;
     try{
       var res = await fetch(SUPABASE_REST + '/' + TABLE, {
         method: 'POST',

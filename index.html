@@ -1749,6 +1749,7 @@ select,textarea{
 <button class="game-btn" id="startGame">🚀 Iniciar</button>
 <button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
 <button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
+<button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 Game over</h2>
@@ -5333,7 +5334,7 @@ function maybeSpawnPickup(x,y){
   if(r<.10){pickups.push({x,y,type:"coin",size:s*0.9,vy:1.4,value:5+Math.floor(Math.random()*10)});return}
   /* pool de poderes especiales (hammer, chrono, barrier, stormbolt, bazooka, etc.) */
   if(r<.55){
-    const pool=["ammo","hammer","shield","bounce","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka","vortex","ion","emp","chain","phase","orbmine","vacuum","decoy","railgun"];
+    const pool=["ammo","hammer","shield","bounce","rapid","triple","missile","allies","overdrive","nova","reflect","burst","repair","life","laser","bomb","invisible","invisible","drone","freeze","chrono","barrier","stormbolt","bazooka","vortex","ion","emp","chain","phase","orbmine","vacuum","decoy","railgun"];
     const type=pool[Math.floor(Math.random()*pool.length)];
     pickups.push({x,y,type,size:s,vy:1.5});
   }
@@ -6919,7 +6920,16 @@ function drawPlayer(){
     ctx.fillStyle="#00C8FF";ctx.fillRect(-sw/2,-player.size-14,sw*(Math.min(1,shield/320)),sh);
   }
 
-  if(invisible>0)ctx.globalAlpha=.3+Math.sin(performance.now()/80)*.15;
+  if(invisible>0){
+    /* Aura dorada de invulnerabilidad */
+    const pulse=.55+Math.sin(performance.now()/70)*.35;
+    ctx.globalAlpha=.85;
+    ctx.beginPath();ctx.arc(0,0,player.size*1.95,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,215,0,${pulse})`;ctx.lineWidth=3.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(0,0,player.size*2.25,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,255,180,${pulse*.45})`;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.globalAlpha=.55+Math.sin(performance.now()/90)*.2;
+  }
   if(shield>0){ctx.beginPath();ctx.arc(0,0,player.size*1.65,0,Math.PI*2);ctx.strokeStyle=`rgba(0,220,255,${.4+Math.sin(performance.now()/100)*.25})`;ctx.lineWidth=2.5;ctx.stroke()}
   if(barrier>0){
     ctx.strokeStyle=`rgba(100,220,255,${.5+Math.sin(performance.now()/80)*.3})`;ctx.lineWidth=3;
@@ -7464,8 +7474,8 @@ function updateEnemyBullets(){
   }
 }
 
-function updatePickups(){const labels={ammo:"+40",coin:"⭐",shield:"S",bounce:"↻",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"👻",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",drone:"🛸",freeze:"❄",chrono:"⏱",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀",vortex:"🌀",ion:"💠",emp:"💥",chain:"⚡⚡",phase:"👻",orbmine:"💣",vacuum:"🧲",decoy:"👤",railgun:"══"};
-const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",bounce:"#AAFFFF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF3333",invisible:"#CCAAFF",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",drone:"#88DDFF",freeze:"#AADDFF",chrono:"#FFE066",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844",vortex:"#CC66FF",ion:"#66FFEE",emp:"#FFEE66",chain:"#66EEFF",phase:"#CCDDEE",orbmine:"#FF9944",vacuum:"#FFD700",decoy:"#FFCC66",railgun:"#FFE566"};
+function updatePickups(){const labels={ammo:"+40",coin:"⭐",shield:"S",bounce:"↻",rapid:"R",triple:"3",slow:"⏱",laser:"L",bomb:"💣",pierce:"P",life:"♥",invisible:"★",magnet:"M",hammer:"🔨",missile:"🚀",allies:"✈",overdrive:"⚡",nova:"✸",reflect:"↺",burst:"✸✸",repair:"+",drone:"🛸",freeze:"❄",chrono:"⏱",barrier:"⬡",stormbolt:"⚡",bazooka:"🚀",vortex:"🌀",ion:"💠",emp:"💥",chain:"⚡⚡",phase:"👻",orbmine:"💣",vacuum:"🧲",decoy:"👤",railgun:"══"};
+const colors={ammo:"#FFCD00",coin:"#FFD700",shield:"#00C8FF",bounce:"#AAFFFF",rapid:"#00FF88",triple:"#66CCFF",slow:"#AA88FF",laser:"#00FFFF",bomb:"#FF4400",pierce:"#AADD00",life:"#FF3333",invisible:"#FFD700",magnet:"#FFAA00",hammer:"#E8F0FF",missile:"#FF8800",allies:"#44FFAA",overdrive:"#FF2244",nova:"#FFAA00",reflect:"#66FFEE",burst:"#FF8800",repair:"#88FF88",drone:"#88DDFF",freeze:"#AADDFF",chrono:"#FFE066",barrier:"#66CCFF",stormbolt:"#FFEE88",bazooka:"#FF8844",vortex:"#CC66FF",ion:"#66FFEE",emp:"#FFEE66",chain:"#66EEFF",phase:"#CCDDEE",orbmine:"#FF9944",vacuum:"#FFD700",decoy:"#FFCC66",railgun:"#FFE566"};
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];
 if(magnet>0){const dx=player.x-p.x,dy=player.y-p.y,d=Math.hypot(dx,dy)||1;p.x+=(dx/d)*2.5;p.y+=(dy/d)*2.5}
 p.y+=p.vy;
@@ -7498,7 +7508,7 @@ else if(p.type==="laser"){laser=220;playSfx("laser");if(!SFX.laser)playSfx("powe
 else if(p.type==="bomb"){activateBomb();playSfx("bomb");if(!SFX.bomb)playSfx("explode")}
 else if(p.type==="pierce"){pierce=360;playSfx("power")}
 else if(p.type==="life"){lives=Math.min(lives+1,3);updateLivesUI();playSfx("power")}
-else if(p.type==="invisible"){invisible=360;playSfx("power")}
+else if(p.type==="invisible"){invisible=Math.max(invisible,420);playSfx("power");scenarioMsg="★ INVULNERABLE";scenarioTransition=75;try{doVibrate(20)}catch(e){}}
 else if(p.type==="magnet"){magnet=400;playSfx("power")}
 else if(p.type==="hammer"){
   powersCollected++;
@@ -7577,6 +7587,7 @@ ctx.fillText("☄ "+meteorsDestroyed,P(8),canvas.height-P(34));
 if(ammo<=0){ctx.textAlign="center";ctx.font="bold "+P(9)+"px Orbitron";ctx.fillText("¡SIN MUNICIÓN! +40",canvas.width/2,canvas.height-P(10))}
 const pows=[];
 if(shield>0)pows.push(["ESC","#00C8FF"]);
+if(invisible>0)pows.push(["★ INV "+Math.ceil(invisible/60)+"s","#FFD700"]);
 if(phaseShift>0)pows.push(["PHS","#CCDDEE"]);
 if(railgun>0)pows.push(["RAIL","#FFE566"]);
 if(orbitalMines&&orbitalMines.length)pows.push(["MIN"+orbitalMines.length,"#FF9944"]);
@@ -8282,7 +8293,12 @@ for(let i=obstacles.length-1;i>=0;i--){
   }
   drawObstacle(o);
   if(checkCollision(o)){
-    if(invisible>0){}
+    if(invisible>0||dashInvuln>0||phaseShift>0){
+      /* Invulnerable: destroza enemigos/meteoritos al contacto (jefes solo reciben daño) */
+      createExplosion(o.x+o.size/2,o.y+o.size/2,o.size,"255,215,0");
+      if(String(o.type||"").startsWith("boss")){o.hp=(o.hp||10)-3;if(o.hp<=0){try{destroyEnemy(o,i)}catch(e){obstacles.splice(i,1)}}}
+      else{try{destroyEnemy(o,i)}catch(e){obstacles.splice(i,1)}}
+    }
     else if(shield>0||lives>1){createExplosion(o.x+o.size/2,o.y+o.size/2,o.size,"0,200,255");if(!String(o.type).startsWith("boss"))obstacles.splice(i,1);else o.hp-=2;hitPlayer(o.x,o.y);if(!gameRunning)return}
     else{endGame();return}
   }
@@ -8373,13 +8389,23 @@ try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gam
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
+try{if(typeof window.techSubmitOnlineScore==='function')window.techSubmitOnlineScore({
+  score:score,
+  wave:typeof waveCount!=='undefined'?waveCount:0,
+  world:typeof selectedWorld!=='undefined'?selectedWorld:1,
+  ship:typeof shipName!=='undefined'?shipName:'Br7',
+  model:typeof shipModel!=='undefined'?shipModel:'classic',
+  diff:typeof difficulty!=='undefined'?difficulty:'normal',
+  mode:typeof gameMode!=='undefined'?gameMode:'classic',
+  duration:(typeof runStartTime!=='undefined'&&runStartTime)?Math.max(1,Math.round((performance.now()-runStartTime)/1000)):0
+})}catch(e){console.warn('[Ranking online]',e)}
 checkAchievements();
 try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
 gameOverPanel.style.setProperty("display","block","important");
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p id="onlineRankStatus" style="color:#7fd;font-size:11px;margin:4px 0">🌐 Subiendo ranking online…</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:5px;padding-bottom:10px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0;transform:translateY(-12px)">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;transform:translateY(-12px);background:#0038A8;color:#fff">INICIO</button>'
@@ -10707,6 +10733,241 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
         }
       },50);
   },true);
+})();
+</script>
+
+<script id="tech-online-ranking-supabase">
+(function(){
+  'use strict';
+  /**
+   * Ranking online — Supabase REST
+   * Proyecto: bkfpvwsahffrrkckjfre
+   * Tabla: record
+   *
+   * IMPORTANTE: pega tu "anon public" key abajo (Settings → API en Supabase).
+   * También puedes guardarla una vez desde el panel Ranking online.
+   */
+  const SUPABASE_URL = 'https://bkfpvwsahffrrkckjfre.supabase.co';
+  const SUPABASE_REST = SUPABASE_URL + '/rest/v1';
+  const TABLE = 'record';
+
+  function getAnonKey(){
+    try{
+      const fromLs = localStorage.getItem('techSupabaseAnon');
+      if(fromLs && fromLs.length > 20) return fromLs.trim();
+    }catch(e){}
+    /* ← Pega aquí tu anon key entre las comillas si no quieres usar el panel */
+    const HARDCODED = '';
+    return HARDCODED;
+  }
+
+  function headers(preferReturn){
+    const key = getAnonKey();
+    const h = {
+      'apikey': key,
+      'Authorization': 'Bearer ' + key,
+      'Content-Type': 'application/json'
+    };
+    if(preferReturn) h['Prefer'] = 'return=representation';
+    return h;
+  }
+
+  function hasKey(){ return !!(getAnonKey() && getAnonKey().length > 20); }
+
+  function setStatus(msg, ok){
+    const el = document.getElementById('onlineRankStatus');
+    if(el){
+      el.textContent = msg;
+      el.style.color = ok === false ? '#f88' : (ok ? '#6f6' : '#7fd');
+    }
+  }
+
+  /** Envía score a la tabla record */
+  window.techSubmitOnlineScore = async function(entry){
+    if(!hasKey()){
+      console.warn('[Ranking] Falta anon key de Supabase');
+      setStatus('🌐 Configura la API key en Ranking online', false);
+      return null;
+    }
+    const score = Math.max(0, Math.floor(Number(entry && entry.score) || 0));
+    const player = String((entry && (entry.ship || entry.player_name)) || (typeof shipName !== 'undefined' ? shipName : 'Br7')).slice(0, 32);
+
+    /* Payload flexible: intenta columnas comunes de la tabla record */
+    const full = {
+      score: score,
+      player_name: player,
+      name: player,
+      ship: player,
+      wave: Number(entry && entry.wave) || 0,
+      world: Number(entry && entry.world) || 1,
+      model: String((entry && entry.model) || 'classic').slice(0, 32),
+      difficulty: String((entry && entry.diff) || 'normal').slice(0, 16),
+      mode: String((entry && entry.mode) || 'classic').slice(0, 16),
+      duration: Number(entry && entry.duration) || 0
+    };
+
+    async function post(body){
+      const res = await fetch(SUPABASE_REST + '/' + TABLE, {
+        method: 'POST',
+        headers: headers(true),
+        body: JSON.stringify(body)
+      });
+      const text = await res.text();
+      let data = null;
+      try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
+      return { res, data };
+    }
+
+    try{
+      let { res, data } = await post(full);
+      /* Si falla por columnas inexistentes, reintenta mínimo score + nombre */
+      if(!res.ok){
+        const minimal = { score: score, player_name: player };
+        const r2 = await post(minimal);
+        if(!r2.res.ok){
+          /* último intento: solo score */
+          const r3 = await post({ score: score });
+          if(!r3.res.ok){
+            console.error('[Ranking] Error al subir', r3.res.status, r3.data);
+            setStatus('🌐 Error al subir (' + r3.res.status + '). Revisa columnas de "record"', false);
+            return null;
+          }
+          setStatus('🌐 Ranking online: score guardado', true);
+          return r3.data;
+        }
+        setStatus('🌐 Ranking online: guardado', true);
+        return r2.data;
+      }
+      setStatus('🌐 Ranking online: ¡subido!', true);
+      return data;
+    }catch(err){
+      console.error('[Ranking] Red', err);
+      setStatus('🌐 Sin conexión al ranking', false);
+      return null;
+    }
+  };
+
+  /** Lee top N de la tabla record */
+  window.techFetchOnlineTop = async function(limit){
+    limit = Math.max(1, Math.min(50, Number(limit) || 20));
+    if(!hasKey()) throw new Error('Falta la anon key de Supabase');
+
+    /* Orden por score descendente; si no existe la columna, Supabase devolverá error */
+    const url = SUPABASE_REST + '/' + TABLE
+      + '?select=*&order=score.desc.nullslast&limit=' + limit;
+
+    const res = await fetch(url, { headers: headers(false) });
+    const text = await res.text();
+    let data;
+    try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
+    if(!res.ok){
+      const msg = (data && data.message) || (data && data.error) || text || res.status;
+      throw new Error(String(msg));
+    }
+    return Array.isArray(data) ? data : [];
+  };
+
+  function ensurePanel(){
+    let p = document.getElementById('onlineRankingPanel');
+    if(p) return p;
+    const host = document.querySelector('.tech-game') || document.body;
+    p = document.createElement('div');
+    p.id = 'onlineRankingPanel';
+    p.className = 'game-panel';
+    p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
+    p.innerHTML = `
+      <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
+      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Supabase · tabla <b>record</b></p>
+      <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5)">
+        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon key (Settings → API en Supabase)</label>
+        <input id="onlineRankKeyInput" type="password" autocomplete="off" placeholder="eyJhbGciOi..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #456;background:#07101f;color:#fff;font-size:12px;box-sizing:border-box"/>
+        <button type="button" class="game-btn" id="onlineRankSaveKey" style="margin-top:8px;width:100%">Guardar key</button>
+        <p id="onlineRankKeyMsg" style="font-size:10px;color:#8a9;margin:6px 0 0"></p>
+      </div>
+      <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+        <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar</button>
+        <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1">Cerrar</button>
+      </div>`;
+    host.appendChild(p);
+
+    const input = p.querySelector('#onlineRankKeyInput');
+    if(input) input.value = getAnonKey() || '';
+    p.querySelector('#onlineRankSaveKey').onclick = function(){
+      const v = (input && input.value || '').trim();
+      if(v.length < 20){
+        document.getElementById('onlineRankKeyMsg').textContent = 'Key demasiado corta';
+        return;
+      }
+      try{ localStorage.setItem('techSupabaseAnon', v); }catch(e){}
+      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada en este navegador';
+      document.getElementById('onlineRankKeyMsg').style.color = '#6f6';
+      loadList();
+    };
+    p.querySelector('#onlineRankClose').onclick = closePanel;
+    p.querySelector('#onlineRankRefresh').onclick = loadList;
+    return p;
+  }
+
+  function closePanel(){
+    const p = document.getElementById('onlineRankingPanel');
+    if(p) p.style.setProperty('display','none','important');
+    const sp = document.getElementById('startPanel');
+    if(sp) sp.style.setProperty('display','block','important');
+  }
+
+  async function loadList(){
+    const box = document.getElementById('onlineRankList');
+    if(!box) return;
+    if(!hasKey()){
+      box.innerHTML = '<p style="color:#fa8">Pega tu <b>anon key</b> arriba y pulsa Guardar key.<br><small>Supabase → Project Settings → API → anon public</small></p>';
+      return;
+    }
+    box.innerHTML = '<p style="color:#8cf">Cargando ranking…</p>';
+    try{
+      const rows = await window.techFetchOnlineTop(20);
+      if(!rows.length){
+        box.innerHTML = '<p style="color:#9ab">Aún no hay récords. Juega una partida para subir el primero.</p>';
+        return;
+      }
+      box.innerHTML = rows.map(function(r, i){
+        const name = r.player_name || r.name || r.ship || 'Jugador';
+        const sc = Number(r.score) || 0;
+        const meta = [r.difficulty || r.diff, r.model, r.wave != null ? ('Ola '+r.wave) : '']
+          .filter(Boolean).join(' · ');
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
+        return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
+          + '<span><b style="color:#5de5ff">'+medal+'</b> '+String(name).replace(/</g,'&lt;')
+          + (meta ? '<br><small style="color:#889">'+String(meta).replace(/</g,'&lt;')+'</small>' : '')
+          + '</span>'
+          + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
+      }).join('');
+    }catch(err){
+      box.innerHTML = '<p style="color:#f88">Error: '+String(err.message || err).replace(/</g,'&lt;')
+        + '</p><p style="color:#9ab;font-size:11px">Comprueba que la tabla se llame <b>record</b>, tenga columna <b>score</b> y la key sea la anon public.</p>';
+    }
+  }
+
+  function openPanel(){
+    const sp = document.getElementById('startPanel');
+    if(sp) sp.style.setProperty('display','none','important');
+    const p = ensurePanel();
+    p.style.setProperty('display','block','important');
+    const input = document.getElementById('onlineRankKeyInput');
+    if(input && !input.value) input.value = getAnonKey() || '';
+    loadList();
+  }
+
+  function wire(){
+    const btn = document.getElementById('openOnlineRanking');
+    if(btn && !btn.__onlineBound){
+      btn.addEventListener('click', openPanel);
+      btn.__onlineBound = true;
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+  setInterval(wire, 2000);
 })();
 </script>
 

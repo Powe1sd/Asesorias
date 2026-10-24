@@ -4234,14 +4234,32 @@ document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);try{applyTouchLayout();applyUILanguage()}catch(e){}
-  cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important");if(window.__configOpenedFromPause){window.__configOpenedFromPause=false;const p=document.getElementById("pausePanel");if(p)p.style.display="none";if(gameRunning&&gamePaused)togglePause(false)}};
+  cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important");
+  const wasConfiguringDuringGame=!!window.__configOpenedFromPause;
+  window.__configOpenedFromPause=false;
+  if(wasConfiguringDuringGame && gameRunning && gamePaused){
+    const p=document.getElementById("pausePanel");if(p){p.classList.remove("pause-open");p.style.setProperty("display","none","important");}
+    togglePause(false);
+  }};
 }
 wireConfigPanel();
 try{applyUILanguage()}catch(e){}
 // No mostrar la ventana de configuración al cargar el menú inicial.
 try{cfg.style.setProperty("display","none","important");cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.setProperty("display","none","important")})}catch(e){}
 
-btnCfg.onclick=()=>{const open=!cfg.classList.contains("config-panel-open");if(open&&gameRunning){window.__configOpenedFromPause=true;if(!gamePaused)togglePause(true)}cfg.classList.toggle("config-panel-open",open);cfg.style.setProperty("display",open?"block":"none","important");if(!open&&window.__configOpenedFromPause){window.__configOpenedFromPause=false;if(gameRunning&&gamePaused)togglePause(false)}}}
+btnCfg.onclick=()=>{
+  const open=!cfg.classList.contains("config-panel-open");
+  if(open && gameRunning){
+    window.__configOpenedFromPause=true;
+    if(!gamePaused)togglePause(true);
+  }
+  cfg.classList.toggle("config-panel-open",open);
+  cfg.style.setProperty("display",open?"block":"none","important");
+  if(!open && window.__configOpenedFromPause){
+    window.__configOpenedFromPause=false;
+    if(gameRunning && gamePaused)togglePause(false);
+  }
+}}
 try{btnCfg.style.display="none"}catch(e){}
 let pp=document.getElementById("pausePanel");
 if(!pp){pp=document.createElement("div");pp.id="pausePanel";pp.className="game-panel";pp.style.display="none";
@@ -8194,7 +8212,7 @@ function gcEntities(){
 }
 let _gcTick=0;
 /* Bucle principal cada frame: mover, dibujar, colisiones */
-function gameLoop(ts){
+function gameLoopCore(ts){
 if(!gameRunning||gamePaused)return;
 _lastLoopTs=performance.now();
 if((++_gcTick)%((typeof isMobile==='function'&&isMobile())?4:8)===0)gcEntities();
@@ -8425,8 +8443,31 @@ drawWarning();drawHUD();drawMinimap();
 try{ctx.restore()}catch(e){}
 animationFrame=requestAnimationFrame(gameLoop)}
 
+/* Protección del bucle: un error aislado de una entidad/efecto no debe detener para siempre el juego. */
+let _lastFrameErrorAt = 0;
+function gameLoop(ts){
+  if(!gameRunning || gamePaused) return;
+  try{
+    gameLoopCore(ts);
+  }catch(err){
+    const now = performance.now();
+    if(now - _lastFrameErrorAt > 3000){
+      console.error("[TECH RUN] Error en un fotograma; se mantiene el bucle activo:", err);
+      _lastFrameErrorAt = now;
+    }
+    /* Evita que una excepción deje el juego sin requestAnimationFrame. */
+    if(gameRunning && !gamePaused){
+      animationFrame = requestAnimationFrame(gameLoop);
+    }
+  }
+}
+
 /* Reinicia variables y empieza la partida */
 function startGame(){
+/* Reinicio limpio: elimina frames anteriores y evita iniciar detrás de un panel abierto. */
+try{cancelAnimationFrame(animationFrame)}catch(e){}
+try{stopLoopWatchdog()}catch(e){}
+gameRunning=false;gamePaused=false;
 runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
@@ -8458,7 +8499,14 @@ startBgMusic();
 startEngineSound();
 
 lastSpawn=performance.now();lastShot=0;lastAmmoDrop=0;lastTrapSpawn=performance.now();
-initStars();startMeteorPhase();cancelAnimationFrame(animationFrame);animationFrame=requestAnimationFrame(gameLoop);try{startLoopWatchdog()}catch(e){}}
+/* Arrancar el bucle ANTES de inicializaciones auxiliares: si una fase o las estrellas fallan,
+   la partida no queda marcada como activa pero congelada sin fotogramas. */
+try{cancelAnimationFrame(animationFrame)}catch(e){}
+animationFrame=requestAnimationFrame(gameLoop);
+try{initStars()}catch(e){console.error("[TECH RUN] No se pudieron inicializar las estrellas:",e)}
+try{startMeteorPhase()}catch(e){console.error("[TECH RUN] No se pudo iniciar la fase de meteoritos:",e)}
+try{startLoopWatchdog()}catch(e){}
+}
 
 function endGame(){try{stopLoopWatchdog()}catch(e){}
 if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
@@ -8497,8 +8545,12 @@ try{
 }
 function continueToSite(){try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}gameOverPanel.style.setProperty("display","none","important");startPanel.style.setProperty("display","block","important")}
 function goToStartMenu(){
-  gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
-  stopBgMusic&&stopBgMusic();
+  /* Limpieza completa tras GAME OVER para que INICIO permita empezar otra partida. */
+  gameRunning=false;gamePaused=false;
+  try{cancelAnimationFrame(animationFrame)}catch(e){}
+  try{stopLoopWatchdog()}catch(e){}
+  try{stopEngineSound()}catch(e){}
+  try{stopBgMusic&&stopBgMusic()}catch(e){}
   gameOverPanel.style.display="none";
   const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
   const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
@@ -8507,7 +8559,8 @@ function goToStartMenu(){
   startPanel.style.display="block";
   const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="none";
   const cfgPanel=document.getElementById("configPanel");if(cfgPanel){cfgPanel.classList.remove("config-panel-open");cfgPanel.style.setProperty("display","none","important");}
-  setTimeout(function(){renderStart();},30);
+  window.__configOpenedFromPause=false;
+  setTimeout(function(){try{renderStart()}catch(e){console.warn("[TECH RUN] No se pudo actualizar el menú:",e)}},30);
   setTimeout(drawShipPreview,50);
 }
 

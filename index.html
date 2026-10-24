@@ -328,9 +328,9 @@ body::before{content:"";position:fixed;width:100%;height:200%;background-image:r
 .diff-btns button:hover{border-color:#FFCD00;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,205,0,.2)}
 .diff-btns button.active{background:linear-gradient(135deg,#FFCD00,#FFAA00);color:#111;font-weight:700;border-color:#fff;box-shadow:0 0 16px rgba(255,205,0,.4)}
 .touch-special{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,205,0,.55);background:radial-gradient(circle at 35% 30%,#ffe08a,#b8860b 60%,#5c4500);color:#111;font-family:Orbitron,sans-serif;font-weight:800;font-size:10px;touch-action:none}
-#startPanel{scrollbar-width:auto;scrollbar-color:#CE1126 rgba(40,0,0,.55)}
-#startPanel::-webkit-scrollbar{width:12px}
-#startPanel::-webkit-scrollbar-thumb{background:#CE1126;border-radius:8px}
+#startPanel{scrollbar-width:thin;scrollbar-color:#CE1126 transparent}
+#startPanel::-webkit-scrollbar{width:5px}
+#startPanel::-webkit-scrollbar-thumb{background:#CE1126;border-radius:5px}
 #startPanel .diff-btns{margin:6px 0}
 @media(max-width:600px){
   #startPanel{padding-bottom:24px!important}
@@ -1656,7 +1656,33 @@ select,textarea{
 }
 
 /* Scrollbars sutiles */
-/* Scrollbar ROJO y visible (móvil + escritorio) */
+/* Solo scrollbar pequeño en paneles; ocultar el grande de la página */
+html, body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+.tech-game-section,
+.tech-game,
+#content,
+.touch-pad {
+  scrollbar-width: none !important;
+}
+.tech-game-section::-webkit-scrollbar,
+.tech-game::-webkit-scrollbar,
+#content::-webkit-scrollbar,
+.touch-pad::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Único scrollbar visible: fino rojo en paneles */
 .game-panel,
 #startPanel,
 #gameOverPanel,
@@ -1666,9 +1692,10 @@ select,textarea{
 #onlineRankingPanel,
 #storyMenuPanel,
 #storyBriefPanel,
-#storyResultPanel{
-  scrollbar-width: auto !important;
-  scrollbar-color: #CE1126 rgba(40,0,0,.55) !important;
+#storyResultPanel {
+  scrollbar-width: thin !important;
+  scrollbar-color: #CE1126 transparent !important;
+  padding-right: 8px !important;
 }
 .game-panel::-webkit-scrollbar,
 #startPanel::-webkit-scrollbar,
@@ -1679,11 +1706,10 @@ select,textarea{
 #onlineRankingPanel::-webkit-scrollbar,
 #storyMenuPanel::-webkit-scrollbar,
 #storyBriefPanel::-webkit-scrollbar,
-#storyResultPanel::-webkit-scrollbar{
-  width: 12px !important;
-  height: 12px !important;
-  display: block !important;
-  -webkit-appearance: none !important;
+#storyResultPanel::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+  background: transparent !important;
 }
 .game-panel::-webkit-scrollbar-track,
 #startPanel::-webkit-scrollbar-track,
@@ -1691,13 +1717,8 @@ select,textarea{
 #configPanel::-webkit-scrollbar-track,
 #pausePanel::-webkit-scrollbar-track,
 #techStatisticsPanel::-webkit-scrollbar-track,
-#onlineRankingPanel::-webkit-scrollbar-track,
-#storyMenuPanel::-webkit-scrollbar-track,
-#storyBriefPanel::-webkit-scrollbar-track,
-#storyResultPanel::-webkit-scrollbar-track{
-  background: rgba(40,0,8,.65) !important;
-  border-radius: 8px !important;
-  margin: 4px 0 !important;
+#onlineRankingPanel::-webkit-scrollbar-track {
+  background: transparent !important;
 }
 .game-panel::-webkit-scrollbar-thumb,
 #startPanel::-webkit-scrollbar-thumb,
@@ -1708,23 +1729,19 @@ select,textarea{
 #onlineRankingPanel::-webkit-scrollbar-thumb,
 #storyMenuPanel::-webkit-scrollbar-thumb,
 #storyBriefPanel::-webkit-scrollbar-thumb,
-#storyResultPanel::-webkit-scrollbar-thumb{
-  background: linear-gradient(180deg, #ff3b4a 0%, #CE1126 55%, #8a0010 100%) !important;
-  border-radius: 8px !important;
-  border: 2px solid rgba(255,255,255,.15) !important;
-  min-height: 36px !important;
+#storyResultPanel::-webkit-scrollbar-thumb {
+  background: #CE1126 !important;
+  border-radius: 5px !important;
+  border: none !important;
+  min-height: 24px !important;
 }
-.game-panel::-webkit-scrollbar-thumb:active,
-#startPanel::-webkit-scrollbar-thumb:active,
-#configPanel::-webkit-scrollbar-thumb:active,
-#techStatisticsPanel::-webkit-scrollbar-thumb:active,
-#onlineRankingPanel::-webkit-scrollbar-thumb:active{
-  background: #ff5560 !important;
+#startPanel {
+  scrollbar-width: thin !important;
+  scrollbar-color: #CE1126 transparent !important;
 }
-/* startPanel override previo blanco */
-#startPanel{scrollbar-width:auto!important;scrollbar-color:#CE1126 rgba(40,0,0,.55)!important}
-#startPanel::-webkit-scrollbar{width:12px!important}
-#startPanel::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ff3b4a,#CE1126)!important;border-radius:8px!important}
+#startPanel::-webkit-scrollbar { width: 5px !important; }
+#startPanel::-webkit-scrollbar-thumb { background: #CE1126 !important; border-radius: 5px !important; }
+
 
 /* Mobile: menos efectos pesados */
 @media (max-width:900px){

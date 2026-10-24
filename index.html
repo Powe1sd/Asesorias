@@ -10780,8 +10780,10 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     limit = Math.max(1, Math.min(50, Number(limit) || 20));
     if(!hasKey()) throw new Error('Falta anon/publishable key válida');
     /* Tabla real: datos · columna de puntos: puntaje */
+    /* Columnas: id, created_at, record (score), nombre-nave */
     const url = SUPABASE_REST + '/' + TABLE
-      + '?select=*&order=puntaje.desc.nullslast&limit=' + limit;
+      + '?select=id,created_at,record,puntaje,nombre-nave'
+      + '&order=record.desc.nullslast&limit=' + limit;
     const res = await fetch(url, { method: 'GET', headers: headers() });
     const text = await res.text();
     let data;
@@ -10856,22 +10858,19 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     try{
       const rows = await window.techFetchOnlineTop(20);
       if(!rows.length){
-        box.innerHTML = '<p style="color:#9ab">La tabla <b>datos</b> está vacía. Añade filas en Supabase (Table Editor) con columna <b>puntaje</b>.</p>';
+        box.innerHTML = '<p style="color:#9ab">No se recibieron filas. Si en Table Editor sí hay datos, activa una política RLS de <b>SELECT</b> (lectura) para la tabla datos.</p>';
         return;
       }
       box.innerHTML = rows.map(function(r, i){
-        /* Esquema datos: id, created_at, record (int), puntaje (int) */
-        const sc = Number(r.puntaje != null ? r.puntaje : 0) || 0;
-        const rec = Number(r.record != null ? r.record : 0) || 0;
-        const label = 'Jugador #' + (r.id != null ? r.id : (i+1));
+        /* datos: record = puntuación, nombre-nave = nave */
+        const sc = Number(r.record != null ? r.record : 0) || 0;
+        const nave = (r['nombre-nave'] != null && r['nombre-nave'] !== '') ? String(r['nombre-nave']) : ('Nave #'+(r.id!=null?r.id:(i+1)));
         let fecha = '';
-        try{
-          if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO');
-        }catch(e){}
+        try{ if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO'); }catch(e){}
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
         return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
-          + '<span><b style="color:#5de5ff">'+medal+'</b> '+label
-          + '<br><small style="color:#889">record: '+rec+(fecha?' · '+fecha:'')+'</small>'
+          + '<span><b style="color:#5de5ff">'+medal+'</b> '+nave.replace(/</g,'&lt;')
+          + (fecha ? '<br><small style="color:#889">'+fecha+'</small>' : '')
           + '</span>'
           + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
       }).join('');

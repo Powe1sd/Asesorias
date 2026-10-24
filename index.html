@@ -8389,13 +8389,17 @@ try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gam
 const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
+try{if(typeof window.techSubmitOnlineScore==='function')window.techSubmitOnlineScore({
+  score: score,
+  ship: (typeof shipName!=='undefined'&&shipName)?String(shipName):(typeof currentShipName!=='undefined'?String(currentShipName):'Nave')
+})}catch(e){console.warn('[Ranking online]',e)}
 checkAchievements();
 try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
 gameOverPanel.style.setProperty("display","block","important");
 let extra=document.getElementById("goExtra");
 if(!extra){extra=document.createElement("div");extra.id="goExtra";gameOverPanel.appendChild(extra)}
 const rank=getRanking().map((r,i)=>(i+1)+". "+r.score+" ("+r.diff+")").join("<br>")||"—";
-extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
+extra.innerHTML='<p style="color:#FFD700;font-size:12px;margin-top:6px;margin-bottom:3px">⭐ Puntosjuego: '+coins+'</p><p id="onlineRankStatus" style="color:#7fd;font-size:11px;margin:4px 0">🌐 Subiendo al ranking online…</p><p style="color:#aaa;font-size:11px;margin-top:3px;margin-bottom:2px">TOP 5 local</p><p style="color:#ddd;font-size:11px;margin-top:2px;margin-bottom:4px">'+rank+'</p>'
   +'<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:5px;padding-bottom:10px">'
   +'<button class="game-btn" id="shareScoreBtn" style="margin:0;transform:translateY(-12px)">📤 COMPARTIR</button>'
   +'<button class="game-btn" id="btnInicio" style="margin:0;transform:translateY(-12px);background:#0038A8;color:#fff">INICIO</button>'
@@ -10730,29 +10734,20 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 (function(){
   'use strict';
   /**
-   * Ranking online SOLO LECTURA (Supabase REST)
-   * Endpoint: https://bkfpvwsahffrrkckjfre.supabase.co/rest/v1/record
-   *
-   * CLAVE FIJA: pega tu "anon public" en TECH_SUPABASE_ANON abajo.
-   * (Project Settings → API → anon public — empieza por eyJ...)
-   * NO uses la service_role. La anon está pensada para ir en el cliente.
+   * Ranking online SOLO LECTURA
+   * Tabla: datos
+   * Columnas: id, created_at, record (puntos), nombre-nave
    */
   const SUPABASE_URL = 'https://bkfpvwsahffrrkckjfre.supabase.co';
   const SUPABASE_REST = SUPABASE_URL + '/rest/v1';
   const TABLE = 'datos';
-
-  /* ========== PEGA TU ANON KEY AQUÍ (entre las comillas) ========== */
   const TECH_SUPABASE_ANON = 'sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
-  /* =============================================================== */
 
   function looksLikeKey(k){
     k = String(k||'').trim();
     if(k.length < 20) return false;
-    /* Legacy anon JWT */
     if(k.indexOf('eyJ') === 0) return true;
-    /* Nueva publishable key */
     if(k.indexOf('sb_publishable_') === 0) return true;
-    /* A veces aparece sin prefijo largo pero válida */
     if(k.length > 40 && k.indexOf('http') !== 0 && k.indexOf('/') === -1) return true;
     return false;
   }
@@ -10764,7 +10759,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     }catch(e){}
     return '';
   }
-
   function headers(){
     const key = getAnonKey();
     return {
@@ -10773,17 +10767,52 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       'Accept': 'application/json'
     };
   }
-
   function hasKey(){ return looksLikeKey(getAnonKey()); }
+
+  window.techSubmitOnlineScore = async function(entry){
+    if(!hasKey()){
+      console.warn('[Ranking] Sin key');
+      var st0=document.getElementById('onlineRankStatus');
+      if(st0){st0.textContent='🌐 Sin key de Supabase';st0.style.color='#f88';}
+      return null;
+    }
+    var sc = Math.max(0, Math.min(32767, Math.floor(Number(entry && entry.score) || 0)));
+    var nave = String((entry && entry.ship) || 'Nave').slice(0, 40);
+    var body = { record: sc, 'nombre-nave': nave };
+    try{
+      var res = await fetch(SUPABASE_REST + '/' + TABLE, {
+        method: 'POST',
+        headers: Object.assign({}, headers(), { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
+        body: JSON.stringify(body)
+      });
+      var text = await res.text();
+      var data = null;
+      try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
+      var st = document.getElementById('onlineRankStatus');
+      if(!res.ok){
+        console.error('[Ranking] Insert error', res.status, data);
+        var msg = (data && (data.message || data.error)) || ('HTTP '+res.status);
+        if(st){ st.textContent = '🌐 No se pudo subir: '+msg; st.style.color='#f88'; }
+        return null;
+      }
+      if(st){ st.textContent = '🌐 Ranking online: ¡'+nave+' — '+sc+' pts subido!'; st.style.color='#6f6'; }
+      return data;
+    }catch(err){
+      console.error('[Ranking] Red', err);
+      var st2 = document.getElementById('onlineRankStatus');
+      if(st2){ st2.textContent = '🌐 Sin conexión al subir ranking'; st2.style.color='#f88'; }
+      return null;
+    }
+  };
 
   window.techFetchOnlineTop = async function(limit){
     limit = Math.max(1, Math.min(50, Number(limit) || 20));
-    if(!hasKey()) throw new Error('Falta anon/publishable key válida');
-    /* Tabla real: datos · columna de puntos: puntaje */
-    /* Columnas: id, created_at, record (score), nombre-nave */
+    if(!hasKey()) throw new Error('Falta publishable key válida');
+    /* select con nombre-nave (guion) codificado; orden por record */
     const url = SUPABASE_REST + '/' + TABLE
-      + '?select=id,created_at,record,puntaje,nombre-nave'
-      + '&order=record.desc.nullslast&limit=' + limit;
+      + '?select=id,created_at,record,nombre-nave'
+      + '&order=record.desc.nullslast'
+      + '&limit=' + limit;
     const res = await fetch(url, { method: 'GET', headers: headers() });
     const text = await res.text();
     let data;
@@ -10803,38 +10832,15 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.id = 'onlineRankingPanel';
     p.className = 'game-panel';
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
-    const keyFixed = !!(TECH_SUPABASE_ANON && TECH_SUPABASE_ANON.length > 30);
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
-      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>datos</b></p>
-      <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5);${keyFixed?'display:none':''}">
-        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon public key (Settings → API)</label>
-        <input id="onlineRankKeyInput" type="password" autocomplete="off" placeholder="eyJhbGciOi..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #456;background:#07101f;color:#fff;font-size:12px;box-sizing:border-box"/>
-        <button type="button" class="game-btn" id="onlineRankSaveKey" style="margin-top:8px;width:100%">Guardar key</button>
-        <p id="onlineRankKeyMsg" style="font-size:10px;color:#8a9;margin:6px 0 0"></p>
-      </div>
+      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>datos</b> · record + nombre-nave</p>
       <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
         <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar lista</button>
         <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1">Cerrar</button>
       </div>`;
     host.appendChild(p);
-
-    const input = p.querySelector('#onlineRankKeyInput');
-    if(input) input.value = getAnonKey() || '';
-    const saveBtn = p.querySelector('#onlineRankSaveKey');
-    if(saveBtn) saveBtn.onclick = function(){
-      const v = (input && input.value || '').trim();
-      if(!looksLikeKey(v)){
-        document.getElementById('onlineRankKeyMsg').textContent = 'Key inválida. Usa anon public (eyJ...) o publishable (sb_publishable_...). No uses la URL ni service_role/secret.';
-        document.getElementById('onlineRankKeyMsg').style.color = '#f88';
-        return;
-      }
-      try{ localStorage.setItem('techSupabaseAnon', v); }catch(e){}
-      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada en este navegador';
-      document.getElementById('onlineRankKeyMsg').style.color = '#6f6';
-      loadList();
-    };
     p.querySelector('#onlineRankClose').onclick = closePanel;
     p.querySelector('#onlineRankRefresh').onclick = loadList;
     return p;
@@ -10851,20 +10857,30 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     const box = document.getElementById('onlineRankList');
     if(!box) return;
     if(!hasKey()){
-      box.innerHTML = '<p style="color:#fa8">Falta una <b>anon public</b> válida.<br><small>Supabase → Project Settings → API → copia <b>anon</b> <b>public</b> (empieza por <code>eyJ</code>). No copies la URL del REST ni la service_role.</small></p>';
+      box.innerHTML = '<p style="color:#fa8">Falta publishable key en el código.</p>';
       return;
     }
     box.innerHTML = '<p style="color:#8cf">Cargando récords…</p>';
     try{
       const rows = await window.techFetchOnlineTop(20);
       if(!rows.length){
-        box.innerHTML = '<p style="color:#9ab">No se recibieron filas. Si en Table Editor sí hay datos, activa una política RLS de <b>SELECT</b> (lectura) para la tabla datos.</p>';
+        box.innerHTML = '<p style="color:#fa8"><b>0 filas visibles con la API pública.</b></p>'
+          + '<p style="color:#9ab;font-size:11px;margin-top:8px">En Table Editor sí hay datos, pero <b>RLS</b> los oculta.<br>'
+          + 'Ve a <b>SQL Editor</b> y ejecuta:</p>'
+          + '<pre style="background:#07101f;padding:10px;border-radius:8px;font-size:10px;color:#8cf;overflow:auto;white-space:pre-wrap">'
+          + 'alter table public.datos enable row level security;\n\n'
+          + 'drop policy if exists \"lectura ranking\" on public.datos;\n\n'
+          + 'create policy \"lectura ranking\"\n'
+          + '  on public.datos for select\n'
+          + '  to anon, authenticated, public\n'
+          + '  using (true);'
+          + '</pre>';
         return;
       }
       box.innerHTML = rows.map(function(r, i){
-        /* datos: record = puntuación, nombre-nave = nave */
         const sc = Number(r.record != null ? r.record : 0) || 0;
-        const nave = (r['nombre-nave'] != null && r['nombre-nave'] !== '') ? String(r['nombre-nave']) : ('Nave #'+(r.id!=null?r.id:(i+1)));
+        const rawNave = r['nombre-nave'] != null ? r['nombre-nave'] : (r.nombre_nave != null ? r.nombre_nave : null);
+        const nave = (rawNave != null && String(rawNave).trim() !== '') ? String(rawNave) : ('Nave #' + (r.id != null ? r.id : (i+1)));
         let fecha = '';
         try{ if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO'); }catch(e){}
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
@@ -10876,12 +10892,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       }).join('');
     }catch(err){
       const m = String(err.message || err);
-      let tip = 'Revisa tabla <b>datos</b>, columna <b>score</b> y RLS de lectura.';
-      if(/invalid api key/i.test(m)){
-        tip = 'Key inválida. En el dashboard: <b>Settings → API Keys</b>. Copia <b>anon</b> / <b>publishable</b> (NO service_role ni secret, NO la URL). Puede empezar por <code>eyJ</code> o <code>sb_publishable_</code>.';
-        try{ localStorage.removeItem('techSupabaseAnon'); }catch(e){}
-      }
-      box.innerHTML = '<p style="color:#f88">Error: '+m.replace(/</g,'&lt;')+'</p><p style="color:#9ab;font-size:11px">'+tip+'</p>';
+      box.innerHTML = '<p style="color:#f88">Error: '+m.replace(/</g,'&lt;')+'</p>'
+        + '<p style="color:#9ab;font-size:11px">Tabla <b>datos</b> · columnas <b>record</b> y <b>nombre-nave</b> · política RLS SELECT.</p>';
     }
   }
 
@@ -10890,8 +10902,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     if(sp) sp.style.setProperty('display','none','important');
     const p = ensurePanel();
     p.style.setProperty('display','block','important');
-    const input = document.getElementById('onlineRankKeyInput');
-    if(input && !input.value) input.value = getAnonKey() || '';
     loadList();
   }
 

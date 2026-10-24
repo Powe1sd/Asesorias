@@ -11032,5 +11032,128 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 })();
 </script>
 
+
+<style id="tech-mobile-dynamic-fix">
+/* Móvil: interfaz compacta y desplazamiento táctil sin una barra grande visible */
+@media (max-width: 600px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  body *::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  /* Se puede seguir bajando deslizando el dedo; solo se oculta la barra visual */
+  body { overscroll-behavior-y: auto; }
+  .tech-game-section {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto 6px;
+    padding: 0 8px;
+  }
+  .tech-game {
+    height: clamp(300px, 56svh, 460px) !important;
+    min-height: 300px !important;
+    border-radius: 14px !important;
+  }
+  .cyber-hero {
+    padding: 22px 12px 12px !important;
+  }
+  .cyber-hero h1 {
+    font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
+    line-height: 1.2;
+  }
+  .data-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+    padding: 14px 10px 22px !important;
+  }
+  .data-card {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+  .data-card h2 { font-size: 1.12rem !important; }
+  .contact-section {
+    padding: 12px 10px 0 !important;
+    margin-bottom: 18px !important;
+  }
+  .contact-card { padding: 16px !important; }
+  .contact-title {
+    font-size: 1.35rem !important;
+    margin-bottom: 16px !important;
+  }
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  .contact-item { padding: 12px !important; gap: 12px !important; }
+  .touch-pad {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    margin: 6px auto 10px !important;
+  }
+  .touch-pad-inner {
+    gap: 7px !important;
+    padding: 9px 8px !important;
+    border-radius: 16px !important;
+  }
+  .touch-move-pad {
+    width: clamp(92px, 27vw, 120px) !important;
+    height: clamp(88px, 25vw, 112px) !important;
+    border-radius: 14px !important;
+  }
+  .touch-fire {
+    width: clamp(62px, 19vw, 78px) !important;
+    height: clamp(62px, 19vw, 78px) !important;
+    font-size: 11px !important;
+  }
+  .touch-mid {
+    max-width: 145px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+  .touch-mid .touch-util,
+  .touch-pad .touch-util,
+  .touch-pad .touch-special {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 48px !important;
+    height: 31px !important;
+    min-height: 31px !important;
+    padding: 0 2px !important;
+    font-size: 9px !important;
+  }
+  .game-panel {
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    max-height: 88% !important;
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+  #startPanel, #gameOverPanel, #pausePanel, #configPanel {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  #startPanel::-webkit-scrollbar,
+  #gameOverPanel::-webkit-scrollbar,
+  #pausePanel::-webkit-scrollbar,
+  #configPanel::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+  }
+  .cyber-footer { padding: 18px 12px 14px !important; }
+}
+@media (min-width: 601px) and (max-width: 900px) {
+  .data-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+
 </body>
 </html>

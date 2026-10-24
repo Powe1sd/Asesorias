@@ -8410,7 +8410,8 @@ const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
 /* Subir DESPUÉS de crear el mensaje de estado */
 try{
   if(typeof window.techSubmitOnlineScore==='function'){
-    window.techSubmitOnlineScore({ score: _goScore, ship: _goShip });
+    var _goType = (typeof window.techShipTypeLabel==='function') ? window.techShipTypeLabel() : (typeof shipModel!=='undefined'?String(shipModel):'classic');
+    window.techSubmitOnlineScore({ score: _goScore, ship: _goShip, shipType: _goType });
   } else {
     var st=document.getElementById('onlineRankStatus');
     if(st){st.textContent='🌐 Módulo ranking no cargado';st.style.color='#f88';}
@@ -10779,6 +10780,27 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   }
   function hasKey(){ return looksLikeKey(getAnonKey()); }
 
+  window.techShipTypeLabel = function(){
+    try{
+      var model = (typeof shipModel !== 'undefined' && shipModel) ? String(shipModel) : 'classic';
+      var form = (typeof gokuForm !== 'undefined' && gokuForm) ? String(gokuForm) : null;
+      var gallery = (typeof SHIP_GALLERY !== 'undefined' && Array.isArray(SHIP_GALLERY)) ? SHIP_GALLERY : [];
+      var found = null;
+      for(var i=0;i<gallery.length;i++){
+        var e = gallery[i];
+        if(e.model !== model) continue;
+        if(model === 'goku'){
+          if((e.form || 'normal') === (form || 'normal')){ found = e; break; }
+        } else {
+          found = e; break;
+        }
+      }
+      if(found && found.name) return String(found.name);
+      if(model === 'goku') return 'Goku' + (form && form !== 'normal' ? ' '+form.toUpperCase() : '');
+      return model;
+    }catch(e){ return 'Nave'; }
+  };
+
   window.techSubmitOnlineScore = async function(entry){
     if(!hasKey()){
       console.warn('[Ranking] Sin key');
@@ -10787,7 +10809,11 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       return null;
     }
     var sc = Math.max(0, Math.min(32767, Math.floor(Number(entry && entry.score) || 0)));
-    var nave = String((entry && entry.ship) || 'Nave').slice(0, 40);
+    var tipo = (entry && entry.shipType) ? String(entry.shipType) : (typeof window.techShipTypeLabel==='function' ? window.techShipTypeLabel() : '');
+    var nick = String((entry && entry.ship) || 'Nave').slice(0, 16);
+    /* nombre-nave = apodo · tipo de nave (ej. Br7 · Cazadora) */
+    var nave = tipo ? (nick + ' · ' + tipo) : nick;
+    nave = nave.slice(0, 48);
     var body = { record: sc };
     body['nombre-nave'] = nave;
     try{

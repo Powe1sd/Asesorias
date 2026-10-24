@@ -4237,12 +4237,55 @@ document.getElementById("closeConfig").onclick=()=>{
   cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important");
   const wasConfiguringDuringGame=!!window.__configOpenedFromPause;
   window.__configOpenedFromPause=false;
-  if(wasConfiguringDuringGame && gameRunning && gamePaused){
+  if(wasConfiguringDuringGame && gameRunning){
     const p=document.getElementById("pausePanel");if(p){p.classList.remove("pause-open");p.style.setProperty("display","none","important");}
-    togglePause(false);
+    gamePaused=false;
+    try{lastSpawn=performance.now();lastAmmoDrop=performance.now();lastTrapSpawn=performance.now()}catch(e){}
+    try{kickGameLoop();startLoopWatchdog()}catch(e){try{animationFrame=requestAnimationFrame(gameLoop)}catch(_){} }
+    try{resumeEngineSound()}catch(e){}
   }};
 }
 wireConfigPanel();
+
+/* Reanudar automáticamente al guardar/cerrar configuraciones abiertas desde una partida.
+   Se usa delegación porque reconstruir el panel puede reemplazar el botón #closeConfig. */
+document.addEventListener("click", function(ev){
+  const saveBtn = ev.target && ev.target.closest ? ev.target.closest("#closeConfig") : null;
+  if(!saveBtn) return;
+  if(!window.__configOpenedFromPause || !gameRunning) return;
+  /* Deja que primero se ejecute el guardado normal del botón. */
+  setTimeout(function(){
+    if(!gameRunning || !window.__configOpenedFromPause) return;
+    const panel = document.getElementById("configPanel");
+    if(panel){
+      panel.classList.remove("config-panel-open");
+      panel.style.setProperty("display","none","important");
+    }
+    window.__configOpenedFromPause = false;
+    const pause = document.getElementById("pausePanel");
+    if(pause){
+      pause.classList.remove("pause-open");
+      pause.style.setProperty("display","none","important");
+    }
+    gamePaused = false;
+    try{
+      lastSpawn = performance.now();
+      lastAmmoDrop = performance.now();
+      lastTrapSpawn = performance.now();
+    }catch(e){}
+    try{ kickGameLoop(); startLoopWatchdog(); }catch(e){
+      try{ animationFrame = requestAnimationFrame(gameLoop); }catch(_){}
+    }
+    try{ resumeEngineSound(); }catch(e){}
+    try{
+      if(SFX.bg && !audioMuted){
+        SFX.bg.volume = volMusic;
+        SFX.bg.play().catch(function(){});
+      }
+    }catch(e){}
+  }, 0);
+}, false);
+
 try{applyUILanguage()}catch(e){}
 // No mostrar la ventana de configuración al cargar el menú inicial.
 try{cfg.style.setProperty("display","none","important");cfg.hidden=true;requestAnimationFrame(()=>{cfg.hidden=false;cfg.style.setProperty("display","none","important")})}catch(e){}
@@ -4298,7 +4341,7 @@ function wirePauseControls(){
   };
 }
 wirePauseControls();
-document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>{togglePause(false);goToStartMenu()}}
+document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>goToStartMenu()}
 if(startPanel&&!document.getElementById("startCredits")){const c=document.createElement("div");c.id="startCredits";c.style.cssText="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.25)";
 c.innerHTML=`<p style="color:#666;font-size:10px;margin-top:6px">⌨️ Flechas · Espacio · 🎮 Mando · ⚙ Config · Pausa</p>`;
 startPanel.appendChild(c)}
@@ -4642,11 +4685,17 @@ function stopLoopWatchdog(){
   try{if(_watchdogTimer){clearInterval(_watchdogTimer);_watchdogTimer=null}}catch(e){}
 }
 function togglePause(force){if(!gameRunning)return;
-  /* Evitar dobles toques accidentales en móvil */
+  /* Estado de pausa único: evita dos bucles y pantallas bloqueadas al reanudar. */
   const now=performance.now();
   if(typeof force!=="boolean" && now-_pauseDebounce<350)return;
   _pauseDebounce=now;
-  gamePaused=typeof force==="boolean"?force:!gamePaused;const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
+  const nextPaused=typeof force==="boolean"?force:!gamePaused;
+  if(nextPaused===gamePaused){
+    if(!nextPaused){kickGameLoop();startLoopWatchdog();}
+    return;
+  }
+  gamePaused=nextPaused;
+  const pp=document.getElementById("pausePanel"),bp=document.getElementById("btnPause");
 if(gamePaused){
   if(pp){
     pp.classList.add("pause-open");
@@ -8467,7 +8516,7 @@ function startGame(){
 /* Reinicio limpio: elimina frames anteriores y evita iniciar detrás de un panel abierto. */
 try{cancelAnimationFrame(animationFrame)}catch(e){}
 try{stopLoopWatchdog()}catch(e){}
-gameRunning=false;gamePaused=false;
+gameRunning=false;gamePaused=false;window.__configOpenedFromPause=false;
 runStartTime=performance.now();
 try{if(_sfxCtx&&_sfxCtx.state==="suspended")_sfxCtx.resume()}catch(e){}
 try{if(SFX.shoot){SFX.shoot.muted=false;SFX.shoot.volume=Math.max(0.2,volSfx)}}catch(e){}
@@ -8545,23 +8594,27 @@ try{
 }
 function continueToSite(){try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}gameOverPanel.style.setProperty("display","none","important");startPanel.style.setProperty("display","block","important")}
 function goToStartMenu(){
-  /* Limpieza completa tras GAME OVER para que INICIO permita empezar otra partida. */
+  /* Transición directa a menú: detener el motor antes de ocultar paneles. */
   gameRunning=false;gamePaused=false;
   try{cancelAnimationFrame(animationFrame)}catch(e){}
   try{stopLoopWatchdog()}catch(e){}
   try{stopEngineSound()}catch(e){}
-  try{stopBgMusic&&stopBgMusic()}catch(e){}
-  gameOverPanel.style.display="none";
-  const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
-  const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
-  const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
-  const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
-  startPanel.style.display="block";
-  const configShortcut=document.getElementById("btnConfig");if(configShortcut)configShortcut.style.display="none";
-  const cfgPanel=document.getElementById("configPanel");if(cfgPanel){cfgPanel.classList.remove("config-panel-open");cfgPanel.style.setProperty("display","none","important");}
+  try{if(typeof stopBgMusic==="function")stopBgMusic()}catch(e){}
+  try{if(typeof keys!=="undefined"){keys.up=keys.down=keys.left=keys.right=false}}catch(e){}
+  try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+  ["gameOverPanel","pausePanel","configPanel","storyMenuPanel","storyBriefPanel","storyResultPanel","techStatisticsPanel","manualPanel","dailyMissionsPanel","gokuAccessModal"].forEach(function(id){
+    const el=document.getElementById(id);if(!el)return;
+    el.style.setProperty("display","none","important");
+    if(el.classList)el.classList.remove("show","pause-open","config-panel-open");
+  });
+  const cfgPanel=document.getElementById("configPanel");if(cfgPanel)cfgPanel.hidden=false;
+  ["btnPause","btnRestartLive","btnMuteLive","btnConfig"].forEach(function(id){const el=document.getElementById(id);if(el)el.style.setProperty("display","none","important")});
+  const start=document.getElementById("startPanel");if(start)start.style.setProperty("display","block","important");
   window.__configOpenedFromPause=false;
-  setTimeout(function(){try{renderStart()}catch(e){console.warn("[TECH RUN] No se pudo actualizar el menú:",e)}},30);
-  setTimeout(drawShipPreview,50);
+  /* Normalizar el contexto 2D para que una animación interrumpida no lo deje transformado. */
+  try{if(ctx&&canvas){ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation="source-over";ctx.clearRect(0,0,canvas.width,canvas.height)}}catch(e){}
+  setTimeout(function(){try{if(typeof renderStart==="function")renderStart()}catch(e){console.warn("[TECH RUN] No se pudo actualizar el menú:",e)}},30);
+  setTimeout(function(){try{drawShipPreview()}catch(e){}},50);
 }
 
 startButton.addEventListener("click",startGame);
@@ -11000,8 +11053,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.className = 'game-panel';
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
     p.innerHTML = `
-      <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
-      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>datos</b> · record + nombre-nave</p>
+      <h2 style="text-align:center;margin:0 0 10px">🏆 Ranking</h2>
       <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
         <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar lista</button>
@@ -11048,12 +11100,9 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
         const sc = Number(r.record != null ? r.record : 0) || 0;
         const rawNave = r['nombre-nave'] != null ? r['nombre-nave'] : (r.nombre_nave != null ? r.nombre_nave : null);
         const nave = (rawNave != null && String(rawNave).trim() !== '') ? String(rawNave) : ('Nave #' + (r.id != null ? r.id : (i+1)));
-        let fecha = '';
-        try{ if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO'); }catch(e){}
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
-        return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
+        return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
           + '<span><b style="color:#5de5ff">'+medal+'</b> '+nave.replace(/</g,'&lt;')
-          + (fecha ? '<br><small style="color:#889">'+fecha+'</small>' : '')
           + '</span>'
           + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
       }).join('');

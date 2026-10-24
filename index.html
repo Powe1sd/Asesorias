@@ -10731,21 +10731,38 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   'use strict';
   /**
    * Ranking online SOLO LECTURA (Supabase REST)
-   * URL: https://bkfpvwsahffrrkckjfre.supabase.co/rest/v1/record
-   * No sube ni modifica scores: solo consulta y muestra.
+   * Endpoint: https://bkfpvwsahffrrkckjfre.supabase.co/rest/v1/record
+   *
+   * CLAVE FIJA: pega tu "anon public" en TECH_SUPABASE_ANON abajo.
+   * (Project Settings → API → anon public — empieza por eyJ...)
+   * NO uses la service_role. La anon está pensada para ir en el cliente.
    */
   const SUPABASE_URL = 'https://bkfpvwsahffrrkckjfre.supabase.co';
   const SUPABASE_REST = SUPABASE_URL + '/rest/v1';
   const TABLE = 'record';
 
+  /* ========== PEGA TU ANON KEY AQUÍ (entre las comillas) ========== */
+  const TECH_SUPABASE_ANON = 'sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
+  /* =============================================================== */
+
+  function looksLikeKey(k){
+    k = String(k||'').trim();
+    if(k.length < 20) return false;
+    /* Legacy anon JWT */
+    if(k.indexOf('eyJ') === 0) return true;
+    /* Nueva publishable key */
+    if(k.indexOf('sb_publishable_') === 0) return true;
+    /* A veces aparece sin prefijo largo pero válida */
+    if(k.length > 40 && k.indexOf('http') !== 0 && k.indexOf('/') === -1) return true;
+    return false;
+  }
   function getAnonKey(){
+    if(looksLikeKey(TECH_SUPABASE_ANON)) return TECH_SUPABASE_ANON.trim();
     try{
       const fromLs = localStorage.getItem('techSupabaseAnon');
-      if(fromLs && fromLs.length > 20) return fromLs.trim();
+      if(looksLikeKey(fromLs)) return fromLs.trim();
     }catch(e){}
-    /* Opcional: pega aquí la anon public key */
-    const HARDCODED = '';
-    return HARDCODED;
+    return '';
   }
 
   function headers(){
@@ -10753,16 +10770,15 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     return {
       'apikey': key,
       'Authorization': 'Bearer ' + key,
-      'Content-Type': 'application/json'
+      'Accept': 'application/json'
     };
   }
 
-  function hasKey(){ return !!(getAnonKey() && getAnonKey().length > 20); }
+  function hasKey(){ return looksLikeKey(getAnonKey()); }
 
-  /** Solo GET — no escribe en la base */
   window.techFetchOnlineTop = async function(limit){
     limit = Math.max(1, Math.min(50, Number(limit) || 20));
-    if(!hasKey()) throw new Error('Falta la anon key de Supabase');
+    if(!hasKey()) throw new Error('Falta anon key válida (debe empezar por eyJ)');
     const url = SUPABASE_REST + '/' + TABLE
       + '?select=*&order=score.desc.nullslast&limit=' + limit;
     const res = await fetch(url, { method: 'GET', headers: headers() });
@@ -10770,7 +10786,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     let data;
     try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
     if(!res.ok){
-      const msg = (data && (data.message || data.error)) || text || res.status;
+      const msg = (data && (data.message || data.error || data.msg)) || text || ('HTTP '+res.status);
       throw new Error(String(msg));
     }
     return Array.isArray(data) ? data : [];
@@ -10784,11 +10800,12 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.id = 'onlineRankingPanel';
     p.className = 'game-panel';
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
+    const keyFixed = !!(TECH_SUPABASE_ANON && TECH_SUPABASE_ANON.length > 30);
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
       <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>record</b></p>
-      <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5)">
-        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon key (Settings → API)</label>
+      <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5);${keyFixed?'display:none':''}">
+        <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon public key (Settings → API)</label>
         <input id="onlineRankKeyInput" type="password" autocomplete="off" placeholder="eyJhbGciOi..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #456;background:#07101f;color:#fff;font-size:12px;box-sizing:border-box"/>
         <button type="button" class="game-btn" id="onlineRankSaveKey" style="margin-top:8px;width:100%">Guardar key</button>
         <p id="onlineRankKeyMsg" style="font-size:10px;color:#8a9;margin:6px 0 0"></p>
@@ -10802,14 +10819,16 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 
     const input = p.querySelector('#onlineRankKeyInput');
     if(input) input.value = getAnonKey() || '';
-    p.querySelector('#onlineRankSaveKey').onclick = function(){
+    const saveBtn = p.querySelector('#onlineRankSaveKey');
+    if(saveBtn) saveBtn.onclick = function(){
       const v = (input && input.value || '').trim();
-      if(v.length < 20){
-        document.getElementById('onlineRankKeyMsg').textContent = 'Key demasiado corta';
+      if(!looksLikeKey(v)){
+        document.getElementById('onlineRankKeyMsg').textContent = 'Key inválida. Usa anon public (eyJ...) o publishable (sb_publishable_...). No uses la URL ni service_role/secret.';
+        document.getElementById('onlineRankKeyMsg').style.color = '#f88';
         return;
       }
       try{ localStorage.setItem('techSupabaseAnon', v); }catch(e){}
-      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada';
+      document.getElementById('onlineRankKeyMsg').textContent = '✓ Key guardada en este navegador';
       document.getElementById('onlineRankKeyMsg').style.color = '#6f6';
       loadList();
     };
@@ -10829,7 +10848,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     const box = document.getElementById('onlineRankList');
     if(!box) return;
     if(!hasKey()){
-      box.innerHTML = '<p style="color:#fa8">Pega la <b>anon public</b> key arriba y pulsa Guardar.<br><small>Supabase → Project Settings → API</small></p>';
+      box.innerHTML = '<p style="color:#fa8">Falta una <b>anon public</b> válida.<br><small>Supabase → Project Settings → API → copia <b>anon</b> <b>public</b> (empieza por <code>eyJ</code>). No copies la URL del REST ni la service_role.</small></p>';
       return;
     }
     box.innerHTML = '<p style="color:#8cf">Cargando récords…</p>';
@@ -10852,8 +10871,13 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
           + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
       }).join('');
     }catch(err){
-      box.innerHTML = '<p style="color:#f88">Error: '+String(err.message || err).replace(/</g,'&lt;')
-        + '</p><p style="color:#9ab;font-size:11px">Revisa: tabla <b>record</b>, columna <b>score</b>, RLS de lectura y anon key.</p>';
+      const m = String(err.message || err);
+      let tip = 'Revisa tabla <b>record</b>, columna <b>score</b> y RLS de lectura.';
+      if(/invalid api key/i.test(m)){
+        tip = 'Key inválida. En el dashboard: <b>Settings → API Keys</b>. Copia <b>anon</b> / <b>publishable</b> (NO service_role ni secret, NO la URL). Puede empezar por <code>eyJ</code> o <code>sb_publishable_</code>.';
+        try{ localStorage.removeItem('techSupabaseAnon'); }catch(e){}
+      }
+      box.innerHTML = '<p style="color:#f88">Error: '+m.replace(/</g,'&lt;')+'</p><p style="color:#9ab;font-size:11px">'+tip+'</p>';
     }
   }
 

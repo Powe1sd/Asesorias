@@ -10739,7 +10739,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    */
   const SUPABASE_URL = 'https://bkfpvwsahffrrkckjfre.supabase.co';
   const SUPABASE_REST = SUPABASE_URL + '/rest/v1';
-  const TABLE = 'record';
+  const TABLE = 'datos';
 
   /* ========== PEGA TU ANON KEY AQUÍ (entre las comillas) ========== */
   const TECH_SUPABASE_ANON = 'sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
@@ -10778,9 +10778,10 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 
   window.techFetchOnlineTop = async function(limit){
     limit = Math.max(1, Math.min(50, Number(limit) || 20));
-    if(!hasKey()) throw new Error('Falta anon key válida (debe empezar por eyJ)');
+    if(!hasKey()) throw new Error('Falta anon/publishable key válida');
+    /* Tabla real: datos · columna de puntos: puntaje */
     const url = SUPABASE_REST + '/' + TABLE
-      + '?select=*&order=score.desc.nullslast&limit=' + limit;
+      + '?select=*&order=puntaje.desc.nullslast&limit=' + limit;
     const res = await fetch(url, { method: 'GET', headers: headers() });
     const text = await res.text();
     let data;
@@ -10803,7 +10804,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     const keyFixed = !!(TECH_SUPABASE_ANON && TECH_SUPABASE_ANON.length > 30);
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 8px">🌐 Ranking online</h2>
-      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>record</b></p>
+      <p style="font-size:11px;color:#9ab;margin:0 0 10px;text-align:center">Solo lectura · tabla <b>datos</b></p>
       <div id="onlineRankKeyBox" style="margin-bottom:12px;padding:10px;border:1px solid rgba(93,229,255,.25);border-radius:10px;background:rgba(0,20,40,.5);${keyFixed?'display:none':''}">
         <label style="display:block;font-size:11px;color:#8cf;margin-bottom:6px">Anon public key (Settings → API)</label>
         <input id="onlineRankKeyInput" type="password" autocomplete="off" placeholder="eyJhbGciOi..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #456;background:#07101f;color:#fff;font-size:12px;box-sizing:border-box"/>
@@ -10855,24 +10856,28 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     try{
       const rows = await window.techFetchOnlineTop(20);
       if(!rows.length){
-        box.innerHTML = '<p style="color:#9ab">No hay récords en la tabla <b>record</b>.</p>';
+        box.innerHTML = '<p style="color:#9ab">La tabla <b>datos</b> está vacía. Añade filas en Supabase (Table Editor) con columna <b>puntaje</b>.</p>';
         return;
       }
       box.innerHTML = rows.map(function(r, i){
-        const name = r.player_name || r.name || r.ship || r.jugador || 'Jugador';
-        const sc = Number(r.score != null ? r.score : r.puntos) || 0;
-        const meta = [r.difficulty || r.diff, r.model, r.wave != null ? ('Ola '+r.wave) : '']
-          .filter(Boolean).join(' · ');
+        /* Esquema datos: id, created_at, record (int), puntaje (int) */
+        const sc = Number(r.puntaje != null ? r.puntaje : 0) || 0;
+        const rec = Number(r.record != null ? r.record : 0) || 0;
+        const label = 'Jugador #' + (r.id != null ? r.id : (i+1));
+        let fecha = '';
+        try{
+          if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO');
+        }catch(e){}
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
         return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
-          + '<span><b style="color:#5de5ff">'+medal+'</b> '+String(name).replace(/</g,'&lt;')
-          + (meta ? '<br><small style="color:#889">'+String(meta).replace(/</g,'&lt;')+'</small>' : '')
+          + '<span><b style="color:#5de5ff">'+medal+'</b> '+label
+          + '<br><small style="color:#889">record: '+rec+(fecha?' · '+fecha:'')+'</small>'
           + '</span>'
           + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
       }).join('');
     }catch(err){
       const m = String(err.message || err);
-      let tip = 'Revisa tabla <b>record</b>, columna <b>score</b> y RLS de lectura.';
+      let tip = 'Revisa tabla <b>datos</b>, columna <b>score</b> y RLS de lectura.';
       if(/invalid api key/i.test(m)){
         tip = 'Key inválida. En el dashboard: <b>Settings → API Keys</b>. Copia <b>anon</b> / <b>publishable</b> (NO service_role ni secret, NO la URL). Puede empezar por <code>eyJ</code> o <code>sb_publishable_</code>.';
         try{ localStorage.removeItem('techSupabaseAnon'); }catch(e){}

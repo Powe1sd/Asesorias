@@ -2050,14 +2050,103 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 #content .cyber-footer { border-top-color: rgba(0, 80, 200, .55) !important; background: rgba(0, 30, 80, .22) !important; }
 </style>
 
+
+<style id="tech-professional-mobile-hud">
+/* HUD profesional: tres indicadores claros, legibles en móvil y escritorio */
+.tech-game .game-top{
+  top:10px!important;left:10px!important;right:180px!important;
+  align-items:flex-start!important;gap:7px!important;z-index:14!important;
+  pointer-events:none!important;max-width:calc(100% - 195px);
+}
+.tech-game .game-title{
+  display:flex!important;align-items:center!important;gap:7px!important;
+  font-family:Orbitron,sans-serif!important;font-size:11px!important;
+  font-weight:800!important;letter-spacing:1.6px!important;color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.tech-game .game-title small{
+  font:600 8px 'Share Tech Mono',monospace!important;letter-spacing:1px!important;
+  color:#91a7c6!important;-webkit-text-fill-color:#91a7c6!important;
+  border-left:1px solid #35445d;padding-left:7px;
+}
+.hud-live-dot{width:7px;height:7px;border-radius:50%;background:#57f2a5;display:inline-block;box-shadow:0 0 9px #57f2a5}
+.tech-game .game-score{
+  display:flex!important;align-items:stretch!important;gap:6px!important;
+  border:0!important;padding:0!important;background:transparent!important;
+  font-family:Inter,sans-serif!important;line-height:1.1!important;
+}
+.tech-game .hud-stat{
+  min-width:72px;display:grid;grid-template-columns:15px auto;grid-template-rows:auto auto;
+  align-items:center;column-gap:5px;row-gap:3px;padding:7px 9px!important;
+  background:linear-gradient(145deg,rgba(8,18,39,.94),rgba(3,8,20,.88))!important;
+  border:1px solid rgba(142,174,220,.28)!important;border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+}
+.tech-game .hud-stat .hud-icon{grid-row:1/3;font-size:14px!important;color:#8edcff!important;-webkit-text-fill-color:#8edcff!important}
+.tech-game .hud-stat .hud-label{font:700 8px Inter,sans-serif!important;letter-spacing:1px!important;color:#9aaecb!important;-webkit-text-fill-color:#9aaecb!important}
+.tech-game .hud-stat strong{font:800 17px 'Share Tech Mono',monospace!important;color:#fff!important;-webkit-text-fill-color:#fff!important;line-height:1!important}
+.tech-game .hud-score{border-color:rgba(255,205,0,.42)!important}
+.tech-game .hud-score .hud-icon,.tech-game .hud-score strong{color:#ffcf36!important;-webkit-text-fill-color:#ffcf36!important}
+.tech-game .hud-record .hud-icon{color:#a9baff!important;-webkit-text-fill-color:#a9baff!important}
+.tech-game .hud-lives{border-color:rgba(255,89,115,.38)!important}
+.tech-game .hud-lives .hud-icon{color:#ff627d!important;-webkit-text-fill-color:#ff627d!important}
+.tech-game .hud-stat strong{grid-column:2}
+#btnPause,#btnMuteLive,#btnFullscreen,#btnExitFS{
+  width:38px!important;height:38px!important;border-radius:12px!important;
+  border:1px solid rgba(180,205,245,.32)!important;
+  background:rgba(8,17,36,.94)!important;color:#fff!important;
+  box-shadow:0 4px 15px rgba(0,0,0,.28)!important;
+  font-size:17px!important;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+#btnPause{border-color:rgba(255,205,0,.55)!important;color:#ffcf36!important}
+#btnFullscreen{border-color:rgba(80,190,255,.5)!important;color:#8edcff!important}
+#btnMuteLive{color:#9fffc6!important}
+#pausePanel{
+  background:linear-gradient(160deg,rgba(7,16,35,.99),rgba(2,6,16,.99))!important;
+  border:1px solid rgba(115,176,255,.4)!important;
+  box-shadow:0 18px 60px rgba(0,0,0,.7),0 0 30px rgba(0,120,255,.12)!important;
+  border-radius:20px!important;
+}
+#pausePanel h2{font-size:23px!important;letter-spacing:2px!important}
+#pausePanel .game-btn{min-height:44px!important;border-radius:12px!important;font-weight:700!important}
+#pausePanel #resumeGame{background:linear-gradient(135deg,#d8ffe9,#68e9a6)!important;color:#052616!important;border-color:#68e9a6!important}
+#pausePanel #restartFromPause{background:linear-gradient(135deg,#183a67,#0a2347)!important;color:#fff!important;border-color:#4b9dff!important}
+#pausePanel .hud-pause-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+#pausePanel .hud-pause-tools button{margin:0!important;min-height:42px!important;padding:8px!important;font-size:11px!important}
+@media(max-width:600px){
+ .tech-game .game-top{top:8px!important;left:7px!important;right:146px!important;max-width:calc(100% - 153px);gap:5px!important}
+ .tech-game .game-title{font-size:9px!important;letter-spacing:1px!important;gap:5px!important}
+ .tech-game .game-title small{font-size:7px!important;padding-left:5px}
+ .tech-game .game-score{gap:4px!important}
+ .tech-game .hud-stat{min-width:0;grid-template-columns:11px auto;column-gap:3px;row-gap:3px;padding:6px 5px!important;border-radius:8px}
+ .tech-game .hud-stat .hud-icon{font-size:11px!important}
+ .tech-game .hud-stat .hud-label{font-size:6px!important;letter-spacing:.5px!important}
+ .tech-game .hud-stat strong{font-size:13px!important}
+ #btnPause,#btnMuteLive,#btnFullscreen,#btnExitFS{width:31px!important;height:31px!important;border-radius:9px!important;font-size:14px!important}
+ #pausePanel .hud-pause-tools{grid-template-columns:1fr 1fr}
+}
+@media(max-width:360px){
+ .tech-game .game-top{right:132px!important;max-width:calc(100% - 139px)}
+ .tech-game .hud-stat{padding:5px 3px!important}
+ .tech-game .hud-stat .hud-label{font-size:5.5px!important}
+ .tech-game .game-title small{display:none}
+}
+</style>
+
 </head>
 <body>
 
 <section class="tech-game-section">
 <div class="tech-game">
-<div class="game-top">
-<div class="game-title">⚡ TECH SYSTEM</div>
-<div class="game-score">Puntos <span id="gameScore">0</span> · Récord <span id="gameRecord">0</span> · Vidas <span id="gameLives">1</span></div>
+<div class="game-top" aria-label="Estadísticas de la partida">
+  <div class="game-title"><span class="hud-live-dot"></span> TECH RUN <small>MISSION HUD</small></div>
+  <div class="game-score">
+    <div class="hud-stat hud-score"><span class="hud-icon">✦</span><span class="hud-label">PUNTOS</span><strong id="gameScore">0</strong></div>
+    <div class="hud-stat hud-record"><span class="hud-icon">★</span><span class="hud-label">RÉCORD</span><strong id="gameRecord">0</strong></div>
+    <div class="hud-stat hud-lives"><span class="hud-icon">♥</span><span class="hud-label">VIDAS</span><strong id="gameLives">1</strong></div>
+  </div>
 </div>
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
@@ -11722,6 +11811,69 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   }, 2000);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){wrapStart();bootRefresh()});
   else {wrapStart();bootRefresh()}
+})();
+</script>
+
+
+<script id="tech-professional-game-controls">
+(function(){
+  function setupProfessionalControls(){
+    const pause=document.getElementById('pausePanel');
+    if(pause && !pause.querySelector('.hud-pause-tools')){
+      const tools=document.createElement('div');
+      tools.className='hud-pause-tools';
+      tools.innerHTML='<button type="button" class="game-btn" id="pauseSoundToggle">🔊 SONIDO</button><button type="button" class="game-btn" id="pauseFullscreenToggle">⛶ PANTALLA</button>';
+      const configButton=pause.querySelector('#pauseOpenFullCfg');
+      if(configButton) pause.insertBefore(tools,configButton.parentElement);
+      else pause.appendChild(tools);
+      const sound=document.getElementById('pauseSoundToggle');
+      const syncSound=()=>{let muted=false;try{muted=(typeof audioMuted!=='undefined')?audioMuted:false}catch(e){}if(sound)sound.textContent=(muted?'🔊 ACTIVAR SONIDO':'🔇 SILENCIAR');};
+      if(sound){
+        syncSound();
+        sound.addEventListener('click',function(){
+          try{if(typeof toggleMute==='function')toggleMute();if(typeof lsSet==='function'&&typeof audioMuted!=='undefined')lsSet('techAudioMuted',audioMuted?'1':'0');}catch(e){}
+          syncSound();
+          const live=document.getElementById('btnMuteLive');
+          if(live)live.textContent=(sound.textContent.indexOf('ACTIVAR')>=0?'🔇':'🔊');
+        });
+      }
+      const full=document.getElementById('pauseFullscreenToggle');
+      if(full)full.addEventListener('click',function(){
+        const fs=document.fullscreenElement||document.webkitFullscreenElement;
+        if(fs){
+          if(document.exitFullscreen)document.exitFullscreen();
+          else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+        }else{
+          const b=document.getElementById('btnFullscreen');
+          if(b)b.click();
+          else{
+            const wrap=document.querySelector('.tech-game-section');
+            if(wrap&&wrap.requestFullscreen)wrap.requestFullscreen().catch(()=>{});
+          }
+        }
+      });
+    }
+  }
+  function refresh(){
+    setupProfessionalControls();
+    const score=document.getElementById('gameScore');
+    const record=document.getElementById('gameRecord');
+    const lives=document.getElementById('gameLives');
+    [score,record,lives].forEach(el=>{
+      if(el && !el.dataset.hudEnhanced){
+        el.dataset.hudEnhanced='1';
+        const observer=new MutationObserver(()=>{el.classList.remove('hud-value-pop');void el.offsetWidth;el.classList.add('hud-value-pop')});
+        observer.observe(el,{childList:true,characterData:true,subtree:true});
+      }
+    });
+  }
+  const style=document.createElement('style');
+  style.textContent='.hud-value-pop{animation:hudValuePop .22s ease-out}@keyframes hudValuePop{0%{transform:scale(1.14)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.hud-value-pop{animation:none}}';
+  document.head.appendChild(style);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);
+  else refresh();
+  /* El panel de pausa se crea desde el script principal; se vuelve a comprobar sin crear intervalos. */
+  window.addEventListener('load',refresh);
 })();
 </script>
 

@@ -12172,7 +12172,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
  function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}if(msg&&window.techNotify&&(/ya existe|no se pudo|no coinciden|contraseña debe|inicia sesión|sesión cerrada/i.test(msg))){window.techNotify(msg,good?'success':'warning','Cuenta TECH RUN');}}
  function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
- function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para poder jugar.');return;}modal.style.display='none';}
+ function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para continuar.');return;}modal.style.display='none';}
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
@@ -12184,7 +12184,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
    $('techAuthTitle').textContent=logged?'Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':next==='register'?'':'Bienvenido a TECH RUN');
    $('techAuthTitle').classList.toggle('ta-hidden',next==='register');
-   $('taLoginSubtitle').textContent=next==='register'?'Crea tu cuenta para continuar':(next==='forgot'||next==='reset'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
+   $('taLoginSubtitle').textContent=next==='register'?'Registra tus datos para crear una cuenta':(next==='forgot'||next==='reset'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
    $('taPassword').placeholder=next==='register'?'Crea una contraseña segura':'Escribe tu contraseña';
    $('taPassword').autocomplete=next==='register'?'new-password':'current-password';
    $('techAuthIntro').textContent='';
@@ -12212,7 +12212,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    try{
      if(!(await usernameAvailable(nick))){status('El usuario "'+nick+'" ya existe. Elige otro.');return;}
      const data=await request('signup','POST',{email,password:pass,data:{username:nick}});
-     if(data.session&&data.session.access_token){saveSession(data.session);status('Cuenta creada. Ya puedes jugar con '+nick+'.',true);setTimeout(close,1000);}
+     if(data.session&&data.session.access_token){saveSession(data.session);status('Cuenta creada correctamente. Usuario: '+nick+'.',true);setTimeout(close,1000);}
      else {setMode('home');$('taEmail').value=email;$('taPassword').value='';status('Cuenta creada. Revisa tu correo para confirmar la cuenta y luego ingresa con tu contraseña.',true);}
    }catch(e){console.error('[TECH RUN Auth] signup',e);status('No se pudo crear la cuenta: '+e.message);}
  }
@@ -12258,8 +12258,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    try{document.querySelectorAll('.game-panel').forEach(function(el){el.style.setProperty('display','none','important');});}catch(e){}
    try{var sp=document.getElementById('startPanel');if(sp)sp.style.setProperty('display','block','important');}catch(e){}
    try{var game=document.querySelector('.tech-game');if(game)game.classList.remove('is-playing');}catch(e){}
-   mode='home';modal.style.display='flex';setMode('home');status('Sesión cerrada. Inicia sesión o crea una cuenta para volver a jugar.',true);
-   if(window.techNotify)window.techNotify('Sesión cerrada. Debes iniciar sesión para volver a jugar.','success','Sesión cerrada');
+   mode='home';modal.style.display='flex';setMode('home');status('Sesión cerrada. Inicia sesión o crea una cuenta para continuar.',true);
+   if(window.techNotify)window.techNotify('Sesión cerrada. Inicia sesión para continuar.','success','Sesión cerrada');
  }
  function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'Cuenta: '+username()+' · Gestionar / salir':'Crear cuenta / Iniciar sesión';}
  $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
@@ -12275,8 +12275,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  // El nombre de la cuenta es el nombre oficial del jugador; no se puede sustituir por otro al iniciar.
  const oldValidate=window.techValidateOnlineUsername;
  window.techValidateOnlineUsername=async function(nick){
-   if(!isLogged())return {ok:false,message:'Inicia sesión o crea una cuenta antes de jugar.'};
-   if(!owns(nick))return {ok:false,message:'Debes jugar con el nombre de tu cuenta: '+username()+'.'};
+   if(!isLogged())return {ok:false,message:'Inicia sesión para continuar.'};
+   if(!owns(nick))return {ok:false,message:'Usa el nombre de tu cuenta: '+username()+'.'};
    return {ok:true};
  };
  // Sin sesión, las teclas de juego no pueden mover/disparar; el foco queda en el acceso.

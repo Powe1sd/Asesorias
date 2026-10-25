@@ -12064,6 +12064,13 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 #techAuthModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at 50% 0%,rgba(66,87,170,.24),transparent 52%),rgba(2,5,13,.86);backdrop-filter:blur(16px);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 #techAuthModal .ta-card{box-sizing:border-box;width:min(100%,430px);max-height:92vh;overflow:auto;background:linear-gradient(160deg,rgba(17,27,49,.98),rgba(7,12,24,.99) 72%);border:1px solid rgba(128,156,220,.24);border-radius:26px;padding:32px;box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 55px rgba(66,103,210,.10),inset 0 1px 0 rgba(255,255,255,.045);color:#f4f7ff;position:relative}
 #techAuthModal .ta-card:before{content:"";display:block;width:52px;height:4px;border-radius:9px;margin:0 0 22px;background:linear-gradient(90deg,#65e4ff,#8b7bff,#b16cff);box-shadow:0 0 18px rgba(113,132,255,.45)}
+#techAuthModal .ta-brand-signature{font-family:"Segoe Script","Brush Script MT","URW Chancery L",cursive;font-style:italic;font-weight:600;font-size:clamp(30px,5vw,39px);line-height:1.15;letter-spacing:.2px;margin:0 0 9px;background:linear-gradient(110deg,#f8fbff 5%,#a8c5ff 48%,#c8a4ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 14px rgba(108,139,255,.18))}
+#techAuthModal .ta-login-subtitle{margin:0 0 19px;color:#9eacc6;font-size:13px;letter-spacing:.2px}
+#techAuthModal #taMainActions{margin-top:20px}
+#techAuthModal #taRegister{background:linear-gradient(135deg,#293c63,#394c7a);border-color:#50658f;color:#f4f7ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+#techAuthModal #taRegister:hover{background:linear-gradient(135deg,#344a75,#465b8c);border-color:#6d83b0}
+#techAuthModal #taLogin{background:linear-gradient(135deg,#526cf0,#7655d9);border-color:#7185ff;color:#fff;box-shadow:0 8px 22px rgba(88,96,230,.2)}
+#techAuthModal #taLogin:hover{background:linear-gradient(135deg,#6179ff,#8968e8)}
 #techAuthModal h2{margin:0 42px 12px 0;color:#f7f9ff;font-size:27px;line-height:1.16;letter-spacing:-.7px;font-weight:850}
 #techAuthModal p{font-size:13px;line-height:1.55;color:#aebbd4}
 #techAuthModal label{display:block;font-size:12px;font-weight:700;letter-spacing:.25px;color:#c6d2e8;margin:15px 0 7px}
@@ -12121,12 +12128,13 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 <div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
  <div class="ta-card">
   <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
-  <h2 id="techAuthTitle">Cuenta TECH RUN</h2>
+  <h2 id="techAuthTitle">Bienvenido a TECH RUN</h2>
+  <p class="ta-login-subtitle" id="taLoginSubtitle">Ingresar con correo y contraseña</p>
   <p id="techAuthIntro" hidden></p>
   <form id="techAuthForm" autocomplete="on">
    <div id="taUsernameWrap"><label for="taUsername">Nombre de usuario (3–10 caracteres)</label><input id="taUsername" name="username" minlength="3" maxlength="10" pattern="[A-Za-z0-9_]{3,10}" autocomplete="username" placeholder="Ej. T300" /></div>
    <div id="taEmailWrap"><label for="taEmail">Correo electrónico / Gmail</label><input id="taEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="tucorreo@gmail.com" required /></div>
-   <div id="taPasswordWrap"><label for="taPassword">Contraseña (mínimo 8 caracteres)</label><input id="taPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Crea una contraseña" /></div>
+   <div id="taPasswordWrap"><label for="taPassword">Contraseña</label><input id="taPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Crea una contraseña" /></div>
    <div id="taConfirmWrap"><label for="taConfirm">Repite la contraseña</label><input id="taConfirm" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la contraseña" /></div>
    <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Código de recuperación" /></div>
    <div id="taNewPasswordWrap" class="ta-hidden"><label for="taNewPassword">Nueva contraseña</label><input id="taNewPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Nueva contraseña" /></div>
@@ -12168,13 +12176,17 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
-   show('taUsernameWrap',next==='register'||next==='home');show('taEmailWrap',!logged);show('taPasswordWrap',next==='register'||next==='home'||next==='login');show('taConfirmWrap',next==='register');
+   show('taUsernameWrap',next==='register');show('taEmailWrap',!logged);show('taPasswordWrap',next==='register'||next==='home'||next==='login');show('taConfirmWrap',next==='register');
    show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset');show('taNewConfirmWrap',next==='reset');
    show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset');
    show('taSendCode',next==='forgot');show('taResetPassword',next==='reset');
    show('taForgot',!logged&&next!=='forgot'&&next!=='reset');show('taBack',next!=='home'&&next!=='logged');show('taLogout',logged);
    $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
-   $('techAuthTitle').textContent=logged?'✅ Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':'Cuenta TECH RUN');
+   $('techAuthTitle').textContent=logged?'Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':next==='register'?'':'Bienvenido a TECH RUN');
+   $('techAuthTitle').classList.toggle('ta-hidden',next==='register');
+   $('taLoginSubtitle').textContent=next==='register'?'Crea tu cuenta para continuar':(next==='forgot'||next==='reset'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
+   $('taPassword').placeholder=next==='register'?'Crea una contraseña segura':'Escribe tu contraseña';
+   $('taPassword').autocomplete=next==='register'?'new-password':'current-password';
    $('techAuthIntro').textContent='';
    $('taPassword').required=(next==='register'||next==='home'||next==='login');$('taConfirm').required=next==='register';
    $('taNewPassword').required=next==='reset';$('taNewConfirm').required=next==='reset';$('taCode').required=next==='reset';
@@ -12201,7 +12213,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
      if(!(await usernameAvailable(nick))){status('El usuario "'+nick+'" ya existe. Elige otro.');return;}
      const data=await request('signup','POST',{email,password:pass,data:{username:nick}});
      if(data.session&&data.session.access_token){saveSession(data.session);status('Cuenta creada. Ya puedes jugar con '+nick+'.',true);setTimeout(close,1000);}
-     else {setMode('login');$('taEmail').value=email;status('Cuenta creada. Revisa tu correo para confirmar la cuenta y después inicia sesión.',true);}
+     else {setMode('home');$('taEmail').value=email;$('taPassword').value='';status('Cuenta creada. Revisa tu correo para confirmar la cuenta y luego ingresa con tu contraseña.',true);}
    }catch(e){console.error('[TECH RUN Auth] signup',e);status('No se pudo crear la cuenta: '+e.message);}
  }
  async function login(){
@@ -12253,8 +12265,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
  $('techAuthClose').addEventListener('click',close);
  modal.addEventListener('click',e=>{if(e.target===modal)close();});
- $('taRegister').addEventListener('click',()=>{if(mode==='home')setMode('register');else register();});
- $('taLogin').addEventListener('click',()=>{if(mode==='home')setMode('login');else login();});
+ $('taRegister').addEventListener('click',()=>{if(mode!=='register')setMode('register');else register();});
+ $('taLogin').addEventListener('click',()=>{if(mode==='register')return;login();});
  $('taForgot').addEventListener('click',()=>setMode('forgot'));
  $('taSendCode').addEventListener('click',sendCode);
  $('taResetPassword').addEventListener('click',resetPassword);
@@ -12299,8 +12311,11 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('Sesión cerrada. Inicia sesión para continuar.');}});
  try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión para continuar.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
  // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
- document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();});
- if(document.readyState==='interactive'||document.readyState==='complete')setTimeout(restorePersistentSession,0);
+ if(document.readyState==='loading'){
+   document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();},{once:true});
+ }else{
+   restorePersistentSession();
+ }
 })();
 </script>
 

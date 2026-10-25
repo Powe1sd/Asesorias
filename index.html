@@ -5443,18 +5443,59 @@ if(e.key==="ArrowLeft")keys.left=false;if(e.key==="ArrowRight")keys.right=false;
 if(e.key===" "||e.code==="Space")isShooting=false});
 
 function pollGamepad(){
-const pads=navigator.getGamepads?navigator.getGamepads():[];let gp=null;
-for(let i=0;i<pads.length;i++)if(pads[i]){gp=pads[i];break}if(!gp)return;
-const dead=.22;let ax=gp.axes[0]||0,ay=gp.axes[1]||0;
-if(Math.abs(ax)<dead)ax=0;if(Math.abs(ay)<dead)ay=0;
-if(gp.buttons[12]&&gp.buttons[12].pressed)ay=-1;if(gp.buttons[13]&&gp.buttons[13].pressed)ay=1;
-if(gp.buttons[14]&&gp.buttons[14].pressed)ax=-1;if(gp.buttons[15]&&gp.buttons[15].pressed)ax=1;
-if(ax||ay){const reach=70*sensPad;mouse.x=player.x+ax*reach;mouse.y=player.y+ay*reach}
-const fireBtn=[0,1,2,3,5,7].some(i=>gp.buttons[i]&&gp.buttons[i].pressed);
-if(fireBtn)isShooting=true;else if(pollGamepad._wasFire)isShooting=false;
-pollGamepad._wasFire=fireBtn;
-if(gp.buttons[9]&&gp.buttons[9].pressed){if(!pollGamepad._h){pollGamepad._h=true;if(gameRunning)togglePause()}}else pollGamepad._h=false
-if((gp.buttons[1]&&gp.buttons[1].pressed)||(gp.buttons[4]&&gp.buttons[4].pressed)){if(!pollGamepad._d){pollGamepad._d=true;doDash()}}else pollGamepad._d=false}
+  /* Compatibilidad ampliada con mandos PS3/DirectInput y mandos estándar */
+  const pads=(navigator.getGamepads&&navigator.getGamepads())||[];
+  let gp=null;
+  for(let i=0;i<pads.length;i++){
+    if(pads[i]&&pads[i].connected!==false){gp=pads[i];break;}
+  }
+  if(!gp){
+    if(pollGamepad._wasFire){pollGamepad._wasFire=false;}
+    return;
+  }
+  const pressed=(i)=>!!(gp.buttons[i]&&gp.buttons[i].pressed);
+  const axis=(i)=>Number.isFinite(gp.axes[i])?gp.axes[i]:0;
+  const dead=.20;
+  let ax=axis(0), ay=axis(1);
+  /* Algunos adaptadores de PS3 exponen el stick izquierdo en los ejes 2/3. */
+  if(Math.hypot(ax,ay)<dead && Math.hypot(axis(2),axis(3))>dead){ax=axis(2);ay=axis(3);}
+  if(Math.abs(ax)<dead)ax=0;
+  if(Math.abs(ay)<dead)ay=0;
+  /* Cruceta estándar y variantes habituales de mandos PS3. */
+  if(pressed(12)||pressed(hatIndexUp()))ay=-1;
+  if(pressed(13)||pressed(hatIndexDown()))ay=1;
+  if(pressed(14)||pressed(hatIndexLeft()))ax=-1;
+  if(pressed(15)||pressed(hatIndexRight()))ax=1;
+  if(ax||ay){
+    /* Movimiento MUY lento para PS3: poco alcance y velocidad limitada. */
+    const mag=Math.hypot(ax,ay)||1;
+    if(mag>1){ax/=mag;ay/=mag;}
+    const reach=32;
+    mouse.x=player.x+ax*reach;
+    mouse.y=player.y+ay*reach;
+    touchDriving=true;
+    pollGamepad._moving=true;
+  }else{
+    pollGamepad._moving=false;
+    touchDriving=false;
+    mouse.x=player.x;
+    mouse.y=player.y;
+  }
+  /* En PS3 el botón de disparo puede reportarse como X/Cuadrado/R1/R2
+     según navegador y adaptador; aceptar botones frontales y gatillos. */
+  const fireBtn=[0,1,2,3,5,7,8,10,11].some(pressed);
+  if(fireBtn){isShooting=true;touchDriving=true;}
+  else if(pollGamepad._wasFire){isShooting=false;}
+  pollGamepad._wasFire=fireBtn;
+  if(pressed(9)){if(!pollGamepad._h){pollGamepad._h=true;if(gameRunning)togglePause();}}
+  else pollGamepad._h=false;
+  if(pressed(1)||pressed(4)||pressed(5)){if(!pollGamepad._d){pollGamepad._d=true;doDash();}}
+  else pollGamepad._d=false;
+}
+function hatIndexUp(){return 16;}
+function hatIndexDown(){return 17;}
+function hatIndexLeft(){return 18;}
+function hatIndexRight(){return 19;}
 
 function generateMeteorPoints(size){const pts=[],n=8+Math.floor(Math.random()*5);for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2+(Math.random()-.5)*.15,r=size*(.45+Math.random()*.55);pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r})}return pts}
 
@@ -8736,8 +8777,9 @@ if(bazooka>0&&isShooting&&Math.random()<.06){bazooka--;fireBazooka()}
 const keyDrive=typeof keys!=="undefined"&&(keys.left||keys.right||keys.up||keys.down);
 /* Disparar también cuenta como control: no retrocede al mantener FIRE */
 const controlling=touchDriving||stickActive||canvasShootId!==null||keyDrive||isShooting||fireTouchId!==null;
-const baseSmooth=stickActive||touchDriving?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34);
-const smooth=Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive||touchDriving?Math.max(sensPad,0.35):sensMouse)+0.15)));
+const _ps3Slow=!!(typeof pollGamepad!=='undefined'&&pollGamepad._moving);
+const baseSmooth=_ps3Slow?0.12:(stickActive||touchDriving?(overdrive>0?0.7:0.58):(overdrive>0?0.4:0.34));
+const smooth=_ps3Slow?0.12:Math.min(0.82,baseSmooth*Math.max(1,Math.min(1.6,(stickActive||touchDriving?Math.max(sensPad,0.35):sensMouse)+0.15)));
 const _psb=(typeof playerSpeedBonus==='function')?playerSpeedBonus():1;player.x+=(mouse.x-player.x)*smooth*_psb;player.y+=(mouse.y-player.y)*smooth*_psb;
 /* Solo al SOLTAR (ni mover ni disparar): retrocede */
 if(!controlling){

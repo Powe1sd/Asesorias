@@ -1123,6 +1123,106 @@ input:focus,textarea:focus,select:focus{
 }
 .touch-pad.layout-stacked .touch-mid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));max-width:100%}
 
+
+
+/* === Ajuste solicitado: ventana principal sin scroll exterior === */
+html, body {
+  width:100%; height:100%; height:100dvh;
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+}
+body { min-height:0 !important; }
+.tech-game-section {
+  height:100vh; height:100dvh;
+  max-height:100vh; max-height:100dvh;
+  margin:0 auto !important;
+  padding:8px 12px !important;
+  display:flex; flex-direction:column; gap:6px;
+  overflow:hidden !important;
+}
+.tech-game {
+  flex:1 1 auto;
+  min-height:0 !important;
+  height:auto !important;
+  max-height:calc(100dvh - 190px);
+}
+/* El menú conserva su propio scroll para llegar a los demás modos de juego. */
+#startPanel {
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  max-height:92% !important;
+  scrollbar-width:thin !important;
+}
+/* Los controles táctiles se reorganizan y aumentan de tamaño; pausa queda arriba del juego. */
+.touch-pad {
+  flex:0 0 auto;
+  margin:4px auto 0 !important;
+  padding:0 4px !important;
+  max-height:36dvh !important;
+  overflow:visible !important;
+}
+.touch-pad-inner {
+  display:grid !important;
+  grid-template-columns:minmax(92px,1fr) minmax(150px,1.35fr) minmax(82px,.9fr) !important;
+  align-items:center !important;
+  justify-content:stretch !important;
+  gap:clamp(6px,1.5vw,14px) !important;
+  padding:8px !important;
+}
+.touch-move-pad {
+  width:clamp(100px,17vw,150px) !important;
+  height:clamp(100px,17vw,150px) !important;
+  max-width:100% !important;
+}
+.touch-mid {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:7px !important;
+  width:100% !important;
+  max-width:none !important;
+}
+.touch-util, .touch-special {
+  width:100% !important;
+  min-width:0 !important;
+  min-height:clamp(42px,6.5vh,58px) !important;
+  height:auto !important;
+  padding:6px 4px !important;
+  border-radius:11px !important;
+  font-size:clamp(10px,1.3vw,13px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:3px !important;
+}
+.touch-util .tu-ico {font-size:clamp(17px,2.4vw,23px) !important;line-height:1.1}
+.touch-util .tu-lab {font-size:clamp(8px,1vw,10px) !important;line-height:1.15}
+.touch-fire {
+  width:clamp(76px,12vw,108px) !important;
+  height:clamp(76px,12vw,108px) !important;
+  max-width:100% !important;
+  font-size:clamp(12px,1.8vw,16px) !important;
+}
+#touchPause {display:none !important}
+@media(max-width:600px), (pointer:coarse) {
+  .tech-game-section {padding:5px 6px !important;gap:4px !important}
+  .tech-game {max-height:54dvh !important;min-height:0 !important}
+  .touch-pad {max-height:40dvh !important}
+  .touch-pad-inner {
+    grid-template-columns:minmax(82px,.9fr) minmax(130px,1.35fr) minmax(68px,.7fr) !important;
+    gap:5px !important;padding:5px 2px !important;
+  }
+  .touch-move-pad {width:clamp(82px,25vw,112px) !important;height:clamp(82px,25vw,112px) !important}
+  .touch-mid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:5px !important}
+  .touch-util,.touch-special {min-height:clamp(36px,5.2vh,47px) !important;padding:4px 2px !important}
+  .touch-util .tu-ico {font-size:17px !important}
+  .touch-util .tu-lab {font-size:8px !important}
+  .touch-fire {width:clamp(64px,19vw,84px) !important;height:clamp(64px,19vw,84px) !important;font-size:12px !important}
+  .touch-pad .goku-forms {gap:3px !important;padding:3px 2px !important}
+  .touch-pad .goku-form-btn {padding:4px 6px !important;font-size:9px !important}
+}
+
 </style>
 
 <style id="tech-statistics-styles">
@@ -1861,7 +1961,6 @@ body::-webkit-scrollbar {
       </div>
     </div>
     <div class="touch-mid" id="touchPowersGrid" aria-label="Poderes">
-      <button type="button" class="touch-util" id="touchPause" title="Pausa"><span class="tu-ico">⏸</span><span class="tu-lab">PAUSA</span></button>
       <button type="button" class="touch-util" id="touchPowerMode" title="Poderes auto/manual"><span class="tu-ico">⚙</span><span class="tu-lab">AUTO</span></button>
       <button type="button" class="touch-util" id="touchSpecial" title="Poder especial"><span class="tu-ico">⚡</span><span class="tu-lab">PODER</span></button>
       <button type="button" class="touch-util" id="touchDash" title="Dash / esquivar"><span class="tu-ico">💨</span><span class="tu-lab">DASH</span></button>
@@ -2824,13 +2923,6 @@ function getConfigHTML(){
 <option value="zh" ${lang==="zh"?"selected":""}>中文</option>
 <option value="pt" ${lang==="pt"?"selected":""}>Português</option>
 </select>
-<p style="color:#FFCD00;font-size:11px;margin:10px 0 2px">${T("touchLayout")}</p>
-<select id="touchLayoutSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
-<option value="left" ${touchLayout==="left"?"selected":""}>${T("layoutLeft")}</option>
-<option value="right" ${touchLayout==="right"?"selected":""}>${T("layoutRight")}</option>
-<option value="stacked" ${touchLayout==="stacked"?"selected":""}>${T("layoutStacked")}</option>
-</select>
-<p style="color:#888;font-size:10px;margin:4px 0 8px">${T("layoutHint")}</p>
 <p style="color:#FFCD00;font-size:11px;margin:10px 0 4px">${T("powerMode")}</p>
 <select id="powerModeSelect" style="width:90%;padding:6px;border-radius:6px;background:#111;color:#fff;border:1px solid #444">
 <option value="auto" ${powerMode==="auto"?"selected":""}>${T("powerAuto")}</option>
@@ -11100,9 +11192,12 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
         const sc = Number(r.record != null ? r.record : 0) || 0;
         const rawNave = r['nombre-nave'] != null ? r['nombre-nave'] : (r.nombre_nave != null ? r.nombre_nave : null);
         const nave = (rawNave != null && String(rawNave).trim() !== '') ? String(rawNave) : ('Nave #' + (r.id != null ? r.id : (i+1)));
+        let fecha = '';
+        try{ if(r.created_at) fecha = new Date(r.created_at).toLocaleString('es-CO'); }catch(e){}
         const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':((i+1)+'.');
-        return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
+        return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)">'
           + '<span><b style="color:#5de5ff">'+medal+'</b> '+nave.replace(/</g,'&lt;')
+          + (fecha ? '<br><small style="color:#889">'+fecha+'</small>' : '')
           + '</span>'
           + '<b style="color:#FFCD00;white-space:nowrap">'+sc.toLocaleString('es-CO')+' pts</b></div>';
       }).join('');

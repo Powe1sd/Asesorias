@@ -2279,6 +2279,50 @@ let scenario=1,scenarioTransition=0,scenarioMsg="";
 const METEOR_DURATION=18*60,WARNING_DURATION=1.5*60; /* oleada cada 18 s */
 let ammo=100,shield=0,bounceShield=0,rapidFire=0,tripleShot=0,slowMo=0,laser=0,pierce=0,invisible=0,magnet=0,missilePower=0,allyPower=0,storm=0,overdrive=0,nova=0,reflect=0,burst=0,repair=0,freezeEnemies=0,barrier=0,bazooka=0,vortex=0,ion=0,emp=0,laserGrace=0,specialCharges=3,powersCollected=0,lives=1,powerMode=lsGet("techPowerMode","auto"),coins=Number(lsGet("techCoinsV2",lsGet("techCoins",0)))||0,ownedWeapons=(function(){try{var w=JSON.parse(lsGet('techWeapons','["basic"]'));return Array.isArray(w)?w:['basic']}catch(e){return['basic']}})(),currentWeapon=lsGet('techWeapon','basic')||'basic';
 let showGokuFormsBar=lsGet("techShowForms","1")!=="0";
+window.showMinimap=lsGet("techShowMinimap","1")!=="0";
+window.showOnlineRank=lsGet("techShowOnlineRank","1")!=="0";
+/* alias locales para el resto del código */
+var showMinimap=window.showMinimap;
+var showOnlineRank=window.showOnlineRank;
+window.__hudHit={map:null,rank:null};
+function syncHudFlagsFromWindow(){
+  showMinimap=!!window.showMinimap;
+  showOnlineRank=!!window.showOnlineRank;
+}
+function setShowMinimap(v){
+  window.showMinimap=!!v; showMinimap=window.showMinimap;
+  lsSet("techShowMinimap",showMinimap?"1":"0");
+  try{refreshHudToggleIcons()}catch(e){}
+}
+function setShowOnlineRank(v){
+  window.showOnlineRank=!!v; showOnlineRank=window.showOnlineRank;
+  lsSet("techShowOnlineRank",showOnlineRank?"1":"0");
+  try{refreshHudToggleIcons()}catch(e){}
+}
+function refreshHudToggleIcons(){
+  try{
+    syncHudFlagsFromWindow();
+    const bm=document.getElementById("btnToggleMap");
+    if(bm){
+      bm.textContent=showMinimap?"MAP":"MAP";
+      bm.title=showMinimap?"Ocultar radar/mapa":"Mostrar radar/mapa";
+      bm.style.opacity=showMinimap?"1":"0.45";
+      bm.style.background=showMinimap?"rgba(0,80,140,.85)":"rgba(40,40,40,.75)";
+      bm.style.outline=showMinimap?"1px solid #5de5ff":"1px solid #666";
+    }
+    const br=document.getElementById("btnToggleRank");
+    if(br){
+      br.textContent=showOnlineRank?"TOP":"TOP";
+      br.title=showOnlineRank?"Ocultar ranking online":"Mostrar ranking online";
+      br.style.opacity=showOnlineRank?"1":"0.45";
+      br.style.background=showOnlineRank?"rgba(120,80,0,.85)":"rgba(40,40,40,.75)";
+      br.style.outline=showOnlineRank?"1px solid #FFCD00":"1px solid #666";
+    }
+    const cm=document.getElementById("showMinimapToggle");if(cm)cm.checked=!!showMinimap;
+    const cr=document.getElementById("showOnlineRankToggle");if(cr)cr.checked=!!showOnlineRank;
+  }catch(e){}
+}
+
 let shootCooldown=55;
 const player={x:300,y:300,size:13};
 const mouse={x:300,y:300};
@@ -3071,6 +3115,15 @@ function getConfigHTML(){
 <option value="manual" ${powerMode==="manual"?"selected":""}>${T("powerManual")}</option>
 </select>
 <p style="color:#888;font-size:10px;margin-top:8px">${T("pcHint")}</p>
+<hr style="border:none;border-top:1px solid rgba(255,205,0,.25);margin:12px 0">
+<p style="color:#FFCD00;font-size:12px;margin:4px 0 6px">🖥️ Interfaz en partida</p>
+<label style="display:block;margin:8px 0;color:#ddd;font-size:12px;cursor:pointer">
+<input type="checkbox" id="showMinimapToggle" ${showMinimap?"checked":""} style="accent-color:#00C8FF"> Mostrar radar / mapa
+</label>
+<label style="display:block;margin:8px 0;color:#ddd;font-size:12px;cursor:pointer">
+<input type="checkbox" id="showOnlineRankToggle" ${showOnlineRank?"checked":""} style="accent-color:#FFCD00"> Mostrar ranking online (modo 🌐)
+</label>
+<p style="color:#888;font-size:10px;margin:4px 0 8px">También puedes ocultarlos o mostrarlos en partida con los botones 🗺️ y 🏆 (izquierda).</p>
 <button class="game-btn" id="btnManual" style="margin-top:10px;width:90%">${T("manual")}</button>
 <button class="game-btn" id="closeConfig">${T("save")}</button>`;
 }
@@ -4410,6 +4463,13 @@ const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;t
 btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
 const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
+const btnToggleMap=mk("btnToggleMap","MAP","Ocultar radar/mapa","position:absolute;top:44px;left:8px;z-index:120;width:36px;height:28px;border:none;border-radius:8px;background:rgba(0,80,140,.85);color:#fff;font-size:10px;font-weight:800;cursor:pointer;display:none;line-height:1;font-family:Orbitron,sans-serif;pointer-events:auto");
+btnToggleMap.onclick=function(e){try{e.preventDefault();e.stopPropagation()}catch(_){}
+  setShowMinimap(!window.showMinimap);};
+const btnToggleRank=mk("btnToggleRank","TOP","Ocultar ranking online","position:absolute;top:76px;left:8px;z-index:120;width:36px;height:28px;border:none;border-radius:8px;background:rgba(120,80,0,.85);color:#FFCD00;font-size:10px;font-weight:800;cursor:pointer;display:none;line-height:1;font-family:Orbitron,sans-serif;pointer-events:auto");
+btnToggleRank.onclick=function(e){try{e.preventDefault();e.stopPropagation()}catch(_){}
+  setShowOnlineRank(!window.showOnlineRank);};
+try{refreshHudToggleIcons()}catch(e){}
 /* Cuadro para ocultar / mostrar barra de transformaciones Goku */
 const btnForms=mk("btnToggleForms","▼","Ocultar transformaciones","position:absolute;bottom:42px;left:50%;transform:translateX(-50%);z-index:30;width:34px;height:28px;border:1px solid rgba(255,205,0,.5);border-radius:6px;background:rgba(0,20,50,.9);color:#FFCD00;font-size:12px;font-weight:700;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;box-shadow:0 0 8px rgba(0,0,0,.35)");
 btnForms.onclick=()=>{
@@ -4444,6 +4504,10 @@ const gy=document.getElementById("gyroToggle");if(gy)gy.onchange=()=>{gyroOn=gy.
   if(typeof DeviceOrientationEvent.requestPermission==="function"){DeviceOrientationEvent.requestPermission().then(s=>{if(s==="granted")en()}).catch(()=>{})}
   else en();
 }};
+const smt=document.getElementById("showMinimapToggle");
+if(smt)smt.onchange=()=>{setShowMinimap(smt.checked)};
+const srt=document.getElementById("showOnlineRankToggle");
+if(srt)srt.onchange=()=>{setShowOnlineRank(srt.checked)};
 const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{if(typeof window.setLanguage==="function")window.setLanguage(ls.value);else{lang=ls.value;lsSet("techLang",lang);applyUILanguage();}};
 const tls=document.getElementById("touchLayoutSelect");
 if(tls){tls.value=touchLayout||"left";tls.onchange=()=>{touchLayout=tls.value;lsSet("techTouchLayout",touchLayout);applyTouchLayout()}};
@@ -4467,7 +4531,7 @@ const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>s
 document.getElementById("closeConfig").onclick=()=>{
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
-  lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);try{applyTouchLayout();applyUILanguage()}catch(e){}
+  lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);lsSet("techShowMinimap",window.showMinimap?"1":"0");lsSet("techShowOnlineRank",window.showOnlineRank?"1":"0");try{applyTouchLayout();applyUILanguage();refreshHudToggleIcons()}catch(e){}
   cfg.classList.remove("config-panel-open");cfg.style.setProperty("display","none","important");
   const wasConfiguringDuringGame=!!window.__configOpenedFromPause;
   window.__configOpenedFromPause=false;
@@ -5052,7 +5116,19 @@ canvas.addEventListener("mousemove",e=>{
   mouse.x=player.x+(tx-player.x)*k;
   mouse.y=player.y+(ty-player.y)*k;
 });
-canvas.addEventListener("mousedown",()=>{if(!gamePaused&&gameRunning){isShooting=true;lastShot=0;shoot()}});
+canvas.addEventListener("mousedown",function(ev){
+  try{
+    if(gameRunning&&!gamePaused&&window.__hudHit){
+      const r=canvas.getBoundingClientRect();
+      const sx=canvas.width/Math.max(1,r.width), sy=canvas.height/Math.max(1,r.height);
+      const cx=(ev.clientX-r.left)*sx, cy=(ev.clientY-r.top)*sy;
+      const hit=function(box){return box&&cx>=box.x&&cx<=box.x+box.w&&cy>=box.y&&cy<=box.y+box.h};
+      if(hit(window.__hudHit.rank)){setShowOnlineRank(false);return}
+      if(hit(window.__hudHit.map)){setShowMinimap(false);return}
+    }
+  }catch(e){}
+  if(!gamePaused&&gameRunning){isShooting=true;lastShot=0;shoot()}
+});
 canvas.addEventListener("mouseup",()=>{isShooting=false});
 canvas.addEventListener("mouseleave",()=>{isShooting=false});
 window.addEventListener("mouseup",()=>{isShooting=false});
@@ -5068,6 +5144,18 @@ function setAimFromTouch(t){
   mouse.y=fingerY-offset;
 }
 canvas.addEventListener("touchstart",e=>{
+  try{
+    if(gameRunning&&!gamePaused&&window.__hudHit&&e.touches&&e.touches[0]){
+      const t=e.touches[0];
+      const r=canvas.getBoundingClientRect();
+      const sx=canvas.width/Math.max(1,r.width), sy=canvas.height/Math.max(1,r.height);
+      const cx=(t.clientX-r.left)*sx, cy=(t.clientY-r.top)*sy;
+      const hit=function(box){return box&&cx>=box.x&&cx<=box.x+box.w&&cy>=box.y&&cy<=box.y+box.h};
+      if(hit(window.__hudHit.rank)){e.preventDefault();setShowOnlineRank(false);return}
+      if(hit(window.__hudHit.map)){e.preventDefault();setShowMinimap(false);return}
+    }
+  }catch(err){}
+
   if(!e.touches.length||gamePaused)return;
   if(e.target.closest&&e.target.closest(".touch-pad"))return;
   const t=e.changedTouches[0]||e.touches[0];
@@ -7990,24 +8078,27 @@ let hx=P(78);pows.forEach(([lab,col])=>{ctx.fillStyle=col;ctx.fillText(lab,hx,ca
 /* ===== Mini mapa (radar) ===== */
 function drawMinimap(){
   try{
+    if(window.showMinimap===false){try{window.__hudHit.map=null}catch(e){}return;}
     const mob=(typeof isMobile==="function"?isMobile():false)||(canvas.clientWidth||canvas.width)<500;
     const mw=mob?72:96, mh=mob?96:128;
     const pad=mob?6:10;
     const mx=canvas.width-mw-pad;
     const my=pad+(mob?28:30);
+    try{window.__hudHit.map={x:mx,y:my,w:mw,h:mh}}catch(e){}
     const scaleX=mw/Math.max(1,canvas.width);
     const scaleY=mh/Math.max(1,canvas.height);
-    /* fondo */
+    /* fondo más transparente para ver poderes detrás */
     ctx.save();
-    ctx.globalAlpha=0.88;
-    ctx.fillStyle="rgba(0,8,20,.72)";
-    ctx.strokeStyle="rgba(255,205,0,.45)";
-    ctx.lineWidth=1.5;
+    ctx.globalAlpha=0.42;
+    ctx.fillStyle="rgba(0,8,20,.55)";
+    ctx.strokeStyle="rgba(255,205,0,.35)";
+    ctx.lineWidth=1.2;
     ctx.beginPath();
     if(ctx.roundRect){ctx.roundRect(mx,my,mw,mh,6)}else{ctx.rect(mx,my,mw,mh)}
     ctx.fill();ctx.stroke();
+    ctx.globalAlpha=0.55;
     /* borde interior */
-    ctx.strokeStyle="rgba(0,160,233,.25)";
+    ctx.strokeStyle="rgba(0,160,233,.22)";
     ctx.strokeRect(mx+2,my+2,mw-4,mh-4);
     /* título */
     ctx.globalAlpha=1;
@@ -8767,7 +8858,7 @@ gameOverPanel.style.setProperty("display","none","important");
 const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","10px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
-const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="block";try{window.refreshMuteLiveIcon()}catch(e){}}
+const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="block";try{window.refreshMuteLiveIcon()}catch(e){}}try{const btm=document.getElementById("btnToggleMap");if(btm)btm.style.display="block";const btr=document.getElementById("btnToggleRank");if(btr)btr.style.display="block";refreshHudToggleIcons()}catch(e){}
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
 score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;phaseShift=0;railgun=0;lootVacuum=0;orbitalMines=[];decoys=[];chainFX=[];ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
@@ -8796,7 +8887,7 @@ try{startLoopWatchdog()}catch(e){}
 function endGame(){try{stopLoopWatchdog()}catch(e){}
 if(!gameRunning)return;gameRunning=false;gamePaused=false;cancelAnimationFrame(animationFrame);
 try{stopEngineSound()}catch(e){} try{if(typeof playSfx==="function")playSfx("gameover")}catch(e){}
-const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
+const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";try{const btm=document.getElementById("btnToggleMap");if(btm)btm.style.display="none";const btr=document.getElementById("btnToggleRank");if(btr)btr.style.display="none"}catch(e){}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 if(finalScoreElement)finalScoreElement.textContent=score;saveRecord();try{saveCurrentMatchToHistory();}catch(e){console.error("Error guardando la partida:",e)}try{if(typeof renderStart==="function")renderStart()}catch(e){}pushRanking(score);
 checkAchievements();
@@ -8844,7 +8935,7 @@ function goToStartMenu(){
     if(el.classList)el.classList.remove("show","pause-open","config-panel-open");
   });
   const cfgPanel=document.getElementById("configPanel");if(cfgPanel)cfgPanel.hidden=false;
-  ["btnPause","btnRestartLive","btnMuteLive","btnConfig"].forEach(function(id){const el=document.getElementById(id);if(el)el.style.setProperty("display","none","important")});
+  ["btnPause","btnRestartLive","btnMuteLive","btnConfig","btnToggleMap","btnToggleRank"].forEach(function(id){const el=document.getElementById(id);if(el)el.style.setProperty("display","none","important")});
   const start=document.getElementById("startPanel");if(start)start.style.setProperty("display","block","important");
   window.__configOpenedFromPause=false;
   /* Normalizar el contexto 2D para que una animación interrumpida no lo deje transformado. */
@@ -9215,6 +9306,8 @@ function completeStoryMission(ok){
     const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
     const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
     const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
+    const btm=document.getElementById("btnToggleMap");if(btm)btm.style.display="none";
+    const btr=document.getElementById("btnToggleRank");if(btr)btr.style.display="none";
   }catch(e){}
   showStoryResultPanel(ok);
 }
@@ -11502,6 +11595,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   }
 
   window.drawOnlineLeaderboard = function(){
+    if(window.showOnlineRank===false){try{window.__hudHit.rank=null}catch(e){} return;}
     if(!onlineActive()) return;
     if(typeof ctx==='undefined'||!ctx||typeof canvas==='undefined'||!canvas) return;
     ensureRefresh();
@@ -11518,18 +11612,19 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     var h = titleH + padY*2 + rows.length*rowH + P(16);
     var x = P(mob?6:10);
     var y = P(mob?30:34);
+    try{window.__hudHit.rank={x:x,y:y,w:w,h:h}}catch(e){}
 
     ctx.save();
-    /* panel estilo Slither */
-    ctx.globalAlpha = 0.82;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    /* panel estilo Slither — más transparente para ver el juego/poderes */
+    ctx.globalAlpha = 0.38;
+    ctx.fillStyle = 'rgba(0,0,0,0.50)';
     if(ctx.roundRect){
       ctx.beginPath();ctx.roundRect(x,y,w,h,8);ctx.fill();
     }else{
       ctx.fillRect(x,y,w,h);
     }
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
     ctx.lineWidth = 1;
     if(ctx.roundRect){
       ctx.beginPath();ctx.roundRect(x,y,w,h,8);ctx.stroke();

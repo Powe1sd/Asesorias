@@ -5415,6 +5415,7 @@ canvas.addEventListener("touchcancel",e=>{canvasShootId=null;if(fireTouchId===nu
 })();
 
 document.addEventListener("keydown",e=>{
+  if(e.target && (e.target.matches("input, textarea, select") || e.target.isContentEditable)) return;
 if((e.key==="Shift"||e.key==="x"||e.key==="X")&&gameRunning&&!gamePaused){doDash();e.preventDefault()}
 if((e.key==="c"||e.key==="C")&&gameRunning&&!gamePaused){activatePlayerShield();e.preventDefault()}
 if((e.key==="t"||e.key==="T")&&gameRunning&&!gamePaused){teleportWorld();e.preventDefault()}
@@ -9105,6 +9106,7 @@ startButton.addEventListener("click",validateUsernameBeforeStart);
 restartButton.addEventListener("click",startGame);
 continueButton.addEventListener("click",continueToSite);
 document.addEventListener("keydown",function(e){
+  if(e.target && (e.target.matches("input, textarea, select") || e.target.isContentEditable)) return;
   if((e.key==="g"||e.key==="G")&&gameRunning&&!gamePaused){useSpecialPower();e.preventDefault()}
 });
 
@@ -11665,21 +11667,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     return requestedLimit === Infinity ? allRows : allRows.slice(0, requestedLimit);
   };
 
-  /* Contraste fijo del panel de clasificación: evita texto y botones blancos sobre fondo claro. */
-  if(!document.getElementById('tech-online-ranking-contrast-fix')){
-    const fix = document.createElement('style');
-    fix.id = 'tech-online-ranking-contrast-fix';
-    fix.textContent = `
-      #onlineRankingPanel{background:linear-gradient(160deg,#101b2d 0%,#07101f 100%) !important;color:#eaf2ff !important;border:1px solid rgba(93,229,255,.55) !important;box-shadow:0 18px 50px rgba(0,0,0,.65) !important;}
-      #onlineRankingPanel h2,#onlineRankingPanel p,#onlineRankingPanel span,#onlineRankingPanel small{color:#eaf2ff;}
-      #onlineRankingPanel #onlineRankList{color:#eaf2ff !important;}
-      #onlineRankingPanel #onlineRankClose{background:linear-gradient(135deg,#263449,#172235) !important;color:#fff !important;border:1px solid #71839b !important;}
-      #onlineRankingPanel #onlineRankRefresh{background:linear-gradient(135deg,#075985,#123b65) !important;color:#fff !important;border:1px solid #5de5ff !important;}
-      #onlineRankingPanel button{opacity:1 !important;text-shadow:none !important;}
-    `;
-    document.head.appendChild(fix);
-  }
-
   function ensurePanel(){
     let p = document.getElementById('onlineRankingPanel');
     if(p) return p;
@@ -11690,10 +11677,10 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 10px">🏆 Ranking</h2>
-      <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#eaf2ff">Cargando…</div>
+      <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
         <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar lista</button>
-        <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1;background:#263449;color:#fff;border:1px solid #71839b">Cerrar</button>
+        <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1">Cerrar</button>
       </div>`;
     host.appendChild(p);
     p.querySelector('#onlineRankClose').onclick = closePanel;
@@ -12143,7 +12130,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 <div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
  <div class="ta-card">
   <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
-  <h2 id="techAuthTitle">Bienvenido a TECH RUN</h2>
+  <h2 id="techAuthTitle">TECH RUN</h2>
   <p class="ta-login-subtitle" id="taLoginSubtitle">Ingresar con correo y contraseña</p>
   <p id="techAuthIntro" hidden></p>
   <form id="techAuthForm" autocomplete="on">
@@ -12151,7 +12138,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    <div id="taEmailWrap"><label for="taEmail">Correo electrónico / Gmail</label><input id="taEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="tucorreo@gmail.com" required /></div>
    <div id="taPasswordWrap"><label for="taPassword">Contraseña</label><input id="taPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Crea una contraseña" /></div>
    <div id="taConfirmWrap"><label for="taConfirm">Repite la contraseña</label><input id="taConfirm" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la contraseña" /></div>
-   <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Pega aquí el código si recibiste uno" /></div>
+   <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Código de recuperación" /></div>
    <div id="taNewPasswordWrap" class="ta-hidden"><label for="taNewPassword">Nueva contraseña</label><input id="taNewPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Nueva contraseña" /></div>
    <div id="taNewConfirmWrap" class="ta-hidden"><label for="taNewConfirm">Repite la nueva contraseña</label><input id="taNewConfirm" name="newConfirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la nueva contraseña" /></div>
    <div class="ta-actions" id="taMainActions"><button type="button" id="taRegister">Crear usuario</button><button type="button" id="taLogin" class="ta-secondary">Iniciar sesión</button></div>
@@ -12167,11 +12154,10 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  const URL='https://bkfpvwsahffrrkckjfre.supabase.co';
  const KEY='sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
  const PROFILE='perfiles_tech_run';
- const RECOVERY_REDIRECT='https://asesorias-five.vercel.app/';
  const SESSION_KEY='techRunAuthSessionV1';
  const modal=document.getElementById('techAuthModal');
  const $=id=>document.getElementById(id);
- let mode='home', session=null, user=null, recoveryAccessToken=null, guestMode=false;
+ let mode='home', session=null, user=null;
  try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');user=session&&session.user||null;}catch(e){session=null;user=null;}
  function authHeaders(token){return {'apikey':KEY,'Content-Type':'application/json','Accept':'application/json',...(token?{'Authorization':'Bearer '+token}:{'Authorization':'Bearer '+KEY})};}
  async function request(path,method='GET',body=null,token=null,rest=false){
@@ -12188,24 +12174,24 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
  function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}if(msg&&window.techNotify&&(/ya existe|no se pudo|no coinciden|contraseña debe|inicia sesión|sesión cerrada/i.test(msg))){window.techNotify(msg,good?'success':'warning','Cuenta TECH RUN');}}
  function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
- function close(){if(!isLogged()){guestMode=true;modal.style.display='none';status('');if(window.techNotify)window.techNotify('Modo invitado: puedes jugar sin iniciar sesión. Las puntuaciones asociadas a tu cuenta pueden no guardarse.','info','TECH RUN');return;}modal.style.display='none';}
+ function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para continuar.');return;}modal.style.display='none';}
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
    show('taUsernameWrap',next==='register');show('taEmailWrap',!logged);show('taPasswordWrap',next==='register'||next==='home'||next==='login');show('taConfirmWrap',next==='register');
-   show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset'||next==='reset-link');show('taNewConfirmWrap',next==='reset'||next==='reset-link');
-   show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset'||next==='reset-link');
-   show('taSendCode',next==='forgot');show('taResetPassword',next==='reset'||next==='reset-link');
+   show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset');show('taNewConfirmWrap',next==='reset');
+   show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset');
+   show('taSendCode',next==='forgot');show('taResetPassword',next==='reset');
    show('taForgot',!logged&&next!=='forgot'&&next!=='reset');show('taBack',next!=='home'&&next!=='logged');show('taLogout',logged);
    $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
-   $('techAuthTitle').textContent=logged?'Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':next==='register'?'':'Bienvenido a TECH RUN');
+   $('techAuthTitle').textContent=logged?'Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':next==='register'?'':'TECH RUN');
    $('techAuthTitle').classList.toggle('ta-hidden',next==='register');
-   $('taLoginSubtitle').textContent=next==='register'?'Registra tus datos para crear una cuenta':(next==='forgot'||next==='reset'||next==='reset-link'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
+   $('taLoginSubtitle').textContent=next==='register'?'Registra tus datos para crear una cuenta':(next==='forgot'||next==='reset'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
    $('taPassword').placeholder=next==='register'?'Crea una contraseña segura':'Escribe tu contraseña';
    $('taPassword').autocomplete=next==='register'?'new-password':'current-password';
    $('techAuthIntro').textContent='';
    $('taPassword').required=(next==='register'||next==='home'||next==='login');$('taConfirm').required=next==='register';
-   $('taNewPassword').required=next==='reset'||next==='reset-link';$('taNewConfirm').required=next==='reset'||next==='reset-link';$('taCode').required=next==='reset';
+   $('taNewPassword').required=next==='reset';$('taNewConfirm').required=next==='reset';$('taCode').required=next==='reset';
    if(next==='logged'){ $('taEmail').value=(user&&user.email)||''; }
  }
  function currentEmail(){return String($('taEmail').value||'').trim().toLowerCase();}
@@ -12248,45 +12234,21 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  async function sendCode(){
    const email=currentEmail();if(!email){status('Escribe el correo de tu cuenta.');return;}
    status('Enviando código de recuperación…');
-   try{await request('recover?redirect_to='+encodeURIComponent(RECOVERY_REDIRECT),'POST',{email});$('taEmail').value=email;setMode('reset');status('Solicitamos la recuperación. Revisa tu correo y Spam: puede llegar un código o un enlace seguro.',true);}
+   try{await request('recover','POST',{email});$('taEmail').value=email;setMode('reset');status('Si el correo está registrado, recibirás un código. Revisa también Spam/Correo no deseado.',true);}
    catch(e){console.error('[TECH RUN Auth] recover',e);status('No se pudo enviar el correo: '+e.message);}
  }
  async function resetPassword(){
    const email=currentEmail(),code=String($('taCode').value||'').trim(),p1=$('taNewPassword').value,p2=$('taNewConfirm').value;
-   if(!recoveryAccessToken&&(!email||!code)){status('Escribe el correo y el código recibido, o abre el enlace de recuperación que llegó a tu correo.');return;}
+   if(!email||!code){status('Escribe el correo y el código recibido.');return;}
    if(p1.length<8){status('La nueva contraseña debe tener al menos 8 caracteres.');return;}
    if(p1!==p2){status('Las nuevas contraseñas no coinciden.');return;}
-   status(recoveryAccessToken?'Actualizando contraseña…':'Verificando código…');
+   status('Verificando código…');
    try{
-     let accessToken=recoveryAccessToken;
-     if(!accessToken){
-       const verified=await request('verify','POST',{email,token:code,type:'recovery'});
-       accessToken=verified.access_token;
-       if(!accessToken)throw new Error('Supabase no devolvió una sesión de recuperación. Comprueba la plantilla de correo.');
-     }
-     await request('user','PUT',{password:p1},accessToken);
-     recoveryAccessToken=null;
-     status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';$('taCode').value='';$('taNewPassword').value='';$('taNewConfirm').value='';
-   }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Solicita un correo nuevo e inténtalo otra vez.');}
- }
-
- // Supabase puede devolver un enlace con tokens en el fragmento URL (#access_token=...).
- // Se captura antes de limpiar la URL y se muestra directamente el formulario de contraseña nueva.
- function consumeRecoveryUrl(){
-   try{
-     const hash=String(window.location.hash||'');
-     if(!hash||hash.length<2)return false;
-     const params=new URLSearchParams(hash.slice(1));
-     const type=params.get('type');
-     const access=params.get('access_token');
-     if(type!=='recovery'||!access)return false;
-     recoveryAccessToken=access;
-     const refresh=params.get('refresh_token');
-     if(refresh){ /* El token de recuperación se usa solo para cambiar contraseña, no para iniciar la partida. */ }
-     const cleanUrl=window.location.pathname+window.location.search;
-     try{window.history.replaceState({},document.title,cleanUrl);}catch(e){}
-     return true;
-   }catch(e){console.warn('[TECH RUN Auth] No se pudo leer el enlace de recuperación',e);return false;}
+     const verified=await request('verify','POST',{email,token:code,type:'recovery'});
+     if(!verified.access_token)throw new Error('Supabase no devolvió una sesión de recuperación. Comprueba la plantilla de correo.');
+     await request('user','PUT',{password:p1},verified.access_token);
+     status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';
+   }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Comprueba que el correo de recuperación esté configurado para enviar un código.');}
  }
  async function logout(){
    try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn('[TECH RUN Auth] logout',e);}
@@ -12315,13 +12277,12 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  // El nombre de la cuenta es el nombre oficial del jugador; no se puede sustituir por otro al iniciar.
  const oldValidate=window.techValidateOnlineUsername;
  window.techValidateOnlineUsername=async function(nick){
-   if(guestMode)return {ok:true};
    if(!isLogged())return {ok:false,message:'Inicia sesión para continuar.'};
    if(!owns(nick))return {ok:false,message:'Usa el nombre de tu cuenta: '+username()+'.'};
    return {ok:true};
  };
  // Sin sesión, las teclas de juego no pueden mover/disparar; el foco queda en el acceso.
- document.addEventListener('keydown',function(e){if(!isLogged() && !guestMode && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();}},true);
+ document.addEventListener('keydown',function(e){if(e.target && (e.target.matches('input, textarea, select') || e.target.isContentEditable)) return; if(!isLogged() && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();}},true);
  // Si hay sesión guardada, intenta renovar token vencido mediante el refresh token.
  async function refreshIfNeeded(){
    if(!session||!session.refresh_token)return;
@@ -12335,25 +12296,23 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  syncAccountName();
  // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
  async function restorePersistentSession(){
-   if(recoveryAccessToken){modal.style.display='flex';setMode('reset-link');$('taEmail').value=currentEmail();status('Enlace de recuperación válido. Escribe tu nueva contraseña dos veces.',true);return;}
-   if(!session||!session.refresh_token){saveSession(null);open();status('Puedes iniciar sesión o pulsar × para jugar como invitado.');return;}
+   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión para continuar.');return;}
    await refreshIfNeeded();
    if(isLogged()){syncAccountName();updateAccountUI();}
-   else {open();status('Tu sesión terminó. Inicia sesión o pulsa × para jugar como invitado.');}
+   else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}
  }
  // Bloquea cualquier vía de inicio de partida si no existe una sesión válida.
  document.addEventListener('click',function(e){
    const t=e.target&&e.target.closest?e.target.closest('#startGame, [data-action="start-game"], .start-game-button'):null;
-   if(t&&!isLogged()&&!guestMode){e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión o pulsa × para jugar como invitado.');return;}
-   if(!isLogged() && !guestMode && e.target && e.target.closest && e.target.closest('.touch-pad-inner, #fireButton, #shootButton, .game-control')){
+   if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para continuar.');return;}
+   if(!isLogged() && e.target && e.target.closest && e.target.closest('.touch-pad-inner, #fireButton, #shootButton, .game-control')){
      e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para usar los controles del juego.');
    }
  },true);
  // Si la sesión se cierra en otra pestaña del mismo sitio, bloquear el juego en esta también.
  window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('Sesión cerrada. Inicia sesión para continuar.');}});
- try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()&&!guestMode){open();status('Inicia sesión o pulsa × para jugar como invitado.');return false;}if(isLogged())syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
+ try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión para continuar.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
  // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
- const openedFromRecoveryLink=consumeRecoveryUrl();
  if(document.readyState==='loading'){
    document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();},{once:true});
  }else{

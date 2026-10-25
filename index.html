@@ -1984,6 +1984,72 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 }
 </style>
 
+
+<style id="tech-run-hud-and-software-colors-fix">
+/* HUD: conservar Puntos / Récord / Vidas sin la placa transparente detrás */
+.game-top,
+.game-score {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+.game-score {
+  border-left: 0 !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+}
+/* El HUD del canvas tampoco pinta bandas semitransparentes arriba/abajo */
+/* Desarrollo de Software: azul + amarillo, sin rosa/rojo ni naranja */
+#content {
+  color: #fff !important;
+  background: linear-gradient(180deg, rgba(0, 35, 100, .20), rgba(0, 0, 0, .10)) !important;
+}
+#content .cyber-hero h1,
+#content .data-card h2,
+#content .contact-title,
+#content h2,
+#content h3,
+#content strong,
+#content p,
+#content span,
+#content small,
+#content label,
+#content li,
+#content .cyber-footer p {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background-image: none !important;
+}
+#content .cyber-hero h1 { text-shadow: 0 0 18px rgba(0, 80, 200, .38) !important; }
+#content .data-card,
+#content .contact-card {
+  background: linear-gradient(155deg, rgba(0, 40, 110, .48), rgba(4, 10, 24, .97)) !important;
+  border-color: rgba(0, 100, 255, .45) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .35) !important;
+}
+/* Quitar las barras decorativas multicolor de la sección */
+#content .cyber-hero::after,
+#content .data-card::before,
+#content .contact-card::before,
+#content .triangle-container,
+#content .mini-triangle { display: none !important; }
+#content .data-card:hover { border-color: rgba(255, 205, 0, .7) !important; }
+#content .btn-neoprimary,
+#content .contact-icon {
+  background: linear-gradient(135deg, #064bb5, #0038A8) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 205, 0, .85) !important;
+}
+#content .btn-neoprimary i { color: #FFCD00 !important; }
+#content .btn-neoprimary:hover { background: linear-gradient(135deg, #FFCD00, #e6b800) !important; color: #07101f !important; }
+#content .btn-neoprimary:hover i { color: #07101f !important; }
+#content .contact-info strong { color: #FFCD00 !important; -webkit-text-fill-color: #FFCD00 !important; }
+#content a { color: #fff !important; }
+#content a:hover { color: #FFCD00 !important; }
+#content .cyber-footer { border-top-color: rgba(0, 80, 200, .55) !important; background: rgba(0, 30, 80, .22) !important; }
+</style>
+
 </head>
 <body>
 

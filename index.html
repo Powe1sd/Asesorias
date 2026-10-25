@@ -12155,7 +12155,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  const SESSION_KEY='techRunAuthSessionV1';
  const modal=document.getElementById('techAuthModal');
  const $=id=>document.getElementById(id);
- let mode='home', session=null, user=null;
+ let mode='home', session=null, user=null, recoveryAccessToken=null;
  try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');user=session&&session.user||null;}catch(e){session=null;user=null;}
  function authHeaders(token){return {'apikey':KEY,'Content-Type':'application/json','Accept':'application/json',...(token?{'Authorization':'Bearer '+token}:{'Authorization':'Bearer '+KEY})};}
  async function request(path,method='GET',body=null,token=null,rest=false){
@@ -12230,23 +12230,72 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    }catch(e){console.error('[TECH RUN Auth] login',e);status('No se pudo iniciar sesión. Revisa el correo, la contraseña y confirma el correo si te lo pide. '+e.message);}
  }
  async function sendCode(){
-   const email=currentEmail();if(!email){status('Escribe el correo de tu cuenta.');return;}
-   status('Enviando código de recuperación…');
-   try{await request('recover','POST',{email});$('taEmail').value=email;setMode('reset');status('Si el correo está registrado, recibirás un código. Revisa también Spam/Correo no deseado.',true);}
-   catch(e){console.error('[TECH RUN Auth] recover',e);status('No se pudo enviar el correo: '+e.message);}
+   const email=currentEmail();
+   if(!email){status('Escribe el correo de tu cuenta.');return;}
+   const btn=$('taSendCode');
+   if(btn){btn.disabled=true;btn.textContent='Enviando…';}
+   status('Solicitando recuperación de contraseña…');
+   try{
+     // Supabase enviará el código o el enlace que esté definido en Authentication > Email Templates.
+     await request('recover','POST',{email});
+     $('taEmail').value=email;
+     setMode('reset');
+     status('Solicitud enviada. Revisa tu correo y Spam. Si recibes un enlace de recuperación, ábrelo en este mismo navegador; si recibes un código, escríbelo aquí.',true);
+   }catch(e){
+     console.error('[TECH RUN Auth] recover',e);
+     setMode('forgot');
+     $('taEmail').value=email;
+     status('No se pudo solicitar la recuperación. '+e.message);
+   }finally{
+     if(btn){btn.disabled=false;btn.textContent='Enviar código';}
+   }
  }
  async function resetPassword(){
    const email=currentEmail(),code=String($('taCode').value||'').trim(),p1=$('taNewPassword').value,p2=$('taNewConfirm').value;
-   if(!email||!code){status('Escribe el correo y el código recibido.');return;}
+   if(!email){status('Escribe el correo asociado a tu cuenta.');return;}
+   if(!recoveryAccessToken&&!code){status('Escribe el código recibido por correo o abre el enlace de recuperación que te enviaron.');return;}
    if(p1.length<8){status('La nueva contraseña debe tener al menos 8 caracteres.');return;}
    if(p1!==p2){status('Las nuevas contraseñas no coinciden.');return;}
-   status('Verificando código…');
+   const btn=$('taResetPassword');if(btn){btn.disabled=true;btn.textContent='Actualizando…';}
+   status('Verificando recuperación…');
    try{
-     const verified=await request('verify','POST',{email,token:code,type:'recovery'});
-     if(!verified.access_token)throw new Error('Supabase no devolvió una sesión de recuperación. Comprueba la plantilla de correo.');
-     await request('user','PUT',{password:p1},verified.access_token);
-     status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';
-   }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Comprueba que el correo de recuperación esté configurado para enviar un código.');}
+     let token=recoveryAccessToken;
+     if(!token){
+       const verified=await request('verify','POST',{email,token:code,type:'recovery'});
+       token=verified.access_token;
+       if(!token)throw new Error('El código no fue aceptado. Comprueba que la plantilla de recuperación envíe {{ .Token }} y solicita un código nuevo.');
+     }
+     await request('user','PUT',{password:p1},token);
+     recoveryAccessToken=null;
+     status('Contraseña actualizada correctamente. Inicia sesión con tu nueva contraseña.',true);
+     setMode('login');$('taEmail').value=email;$('taPassword').value='';$('taCode').value='';$('taNewPassword').value='';$('taNewConfirm').value='';
+   }catch(e){
+     console.error('[TECH RUN Auth] reset',e);
+     status('No se pudo cambiar la contraseña. El código o enlace puede haber caducado o ya haberse usado. Solicita una recuperación nueva. Detalle: '+e.message);
+   }finally{
+     if(btn){btn.disabled=false;btn.textContent='Cambiar contraseña';}
+   }
+ }
+ // Supabase puede regresar desde el enlace de recuperación con tokens en el fragmento de la URL.
+ async function detectRecoveryLink(){
+   try{
+     const hash=new URLSearchParams((location.hash||'').replace(/^#/,''));
+     const query=new URLSearchParams(location.search||'');
+     const type=hash.get('type')||query.get('type')||'';
+     const access=hash.get('access_token')||query.get('access_token');
+     const tokenHash=query.get('token_hash')||hash.get('token_hash');
+     if(type==='recovery'&&access){
+       recoveryAccessToken=access;
+       try{const u=await request('user','GET',null,access);if(u&&u.email)$('taEmail').value=u.email;}catch(e){console.warn('[TECH RUN Auth] No se pudo leer el correo de recuperación',e);}
+       if(location.hash)history.replaceState(null,document.title,location.pathname+location.search);
+       modal.style.display='flex';setMode('reset');status('Enlace de recuperación reconocido. Escribe tu nueva contraseña dos veces.',true);return true;
+     }
+     if(type==='recovery'&&tokenHash){
+       const email=query.get('email')||currentEmail();
+       if(email){const verified=await request('verify','POST',{email,token_hash:tokenHash,type:'recovery'});if(verified.access_token){recoveryAccessToken=verified.access_token;if(verified.user&&verified.user.email)$('taEmail').value=verified.user.email;history.replaceState(null,document.title,location.pathname);modal.style.display='flex';setMode('reset');status('Enlace de recuperación reconocido. Escribe tu nueva contraseña dos veces.',true);return true;}}
+     }
+   }catch(e){console.warn('[TECH RUN Auth] No se pudo procesar el enlace de recuperación',e);}
+   return false;
  }
  async function logout(){
    try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn('[TECH RUN Auth] logout',e);}
@@ -12294,7 +12343,9 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  syncAccountName();
  // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
  async function restorePersistentSession(){
-   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión para continuar.');return;}
+   const isRecoveryLink=await detectRecoveryLink();
+   if(isRecoveryLink)return;
+   if(!session||!session.refresh_token){saveSession(null);open();return;}
    await refreshIfNeeded();
    if(isLogged()){syncAccountName();updateAccountUI();}
    else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}

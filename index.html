@@ -2156,6 +2156,7 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
 <button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
 <button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
+<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">👤 Crear cuenta / Iniciar sesión</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 Game over</h2>
@@ -9076,8 +9077,13 @@ function goToStartMenu(){
 }
 
 async function validateUsernameBeforeStart(){
+  if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){
+    if(window.techAuthOpen) window.techAuthOpen();
+    alert("Primero crea tu cuenta o inicia sesión para jugar y guardar tu récord.");
+    return;
+  }
   const input = document.getElementById("shipNameInput");
-  const nick = String(input ? input.value : (typeof shipName !== "undefined" ? shipName : "")).trim().slice(0,10);
+  const nick = String(window.techAuthUsername ? window.techAuthUsername() : (input ? input.value : (typeof shipName !== "undefined" ? shipName : ""))).trim().slice(0,10);
   if(!nick || nick.toLowerCase()==="br7"){
     alert("Escribe un nombre de usuario antes de iniciar.");
     if(input) input.focus();
@@ -11570,7 +11576,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
         return storedNick === nickLower;
       });
       var same = existing.find(function(r){ return String(r['nombre-nave']||'').trim().toLowerCase() === nave.toLowerCase(); });
-      if(otherName){
+      if(!same && otherName && window.techAuthOwnsUsername && window.techAuthOwnsUsername(nick)) same = otherName;
+      if(otherName && !(window.techAuthOwnsUsername && window.techAuthOwnsUsername(nick))){
         if(st){ st.textContent = '⚠️ El usuario "'+nick+'" ya existe. Escoge otro.'; st.style.color='#fa8'; }
         return {duplicate:true};
       }
@@ -12049,6 +12056,176 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   else refresh();
   /* El panel de pausa se crea desde el script principal; se vuelve a comprobar sin crear intervalos. */
   window.addEventListener('load',refresh);
+})();
+</script>
+
+
+<style id="tech-auth-styles">
+#techAuthModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);font-family:Arial,sans-serif}
+#techAuthModal .ta-card{width:min(100%,430px);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#101a32,#050914);border:1px solid #8d66df;border-radius:18px;padding:22px;box-shadow:0 20px 70px #000;color:#f5f7ff;position:relative}
+#techAuthModal h2{margin:0 28px 8px 0;color:#d8c4ff;font-size:22px}
+#techAuthModal p{font-size:13px;line-height:1.5;color:#bac6df}
+#techAuthModal label{display:block;font-size:12px;color:#d5def4;margin:10px 0 5px}
+#techAuthModal input{box-sizing:border-box;width:100%;padding:12px;border-radius:9px;border:1px solid #405277;background:#071020;color:#fff;font-size:15px;outline:none}
+#techAuthModal input:focus{border-color:#b99aff;box-shadow:0 0 0 2px #9c72ff33}
+#techAuthModal .ta-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+#techAuthModal button{cursor:pointer;border-radius:9px;border:1px solid #a98aff;padding:11px 9px;font-weight:700;background:linear-gradient(135deg,#6842b7,#39216f);color:#fff}
+#techAuthModal button.ta-secondary{background:#14213a;border-color:#405277;color:#dbe6ff}
+#techAuthModal .ta-close{position:absolute;right:14px;top:12px;width:34px;height:34px;padding:0;background:#1a2740;border-color:#405277;font-size:20px}
+#techAuthModal .ta-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+#techAuthModal .ta-links button{font-size:12px;padding:8px;background:transparent;border-color:#465779;color:#cbbaff}
+#techAuthModal #techAuthStatus{min-height:20px;margin:12px 0 0;font-size:13px;white-space:pre-wrap}
+#techAuthModal .ta-hidden{display:none!important}
+@media(max-width:420px){#techAuthModal .ta-card{padding:18px}#techAuthModal .ta-actions{grid-template-columns:1fr}}
+</style>
+<div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
+ <div class="ta-card">
+  <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
+  <h2 id="techAuthTitle">👤 Cuenta TECH RUN</h2>
+  <p id="techAuthIntro">Crea una cuenta para guardar tu nombre de usuario y tus récords. La contraseña se gestiona de forma segura con Supabase Auth.</p>
+  <form id="techAuthForm" autocomplete="on">
+   <div id="taUsernameWrap"><label for="taUsername">Nombre de usuario (3–10 caracteres)</label><input id="taUsername" name="username" minlength="3" maxlength="10" pattern="[A-Za-z0-9_]{3,10}" autocomplete="username" placeholder="Ej. T300" /></div>
+   <div id="taEmailWrap"><label for="taEmail">Correo electrónico / Gmail</label><input id="taEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="tucorreo@gmail.com" required /></div>
+   <div id="taPasswordWrap"><label for="taPassword">Contraseña (mínimo 8 caracteres)</label><input id="taPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Crea una contraseña" /></div>
+   <div id="taConfirmWrap"><label for="taConfirm">Repite la contraseña</label><input id="taConfirm" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la contraseña" /></div>
+   <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Código de recuperación" /></div>
+   <div id="taNewPasswordWrap" class="ta-hidden"><label for="taNewPassword">Nueva contraseña</label><input id="taNewPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Nueva contraseña" /></div>
+   <div id="taNewConfirmWrap" class="ta-hidden"><label for="taNewConfirm">Repite la nueva contraseña</label><input id="taNewConfirm" name="newConfirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la nueva contraseña" /></div>
+   <div class="ta-actions" id="taMainActions"><button type="button" id="taRegister">Crear usuario</button><button type="button" id="taLogin" class="ta-secondary">Iniciar sesión</button></div>
+   <div class="ta-actions ta-hidden" id="taRecoveryActions"><button type="button" id="taSendCode">Enviar código</button><button type="button" id="taResetPassword" class="ta-secondary">Cambiar contraseña</button></div>
+  </form>
+  <div class="ta-links"><button type="button" id="taForgot">¿Olvidaste tu contraseña?</button><button type="button" id="taBack" class="ta-hidden">Volver al inicio</button><button type="button" id="taLogout" class="ta-hidden">Cerrar sesión</button></div>
+  <p id="techAuthStatus" role="status" aria-live="polite"></p>
+ </div>
+</div>
+<script id="tech-auth-supabase">
+(function(){
+ 'use strict';
+ const URL='https://bkfpvwsahffrrkckjfre.supabase.co';
+ const KEY='sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
+ const PROFILE='perfiles_tech_run';
+ const SESSION_KEY='techRunAuthSessionV1';
+ const modal=document.getElementById('techAuthModal');
+ const $=id=>document.getElementById(id);
+ let mode='home', session=null, user=null;
+ try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');user=session&&session.user||null;}catch(e){session=null;user=null;}
+ function authHeaders(token){return {'apikey':KEY,'Content-Type':'application/json','Accept':'application/json',...(token?{'Authorization':'Bearer '+token}:{'Authorization':'Bearer '+KEY})};}
+ async function request(path,method='GET',body=null,token=null,rest=false){
+   const base=rest?URL+'/rest/v1/':URL+'/auth/v1/';
+   const res=await fetch(base+path,{method,headers:authHeaders(token),...(body!==null?{body:JSON.stringify(body)}:{})});
+   const raw=await res.text();let data={};try{data=raw?JSON.parse(raw):{};}catch(e){data={message:raw};}
+   if(!res.ok){let msg=data.msg||data.message||data.error_description||data.error||('Error HTTP '+res.status);if(res.status===400&&/already registered|user already exists/i.test(String(msg)))msg='Ese correo ya tiene una cuenta. Inicia sesión o recupera la contraseña.';throw new Error(msg);}
+   return data;
+ }
+ function saveSession(s){session=s||null;if(session&&!session.expires_at&&session.expires_in)session.expires_at=Math.floor(Date.now()/1000)+Number(session.expires_in);user=session&&session.user||null;try{if(session)localStorage.setItem(SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(SESSION_KEY);}catch(e){};updateAccountUI();}
+ function username(){return String(user&&(user.user_metadata||{}).username||'').trim();}
+ function isLogged(){return !!(session&&session.access_token&&user);}
+ function owns(n){return isLogged()&&username().toLocaleLowerCase()===String(n||'').trim().toLocaleLowerCase();}
+ window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
+ function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}}
+ function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
+ function close(){modal.style.display='none';}
+ window.techAuthOpen=open;
+ function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
+ function setMode(next){mode=next;status('');const logged=next==='logged';
+   show('taUsernameWrap',next==='register'||next==='home');show('taEmailWrap',!logged);show('taPasswordWrap',next==='register'||next==='home'||next==='login');show('taConfirmWrap',next==='register');
+   show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset');show('taNewConfirmWrap',next==='reset');
+   show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset');
+   show('taSendCode',next==='forgot');show('taResetPassword',next==='reset');
+   show('taForgot',!logged&&next!=='forgot'&&next!=='reset');show('taBack',next!=='home'&&next!=='logged');show('taLogout',logged);
+   $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
+   $('techAuthTitle').textContent=logged?'✅ Cuenta conectada':(next==='forgot'||next==='reset'?'🔐 Recuperar contraseña':'👤 Cuenta TECH RUN');
+   $('techAuthIntro').textContent=logged?'Sesión iniciada como '+username()+'. Tu nombre de usuario está vinculado a esta cuenta.':(next==='forgot'||next==='reset'?'Te enviaremos un código al correo registrado.':'Crea una cuenta o inicia sesión para jugar y guardar tus récords.');
+   $('taPassword').required=(next==='register'||next==='home'||next==='login');$('taConfirm').required=next==='register';
+   $('taNewPassword').required=next==='reset';$('taNewConfirm').required=next==='reset';$('taCode').required=next==='reset';
+   if(next==='logged'){ $('taEmail').value=(user&&user.email)||''; }
+ }
+ function currentEmail(){return String($('taEmail').value||'').trim().toLowerCase();}
+ async function usernameAvailable(nick){
+   const profile=await request(PROFILE+'?select=username&username=ilike.'+encodeURIComponent(nick)+'&limit=1','GET',null,null,true);
+   if(Array.isArray(profile)&&profile.length)return false;
+   // También evita reutilizar nombres que ya aparecen en el ranking antiguo.
+   const q=new URLSearchParams({select:'id,nombre-nave','nombre-nave':'ilike.'+nick+'*',limit:'1000'});
+   const rows=await request('datos?'+q.toString(),'GET',null,null,true);
+   if(Array.isArray(rows)&&rows.some(r=>String(r['nombre-nave']||'').trim().split(' · ')[0].toLowerCase()===nick.toLowerCase()))return false;
+   return true;
+ }
+ async function register(){
+   const nick=String($('taUsername').value||'').trim();const email=currentEmail();const pass=$('taPassword').value;const confirm=$('taConfirm').value;
+   if(!/^[A-Za-z0-9_]{3,10}$/.test(nick)){status('Usa un nombre de 3 a 10 caracteres: letras, números o guion bajo.');return;}
+   if(!email){status('Escribe un correo válido.');return;}
+   if(pass.length<8){status('La contraseña debe tener al menos 8 caracteres.');return;}
+   if(pass!==confirm){status('Las contraseñas no coinciden.');return;}
+   status('Comprobando nombre de usuario…');
+   try{
+     if(!(await usernameAvailable(nick))){status('El usuario "'+nick+'" ya existe. Elige otro.');return;}
+     const data=await request('signup','POST',{email,password:pass,data:{username:nick}});
+     if(data.session&&data.session.access_token){saveSession(data.session);status('Cuenta creada. Ya puedes jugar con '+nick+'.',true);setTimeout(close,1000);}
+     else {setMode('login');$('taEmail').value=email;status('Cuenta creada. Revisa tu correo para confirmar la cuenta y después inicia sesión.',true);}
+   }catch(e){console.error('[TECH RUN Auth] signup',e);status('No se pudo crear la cuenta: '+e.message);}
+ }
+ async function login(){
+   const email=currentEmail();const pass=$('taPassword').value;
+   if(!email||!pass){status('Escribe tu correo y contraseña.');return;}
+   status('Iniciando sesión…');
+   try{
+     const data=await request('token?grant_type=password','POST',{email,password:pass});
+     saveSession(data);const nick=username();
+     if(!nick){status('Esta cuenta no tiene nombre de usuario. Contacta con el administrador.');return;}
+     const input=$('shipNameInput');if(input)input.value=nick;
+     try{localStorage.setItem('techShipName',nick);}catch(e){}
+     status('Sesión iniciada. Bienvenido, '+nick+'.',true);setTimeout(close,900);
+   }catch(e){console.error('[TECH RUN Auth] login',e);status('No se pudo iniciar sesión. Revisa el correo, la contraseña y confirma el correo si te lo pide. '+e.message);}
+ }
+ async function sendCode(){
+   const email=currentEmail();if(!email){status('Escribe el correo de tu cuenta.');return;}
+   status('Enviando código de recuperación…');
+   try{await request('recover','POST',{email});$('taEmail').value=email;setMode('reset');status('Si el correo está registrado, recibirás un código. Revisa también Spam/Correo no deseado.',true);}
+   catch(e){console.error('[TECH RUN Auth] recover',e);status('No se pudo enviar el correo: '+e.message);}
+ }
+ async function resetPassword(){
+   const email=currentEmail(),code=String($('taCode').value||'').trim(),p1=$('taNewPassword').value,p2=$('taNewConfirm').value;
+   if(!email||!code){status('Escribe el correo y el código recibido.');return;}
+   if(p1.length<8){status('La nueva contraseña debe tener al menos 8 caracteres.');return;}
+   if(p1!==p2){status('Las nuevas contraseñas no coinciden.');return;}
+   status('Verificando código…');
+   try{
+     const verified=await request('verify','POST',{email,token:code,type:'recovery'});
+     if(!verified.access_token)throw new Error('Supabase no devolvió una sesión de recuperación. Comprueba la plantilla de correo.');
+     await request('user','PUT',{password:p1},verified.access_token);
+     status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';
+   }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Comprueba que el correo de recuperación esté configurado para enviar un código.');}
+ }
+ async function logout(){try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn(e);}saveSession(null);setMode('home');status('Sesión cerrada.',true);}
+ function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'👤 Cuenta: '+username():'👤 Crear cuenta / Iniciar sesión';}
+ $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
+ $('techAuthClose').addEventListener('click',close);
+ modal.addEventListener('click',e=>{if(e.target===modal)close();});
+ $('taRegister').addEventListener('click',()=>{if(mode==='home')setMode('register');else register();});
+ $('taLogin').addEventListener('click',()=>{if(mode==='home')setMode('login');else login();});
+ $('taForgot').addEventListener('click',()=>setMode('forgot'));
+ $('taSendCode').addEventListener('click',sendCode);
+ $('taResetPassword').addEventListener('click',resetPassword);
+ $('taBack').addEventListener('click',()=>setMode(isLogged()?'logged':'home'));
+ $('taLogout').addEventListener('click',logout);
+ // El nombre de la cuenta es el nombre oficial del jugador; no se puede sustituir por otro al iniciar.
+ const oldValidate=window.techValidateOnlineUsername;
+ window.techValidateOnlineUsername=async function(nick){
+   if(!isLogged())return {ok:false,message:'Inicia sesión o crea una cuenta antes de jugar.'};
+   if(!owns(nick))return {ok:false,message:'Debes jugar con el nombre de tu cuenta: '+username()+'.'};
+   return {ok:true};
+ };
+ // Si hay sesión guardada, intenta renovar token vencido mediante el refresh token.
+ async function refreshIfNeeded(){
+   if(!session||!session.refresh_token)return;
+   const expires=Number(session.expires_at||0);
+   if(expires&&expires>Date.now()/1000+90)return;
+   try{const data=await request('token?grant_type=refresh_token','POST',{refresh_token:session.refresh_token});saveSession(data);}catch(e){console.warn('[TECH RUN Auth] La sesión expiró',e);saveSession(null);}
+ }
+ if(session&&session.refresh_token){refreshIfNeeded();}
+ updateAccountUI();
+ // En la primera pantalla, el botón de iniciar solicita cuenta antes de permitir comenzar.
+ document.addEventListener('click',function(e){const t=e.target&&e.target.closest?e.target.closest('#startGame'):null;if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Crea una cuenta o inicia sesión para jugar.');}},true);
 })();
 </script>
 

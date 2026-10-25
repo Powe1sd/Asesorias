@@ -2156,7 +2156,7 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
 <button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
 <button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
-<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">👤 Crear cuenta / Iniciar sesión</button>
+<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Crear cuenta / Iniciar sesión</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 Game over</h2>
@@ -9079,7 +9079,7 @@ function goToStartMenu(){
 async function validateUsernameBeforeStart(){
   if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){
     if(window.techAuthOpen) window.techAuthOpen();
-    alert("Primero crea tu cuenta o inicia sesión para jugar y guardar tu récord.");
+    window.techNotify('Inicia sesión para continuar.','warning','Acceso requerido');
     return;
   }
   const input = document.getElementById("shipNameInput");
@@ -12061,25 +12061,33 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 
 
 <style id="tech-auth-styles">
-#techAuthModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);font-family:Arial,sans-serif}
-#techAuthModal .ta-card{width:min(100%,430px);max-height:92vh;overflow:auto;background:linear-gradient(160deg,#101a32,#050914);border:1px solid #8d66df;border-radius:18px;padding:22px;box-shadow:0 20px 70px #000;color:#f5f7ff;position:relative}
-#techAuthModal h2{margin:0 28px 8px 0;color:#d8c4ff;font-size:22px}
-#techAuthModal p{font-size:13px;line-height:1.5;color:#bac6df}
-#techAuthModal label{display:block;font-size:12px;color:#d5def4;margin:10px 0 5px}
-#techAuthModal input{box-sizing:border-box;width:100%;padding:12px;border-radius:9px;border:1px solid #405277;background:#071020;color:#fff;font-size:15px;outline:none}
-#techAuthModal input:focus{border-color:#b99aff;box-shadow:0 0 0 2px #9c72ff33}
-/* Mantener el aspecto normal al pegar/autocompletar correo y contraseña */
-#techAuthModal input, #techAuthModal input:autofill, #techAuthModal input:-webkit-autofill, #techAuthModal input:-webkit-autofill:hover, #techAuthModal input:-webkit-autofill:focus, #techAuthModal input:-webkit-autofill:active{background-color:#071020 !important;background-image:none !important;color:#fff !important;-webkit-text-fill-color:#fff !important;caret-color:#fff !important;box-shadow:0 0 0 1000px #071020 inset !important;transition:background-color 999999s ease-out 0s}
-#techAuthModal input:focus, #techAuthModal input:-webkit-autofill:focus{border-color:#405277 !important;outline:2px solid transparent !important;box-shadow:0 0 0 1000px #071020 inset !important}
-#techAuthModal .ta-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-#techAuthModal button{cursor:pointer;border-radius:9px;border:1px solid #a98aff;padding:11px 9px;font-weight:700;background:linear-gradient(135deg,#6842b7,#39216f);color:#fff}
-#techAuthModal button.ta-secondary{background:#14213a;border-color:#405277;color:#dbe6ff}
-#techAuthModal .ta-close{position:absolute;right:14px;top:12px;width:34px;height:34px;padding:0;background:#1a2740;border-color:#405277;font-size:20px}
-#techAuthModal .ta-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-#techAuthModal .ta-links button{font-size:12px;padding:8px;background:transparent;border-color:#465779;color:#cbbaff}
-#techAuthModal #techAuthStatus{min-height:20px;margin:12px 0 0;font-size:13px;white-space:pre-wrap}
+#techAuthModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at 50% 0%,rgba(66,87,170,.24),transparent 52%),rgba(2,5,13,.86);backdrop-filter:blur(16px);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#techAuthModal .ta-card{box-sizing:border-box;width:min(100%,430px);max-height:92vh;overflow:auto;background:linear-gradient(160deg,rgba(17,27,49,.98),rgba(7,12,24,.99) 72%);border:1px solid rgba(128,156,220,.24);border-radius:26px;padding:32px;box-shadow:0 32px 100px rgba(0,0,0,.7),0 0 55px rgba(66,103,210,.10),inset 0 1px 0 rgba(255,255,255,.045);color:#f4f7ff;position:relative}
+#techAuthModal .ta-card:before{content:"";display:block;width:52px;height:4px;border-radius:9px;margin:0 0 22px;background:linear-gradient(90deg,#65e4ff,#8b7bff,#b16cff);box-shadow:0 0 18px rgba(113,132,255,.45)}
+#techAuthModal h2{margin:0 42px 12px 0;color:#f7f9ff;font-size:27px;line-height:1.16;letter-spacing:-.7px;font-weight:850}
+#techAuthModal p{font-size:13px;line-height:1.55;color:#aebbd4}
+#techAuthModal label{display:block;font-size:12px;font-weight:700;letter-spacing:.25px;color:#c6d2e8;margin:15px 0 7px}
+#techAuthModal input{box-sizing:border-box;width:100%;padding:14px 15px;border-radius:12px;border:1px solid #2b3b59;background:#080f1e;color:#f7f9ff;font-size:15px;outline:none;transition:border-color .18s ease,box-shadow .18s ease}
+#techAuthModal input::placeholder{color:#71809d;opacity:1}
+#techAuthModal input:focus{border-color:#7b8fff;box-shadow:0 0 0 3px rgba(112,132,255,.13)}
+/* Neutraliza el fondo amarillo/blanco que Chrome aplica al autocompletar. */
+#techAuthModal input, #techAuthModal input:autofill, #techAuthModal input:-webkit-autofill, #techAuthModal input:-webkit-autofill:hover, #techAuthModal input:-webkit-autofill:focus, #techAuthModal input:-webkit-autofill:active{background-color:#080f1e !important;background-image:none !important;color:#f7f9ff !important;-webkit-text-fill-color:#f7f9ff !important;caret-color:#f7f9ff !important;box-shadow:0 0 0 1000px #080f1e inset !important;transition:background-color 999999s ease-out 0s}
+#techAuthModal input:focus, #techAuthModal input:-webkit-autofill:focus{border-color:#7b8fff !important;outline:2px solid transparent !important;box-shadow:0 0 0 1000px #080f1e inset,0 0 0 3px rgba(112,132,255,.13) !important}
+#techAuthModal .ta-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+#techAuthModal button{appearance:none;cursor:pointer;border-radius:12px;border:1px solid #344565;padding:13px 12px;font-size:13px;font-weight:750;letter-spacing:.1px;background:#111c31;color:#e8eeff;box-shadow:inset 0 1px 0 rgba(255,255,255,.035);transition:background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+#techAuthModal button:hover{background:#172641;border-color:#52658b;box-shadow:0 6px 20px rgba(0,0,0,.18)}#techAuthModal button:active{transform:translateY(1px)}
+#techAuthModal #taRegister{background:linear-gradient(135deg,#5b6df5,#8257dc);border-color:#7b83ff;color:#fff;box-shadow:0 8px 22px rgba(88,96,230,.23),inset 0 1px 0 rgba(255,255,255,.15)}
+#techAuthModal #taRegister:hover{background:linear-gradient(135deg,#6c7bff,#9468ee);box-shadow:0 10px 26px rgba(88,96,230,.32)}
+#techAuthModal #taLogin{background:#101a2d;border-color:#344565;color:#e8eeff}
+#techAuthModal button.ta-secondary{background:#101a2d;border-color:#344565;color:#e8eeff}
+#techAuthModal .ta-close{position:absolute;right:18px;top:18px;width:36px;height:36px;padding:0;background:rgba(17,28,49,.8);border-color:#2e3d59;color:#aebbd4;font-size:21px;border-radius:11px;box-shadow:none}
+#techAuthModal .ta-close:hover{color:#fff;background:#202d47}
+#techAuthModal .ta-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#techAuthModal .ta-links button{font-size:12px;padding:9px 11px;background:transparent;border-color:transparent;color:#9eafff;box-shadow:none}
+#techAuthModal .ta-links button:hover{background:rgba(116,135,255,.09);border-color:rgba(116,135,255,.18);color:#c8d0ff}
+#techAuthModal #techAuthStatus{min-height:20px;margin:15px 0 0;font-size:13px;white-space:pre-wrap;line-height:1.5;color:#c4d0e8}
 #techAuthModal .ta-hidden{display:none!important}
-@media(max-width:420px){#techAuthModal .ta-card{padding:18px}#techAuthModal .ta-actions{grid-template-columns:1fr}}
+@media(max-width:420px){#techAuthModal .ta-card{padding:25px 21px;border-radius:22px}#techAuthModal .ta-actions{grid-template-columns:1fr}#techAuthModal h2{font-size:24px}}
 </style>
 <style id="tech-notification-styles">
 #techToastHost{position:fixed;right:18px;top:18px;z-index:1000001;display:grid;gap:10px;width:min(390px,calc(100vw - 28px));pointer-events:none;font-family:Arial,sans-serif}
@@ -12113,8 +12121,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 <div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
  <div class="ta-card">
   <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
-  <h2 id="techAuthTitle">👤 Cuenta TECH RUN</h2>
-  <p id="techAuthIntro">Crea una cuenta para guardar tu nombre de usuario y tus récords. La contraseña se gestiona de forma segura con Supabase Auth.</p>
+  <h2 id="techAuthTitle">Cuenta TECH RUN</h2>
+  <p id="techAuthIntro" hidden></p>
   <form id="techAuthForm" autocomplete="on">
    <div id="taUsernameWrap"><label for="taUsername">Nombre de usuario (3–10 caracteres)</label><input id="taUsername" name="username" minlength="3" maxlength="10" pattern="[A-Za-z0-9_]{3,10}" autocomplete="username" placeholder="Ej. T300" /></div>
    <div id="taEmailWrap"><label for="taEmail">Correo electrónico / Gmail</label><input id="taEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="tucorreo@gmail.com" required /></div>
@@ -12166,8 +12174,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    show('taSendCode',next==='forgot');show('taResetPassword',next==='reset');
    show('taForgot',!logged&&next!=='forgot'&&next!=='reset');show('taBack',next!=='home'&&next!=='logged');show('taLogout',logged);
    $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
-   $('techAuthTitle').textContent=logged?'✅ Cuenta conectada':(next==='forgot'||next==='reset'?'🔐 Recuperar contraseña':'👤 Cuenta TECH RUN');
-   $('techAuthIntro').textContent=logged?'Sesión iniciada como '+username()+'. Tu nombre de usuario está vinculado a esta cuenta.':(next==='forgot'||next==='reset'?'Te enviaremos un código al correo registrado.':'Crea una cuenta o inicia sesión para jugar y guardar tus récords.');
+   $('techAuthTitle').textContent=logged?'✅ Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':'Cuenta TECH RUN');
+   $('techAuthIntro').textContent='';
    $('taPassword').required=(next==='register'||next==='home'||next==='login');$('taConfirm').required=next==='register';
    $('taNewPassword').required=next==='reset';$('taNewConfirm').required=next==='reset';$('taCode').required=next==='reset';
    if(next==='logged'){ $('taEmail').value=(user&&user.email)||''; }
@@ -12241,7 +12249,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    mode='home';modal.style.display='flex';setMode('home');status('Sesión cerrada. Inicia sesión o crea una cuenta para volver a jugar.',true);
    if(window.techNotify)window.techNotify('Sesión cerrada. Debes iniciar sesión para volver a jugar.','success','Sesión cerrada');
  }
- function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'👤 Cuenta: '+username()+' · Gestionar / salir':'👤 Crear cuenta / Iniciar sesión';}
+ function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'Cuenta: '+username()+' · Gestionar / salir':'Crear cuenta / Iniciar sesión';}
  $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
  $('techAuthClose').addEventListener('click',close);
  modal.addEventListener('click',e=>{if(e.target===modal)close();});
@@ -12274,7 +12282,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  syncAccountName();
  // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
  async function restorePersistentSession(){
-   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión o crea una cuenta para jugar.');return;}
+   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión para continuar.');return;}
    await refreshIfNeeded();
    if(isLogged()){syncAccountName();updateAccountUI();}
    else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}
@@ -12282,14 +12290,14 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  // Bloquea cualquier vía de inicio de partida si no existe una sesión válida.
  document.addEventListener('click',function(e){
    const t=e.target&&e.target.closest?e.target.closest('#startGame, [data-action="start-game"], .start-game-button'):null;
-   if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Crea una cuenta o inicia sesión para jugar.');return;}
+   if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para continuar.');return;}
    if(!isLogged() && e.target && e.target.closest && e.target.closest('.touch-pad-inner, #fireButton, #shootButton, .game-control')){
      e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para usar los controles del juego.');
    }
  },true);
  // Si la sesión se cierra en otra pestaña del mismo sitio, bloquear el juego en esta también.
- window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('La sesión se cerró. Inicia sesión para jugar.');}});
- try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión o crea una cuenta antes de iniciar la partida.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
+ window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('Sesión cerrada. Inicia sesión para continuar.');}});
+ try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión para continuar.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
  // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
  document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();});
  if(document.readyState==='interactive'||document.readyState==='complete')setTimeout(restorePersistentSession,0);

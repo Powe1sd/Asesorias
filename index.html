@@ -11665,6 +11665,21 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     return requestedLimit === Infinity ? allRows : allRows.slice(0, requestedLimit);
   };
 
+  /* Contraste fijo del panel de clasificación: evita texto y botones blancos sobre fondo claro. */
+  if(!document.getElementById('tech-online-ranking-contrast-fix')){
+    const fix = document.createElement('style');
+    fix.id = 'tech-online-ranking-contrast-fix';
+    fix.textContent = `
+      #onlineRankingPanel{background:linear-gradient(160deg,#101b2d 0%,#07101f 100%) !important;color:#eaf2ff !important;border:1px solid rgba(93,229,255,.55) !important;box-shadow:0 18px 50px rgba(0,0,0,.65) !important;}
+      #onlineRankingPanel h2,#onlineRankingPanel p,#onlineRankingPanel span,#onlineRankingPanel small{color:#eaf2ff;}
+      #onlineRankingPanel #onlineRankList{color:#eaf2ff !important;}
+      #onlineRankingPanel #onlineRankClose{background:linear-gradient(135deg,#263449,#172235) !important;color:#fff !important;border:1px solid #71839b !important;}
+      #onlineRankingPanel #onlineRankRefresh{background:linear-gradient(135deg,#075985,#123b65) !important;color:#fff !important;border:1px solid #5de5ff !important;}
+      #onlineRankingPanel button{opacity:1 !important;text-shadow:none !important;}
+    `;
+    document.head.appendChild(fix);
+  }
+
   function ensurePanel(){
     let p = document.getElementById('onlineRankingPanel');
     if(p) return p;
@@ -11675,10 +11690,10 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     p.style.cssText = 'display:none;z-index:90;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;padding:18px 16px;';
     p.innerHTML = `
       <h2 style="text-align:center;margin:0 0 10px">🏆 Ranking</h2>
-      <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#dde">Cargando…</div>
+      <div id="onlineRankList" style="min-height:80px;font-size:12px;color:#eaf2ff">Cargando…</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
         <button type="button" class="game-btn game-btn-blue" id="onlineRankRefresh" style="margin:0;flex:1">↻ Actualizar lista</button>
-        <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1">Cerrar</button>
+        <button type="button" class="game-btn" id="onlineRankClose" style="margin:0;flex:1;background:#263449;color:#fff;border:1px solid #71839b">Cerrar</button>
       </div>`;
     host.appendChild(p);
     p.querySelector('#onlineRankClose').onclick = closePanel;

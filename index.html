@@ -1920,6 +1920,70 @@ body::-webkit-scrollbar {
 }
 </style>
 
+
+<style id="tech-run-controls-final-adjustment">
+/* Mantener TODO el sitio accesible, incluida la sección Desarrollo de Software */
+html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflow-y:auto !important; }
+.tech-game-section { width:100%; box-sizing:border-box; }
+.tech-game { width:100%; max-width:100%; }
+/* En pantalla completa, aprovechar el alto completo y evitar que el canvas quede a media pantalla */
+.tech-game-section:fullscreen,
+.tech-game-section:-webkit-full-screen {
+  width:100vw !important; height:100dvh !important; min-height:100dvh !important;
+  margin:0 !important; padding:0 !important; overflow:hidden !important;
+  display:flex !important; flex-direction:column !important; justify-content:flex-start !important;
+  background:#030712 !important;
+}
+.tech-game-section:fullscreen .tech-game,
+.tech-game-section:-webkit-full-screen .tech-game {
+  width:100% !important; height:calc(100dvh - 142px) !important; min-height:0 !important;
+  max-height:none !important; flex:1 1 auto !important; margin:0 !important;
+}
+.tech-game-section:fullscreen #gameCanvas,
+.tech-game-section:-webkit-full-screen #gameCanvas {
+  width:100% !important; height:100% !important; inset:0 !important;
+}
+.tech-game-section:fullscreen .touch-pad,
+.tech-game-section:-webkit-full-screen .touch-pad {
+  margin:0 auto !important; padding:4px max(8px,env(safe-area-inset-left)) max(4px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right)) !important;
+  flex:0 0 auto !important; width:100% !important;
+}
+.tech-game-section:fullscreen .touch-pad-inner,
+.tech-game-section:-webkit-full-screen .touch-pad-inner { padding:6px 10px !important; gap:8px !important; }
+/* Mover más grande; poderes más compactos; FIRE más grande */
+.touch-move-pad { width:clamp(145px,22vw,190px) !important; height:clamp(140px,21vw,180px) !important; }
+.touch-fire { width:clamp(100px,16vw,130px) !important; height:clamp(100px,16vw,130px) !important; font-size:clamp(15px,2vw,19px) !important; }
+.touch-mid { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:4px !important; align-items:center !important; }
+.touch-mid .touch-util { min-width:0 !important; width:clamp(42px,6vw,58px) !important; height:clamp(29px,4vw,35px) !important; padding:2px 3px !important; border-radius:8px !important; font-size:9px !important; line-height:1.05 !important; }
+.touch-mid .touch-util .tu-ico { display:block !important; font-size:12px !important; line-height:1.05 !important; }
+.touch-mid .touch-util .tu-lab { display:block !important; font-size:8px !important; letter-spacing:0 !important; line-height:1.05 !important; white-space:nowrap !important; }
+@media (max-width:600px) {
+  .touch-pad { margin:5px auto 8px !important; padding:0 5px 5px !important; }
+  .touch-pad-inner { gap:5px !important; padding:7px 6px !important; border-radius:14px !important; }
+  .touch-move-pad { width:clamp(120px,35vw,150px) !important; height:clamp(118px,34vw,145px) !important; }
+  .touch-move-hint { font-size:11px !important; color:#fff !important; }
+  .touch-fire { width:clamp(90px,26vw,112px) !important; height:clamp(90px,26vw,112px) !important; font-size:15px !important; }
+  .touch-mid { gap:3px !important; }
+  .touch-mid .touch-util { width:clamp(37px,10vw,46px) !important; height:30px !important; padding:1px 2px !important; }
+  .touch-mid .touch-util .tu-ico { font-size:11px !important; }
+  .touch-mid .touch-util .tu-lab { font-size:7px !important; }
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game { height:calc(100dvh - 126px) !important; }
+  .tech-game-section:fullscreen .touch-pad-inner,
+  .tech-game-section:-webkit-full-screen .touch-pad-inner { padding:4px 5px !important; }
+}
+@media (orientation:landscape) and (max-height:600px) {
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game { height:calc(100dvh - 94px) !important; }
+  .tech-game-section:fullscreen .touch-move-pad,
+  .tech-game-section:-webkit-full-screen .touch-move-pad { width:88px !important; height:84px !important; }
+  .tech-game-section:fullscreen .touch-fire,
+  .tech-game-section:-webkit-full-screen .touch-fire { width:76px !important; height:76px !important; }
+  .tech-game-section:fullscreen .touch-mid .touch-util,
+  .tech-game-section:-webkit-full-screen .touch-mid .touch-util { height:24px !important; }
+}
+</style>
+
 </head>
 <body>
 

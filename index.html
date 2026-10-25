@@ -4973,12 +4973,12 @@ if(startPanel&&!document.getElementById("startExtras")){
     if(sni){
       sni.onclick=e=>e.stopPropagation();
       sni.oninput=()=>{
-        shipName=(sni.value||"Br7").slice(0,10);
+        shipName=(sni.value||"").slice(0,10);
         lsSet("techShipName",shipName);
         drawShipPreview();
       };
       sni.onchange=()=>{
-        shipName=(sni.value||"Br7").slice(0,10)||"Br7";
+        shipName=(sni.value||"").slice(0,10);
         lsSet("techShipName",shipName);
         drawShipPreview();
       };
@@ -9075,7 +9075,27 @@ function goToStartMenu(){
   setTimeout(function(){try{drawShipPreview()}catch(e){}},50);
 }
 
-startButton.addEventListener("click",startGame);
+async function validateUsernameBeforeStart(){
+  const input = document.getElementById("shipNameInput");
+  const nick = String(input ? input.value : (typeof shipName !== "undefined" ? shipName : "")).trim().slice(0,10);
+  if(!nick || nick.toLowerCase()==="br7"){
+    alert("Escribe un nombre de usuario antes de iniciar.");
+    if(input) input.focus();
+    return;
+  }
+  if(typeof window.techValidateOnlineUsername === "function"){
+    const validation = await window.techValidateOnlineUsername(nick);
+    if(!validation.ok){
+      alert(validation.message || "No se pudo validar el usuario. Inténtalo de nuevo.");
+      if(input) input.focus();
+      return;
+    }
+  }
+  shipName = nick;
+  try{ lsSet("techShipName", shipName); }catch(e){}
+  startGame();
+}
+startButton.addEventListener("click",validateUsernameBeforeStart);
 restartButton.addEventListener("click",startGame);
 continueButton.addEventListener("click",continueToSite);
 document.addEventListener("keydown",function(e){
@@ -11481,6 +11501,33 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     }catch(e){ return 'Nave'; }
   };
 
+  window.techValidateOnlineUsername = async function(nickname){
+    var nick = String(nickname || '').trim().slice(0,10);
+    if(!nick) return {ok:false, message:'Escribe un nombre de usuario antes de iniciar.'};
+    if(!hasKey()) return {ok:false, message:'No se pudo validar el usuario: falta la clave de Supabase.'};
+    try{
+      var url = new URL(SUPABASE_REST + '/' + TABLE);
+      url.searchParams.set('select','id,nombre-nave');
+      url.searchParams.set('nombre-nave','ilike.' + nick + '*');
+      url.searchParams.set('limit','1000');
+      var response = await fetch(url.toString(), {method:'GET', headers:headers()});
+      var raw = await response.text();
+      var rows = []; try{ rows = raw ? JSON.parse(raw) : []; }catch(e){ rows=[]; }
+      if(!response.ok) throw new Error((rows && (rows.message || rows.error)) || ('HTTP '+response.status));
+      var lower = nick.toLocaleLowerCase();
+      var duplicate = Array.isArray(rows) && rows.some(function(row){
+        var stored = String(row['nombre-nave'] || '').trim();
+        var storedNick = stored.split(' · ')[0].trim().toLocaleLowerCase();
+        return storedNick === lower;
+      });
+      if(duplicate) return {ok:false, duplicate:true, message:'El usuario "'+nick+'" ya existe. Elige otro.'};
+      return {ok:true};
+    }catch(err){
+      console.error('[Ranking] No se pudo validar el usuario:', err);
+      return {ok:false, message:'No se pudo comprobar el nombre en el ranking online. Revisa la conexión y los permisos de lectura de Supabase.'};
+    }
+  };
+
   window.techSubmitOnlineScore = async function(entry){
     if(!hasKey()){
       console.warn('[Ranking] Sin key');
@@ -11507,7 +11554,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     try{
       var findUrl = new URL(SUPABASE_REST + '/' + TABLE);
       findUrl.searchParams.set('select','id,record,nombre-nave');
-      findUrl.searchParams.set('nombre-nave','ilike.' + nick + ' · *');
+      // Buscar cualquier registro que empiece por el nombre, con o sin separador/tipo de nave.
+      findUrl.searchParams.set('nombre-nave','ilike.' + nick + '*');
       findUrl.searchParams.set('limit','1000');
       var findRes = await fetch(findUrl.toString(), {method:'GET', headers:headers()});
       var findText = await findRes.text();
@@ -11515,10 +11563,15 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       try{ existing = findText ? JSON.parse(findText) : []; }catch(e){ existing=[]; }
       if(!findRes.ok) throw new Error((existing && (existing.message || existing.error)) || ('HTTP '+findRes.status));
       if(!Array.isArray(existing)) existing=[];
+      var nickLower = nick.toLocaleLowerCase();
+      var otherName = existing.find(function(r){
+        var stored = String(r['nombre-nave']||'').trim();
+        var storedNick = stored.split(' · ')[0].trim().toLocaleLowerCase();
+        return storedNick === nickLower;
+      });
       var same = existing.find(function(r){ return String(r['nombre-nave']||'').trim().toLowerCase() === nave.toLowerCase(); });
-      var otherName = existing.find(function(r){ return String(r['nombre-nave']||'').trim().toLowerCase() !== nave.toLowerCase(); });
-      if(otherName && !same){
-        if(st){ st.textContent = '⚠️ Ese Nombre usuario ya existe. Escoge otro.'; st.style.color='#fa8'; }
+      if(otherName){
+        if(st){ st.textContent = '⚠️ El usuario "'+nick+'" ya existe. Escoge otro.'; st.style.color='#fa8'; }
         return {duplicate:true};
       }
       if(same){
@@ -11580,10 +11633,14 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       const url = SUPABASE_REST + '/' + TABLE
         + '?select=id,created_at,record,nombre-nave'
         + '&record=gte.30'
-        + '&order=record.desc.nullslast'
+        + '&order=record.' + (requestedLimit === Infinity ? 'asc' : 'desc') + '.nullslast'
         + '&limit=' + take
         + '&offset=' + offset;
-      const res = await fetch(url, { method: 'GET', headers: headers() });
+      const pageHeaders = Object.assign({}, headers(), {
+        'Range-Unit': 'items',
+        'Range': offset + '-' + (offset + take - 1)
+      });
+      const res = await fetch(url, { method: 'GET', headers: pageHeaders });
       const text = await res.text();
       let data;
       try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
@@ -11596,7 +11653,9 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       if(data.length < take) break;
       offset += data.length;
     }
-    return allRows;
+    // La API se consulta desde 30 puntos hacia arriba; ordenar aquí garantiza el TOP descendente.
+    allRows.sort(function(a,b){ return (Number(b.record)||0) - (Number(a.record)||0); });
+    return requestedLimit === Infinity ? allRows : allRows.slice(0, requestedLimit);
   };
 
   function ensurePanel(){

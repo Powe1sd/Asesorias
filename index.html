@@ -4873,7 +4873,7 @@ if(startPanel&&!document.getElementById("startExtras")){
       <p style="font-size:9px;color:#aaa;margin:2px 0 6px">Cada fase cambia el aspecto y otorga poderes</p>
     </div>
 
-    <input id="shipNameInput" type="text" maxlength="10" value="${shipName.replace(/"/g,"")}" placeholder="Br7"
+    <input id="shipNameInput" type="text" maxlength="10" value="${shipName && shipName !== 'Br7' ? shipName.replace(/"/g,"") : ''}" placeholder="usuario"
       style="width:90%;padding:8px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:#0a1020;color:#FFCD00;font-family:Orbitron,sans-serif;font-size:14px;text-align:center;margin:4px 0 8px">
     <p style="font-size:9px;color:#888;margin:0 0 6px">Máx. 10 letras · se ve en la nave</p>
     <h3>🎨 Color</h3>
@@ -11490,14 +11490,58 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     }
     var sc = Math.max(0, Math.min(32767, Math.floor(Number(entry && entry.score) || 0)));
     var tipo = (entry && entry.shipType) ? String(entry.shipType) : (typeof window.techShipTypeLabel==='function' ? window.techShipTypeLabel() : '');
-    var nick = String((entry && entry.ship) || 'Nave').slice(0, 16);
-    /* nombre-nave = apodo · tipo de nave (ej. Br7 · Cazadora) */
+    var nick = String((entry && entry.ship) || '').trim().slice(0, 10);
+    var st = document.getElementById('onlineRankStatus');
+    if(sc < 30){
+      if(st){ st.textContent = '🌐 El ranking empieza en 30 puntos; esta partida no se publica.'; st.style.color='#fa8'; }
+      return null;
+    }
+    if(!nick){
+      if(st){ st.textContent = 'Escribe un Nombre usuario antes de publicar el récord.'; st.style.color='#fa8'; }
+      return null;
+    }
+    /* Un usuario tiene una sola fila. Si vuelve a jugar con el mismo nombre y nave, se actualiza su récord; no se inserta otra fila. */
     var modeTag = (entry && entry.mode === 'online') ? ' [∞Online]' : ((entry && entry.mode === 'infinite') ? ' [∞]' : '');
-    var nave = tipo ? (nick + ' · ' + tipo + modeTag) : (nick + modeTag);
+    var nave = (tipo ? (nick + ' · ' + tipo) : nick) + modeTag;
     nave = nave.slice(0, 48);
-    var body = { record: sc };
-    body['nombre-nave'] = nave;
     try{
+      var findUrl = new URL(SUPABASE_REST + '/' + TABLE);
+      findUrl.searchParams.set('select','id,record,nombre-nave');
+      findUrl.searchParams.set('nombre-nave','ilike.' + nick + ' · *');
+      findUrl.searchParams.set('limit','1000');
+      var findRes = await fetch(findUrl.toString(), {method:'GET', headers:headers()});
+      var findText = await findRes.text();
+      var existing = [];
+      try{ existing = findText ? JSON.parse(findText) : []; }catch(e){ existing=[]; }
+      if(!findRes.ok) throw new Error((existing && (existing.message || existing.error)) || ('HTTP '+findRes.status));
+      if(!Array.isArray(existing)) existing=[];
+      var same = existing.find(function(r){ return String(r['nombre-nave']||'').trim().toLowerCase() === nave.toLowerCase(); });
+      var otherName = existing.find(function(r){ return String(r['nombre-nave']||'').trim().toLowerCase() !== nave.toLowerCase(); });
+      if(otherName && !same){
+        if(st){ st.textContent = '⚠️ Ese Nombre usuario ya existe. Escoge otro.'; st.style.color='#fa8'; }
+        return {duplicate:true};
+      }
+      if(same){
+        var previous = Math.max(0, Number(same.record)||0);
+        if(sc <= previous){
+          if(st){ st.textContent = '🏆 '+nick+': tu récord sigue en '+previous+' pts. No se duplicó el registro.'; st.style.color='#8cf'; }
+          return same;
+        }
+        var patchUrl = new URL(SUPABASE_REST + '/' + TABLE);
+        patchUrl.searchParams.set('id','eq.'+same.id);
+        var patchRes = await fetch(patchUrl.toString(), {
+          method:'PATCH',
+          headers:Object.assign({}, headers(), {'Content-Type':'application/json','Prefer':'return=representation'}),
+          body:JSON.stringify({record:sc, 'nombre-nave':nave})
+        });
+        var patchText = await patchRes.text();
+        var patchData=null; try{patchData=patchText?JSON.parse(patchText):null}catch(e){patchData=patchText}
+        if(!patchRes.ok) throw new Error((patchData && (patchData.message||patchData.error)) || ('HTTP '+patchRes.status));
+        if(st){st.textContent='🏆 Récord actualizado: '+nave+' — '+sc+' pts. Una sola fila en el ranking.';st.style.color='#6f6';}
+        return patchData;
+      }
+      var body = { record: sc };
+      body['nombre-nave'] = nave;
       var res = await fetch(SUPABASE_REST + '/' + TABLE, {
         method: 'POST',
         headers: Object.assign({}, headers(), { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }),
@@ -11506,7 +11550,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
       var text = await res.text();
       var data = null;
       try{ data = text ? JSON.parse(text) : null; }catch(e){ data = text; }
-      var st = document.getElementById('onlineRankStatus');
       if(!res.ok){
         console.error('[Ranking] Insert error', res.status, data);
         var msg = (data && (data.message || data.error)) || ('HTTP '+res.status);
@@ -11524,22 +11567,36 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   };
 
   window.techFetchOnlineTop = async function(limit){
-    limit = Math.max(1, Math.min(50, Number(limit) || 20));
+    /* Sin límite: descarga TODOS los registros por páginas para superar el límite
+       de filas que Supabase devuelve en una sola petición. Con limit explícito,
+       conserva el comportamiento de los TOP locales (por ejemplo TOP 5/15). */
+    const requestedLimit = (limit == null || limit === '') ? Infinity : Math.max(1, Math.floor(Number(limit) || 1));
     if(!hasKey()) throw new Error('Falta publishable key válida');
-    /* select con nombre-nave (guion) codificado; orden por record */
-    const url = SUPABASE_REST + '/' + TABLE
-      + '?select=id,created_at,record,nombre-nave'
-      + '&order=record.desc.nullslast'
-      + '&limit=' + limit;
-    const res = await fetch(url, { method: 'GET', headers: headers() });
-    const text = await res.text();
-    let data;
-    try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
-    if(!res.ok){
-      const msg = (data && (data.message || data.error || data.msg)) || text || ('HTTP '+res.status);
-      throw new Error(String(msg));
+    const pageSize = 1000;
+    const allRows = [];
+    let offset = 0;
+    while(allRows.length < requestedLimit){
+      const take = Math.min(pageSize, requestedLimit - allRows.length);
+      const url = SUPABASE_REST + '/' + TABLE
+        + '?select=id,created_at,record,nombre-nave'
+        + '&record=gte.30'
+        + '&order=record.desc.nullslast'
+        + '&limit=' + take
+        + '&offset=' + offset;
+      const res = await fetch(url, { method: 'GET', headers: headers() });
+      const text = await res.text();
+      let data;
+      try{ data = text ? JSON.parse(text) : []; }catch(e){ data = []; }
+      if(!res.ok){
+        const msg = (data && (data.message || data.error || data.msg)) || text || ('HTTP '+res.status);
+        throw new Error(String(msg));
+      }
+      if(!Array.isArray(data) || data.length === 0) break;
+      allRows.push(...data);
+      if(data.length < take) break;
+      offset += data.length;
     }
-    return Array.isArray(data) ? data : [];
+    return allRows;
   };
 
   function ensurePanel(){
@@ -11579,7 +11636,16 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     }
     box.innerHTML = '<p style="color:#8cf">Cargando récords…</p>';
     try{
-      const rows = await window.techFetchOnlineTop(20);
+      const fetchedRows = await window.techFetchOnlineTop();
+      const seenUsers = new Set();
+      const rows = fetchedRows.filter(function(r){
+        const sc = Number(r.record != null ? r.record : 0) || 0;
+        if(sc < 30) return false;
+        const raw = r['nombre-nave'] != null ? r['nombre-nave'] : (r.nombre_nave != null ? r.nombre_nave : '');
+        const user = String(raw).split(' · ')[0].trim().toLocaleLowerCase();
+        if(!user || seenUsers.has(user)) return false;
+        seenUsers.add(user); return true;
+      });
       if(!rows.length){
         box.innerHTML = '<p style="color:#fa8"><b>0 filas visibles con la API pública.</b></p>'
           + '<p style="color:#9ab;font-size:11px;margin-top:8px">En Table Editor sí hay datos, pero <b>RLS</b> los oculta.<br>'
@@ -11673,7 +11739,15 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     fetching = true;
     try{
       var rows = await window.techFetchOnlineTop(15);
-      cache = (rows||[]).map(function(r,i){
+      var seenUsers = new Set();
+      cache = (rows||[]).filter(function(r){
+        var sc = Number(r.record!=null?r.record:0)||0;
+        if(sc < 30) return false;
+        var raw = r['nombre-nave']!=null?r['nombre-nave']:(r.nombre_nave!=null?r.nombre_nave:null);
+        var user = String(raw||'').split(' · ')[0].trim().toLocaleLowerCase();
+        if(!user || seenUsers.has(user)) return false;
+        seenUsers.add(user); return true;
+      }).map(function(r,i){
         var sc = Number(r.record!=null?r.record:0)||0;
         var raw = r['nombre-nave']!=null?r['nombre-nave']:(r.nombre_nave!=null?r.nombre_nave:null);
         var name = (raw!=null&&String(raw).trim()!=='')?String(raw):('Jugador '+(i+1));

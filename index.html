@@ -1125,28 +1125,35 @@ input:focus,textarea:focus,select:focus{
 
 
 
-/* === Ajuste solicitado: ventana principal sin scroll exterior === */
+/* === Ajuste: conservar toda la página y hacer compactos los controles táctiles === */
 html, body {
-  width:100%; height:100%; height:100dvh;
-  overflow:hidden !important;
-  overscroll-behavior:none !important;
+  width:100%;
+  min-height:100%;
+  height:auto !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior-x:none !important;
+  scrollbar-width:none !important;
+  -ms-overflow-style:none !important;
 }
-body { min-height:0 !important; }
+html::-webkit-scrollbar, body::-webkit-scrollbar {display:none !important;width:0 !important;height:0 !important}
+body {min-height:100vh !important}
 .tech-game-section {
-  height:100vh; height:100dvh;
-  max-height:100vh; max-height:100dvh;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
   margin:0 auto !important;
   padding:8px 12px !important;
   display:flex; flex-direction:column; gap:6px;
-  overflow:hidden !important;
+  overflow:visible !important;
 }
 .tech-game {
-  flex:1 1 auto;
-  min-height:0 !important;
-  height:auto !important;
-  max-height:calc(100dvh - 190px);
+  flex:0 0 auto;
+  min-height:360px !important;
+  height:min(62vh,560px) !important;
+  max-height:none !important;
 }
-/* El menú conserva su propio scroll para llegar a los demás modos de juego. */
+/* El menú de modos mantiene su propio scroll fino; el contenido inferior sigue presente. */
 #startPanel {
   overflow-y:auto !important;
   overflow-x:hidden !important;
@@ -1154,71 +1161,74 @@ body { min-height:0 !important; }
   max-height:92% !important;
   scrollbar-width:thin !important;
 }
-/* Los controles táctiles se reorganizan y aumentan de tamaño; pausa queda arriba del juego. */
 .touch-pad {
   flex:0 0 auto;
-  margin:4px auto 0 !important;
-  padding:0 4px !important;
-  max-height:36dvh !important;
+  margin:3px auto 0 !important;
+  padding:0 3px !important;
+  max-height:none !important;
   overflow:visible !important;
 }
 .touch-pad-inner {
   display:grid !important;
-  grid-template-columns:minmax(92px,1fr) minmax(150px,1.35fr) minmax(82px,.9fr) !important;
+  grid-template-columns:minmax(72px,.8fr) minmax(120px,1.25fr) minmax(64px,.7fr) !important;
   align-items:center !important;
   justify-content:stretch !important;
-  gap:clamp(6px,1.5vw,14px) !important;
-  padding:8px !important;
+  gap:clamp(4px,1vw,9px) !important;
+  padding:4px !important;
 }
 .touch-move-pad {
-  width:clamp(100px,17vw,150px) !important;
-  height:clamp(100px,17vw,150px) !important;
+  width:clamp(72px,13vw,112px) !important;
+  height:clamp(72px,13vw,112px) !important;
   max-width:100% !important;
 }
+/* Cinco botones de poderes: compactos, con icono y etiqueta legibles. */
 .touch-mid {
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:7px !important;
+  gap:4px !important;
   width:100% !important;
   max-width:none !important;
 }
 .touch-util, .touch-special {
+  box-sizing:border-box !important;
   width:100% !important;
   min-width:0 !important;
-  min-height:clamp(42px,6.5vh,58px) !important;
-  height:auto !important;
-  padding:6px 4px !important;
-  border-radius:11px !important;
-  font-size:clamp(10px,1.3vw,13px) !important;
+  min-height:34px !important;
+  height:38px !important;
+  padding:3px 2px !important;
+  border-radius:8px !important;
+  font-size:10px !important;
+  line-height:1.05 !important;
+  white-space:normal !important;
   display:flex !important;
   flex-direction:column !important;
   justify-content:center !important;
   align-items:center !important;
-  gap:3px !important;
+  gap:2px !important;
+  overflow:visible !important;
 }
-.touch-util .tu-ico {font-size:clamp(17px,2.4vw,23px) !important;line-height:1.1}
-.touch-util .tu-lab {font-size:clamp(8px,1vw,10px) !important;line-height:1.15}
+.touch-util .tu-ico {font-size:15px !important;line-height:1 !important;display:block !important}
+.touch-util .tu-lab {font-size:9px !important;line-height:1.1 !important;display:block !important;opacity:1 !important;visibility:visible !important;overflow:visible !important}
 .touch-fire {
-  width:clamp(76px,12vw,108px) !important;
-  height:clamp(76px,12vw,108px) !important;
+  width:clamp(58px,9vw,82px) !important;
+  height:clamp(58px,9vw,82px) !important;
   max-width:100% !important;
-  font-size:clamp(12px,1.8vw,16px) !important;
+  font-size:11px !important;
 }
 #touchPause {display:none !important}
 @media(max-width:600px), (pointer:coarse) {
   .tech-game-section {padding:5px 6px !important;gap:4px !important}
-  .tech-game {max-height:54dvh !important;min-height:0 !important}
-  .touch-pad {max-height:40dvh !important}
+  .tech-game {height:min(48vh,420px) !important;min-height:300px !important}
   .touch-pad-inner {
-    grid-template-columns:minmax(82px,.9fr) minmax(130px,1.35fr) minmax(68px,.7fr) !important;
-    gap:5px !important;padding:5px 2px !important;
+    grid-template-columns:minmax(64px,.75fr) minmax(112px,1.3fr) minmax(56px,.65fr) !important;
+    gap:4px !important;padding:3px 1px !important;
   }
-  .touch-move-pad {width:clamp(82px,25vw,112px) !important;height:clamp(82px,25vw,112px) !important}
-  .touch-mid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:5px !important}
-  .touch-util,.touch-special {min-height:clamp(36px,5.2vh,47px) !important;padding:4px 2px !important}
-  .touch-util .tu-ico {font-size:17px !important}
-  .touch-util .tu-lab {font-size:8px !important}
-  .touch-fire {width:clamp(64px,19vw,84px) !important;height:clamp(64px,19vw,84px) !important;font-size:12px !important}
+  .touch-move-pad {width:clamp(64px,21vw,92px) !important;height:clamp(64px,21vw,92px) !important}
+  .touch-mid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:3px !important}
+  .touch-util,.touch-special {min-height:32px !important;height:35px !important;padding:2px 1px !important;font-size:9px !important}
+  .touch-util .tu-ico {font-size:14px !important}
+  .touch-util .tu-lab {font-size:8px !important;line-height:1.1 !important}
+  .touch-fire {width:clamp(52px,16vw,70px) !important;height:clamp(52px,16vw,70px) !important;font-size:10px !important}
   .touch-pad .goku-forms {gap:3px !important;padding:3px 2px !important}
   .touch-pad .goku-form-btn {padding:4px 6px !important;font-size:9px !important}
 }

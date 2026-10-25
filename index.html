@@ -2056,8 +2056,14 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top">
-<div class="game-title">⚡ TECH SYSTEM</div>
-<div class="game-score">Puntos <span id="gameScore">0</span> · Récord <span id="gameRecord">0</span> · Vidas <span id="gameLives">1</span></div>
+<div class="game-title">TECH RUN</div>
+<div class="game-score">
+  <span class="gs-item"><i class="gs-lab">PTS</i> <span id="gameScore">0</span></span>
+  <span class="gs-sep">·</span>
+  <span class="gs-item"><i class="gs-lab">REC</i> <span id="gameRecord">0</span></span>
+  <span class="gs-sep">·</span>
+  <span class="gs-item"><i class="gs-lab">VID</i> <span id="gameLives">1</span></span>
+</div>
 </div>
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
@@ -3066,6 +3072,38 @@ function applyUILanguage(){
   try{if(typeof rebuildConfigPanel==="function")rebuildConfigPanel()}catch(e){}
   try{if(typeof renderStart==="function")renderStart()}catch(e){}
 }
+
+function openTechConfigPanel(){
+  try{
+    var cfg=document.getElementById("configPanel");
+    if(!cfg)return;
+    if(typeof getConfigHTML==="function"){
+      cfg.innerHTML=getConfigHTML();
+    }
+    if(typeof wireConfigPanel==="function")wireConfigPanel();
+    /* forzar estado de casillas desde window */
+    try{
+      var smt=document.getElementById("showMinimapToggle");
+      var srt=document.getElementById("showOnlineRankToggle");
+      if(smt)smt.checked=window.showMinimap!==false;
+      if(srt)srt.checked=window.showOnlineRank!==false;
+    }catch(e){}
+    cfg.classList.add("config-panel-open");
+    cfg.style.setProperty("display","block","important");
+    cfg.style.setProperty("visibility","visible","important");
+    cfg.style.setProperty("opacity","1","important");
+    cfg.style.setProperty("pointer-events","auto","important");
+  }catch(e){console.warn("[config]",e)}
+}
+function applyHudTogglesFromConfig(){
+  try{
+    var smt=document.getElementById("showMinimapToggle");
+    var srt=document.getElementById("showOnlineRankToggle");
+    if(smt) setShowMinimap(!!smt.checked);
+    if(srt) setShowOnlineRank(!!srt.checked);
+  }catch(e){}
+}
+
 function getConfigHTML(){
   return `<h2 style="font-size:20px;margin-bottom:10px">${T("config")}</h2>
 <p style="color:#FFCD00;font-size:11px;margin:6px 0 2px">${T("sensMouse")}</p>
@@ -3117,13 +3155,13 @@ function getConfigHTML(){
 <p style="color:#888;font-size:10px;margin-top:8px">${T("pcHint")}</p>
 <hr style="border:none;border-top:1px solid rgba(255,205,0,.25);margin:12px 0">
 <p style="color:#FFCD00;font-size:12px;margin:4px 0 6px">🖥️ Interfaz en partida</p>
-<label style="display:block;margin:8px 0;color:#ddd;font-size:12px;cursor:pointer">
-<input type="checkbox" id="showMinimapToggle" ${showMinimap?"checked":""} style="accent-color:#00C8FF"> Mostrar radar / mapa
+<label style="display:flex;align-items:center;gap:10px;margin:10px 0;color:#fff;font-size:13px;cursor:pointer;pointer-events:auto;user-select:none">
+<input type="checkbox" id="showMinimapToggle" ${(window.showMinimap!==false)?"checked":""} style="width:18px;height:18px;accent-color:#00C8FF;pointer-events:auto"> <span>Mostrar radar / mapa</span>
 </label>
-<label style="display:block;margin:8px 0;color:#ddd;font-size:12px;cursor:pointer">
-<input type="checkbox" id="showOnlineRankToggle" ${showOnlineRank?"checked":""} style="accent-color:#FFCD00"> Mostrar ranking online (modo 🌐)
+<label style="display:flex;align-items:center;gap:10px;margin:10px 0;color:#fff;font-size:13px;cursor:pointer;pointer-events:auto;user-select:none">
+<input type="checkbox" id="showOnlineRankToggle" ${(window.showOnlineRank!==false)?"checked":""} style="width:18px;height:18px;accent-color:#FFCD00;pointer-events:auto"> <span>Mostrar ranking online (modo 🌐)</span>
 </label>
-<p style="color:#888;font-size:10px;margin:4px 0 8px">También puedes ocultarlos o mostrarlos en partida con los botones 🗺️ y 🏆 (izquierda).</p>
+<p style="color:#888;font-size:10px;margin:4px 0 8px">En partida: botones <b>MAP</b> y <b>TOP</b> (izquierda). Aquí se guarda la preferencia.</p>
 <button class="game-btn" id="btnManual" style="margin-top:10px;width:90%">${T("manual")}</button>
 <button class="game-btn" id="closeConfig">${T("save")}</button>`;
 }
@@ -4410,8 +4448,8 @@ function initStars(){
 (function setupUI(){
 const gameBox=document.querySelector(".tech-game");if(!gameBox)return;
 function mk(id,html,title,css){let b=document.getElementById(id);if(!b){b=document.createElement("button");b.id=id;b.innerHTML=html;b.title=title;b.style.cssText=css;gameBox.appendChild(b)}return b}
-const btnFS=mk("btnFullscreen","⛶","Pantalla completa","position:absolute;top:8px;right:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,205,0,.85);color:#111;font-size:15px;cursor:pointer");
-const btnExit=mk("btnExitFS","✕","Salir","position:absolute;top:8px;right:44px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.9);color:#fff;font-size:15px;cursor:pointer;display:none");
+const btnFS=mk("btnFullscreen","⛶","Pantalla completa","position:absolute;top:10px;right:10px;z-index:40;width:40px;height:40px;border:1px solid rgba(255,255,255,.35);border-radius:12px;background:linear-gradient(160deg,#FFCD00,#c9a400);color:#111;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)");
+const btnExit=mk("btnExitFS","✕","Salir","position:absolute;top:10px;right:10px;z-index:40;width:40px;height:40px;border:1px solid rgba(255,140,160,.4);border-radius:12px;background:linear-gradient(160deg,#e11d3a,#9a1028);color:#fff;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)");
 btnFS.onclick=()=>{
   const wrap=document.querySelector('.tech-game-section')||gameBox;
   if(wrap.requestFullscreen)wrap.requestFullscreen();
@@ -4447,19 +4485,19 @@ function syncTouchPad(){
 }
 function onFS(){
   const fs=!!(document.fullscreenElement||document.webkitFullscreenElement);
-  btnExit.style.display=fs?"block":"none";
-  btnFS.style.display=fs?"none":"block";
+  btnExit.style.display=fs?"flex":"none";
+  btnFS.style.display=fs?"none":"flex";
   syncTouchPad();
   setTimeout(()=>{resizeCanvas();updateGokuFormsUI();syncTouchPad()},150);
 }
 document.addEventListener("fullscreenchange",onFS);document.addEventListener("webkitfullscreenchange",onFS);
 try{syncTouchPad();window.addEventListener("resize",()=>{clearTimeout(window._tpR);window._tpR=setTimeout(syncTouchPad,120)})}catch(e){}
-const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:8px;right:80px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,56,168,.9);color:#fff;font-size:14px;cursor:pointer;display:none");
+const btnPause=mk("btnPause","⏸","Pausa (P)","position:absolute;top:10px;right:96px;z-index:40;width:40px;height:40px;border:1px solid rgba(120,190,255,.45);border-radius:12px;background:linear-gradient(160deg,#1a6dff,#0d3f9e);color:#fff;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)");
 btnPause.onclick=()=>togglePause();
-const btnMuteLive=mk("btnMuteLive",audioMuted?"🔇":"🔊","Silenciar / Activar audio","position:absolute;top:8px;right:152px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;font-size:15px;cursor:pointer;display:none;line-height:1");
+const btnMuteLive=mk("btnMuteLive",audioMuted?"🔇":"🔊","Silenciar / Activar audio","position:absolute;top:10px;right:192px;z-index:40;width:40px;height:40px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:linear-gradient(160deg,rgba(20,28,44,.92),rgba(8,12,22,.95));color:#e8f0ff;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.35)");
 window.refreshMuteLiveIcon=function refreshMuteLiveIcon(){try{const b=document.getElementById("btnMuteLive");if(b)b.textContent=audioMuted?"🔇":"🔊";}catch(e){}};
 btnMuteLive.onclick=()=>{try{toggleMute();lsSet("techAudioMuted",audioMuted?"1":"0");window.refreshMuteLiveIcon();const mu=document.getElementById("audioMute");if(mu)mu.checked=!!audioMuted;const pmu=document.getElementById("pauseMute");if(pmu)pmu.checked=!!audioMuted;}catch(e){}};
-const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;top:8px;right:116px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(206,17,38,.85);color:#fff;font-size:13px;cursor:pointer;display:none");
+const btnRestartLive=mk("btnRestartLive","🔄","Reiniciar","position:absolute;top:10px;right:144px;z-index:40;width:40px;height:40px;border:1px solid rgba(255,140,160,.4);border-radius:12px;background:linear-gradient(160deg,#e11d3a,#9a1028);color:#fff;font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)");
 btnRestartLive.onclick=()=>{if(confirm("¿Reiniciar partida?"))startGame()};
 
 const btnCfg=mk("btnConfig","⚙","Config","position:absolute;top:8px;left:8px;z-index:30;width:32px;height:32px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#FFCD00;font-size:15px;cursor:pointer");
@@ -4505,9 +4543,17 @@ const gy=document.getElementById("gyroToggle");if(gy)gy.onchange=()=>{gyroOn=gy.
   else en();
 }};
 const smt=document.getElementById("showMinimapToggle");
-if(smt)smt.onchange=()=>{setShowMinimap(smt.checked)};
+if(smt){
+  smt.checked=window.showMinimap!==false;
+  const applyMap=()=>setShowMinimap(!!smt.checked);
+  smt.onchange=applyMap;smt.onclick=applyMap;
+}
 const srt=document.getElementById("showOnlineRankToggle");
-if(srt)srt.onchange=()=>{setShowOnlineRank(srt.checked)};
+if(srt){
+  srt.checked=window.showOnlineRank!==false;
+  const applyRank=()=>setShowOnlineRank(!!srt.checked);
+  srt.onchange=applyRank;srt.onclick=applyRank;
+}
 const ls=document.getElementById("langSelect");if(ls)ls.onchange=()=>{if(typeof window.setLanguage==="function")window.setLanguage(ls.value);else{lang=ls.value;lsSet("techLang",lang);applyUILanguage();}};
 const tls=document.getElementById("touchLayoutSelect");
 if(tls){tls.value=touchLayout||"left";tls.onchange=()=>{touchLayout=tls.value;lsSet("techTouchLayout",touchLayout);applyTouchLayout()}};
@@ -4529,6 +4575,7 @@ if(pms){pms.value=powerMode;pms.onchange=()=>{powerMode=pms.value;lsSet("techPow
 const btnMan=document.getElementById("btnManual");if(btnMan)btnMan.onclick=()=>showUserManual();
 
 document.getElementById("closeConfig").onclick=()=>{
+  try{applyHudTogglesFromConfig()}catch(e){}
   lsSet("techSensMouse",sensMouse);lsSet("techSensKeys",sensKeys);lsSet("techSensPadV7",sensPad);
   lsSet("techVolMusicV3",volMusic);lsSet("techVolSfxV3",volSfx);lsSet("techAudioMuted",audioMuted?"1":"0");
   lsSet("techVibrate",vibrateOn?"1":"0");lsSet("techVibrateShoot",vibrateShoot?"1":"0");lsSet("techLowPower",lowPower?"1":"0");lsSet("techGyro",gyroOn?"1":"0");lsSet("techLang",lang);lsSet("techTouchLayout",touchLayout||"left");lsSet("techPowerMode",powerMode);lsSet("techShowMinimap",window.showMinimap?"1":"0");lsSet("techShowOnlineRank",window.showOnlineRank?"1":"0");try{applyTouchLayout();applyUILanguage();refreshHudToggleIcons()}catch(e){}
@@ -4594,11 +4641,16 @@ btnCfg.onclick=()=>{
     window.__configOpenedFromPause=true;
     if(!gamePaused)togglePause(true);
   }
-  cfg.classList.toggle("config-panel-open",open);
-  cfg.style.setProperty("display",open?"block":"none","important");
-  if(!open && window.__configOpenedFromPause){
-    window.__configOpenedFromPause=false;
-    if(gameRunning && gamePaused)togglePause(false);
+  if(open){
+    openTechConfigPanel();
+  } else {
+    try{applyHudTogglesFromConfig()}catch(e){}
+    cfg.classList.remove("config-panel-open");
+    cfg.style.setProperty("display","none","important");
+    if(window.__configOpenedFromPause){
+      window.__configOpenedFromPause=false;
+      if(gameRunning && gamePaused)togglePause(false);
+    }
   }
 }}
 try{btnCfg.style.display="none"}catch(e){}
@@ -4612,7 +4664,11 @@ pp.innerHTML=`<h2 style="margin-bottom:6px;font-size:22px">⏸ PAUSA</h2>
 <button class="game-btn" id="inicioFromPause" style="margin-top:8px;margin-left:0;width:100%;background:#0038A8;color:#fff">INICIO</button>
 <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,205,0,.3);text-align:left">
   <button type="button" class="game-btn" id="pauseOpenFullCfg" style="width:100%;margin-top:4px;padding:11px;font-size:13px">⚙ CONFIGURACIONES</button>
-  <p style="color:#aaa;font-size:10px;text-align:center;margin:6px 0 0">Abre la pantalla completa de configuraciones</p>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button type="button" class="game-btn" id="pauseToggleMap" style="flex:1;margin:0;padding:10px;font-size:12px">MAP radar</button>
+    <button type="button" class="game-btn" id="pauseToggleRank" style="flex:1;margin:0;padding:10px;font-size:12px">TOP ranking</button>
+  </div>
+  <p style="color:#aaa;font-size:10px;text-align:center;margin:6px 0 0">Oculta o muestra radar y ranking online</p>
 </div>`;
 gameBox.appendChild(pp);
 function wirePauseControls(){
@@ -4634,9 +4690,23 @@ function wirePauseControls(){
   if(pof)pof.onclick=()=>{
     window.__configOpenedFromPause=true;
     const pause=document.getElementById("pausePanel");if(pause)pause.style.display="none";
-    const cfg=document.getElementById("configPanel");
-    if(cfg){cfg.classList.add("config-panel-open");cfg.style.setProperty("display","block","important");}
+    if(typeof openTechConfigPanel==="function")openTechConfigPanel();
+    else {
+      const cfg=document.getElementById("configPanel");
+      if(cfg){cfg.classList.add("config-panel-open");cfg.style.setProperty("display","block","important");}
+    }
   };
+  function refreshPauseHudBtns(){
+    const a=document.getElementById("pauseToggleMap");
+    const b=document.getElementById("pauseToggleRank");
+    if(a){a.textContent=(window.showMinimap!==false)?"MAP: ON":"MAP: OFF";a.style.opacity=(window.showMinimap!==false)?"1":"0.55"}
+    if(b){b.textContent=(window.showOnlineRank!==false)?"TOP: ON":"TOP: OFF";b.style.opacity=(window.showOnlineRank!==false)?"1":"0.55"}
+  }
+  const ptm=document.getElementById("pauseToggleMap");
+  if(ptm)ptm.onclick=()=>{setShowMinimap(!(window.showMinimap!==false));refreshPauseHudBtns()};
+  const ptr=document.getElementById("pauseToggleRank");
+  if(ptr)ptr.onclick=()=>{setShowOnlineRank(!(window.showOnlineRank!==false));refreshPauseHudBtns()};
+  refreshPauseHudBtns();
 }
 wirePauseControls();
 document.getElementById("resumeGame").onclick=()=>togglePause(false);const rp=document.getElementById("restartFromPause");if(rp)rp.onclick=()=>{togglePause(false);startGame()};const sp=document.getElementById("saveFromPause");if(sp)sp.onclick=()=>saveMidGame();const ip=document.getElementById("inicioFromPause");if(ip)ip.onclick=()=>goToStartMenu()}
@@ -8858,7 +8928,7 @@ gameOverPanel.style.setProperty("display","none","important");
 const configShortcut=document.getElementById("btnConfig");if(configShortcut){configShortcut.style.setProperty("display","flex","important");configShortcut.style.setProperty("position","absolute","important");configShortcut.style.setProperty("top","8px","important");configShortcut.style.setProperty("left","10px","important");configShortcut.style.setProperty("right","auto","important");configShortcut.style.setProperty("z-index","60","important");configShortcut.style.setProperty("align-items","center","important");configShortcut.style.setProperty("justify-content","center","important");configShortcut.setAttribute("aria-label","Abrir configuraciones durante la partida");configShortcut.title="Configuraciones";}
 const pp=document.getElementById("pausePanel");if(pp)pp.style.display="none";
 const cp=document.getElementById("configPanel");if(cp){cp.classList.remove("config-panel-open");cp.style.setProperty("display","none","important");cp.hidden=false;}
-const bp=document.getElementById("btnPause");if(bp){bp.style.display="block";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="block";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="block";try{window.refreshMuteLiveIcon()}catch(e){}}try{const btm=document.getElementById("btnToggleMap");if(btm)btm.style.display="block";const btr=document.getElementById("btnToggleRank");if(btr)btr.style.display="block";refreshHudToggleIcons()}catch(e){}
+const bp=document.getElementById("btnPause");if(bp){bp.style.display="flex";bp.innerHTML="⏸"}const br=document.getElementById("btnRestartLive");if(br)br.style.display="flex";const bm=document.getElementById("btnMuteLive");if(bm){bm.style.display="flex";try{window.refreshMuteLiveIcon()}catch(e){}}try{const btm=document.getElementById("btnToggleMap");if(btm)btm.style.display="block";const btr=document.getElementById("btnToggleRank");if(btr)btr.style.display="block";refreshHudToggleIcons()}catch(e){}
 obstacles=[];particles=[];bullets=[];enemyBullets=[];pickups=[];explosions=[];traps=[];missiles=[];lightningFX=[];allies=[];gravZones=[];drones=[];
 score=0;meteorsDestroyed=0;shipsDestroyed=0;ki=0;kiReady=false;kamehameha=0;dashCd=0;dashInvuln=0;dashTrail=[];shieldCd=0;activeShield=0;chargeShot=0;worldTeleportCd=0;droneCd=0;bounceShot=0;bounceShotCd=0;freezeCd=0;phaseShift=0;railgun=0;lootVacuum=0;orbitalMines=[];decoys=[];chainFX=[];ammo=100;shield=0;rapidFire=0;tripleShot=0;slowMo=0;laser=0;pierce=0;invisible=0;magnet=0;missilePower=0;allyPower=0;storm=0;overdrive=0;nova=0;reflect=0;burst=0;repair=0;freezeEnemies=0;barrier=0;bazooka=0;specialCharges=3;powersCollected=0;lives=1;level=1;waveCount=0;waveNumber=1;scenario=selectedWorld||1;scenarioTransition=0;scenarioMsg="";gamePaused=false;lastEnemySpawn=0;
 keys.up=keys.down=keys.left=keys.right=false;
@@ -11724,6 +11794,173 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   else {wrapStart();bootRefresh()}
 })();
 </script>
+
+
+<style id="tech-hud-pro-compact">
+/* —— HUD puntos / récord / vidas: compacto y profesional —— */
+.game-top{
+  top:10px !important;
+  left:48px !important;
+  right:210px !important;
+  gap:2px !important;
+  z-index:12 !important;
+  pointer-events:none !important;
+}
+.game-title{
+  font-family:Orbitron,sans-serif !important;
+  font-size:9px !important;
+  font-weight:700 !important;
+  letter-spacing:2.2px !important;
+  color:rgba(255,255,255,.72) !important;
+  -webkit-text-fill-color:rgba(255,255,255,.72) !important;
+  text-shadow:0 0 10px rgba(79,210,255,.25) !important;
+  line-height:1.2 !important;
+}
+.game-score{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:baseline !important;
+  gap:5px !important;
+  font-family:"Share Tech Mono",ui-monospace,monospace !important;
+  font-size:10px !important;
+  line-height:1.25 !important;
+  color:rgba(200,214,232,.88) !important;
+  -webkit-text-fill-color:rgba(200,214,232,.88) !important;
+  background:rgba(0,8,20,.28) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  border-left:2px solid rgba(255,205,0,.55) !important;
+  border-radius:0 8px 8px 0 !important;
+  padding:3px 8px 3px 7px !important;
+  backdrop-filter:blur(6px) !important;
+  -webkit-backdrop-filter:blur(6px) !important;
+  box-shadow:none !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.75) !important;
+}
+.game-score .gs-item{
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:3px !important;
+  white-space:nowrap !important;
+}
+.game-score .gs-lab{
+  font-style:normal !important;
+  font-size:8px !important;
+  font-weight:700 !important;
+  letter-spacing:.6px !important;
+  color:rgba(160,180,200,.75) !important;
+  -webkit-text-fill-color:rgba(160,180,200,.75) !important;
+  font-family:Orbitron,sans-serif !important;
+}
+.game-score span#gameScore,
+.game-score span#gameRecord,
+.game-score span#gameLives,
+.game-score .gs-item > span{
+  color:#FFCD00 !important;
+  -webkit-text-fill-color:#FFCD00 !important;
+  font-weight:800 !important;
+  font-size:11px !important;
+  text-shadow:0 0 8px rgba(255,205,0,.35) !important;
+  font-family:"Share Tech Mono",monospace !important;
+}
+.game-score .gs-sep{
+  color:rgba(255,255,255,.22) !important;
+  -webkit-text-fill-color:rgba(255,255,255,.22) !important;
+  font-size:9px !important;
+}
+@media(max-width:600px){
+  .game-top{left:42px !important;right:190px !important;top:8px !important}
+  .game-title{font-size:8px !important;letter-spacing:1.6px !important}
+  .game-score{font-size:9px !important;padding:2px 6px 2px 6px !important;gap:4px !important}
+  .game-score .gs-lab{font-size:7px !important}
+  .game-score span#gameScore,
+  .game-score span#gameRecord,
+  .game-score span#gameLives,
+  .game-score .gs-item > span{font-size:10px !important}
+}
+
+/* —— Controles en partida: más grandes y profesionales —— */
+#btnPause,
+#btnRestartLive,
+#btnMuteLive,
+#btnFullscreen,
+#btnExitFS{
+  width:40px !important;
+  height:40px !important;
+  border-radius:12px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  box-shadow:0 4px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12) !important;
+  font-size:16px !important;
+  line-height:1 !important;
+  display:none;
+  align-items:center !important;
+  justify-content:center !important;
+  transition:transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  cursor:pointer !important;
+  z-index:40 !important;
+}
+#btnPause:hover,
+#btnRestartLive:hover,
+#btnMuteLive:hover,
+#btnFullscreen:hover,
+#btnExitFS:hover{
+  transform:translateY(-1px) scale(1.04) !important;
+  filter:brightness(1.08);
+}
+#btnPause:active,
+#btnRestartLive:active,
+#btnMuteLive:active{
+  transform:scale(.96) !important;
+}
+#btnPause{
+  background:linear-gradient(160deg,#1a6dff 0%,#0d3f9e 100%) !important;
+  color:#fff !important;
+  border-color:rgba(120,190,255,.45) !important;
+  right:96px !important;
+  top:10px !important;
+}
+#btnRestartLive{
+  background:linear-gradient(160deg,#e11d3a 0%,#9a1028 100%) !important;
+  color:#fff !important;
+  border-color:rgba(255,140,160,.4) !important;
+  right:144px !important;
+  top:10px !important;
+}
+#btnMuteLive{
+  background:linear-gradient(160deg,rgba(20,28,44,.92),rgba(8,12,22,.95)) !important;
+  color:#e8f0ff !important;
+  border-color:rgba(255,255,255,.16) !important;
+  right:192px !important;
+  top:10px !important;
+}
+#btnFullscreen{
+  background:linear-gradient(160deg,#FFCD00 0%,#c9a400 100%) !important;
+  color:#111 !important;
+  border-color:rgba(255,255,255,.35) !important;
+  right:10px !important;
+  top:10px !important;
+}
+#btnExitFS{
+  background:linear-gradient(160deg,#e11d3a 0%,#9a1028 100%) !important;
+  color:#fff !important;
+  right:10px !important;
+  top:10px !important;
+}
+@media(max-width:600px){
+  #btnPause,#btnRestartLive,#btnMuteLive,#btnFullscreen,#btnExitFS{
+    width:36px !important;
+    height:36px !important;
+    border-radius:10px !important;
+    font-size:14px !important;
+  }
+  #btnPause{right:86px !important;top:8px !important}
+  #btnRestartLive{right:128px !important;top:8px !important}
+  #btnMuteLive{right:170px !important;top:8px !important}
+  #btnFullscreen,#btnExitFS{right:8px !important;top:8px !important}
+  .game-top{right:200px !important}
+}
+</style>
 
 </body>
 </html>

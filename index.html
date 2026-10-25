@@ -2323,7 +2323,9 @@ const CREDITS={name:"Brayhan Rubio",phone:"3052076713",email:"brayan32455415@gma
 
 /* ========== SISTEMA EXTRA: dificultad, combo, logros, ranking, mejoras ========== */
 let difficulty=lsGet("techDiff","normal"); // easy|normal|hard
-let gameMode=lsGet("techGameMode","classic"); // classic|infinite
+let gameMode=lsGet("techGameMode","classic"); // classic|infinite|online
+function isInfiniteMode(){return gameMode==="infinite"||gameMode==="online"}
+function isOnlineMode(){return gameMode==="online"}
 let kamehameha=0; /* frames del rayo Kamehameha */
 let combo=0,comboTimer=0,comboMult=1;
 let screenShake=0,hitSparks=[];
@@ -4594,8 +4596,10 @@ if(startPanel&&!document.getElementById("startExtras")){
     <div class="diff-btns">
       <button type="button" data-mode="classic" class="${gameMode==="classic"?"active":""}">Clásico</button>
       <button type="button" data-mode="infinite" class="${gameMode==="infinite"?"active":""}">∞ Infinito</button>
+      <button type="button" data-mode="online" class="${gameMode==="online"?"active":""}">🌐 ∞ Online</button>
     </div>
     <p style="font-size:9px;color:#888;margin:2px 0 6px" data-i18n-key="infiniteDesc">Infinito: oleadas interminables, sin jefes; la velocidad y la dificultad aumentan con cada oleada.</p>
+    <p style="font-size:9px;color:#8fd;margin:0 0 6px" data-i18n-key="onlineDesc">Online: igual que Infinito y al terminar se publica tu puntuación en el ranking online.</p>
     <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <span>⬆ Mejoras permanentes</span>
       <span style="color:#FFCD00;font-size:12px;font-weight:700;letter-spacing:.5px">${coins} ⭐</span>
@@ -5000,7 +5004,7 @@ function getProgressSpeed(){
   const base=1 + Math.min(1.15, waveCount*0.07 + score*0.002);
   // Modo infinito: la dificultad sigue aumentando con cada oleada, sin tope fijo.
   // El crecimiento es gradual para conservar la fluidez y el equilibrio.
-  const inf=gameMode==="infinite"?1+Math.log1p(Math.max(0,waveCount))*0.12+Math.max(0,waveCount)*0.002:1;
+  const inf=isInfiniteMode()?1+Math.log1p(Math.max(0,waveCount))*0.12+Math.max(0,waveCount)*0.002:1;
   return base*(typeof diffSpeedMult==="function"?diffSpeedMult():1)*inf;
 }
 function playerSpeedBonus(){return 1+Math.min(0.35,(upgSpeed||0)*0.07)}
@@ -5491,7 +5495,7 @@ function startBossPhase(){phase="boss";phaseTimer=0;obstacles=[];enemyBullets=[]
 function updatePhase(){
   if(phase==="meteors"){phaseTimer--;if(phaseTimer<=0)startWarning()}
   else if(phase==="warning"){phaseTimer--;if(phaseTimer<=0){
-    if(gameMode!=="infinite"&&waveCount>0&&waveCount%4===0)startBossPhase();
+    if(!isInfiniteMode()&&waveCount>0&&waveCount%4===0)startBossPhase();
     else startShipPhase();
   }}
   else if(phase==="ships"){
@@ -5499,10 +5503,10 @@ function updatePhase(){
     const left=obstacles.filter(o=>!["meteor","explosive","magnetic","hard","fireball"].includes(o.type)).length;
     if((left===0&&phaseTimer>45)||phaseTimer>18*60){
       advanceLevel();
-      if(gameMode==="infinite"){
-        /* Infinito: cada oleada vuelve al ciclo de meteoros; nunca termina por nivel ni genera jefes. */
+      if(isInfiniteMode()){
+        /* Infinito / Online: cada oleada vuelve al ciclo de meteoros; nunca termina por nivel ni genera jefes. */
         startMeteorPhase();
-        scenarioMsg="∞ OLEADA "+waveCount;
+        scenarioMsg=(gameMode==="online"?"🌐":"∞")+" OLEADA "+waveCount;
         scenarioTransition=60;
       } else startMeteorPhase();
     }
@@ -8817,7 +8821,7 @@ const bi=document.getElementById("btnInicio");if(bi)bi.onclick=goToStartMenu;
 try{
   if(typeof window.techSubmitOnlineScore==='function'){
     var _goType = (typeof window.techShipTypeLabel==='function') ? window.techShipTypeLabel() : (typeof shipModel!=='undefined'?String(shipModel):'classic');
-    window.techSubmitOnlineScore({ score: _goScore, ship: _goShip, shipType: _goType });
+    window.techSubmitOnlineScore({ score: _goScore, ship: _goShip, shipType: _goType, mode: (typeof gameMode!=='undefined'?String(gameMode):'classic') });
   } else {
     var st=document.getElementById('onlineRankStatus');
     if(st){st.textContent='🌐 Módulo ranking no cargado';st.style.color='#f88';}
@@ -9200,8 +9204,18 @@ function completeStoryMission(ok){
     pushMissionMsg("🎉 MISIÓN CUMPLIDA +"+(ch.reward||30)+"⭐","success",220);
     try{if(typeof playSfx==="function")playSfx("nova")}catch(e){}
   }
+  /* IMPORTANTE: quitar is-playing o el CSS oculta storyResultPanel y se traba el avance */
   gameRunning=false;gamePaused=false;
   try{cancelAnimationFrame(animationFrame)}catch(e){}
+  try{stopLoopWatchdog()}catch(e){}
+  try{stopEngineSound()}catch(e){}
+  try{if(typeof stopBgMusic==="function")stopBgMusic()}catch(e){}
+  try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+  try{
+    const bp=document.getElementById("btnPause");if(bp)bp.style.display="none";
+    const br=document.getElementById("btnRestartLive");if(br)br.style.display="none";
+    const bm=document.getElementById("btnMuteLive");if(bm)bm.style.display="none";
+  }catch(e){}
   showStoryResultPanel(ok);
 }
 function failStoryMission(reason){
@@ -9225,18 +9239,41 @@ function showStoryResultPanel(ok){
       '<button class="game-btn" id="storyRetryBtn">🔄 Reintentar</button>'+
       '<button class="game-btn game-btn-blue" id="storyMenuBtn">📖 MENÚ HISTORIA</button>';
   }
-  p.style.display="block";
-  const next=document.getElementById("storyNextBtn");if(next)next.onclick=function(){p.style.display="none";startStoryChapter(nextIdx)};
-  const retry=document.getElementById("storyRetryBtn");if(retry)retry.onclick=function(){p.style.display="none";startStoryChapter(storyChapterIdx)};
-  const menu=document.getElementById("storyMenuBtn");if(menu)menu.onclick=function(){p.style.display="none";openStoryMenu()};
+  try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+  p.style.setProperty("display","block","important");
+  p.style.setProperty("visibility","visible","important");
+  p.style.setProperty("opacity","1","important");
+  p.style.setProperty("pointer-events","auto","important");
+  const next=document.getElementById("storyNextBtn");if(next)next.onclick=function(){
+    p.style.display="none";
+    try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+    /* Avanzar con briefing para evitar estado a medias y permitir ver la siguiente misión */
+    const chNext=STORY_CAMPAIGN[nextIdx];
+    if(!chNext){openStoryMenu();return}
+    if(chNext.type==="intro"){startStoryChapter(nextIdx);return}
+    showStoryBriefing(nextIdx);
+  };
+  const retry=document.getElementById("storyRetryBtn");if(retry)retry.onclick=function(){
+    p.style.display="none";
+    try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+    showStoryBriefing(storyChapterIdx);
+  };
+  const menu=document.getElementById("storyMenuBtn");if(menu)menu.onclick=function(){
+    p.style.display="none";
+    try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+    openStoryMenu();
+  };
 }
 
 function openStoryMenu(){
-  storyMode=false;storyMissionActive=false;gameRunning=false;
+  storyMode=false;storyMissionActive=false;gameRunning=false;gamePaused=false;
   try{cancelAnimationFrame(animationFrame)}catch(e){}
-  if(startPanel)startPanel.style.display="none";
-  if(gameOverPanel)gameOverPanel.style.display="none";
-  const rp=document.getElementById("storyResultPanel");if(rp)rp.style.display="none";
+  try{stopLoopWatchdog()}catch(e){}
+  try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+  if(startPanel)startPanel.style.setProperty("display","none","important");
+  if(gameOverPanel)gameOverPanel.style.setProperty("display","none","important");
+  const rp=document.getElementById("storyResultPanel");if(rp)rp.style.setProperty("display","none","important");
+  const bp=document.getElementById("storyBriefPanel");if(bp)bp.style.setProperty("display","none","important");
   let m=document.getElementById("storyMenuPanel");
   if(!m){m=document.createElement("div");m.id="storyMenuPanel";m.className="game-panel";
     m.style.cssText="display:none;z-index:65;width:min(420px,94%);max-height:92%;overflow-y:auto;text-align:left;";
@@ -9283,9 +9320,13 @@ function showStoryBriefing(idx){
     '<p style="font-size:11px;color:#888">'+(typeof T==='function'?T('storyReward'):'Recompensa:')+' <b style="color:#FFD700">+'+ch.reward+'⭐</b></p>'+
     '<button class="game-btn" id="storyStartMission">'+(typeof T==='function'?T('storyStartMission'):'🚀 Iniciar MISIÓN')+'</button>'+
     '<button class="game-btn game-btn-blue" id="storyBackMenu">'+(typeof T==='function'?T('storyBackMenu'):'⬅ ATRÁS')+'</button>';
-  p.style.display="block";
-  document.getElementById("storyStartMission").onclick=function(){p.style.display="none";startStoryChapter(idx)};
-  document.getElementById("storyBackMenu").onclick=function(){p.style.display="none";openStoryMenu()};
+  try{document.querySelector(".tech-game")&&document.querySelector(".tech-game").classList.remove("is-playing")}catch(e){}
+  p.style.setProperty("display","block","important");
+  p.style.setProperty("visibility","visible","important");
+  p.style.setProperty("opacity","1","important");
+  p.style.setProperty("pointer-events","auto","important");
+  document.getElementById("storyStartMission").onclick=function(){p.style.setProperty("display","none","important");startStoryChapter(idx)};
+  document.getElementById("storyBackMenu").onclick=function(){p.style.setProperty("display","none","important");openStoryMenu()};
 }
 function storyOnWaveComplete(){
   if(!storyMode||!storyMissionActive||!storyObjective)return;
@@ -10719,7 +10760,7 @@ const scores=h.map(m=>safeNum(m.score));const sum=scores.reduce((a,b)=>a+b,0),av
     const ret=retentionStats(all);
 
     panel.innerHTML=`<div class="tech-stat-head"><div><h2>📊 Centro de estadísticas PRO</h2></div><button id="closeStatistics" class="tech-stat-close" aria-label="Cerrar estadísticas">✕</button></div>
-      <section class="tech-stat-section tech-stat-filters"><h3>🔎 Filtros y comparación</h3><div class="tech-stat-filtergrid"><label>Comparar<select id="statRange"><option value="5" ${range==='5'?'selected':''}>Últimas 5</option><option value="10" ${range==='10'?'selected':''}>Últimas 10</option><option value="20" ${range==='20'?'selected':''}>Últimas 20</option><option value="all" ${range==='all'?'selected':''}>Todas las filtradas</option></select></label><label>Modo<select id="statMode"><option value="all" ${filterMode==='all'?'selected':''}>Todos los modos</option><option value="classic" ${filterMode==='classic'?'selected':''}>Clásico</option><option value="infinite" ${filterMode==='infinite'?'selected':''}>Infinito</option><option value="story" ${filterMode==='story'?'selected':''}>Historia</option></select></label><label>Desde<input id="statFrom" type="date" value="${esc(filterFrom)}"></label><label>Hasta<input id="statTo" type="date" value="${esc(filterTo)}"></label></div><div class="tech-stat-tools"><button class="tech-stat-action" id="applyStatFilters">Aplicar filtros</button><button class="tech-stat-action" id="clearStatFilters">Limpiar filtros</button><span class="tech-stat-pill">${filtered.length} partidas coinciden</span><span class="tech-stat-pill">${h.length} en comparación</span></div></section>
+      <section class="tech-stat-section tech-stat-filters"><h3>🔎 Filtros y comparación</h3><div class="tech-stat-filtergrid"><label>Comparar<select id="statRange"><option value="5" ${range==='5'?'selected':''}>Últimas 5</option><option value="10" ${range==='10'?'selected':''}>Últimas 10</option><option value="20" ${range==='20'?'selected':''}>Últimas 20</option><option value="all" ${range==='all'?'selected':''}>Todas las filtradas</option></select></label><label>Modo<select id="statMode"><option value="all" ${filterMode==='all'?'selected':''}>Todos los modos</option><option value="classic" ${filterMode==='classic'?'selected':''}>Clásico</option><option value="infinite" ${filterMode==='infinite'?'selected':''}>Infinito</option><option value="online" ${filterMode==='online'?'selected':''}>Online</option><option value="story" ${filterMode==='story'?'selected':''}>Historia</option></select></label><label>Desde<input id="statFrom" type="date" value="${esc(filterFrom)}"></label><label>Hasta<input id="statTo" type="date" value="${esc(filterTo)}"></label></div><div class="tech-stat-tools"><button class="tech-stat-action" id="applyStatFilters">Aplicar filtros</button><button class="tech-stat-action" id="clearStatFilters">Limpiar filtros</button><span class="tech-stat-pill">${filtered.length} partidas coinciden</span><span class="tech-stat-pill">${h.length} en comparación</span></div></section>
       <div class="tech-stat-cards">
        <div class="tech-stat-card"><span>Partidas jugadas</span><strong>${totalGamesPlayed.toLocaleString('es-CO')}</strong><small>Contador desde este navegador · +1 al terminar cada partida</small></div>
        <div class="tech-stat-card"><span>Récord personal</span><strong>${recordText}</strong><small>Mejor puntuación guardada</small></div>
@@ -11227,7 +11268,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     var tipo = (entry && entry.shipType) ? String(entry.shipType) : (typeof window.techShipTypeLabel==='function' ? window.techShipTypeLabel() : '');
     var nick = String((entry && entry.ship) || 'Nave').slice(0, 16);
     /* nombre-nave = apodo · tipo de nave (ej. Br7 · Cazadora) */
-    var nave = tipo ? (nick + ' · ' + tipo) : nick;
+    var modeTag = (entry && entry.mode === 'online') ? ' [∞Online]' : ((entry && entry.mode === 'infinite') ? ' [∞]' : '');
+    var nave = tipo ? (nick + ' · ' + tipo + modeTag) : (nick + modeTag);
     nave = nave.slice(0, 48);
     var body = { record: sc };
     body['nombre-nave'] = nave;

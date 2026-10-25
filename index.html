@@ -12156,7 +12156,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  const SESSION_KEY='techRunAuthSessionV1';
  const modal=document.getElementById('techAuthModal');
  const $=id=>document.getElementById(id);
- let mode='home', session=null, user=null, recoveryAccessToken=null;
+ let mode='home', session=null, user=null, recoveryAccessToken=null, guestMode=false;
  try{session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');user=session&&session.user||null;}catch(e){session=null;user=null;}
  function authHeaders(token){return {'apikey':KEY,'Content-Type':'application/json','Accept':'application/json',...(token?{'Authorization':'Bearer '+token}:{'Authorization':'Bearer '+KEY})};}
  async function request(path,method='GET',body=null,token=null,rest=false){
@@ -12173,7 +12173,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
  function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}if(msg&&window.techNotify&&(/ya existe|no se pudo|no coinciden|contraseña debe|inicia sesión|sesión cerrada/i.test(msg))){window.techNotify(msg,good?'success':'warning','Cuenta TECH RUN');}}
  function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
- function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para continuar.');return;}modal.style.display='none';}
+ function close(){if(!isLogged()){guestMode=true;modal.style.display='none';status('');if(window.techNotify)window.techNotify('Modo invitado: puedes jugar sin iniciar sesión. Las puntuaciones asociadas a tu cuenta pueden no guardarse.','info','TECH RUN');return;}modal.style.display='none';}
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
@@ -12300,12 +12300,13 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  // El nombre de la cuenta es el nombre oficial del jugador; no se puede sustituir por otro al iniciar.
  const oldValidate=window.techValidateOnlineUsername;
  window.techValidateOnlineUsername=async function(nick){
+   if(guestMode)return {ok:true};
    if(!isLogged())return {ok:false,message:'Inicia sesión para continuar.'};
    if(!owns(nick))return {ok:false,message:'Usa el nombre de tu cuenta: '+username()+'.'};
    return {ok:true};
  };
  // Sin sesión, las teclas de juego no pueden mover/disparar; el foco queda en el acceso.
- document.addEventListener('keydown',function(e){if(!isLogged() && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();}},true);
+ document.addEventListener('keydown',function(e){if(!isLogged() && !guestMode && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();}},true);
  // Si hay sesión guardada, intenta renovar token vencido mediante el refresh token.
  async function refreshIfNeeded(){
    if(!session||!session.refresh_token)return;
@@ -12320,22 +12321,22 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
  async function restorePersistentSession(){
    if(recoveryAccessToken){modal.style.display='flex';setMode('reset-link');$('taEmail').value=currentEmail();status('Enlace de recuperación válido. Escribe tu nueva contraseña dos veces.',true);return;}
-   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión para continuar.');return;}
+   if(!session||!session.refresh_token){saveSession(null);open();status('Puedes iniciar sesión o pulsar × para jugar como invitado.');return;}
    await refreshIfNeeded();
    if(isLogged()){syncAccountName();updateAccountUI();}
-   else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}
+   else {open();status('Tu sesión terminó. Inicia sesión o pulsa × para jugar como invitado.');}
  }
  // Bloquea cualquier vía de inicio de partida si no existe una sesión válida.
  document.addEventListener('click',function(e){
    const t=e.target&&e.target.closest?e.target.closest('#startGame, [data-action="start-game"], .start-game-button'):null;
-   if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para continuar.');return;}
-   if(!isLogged() && e.target && e.target.closest && e.target.closest('.touch-pad-inner, #fireButton, #shootButton, .game-control')){
+   if(t&&!isLogged()&&!guestMode){e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión o pulsa × para jugar como invitado.');return;}
+   if(!isLogged() && !guestMode && e.target && e.target.closest && e.target.closest('.touch-pad-inner, #fireButton, #shootButton, .game-control')){
      e.preventDefault();e.stopImmediatePropagation();open();status('Inicia sesión para usar los controles del juego.');
    }
  },true);
  // Si la sesión se cierra en otra pestaña del mismo sitio, bloquear el juego en esta también.
  window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('Sesión cerrada. Inicia sesión para continuar.');}});
- try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión para continuar.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
+ try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()&&!guestMode){open();status('Inicia sesión o pulsa × para jugar como invitado.');return false;}if(isLogged())syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
  // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
  const openedFromRecoveryLink=consumeRecoveryUrl();
  if(document.readyState==='loading'){

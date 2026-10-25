@@ -8724,7 +8724,7 @@ if(ion>0){
 
 if(!(typeof mob==="function"?mob():isMobile()))updateParticles();
 updateHitSparks();
-drawWarning();drawHUD();drawMinimap();
+drawWarning();drawHUD();drawMinimap();try{if(typeof drawOnlineLeaderboard==="function")drawOnlineLeaderboard()}catch(e){}
 try{ctx.restore()}catch(e){}
 animationFrame=requestAnimationFrame(gameLoop)}
 
@@ -11408,6 +11408,225 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
   else wire();
   setInterval(wire, 2000);
+})();
+</script>
+
+
+<script id="tech-online-slither-leaderboard">
+(function(){
+  'use strict';
+  /* Ranking flotante estilo Slither.io sobre el mapa (modo 🌐 Online) */
+  var cache = [];
+  var lastFetch = 0;
+  var fetchEvery = 12000; /* ms */
+  var fetching = false;
+  var lastError = '';
+  var myGhost = null; /* {name, score} del jugador local en partida */
+
+  function onlineActive(){
+    try{
+      return (typeof gameMode!=='undefined' && gameMode==='online')
+        && (typeof gameRunning!=='undefined' && gameRunning)
+        && !(typeof gamePaused!=='undefined' && gamePaused);
+    }catch(e){return false}
+  }
+
+  function myName(){
+    try{
+      var nick = String((typeof shipName!=='undefined'&&shipName)?shipName:'Br7').slice(0,16);
+      var tipo = (typeof window.techShipTypeLabel==='function') ? window.techShipTypeLabel() : '';
+      return tipo ? (nick+' · '+tipo) : nick;
+    }catch(e){return 'Tú'}
+  }
+
+  function myScore(){
+    try{return Math.max(0, Math.floor(Number(typeof score!=='undefined'?score:0)||0))}catch(e){return 0}
+  }
+
+  async function refresh(){
+    if(fetching) return;
+    if(typeof window.techFetchOnlineTop!=='function') return;
+    fetching = true;
+    try{
+      var rows = await window.techFetchOnlineTop(15);
+      cache = (rows||[]).map(function(r,i){
+        var sc = Number(r.record!=null?r.record:0)||0;
+        var raw = r['nombre-nave']!=null?r['nombre-nave']:(r.nombre_nave!=null?r.nombre_nave:null);
+        var name = (raw!=null&&String(raw).trim()!=='')?String(raw):('Jugador '+(i+1));
+        return {name:name, score:sc, id:r.id};
+      });
+      lastError = '';
+      lastFetch = Date.now();
+    }catch(err){
+      lastError = String(err&&err.message?err.message:err);
+    }finally{
+      fetching = false;
+    }
+  }
+
+  function ensureRefresh(){
+    if(!onlineActive()) return;
+    if(Date.now()-lastFetch > fetchEvery) refresh();
+  }
+
+  function buildBoard(){
+    var meSc = myScore();
+    var meNm = myName() + ' [TÚ]';
+    var list = cache.slice();
+    /* Insertar / actualizar fantasma del jugador local */
+    var inserted = false;
+    for(var i=0;i<list.length;i++){
+      if(list[i].__self){ list[i].score=meSc; list[i].name=meNm; inserted=true; break; }
+    }
+    if(!inserted){
+      list.push({name:meNm, score:meSc, __self:true});
+    }
+    list.sort(function(a,b){return b.score-a.score});
+    /* limitar a top 10 visibles, asegurando que "tú" aparezca */
+    var top = list.slice(0,10);
+    var meIn = top.some(function(x){return x.__self});
+    if(!meIn){
+      var rank = list.findIndex(function(x){return x.__self});
+      if(rank>=0){
+        top = list.slice(0,9);
+        top.push(list[rank]);
+      }
+    }
+    return {rows:top, myRank: list.findIndex(function(x){return x.__self})+1, total:list.length};
+  }
+
+  function truncate(s,n){
+    s=String(s||'');
+    if(s.length<=n) return s;
+    return s.slice(0,Math.max(1,n-1))+'…';
+  }
+
+  window.drawOnlineLeaderboard = function(){
+    if(!onlineActive()) return;
+    if(typeof ctx==='undefined'||!ctx||typeof canvas==='undefined'||!canvas) return;
+    ensureRefresh();
+
+    var mob = (typeof isMobile==='function'?isMobile():false)||(canvas.clientWidth||canvas.width)<500;
+    var P = (typeof px==='function')?px:function(n){return n};
+    var board = buildBoard();
+    var rows = board.rows;
+    var rowH = P(mob?12:14);
+    var padX = P(8);
+    var padY = P(6);
+    var titleH = P(mob?14:16);
+    var w = P(mob?130:168);
+    var h = titleH + padY*2 + rows.length*rowH + P(16);
+    var x = P(mob?6:10);
+    var y = P(mob?30:34);
+
+    ctx.save();
+    /* panel estilo Slither */
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    if(ctx.roundRect){
+      ctx.beginPath();ctx.roundRect(x,y,w,h,8);ctx.fill();
+    }else{
+      ctx.fillRect(x,y,w,h);
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1;
+    if(ctx.roundRect){
+      ctx.beginPath();ctx.roundRect(x,y,w,h,8);ctx.stroke();
+    }else{
+      ctx.strokeRect(x,y,w,h);
+    }
+
+    /* título */
+    ctx.font = 'bold '+P(mob?9:10)+'px Orbitron,sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFCD00';
+    ctx.fillText('🏆 TOP ONLINE', x+padX, y+padY+titleH*0.45);
+
+    /* filas */
+    var baseY = y + padY + titleH;
+    for(var i=0;i<rows.length;i++){
+      var r = rows[i];
+      var ry = baseY + i*rowH + rowH*0.55;
+      var isSelf = !!r.__self;
+      var rank = i+1;
+      /* si es el fantasma fuera del top real, mostrar rank real */
+      if(isSelf && board.myRank>10) rank = board.myRank;
+
+      if(isSelf){
+        ctx.fillStyle = 'rgba(255,205,0,0.18)';
+        ctx.fillRect(x+2, baseY+i*rowH, w-4, rowH);
+      }
+
+      var medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':(rank+'.');
+      ctx.font = 'bold '+P(mob?8:9)+'px Share Tech Mono,monospace';
+      ctx.fillStyle = isSelf ? '#FFCD00' : (rank<=3?'#fff':'#c8d6e8');
+      ctx.textAlign = 'left';
+      ctx.fillText(medal, x+padX, ry);
+
+      ctx.font = P(mob?8:9)+'px Share Tech Mono,monospace';
+      ctx.fillStyle = isSelf ? '#FFE066' : '#e8eef6';
+      ctx.fillText(truncate(r.name, mob?10:14), x+padX+P(22), ry);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = isSelf ? '#FFCD00' : '#9fdfff';
+      ctx.font = 'bold '+P(mob?8:9)+'px Share Tech Mono,monospace';
+      ctx.fillText(String(r.score), x+w-padX, ry);
+    }
+
+    /* pie: tu puesto */
+    ctx.textAlign = 'left';
+    ctx.font = P(mob?7:8)+'px Share Tech Mono,monospace';
+    ctx.fillStyle = 'rgba(180,210,230,0.75)';
+    var foot = board.myRank ? ('Tu puesto: #'+board.myRank) : '…';
+    if(lastError) foot = 'Sin conexión ranking';
+    else if(!cache.length && fetching) foot = 'Cargando top…';
+    ctx.fillText(foot, x+padX, y+h-P(8));
+
+    ctx.restore();
+  };
+
+  /* precarga al elegir modo online / al iniciar partida */
+  function bootRefresh(){
+    try{
+      if(typeof gameMode!=='undefined' && gameMode==='online'){
+        if(Date.now()-lastFetch>3000) refresh();
+      }
+    }catch(e){}
+  }
+
+  /* enganchar startGame para refrescar al entrar en online */
+  function wrapStart(){
+    try{
+      if(typeof startGame==='function' && !startGame.__onlineLbWrapped){
+        var orig = startGame;
+        var wrapped = function(){
+          var r = orig.apply(this, arguments);
+          try{
+            if(typeof gameMode!=='undefined' && gameMode==='online'){
+              lastFetch = 0;
+              setTimeout(refresh, 200);
+              setTimeout(refresh, 2500);
+            }
+          }catch(e){}
+          return r;
+        };
+        wrapped.__onlineLbWrapped = true;
+        /* conservar otras marcas */
+        try{ if(orig.__techStatsWrapped) wrapped.__techStatsWrapped = true; }catch(e){}
+        startGame = wrapped;
+        window.startGame = wrapped;
+      }
+    }catch(e){}
+  }
+
+  setInterval(function(){
+    wrapStart();
+    if(onlineActive()) ensureRefresh();
+  }, 2000);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){wrapStart();bootRefresh()});
+  else {wrapStart();bootRefresh()}
 })();
 </script>
 

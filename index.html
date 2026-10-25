@@ -11371,3 +11371,60 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 
 </body>
 </html>
+
+
+<style id="tech-run-touch-center-scroll-left-final">
+/* Touch: mando ligeramente más largo, poderes compactos y centrados */
+.touch-pad-inner{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:clamp(8px,2vw,18px) !important;
+}
+.touch-col{flex:0 0 auto !important;}
+.touch-move-pad{
+  width:clamp(132px,25vw,165px) !important;
+  height:clamp(118px,23vw,148px) !important;
+}
+.touch-mid{
+  flex:0 1 112px !important;
+  width:clamp(88px,17vw,112px) !important;
+  margin-inline:auto !important;
+  align-self:center !important;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  justify-items:center !important;
+  align-content:center !important;
+  gap:5px !important;
+}
+.touch-mid .touch-util{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:53px !important;
+  height:31px !important;
+  padding:2px 2px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+}
+.touch-mid .touch-util .tu-ico{font-size:12px !important;line-height:1 !important;}
+.touch-mid .touch-util .tu-lab{font-size:7px !important;line-height:1.05 !important;white-space:nowrap !important;}
+.touch-fire-col{flex:0 0 auto !important;}
+@media(max-width:600px){
+  .touch-pad-inner{gap:6px !important;padding:7px 5px !important;}
+  .touch-move-pad{width:clamp(126px,36vw,145px) !important;height:clamp(116px,33vw,136px) !important;}
+  .touch-mid{width:clamp(82px,22vw,98px) !important;flex-basis:clamp(82px,22vw,98px) !important;gap:4px !important;}
+  .touch-mid .touch-util{height:29px !important;max-width:47px !important;}
+  .touch-mid .touch-util .tu-ico{font-size:11px !important;}
+  .touch-mid .touch-util .tu-lab{font-size:6.5px !important;}
+}
+/* El scroll fino del menú de inicio pasa al lado izquierdo; el contenido sigue normal */
+#startPanel{
+  direction:rtl !important;
+  scrollbar-width:thin !important;
+  scrollbar-color:#CE1126 transparent !important;
+}
+#startPanel > *{direction:ltr !important;}
+#startPanel::-webkit-scrollbar{width:5px !important;}
+#startPanel::-webkit-scrollbar-thumb{background:#CE1126 !important;border-radius:5px !important;}
+#startPanel::-webkit-scrollbar-track{background:transparent !important;}
+</style>

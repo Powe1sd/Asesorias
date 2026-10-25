@@ -12136,7 +12136,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    <div id="taEmailWrap"><label for="taEmail">Correo electrónico / Gmail</label><input id="taEmail" name="email" type="email" maxlength="254" autocomplete="email" placeholder="tucorreo@gmail.com" required /></div>
    <div id="taPasswordWrap"><label for="taPassword">Contraseña</label><input id="taPassword" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Crea una contraseña" /></div>
    <div id="taConfirmWrap"><label for="taConfirm">Repite la contraseña</label><input id="taConfirm" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la contraseña" /></div>
-   <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Código de recuperación" /></div>
+   <div id="taCodeWrap" class="ta-hidden"><label for="taCode">Código recibido por correo</label><input id="taCode" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="Pega aquí el código si recibiste uno" /></div>
    <div id="taNewPasswordWrap" class="ta-hidden"><label for="taNewPassword">Nueva contraseña</label><input id="taNewPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Nueva contraseña" /></div>
    <div id="taNewConfirmWrap" class="ta-hidden"><label for="taNewConfirm">Repite la nueva contraseña</label><input id="taNewConfirm" name="newConfirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repite la nueva contraseña" /></div>
    <div class="ta-actions" id="taMainActions"><button type="button" id="taRegister">Crear usuario</button><button type="button" id="taLogin" class="ta-secondary">Iniciar sesión</button></div>
@@ -12152,6 +12152,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  const URL='https://bkfpvwsahffrrkckjfre.supabase.co';
  const KEY='sb_publishable_89MkxFSiW8Et_qNZXzhXSA_6ouvoKgI';
  const PROFILE='perfiles_tech_run';
+ const RECOVERY_REDIRECT='https://asesorias-five.vercel.app/';
  const SESSION_KEY='techRunAuthSessionV1';
  const modal=document.getElementById('techAuthModal');
  const $=id=>document.getElementById(id);
@@ -12177,19 +12178,19 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
    show('taUsernameWrap',next==='register');show('taEmailWrap',!logged);show('taPasswordWrap',next==='register'||next==='home'||next==='login');show('taConfirmWrap',next==='register');
-   show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset');show('taNewConfirmWrap',next==='reset');
-   show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset');
-   show('taSendCode',next==='forgot');show('taResetPassword',next==='reset');
+   show('taCodeWrap',next==='reset');show('taNewPasswordWrap',next==='reset'||next==='reset-link');show('taNewConfirmWrap',next==='reset'||next==='reset-link');
+   show('taMainActions',next==='home'||next==='register'||next==='login');show('taRecoveryActions',next==='forgot'||next==='reset'||next==='reset-link');
+   show('taSendCode',next==='forgot');show('taResetPassword',next==='reset'||next==='reset-link');
    show('taForgot',!logged&&next!=='forgot'&&next!=='reset');show('taBack',next!=='home'&&next!=='logged');show('taLogout',logged);
    $('taRegister').classList.toggle('ta-hidden',next==='login');$('taLogin').classList.toggle('ta-hidden',next==='register');
    $('techAuthTitle').textContent=logged?'Cuenta conectada':(next==='forgot'||next==='reset'?'Recuperar contraseña':next==='register'?'':'Bienvenido a TECH RUN');
    $('techAuthTitle').classList.toggle('ta-hidden',next==='register');
-   $('taLoginSubtitle').textContent=next==='register'?'Registra tus datos para crear una cuenta':(next==='forgot'||next==='reset'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
+   $('taLoginSubtitle').textContent=next==='register'?'Registra tus datos para crear una cuenta':(next==='forgot'||next==='reset'||next==='reset-link'?'Recupera el acceso a tu cuenta':logged?'Sesión activa':'Ingresar con correo y contraseña');
    $('taPassword').placeholder=next==='register'?'Crea una contraseña segura':'Escribe tu contraseña';
    $('taPassword').autocomplete=next==='register'?'new-password':'current-password';
    $('techAuthIntro').textContent='';
    $('taPassword').required=(next==='register'||next==='home'||next==='login');$('taConfirm').required=next==='register';
-   $('taNewPassword').required=next==='reset';$('taNewConfirm').required=next==='reset';$('taCode').required=next==='reset';
+   $('taNewPassword').required=next==='reset'||next==='reset-link';$('taNewConfirm').required=next==='reset'||next==='reset-link';$('taCode').required=next==='reset';
    if(next==='logged'){ $('taEmail').value=(user&&user.email)||''; }
  }
  function currentEmail(){return String($('taEmail').value||'').trim().toLowerCase();}
@@ -12230,72 +12231,47 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    }catch(e){console.error('[TECH RUN Auth] login',e);status('No se pudo iniciar sesión. Revisa el correo, la contraseña y confirma el correo si te lo pide. '+e.message);}
  }
  async function sendCode(){
-   const email=currentEmail();
-   if(!email){status('Escribe el correo de tu cuenta.');return;}
-   const btn=$('taSendCode');
-   if(btn){btn.disabled=true;btn.textContent='Enviando…';}
-   status('Solicitando recuperación de contraseña…');
-   try{
-     // Supabase enviará el código o el enlace que esté definido en Authentication > Email Templates.
-     await request('recover','POST',{email});
-     $('taEmail').value=email;
-     setMode('reset');
-     status('Solicitud enviada. Revisa tu correo y Spam. Si recibes un enlace de recuperación, ábrelo en este mismo navegador; si recibes un código, escríbelo aquí.',true);
-   }catch(e){
-     console.error('[TECH RUN Auth] recover',e);
-     setMode('forgot');
-     $('taEmail').value=email;
-     status('No se pudo solicitar la recuperación. '+e.message);
-   }finally{
-     if(btn){btn.disabled=false;btn.textContent='Enviar código';}
-   }
+   const email=currentEmail();if(!email){status('Escribe el correo de tu cuenta.');return;}
+   status('Enviando código de recuperación…');
+   try{await request('recover?redirect_to='+encodeURIComponent(RECOVERY_REDIRECT),'POST',{email});$('taEmail').value=email;setMode('reset');status('Solicitamos la recuperación. Revisa tu correo y Spam: puede llegar un código o un enlace seguro.',true);}
+   catch(e){console.error('[TECH RUN Auth] recover',e);status('No se pudo enviar el correo: '+e.message);}
  }
  async function resetPassword(){
    const email=currentEmail(),code=String($('taCode').value||'').trim(),p1=$('taNewPassword').value,p2=$('taNewConfirm').value;
-   if(!email){status('Escribe el correo asociado a tu cuenta.');return;}
-   if(!recoveryAccessToken&&!code){status('Escribe el código recibido por correo o abre el enlace de recuperación que te enviaron.');return;}
+   if(!recoveryAccessToken&&(!email||!code)){status('Escribe el correo y el código recibido, o abre el enlace de recuperación que llegó a tu correo.');return;}
    if(p1.length<8){status('La nueva contraseña debe tener al menos 8 caracteres.');return;}
    if(p1!==p2){status('Las nuevas contraseñas no coinciden.');return;}
-   const btn=$('taResetPassword');if(btn){btn.disabled=true;btn.textContent='Actualizando…';}
-   status('Verificando recuperación…');
+   status(recoveryAccessToken?'Actualizando contraseña…':'Verificando código…');
    try{
-     let token=recoveryAccessToken;
-     if(!token){
+     let accessToken=recoveryAccessToken;
+     if(!accessToken){
        const verified=await request('verify','POST',{email,token:code,type:'recovery'});
-       token=verified.access_token;
-       if(!token)throw new Error('El código no fue aceptado. Comprueba que la plantilla de recuperación envíe {{ .Token }} y solicita un código nuevo.');
+       accessToken=verified.access_token;
+       if(!accessToken)throw new Error('Supabase no devolvió una sesión de recuperación. Comprueba la plantilla de correo.');
      }
-     await request('user','PUT',{password:p1},token);
+     await request('user','PUT',{password:p1},accessToken);
      recoveryAccessToken=null;
-     status('Contraseña actualizada correctamente. Inicia sesión con tu nueva contraseña.',true);
-     setMode('login');$('taEmail').value=email;$('taPassword').value='';$('taCode').value='';$('taNewPassword').value='';$('taNewConfirm').value='';
-   }catch(e){
-     console.error('[TECH RUN Auth] reset',e);
-     status('No se pudo cambiar la contraseña. El código o enlace puede haber caducado o ya haberse usado. Solicita una recuperación nueva. Detalle: '+e.message);
-   }finally{
-     if(btn){btn.disabled=false;btn.textContent='Cambiar contraseña';}
-   }
+     status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';$('taCode').value='';$('taNewPassword').value='';$('taNewConfirm').value='';
+   }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Solicita un correo nuevo e inténtalo otra vez.');}
  }
- // Supabase puede regresar desde el enlace de recuperación con tokens en el fragmento de la URL.
- async function detectRecoveryLink(){
+
+ // Supabase puede devolver un enlace con tokens en el fragmento URL (#access_token=...).
+ // Se captura antes de limpiar la URL y se muestra directamente el formulario de contraseña nueva.
+ function consumeRecoveryUrl(){
    try{
-     const hash=new URLSearchParams((location.hash||'').replace(/^#/,''));
-     const query=new URLSearchParams(location.search||'');
-     const type=hash.get('type')||query.get('type')||'';
-     const access=hash.get('access_token')||query.get('access_token');
-     const tokenHash=query.get('token_hash')||hash.get('token_hash');
-     if(type==='recovery'&&access){
-       recoveryAccessToken=access;
-       try{const u=await request('user','GET',null,access);if(u&&u.email)$('taEmail').value=u.email;}catch(e){console.warn('[TECH RUN Auth] No se pudo leer el correo de recuperación',e);}
-       if(location.hash)history.replaceState(null,document.title,location.pathname+location.search);
-       modal.style.display='flex';setMode('reset');status('Enlace de recuperación reconocido. Escribe tu nueva contraseña dos veces.',true);return true;
-     }
-     if(type==='recovery'&&tokenHash){
-       const email=query.get('email')||currentEmail();
-       if(email){const verified=await request('verify','POST',{email,token_hash:tokenHash,type:'recovery'});if(verified.access_token){recoveryAccessToken=verified.access_token;if(verified.user&&verified.user.email)$('taEmail').value=verified.user.email;history.replaceState(null,document.title,location.pathname);modal.style.display='flex';setMode('reset');status('Enlace de recuperación reconocido. Escribe tu nueva contraseña dos veces.',true);return true;}}
-     }
-   }catch(e){console.warn('[TECH RUN Auth] No se pudo procesar el enlace de recuperación',e);}
-   return false;
+     const hash=String(window.location.hash||'');
+     if(!hash||hash.length<2)return false;
+     const params=new URLSearchParams(hash.slice(1));
+     const type=params.get('type');
+     const access=params.get('access_token');
+     if(type!=='recovery'||!access)return false;
+     recoveryAccessToken=access;
+     const refresh=params.get('refresh_token');
+     if(refresh){ /* El token de recuperación se usa solo para cambiar contraseña, no para iniciar la partida. */ }
+     const cleanUrl=window.location.pathname+window.location.search;
+     try{window.history.replaceState({},document.title,cleanUrl);}catch(e){}
+     return true;
+   }catch(e){console.warn('[TECH RUN Auth] No se pudo leer el enlace de recuperación',e);return false;}
  }
  async function logout(){
    try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn('[TECH RUN Auth] logout',e);}
@@ -12343,9 +12319,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  syncAccountName();
  // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
  async function restorePersistentSession(){
-   const isRecoveryLink=await detectRecoveryLink();
-   if(isRecoveryLink)return;
-   if(!session||!session.refresh_token){saveSession(null);open();return;}
+   if(recoveryAccessToken){modal.style.display='flex';setMode('reset-link');$('taEmail').value=currentEmail();status('Enlace de recuperación válido. Escribe tu nueva contraseña dos veces.',true);return;}
+   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión para continuar.');return;}
    await refreshIfNeeded();
    if(isLogged()){syncAccountName();updateAccountUI();}
    else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}
@@ -12362,6 +12337,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.addEventListener('storage',function(e){if(e.key===SESSION_KEY&&!e.newValue){saveSession(null);open();status('Sesión cerrada. Inicia sesión para continuar.');}});
  try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión para continuar.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
  // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
+ const openedFromRecoveryLink=consumeRecoveryUrl();
  if(document.readyState==='loading'){
    document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();},{once:true});
  }else{

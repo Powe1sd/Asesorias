@@ -12078,6 +12078,35 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 #techAuthModal .ta-hidden{display:none!important}
 @media(max-width:420px){#techAuthModal .ta-card{padding:18px}#techAuthModal .ta-actions{grid-template-columns:1fr}}
 </style>
+<style id="tech-notification-styles">
+#techToastHost{position:fixed;right:18px;top:18px;z-index:1000001;display:grid;gap:10px;width:min(390px,calc(100vw - 28px));pointer-events:none;font-family:Arial,sans-serif}
+.tech-toast{display:flex;align-items:flex-start;gap:11px;padding:14px 16px;border:1px solid #43516d;border-left:4px solid #7c8ba8;border-radius:13px;background:linear-gradient(145deg,#111d33,#080e1b);color:#f3f6ff;box-shadow:0 14px 40px #0009;animation:techToastIn .22s ease-out;pointer-events:auto}
+.tech-toast[data-kind="success"]{border-left-color:#39d98a}.tech-toast[data-kind="error"]{border-left-color:#ff6577}.tech-toast[data-kind="warning"]{border-left-color:#ffc857}.tech-toast .tt-icon{font-size:20px;line-height:1.2}.tech-toast .tt-copy{flex:1;font-size:13px;line-height:1.45;overflow-wrap:anywhere}.tech-toast .tt-title{font-weight:800;margin-bottom:2px;color:#fff}.tech-toast .tt-close{border:0;background:transparent;color:#9ba9c2;font-size:18px;cursor:pointer;padding:0 0 0 4px}
+@keyframes techToastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:520px){#techToastHost{top:10px;right:10px;width:calc(100vw - 20px)}}
+</style>
+<div id="techToastHost" aria-live="polite" aria-atomic="false"></div>
+<script id="tech-notification-system">
+(function(){
+ const host=document.getElementById('techToastHost');
+ window.techNotify=function(message,kind='info',title){
+   if(!host){console.log(message);return;}
+   const icons={success:'✓',error:'!',warning:'⚠',info:'i'};
+   const titles={success:'Correcto',error:'No se pudo completar',warning:'Atención',info:'Aviso'};
+   const item=document.createElement('div');item.className='tech-toast';item.dataset.kind=kind;
+   const icon=document.createElement('span');icon.className='tt-icon';icon.textContent=icons[kind]||icons.info;
+   const copy=document.createElement('div');copy.className='tt-copy';
+   const head=document.createElement('div');head.className='tt-title';head.textContent=title||titles[kind]||titles.info;
+   const body=document.createElement('div');body.textContent=String(message??'');copy.append(head,body);
+   const close=document.createElement('button');close.className='tt-close';close.type='button';close.setAttribute('aria-label','Cerrar aviso');close.textContent='×';close.onclick=()=>item.remove();
+   item.append(icon,copy,close);host.appendChild(item);
+   const timeout=kind==='error'?6500:4200;setTimeout(()=>{if(item.isConnected)item.remove()},timeout);
+   return item;
+ };
+ // Sustituye alertas informativas del juego por avisos visuales; confirmaciones siguen siendo explícitas.
+ window.alert=function(message){window.techNotify(String(message??''),'info','TECH RUN');};
+})();
+</script>
 <div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
  <div class="ta-card">
   <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
@@ -12094,7 +12123,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    <div class="ta-actions" id="taMainActions"><button type="button" id="taRegister">Crear usuario</button><button type="button" id="taLogin" class="ta-secondary">Iniciar sesión</button></div>
    <div class="ta-actions ta-hidden" id="taRecoveryActions"><button type="button" id="taSendCode">Enviar código</button><button type="button" id="taResetPassword" class="ta-secondary">Cambiar contraseña</button></div>
   </form>
-  <div class="ta-links"><button type="button" id="taForgot">¿Olvidaste tu contraseña?</button><button type="button" id="taBack" class="ta-hidden">Volver al inicio</button><button type="button" id="taLogout" class="ta-hidden">Cerrar sesión</button></div>
+  <div class="ta-links"><button type="button" id="taForgot">¿Olvidaste tu contraseña?</button><button type="button" id="taBack" class="ta-hidden">Volver al inicio</button><button type="button" id="taLogout" class="ta-hidden">↪ Cerrar sesión</button></div>
   <p id="techAuthStatus" role="status" aria-live="polite"></p>
  </div>
 </div>
@@ -12122,9 +12151,9 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  function isLogged(){return !!(session&&session.access_token&&user);}
  function owns(n){return isLogged()&&username().toLocaleLowerCase()===String(n||'').trim().toLocaleLowerCase();}
  window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
- function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}}
+ function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}if(msg&&window.techNotify&&(/ya existe|no se pudo|no coinciden|contraseña debe|inicia sesión|sesión cerrada/i.test(msg))){window.techNotify(msg,good?'success':'warning','Cuenta TECH RUN');}}
  function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
- function close(){modal.style.display='none';}
+ function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para poder jugar.');return;}modal.style.display='none';}
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
@@ -12196,8 +12225,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
      status('Contraseña actualizada. Ahora inicia sesión con tu nueva contraseña.',true);setMode('login');$('taEmail').value=email;$('taPassword').value='';
    }catch(e){console.error('[TECH RUN Auth] reset',e);status('No se pudo cambiar la contraseña: '+e.message+' Comprueba que el correo de recuperación esté configurado para enviar un código.');}
  }
- async function logout(){try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn(e);}saveSession(null);setMode('home');status('Sesión cerrada.',true);}
- function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'👤 Cuenta: '+username():'👤 Crear cuenta / Iniciar sesión';}
+ async function logout(){try{if(session&&session.access_token)await request('logout','POST',{},session.access_token);}catch(e){console.warn('[TECH RUN Auth] logout',e);}saveSession(null);mode='home';modal.style.display='flex';setMode('home');status('Sesión cerrada. Inicia sesión o crea una cuenta para jugar.',true);if(window.techNotify)window.techNotify('Has cerrado tu sesión correctamente.','success','Sesión cerrada');}
+ function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'👤 Cuenta: '+username()+' · Gestionar / salir':'👤 Crear cuenta / Iniciar sesión';}
  $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
  $('techAuthClose').addEventListener('click',close);
  modal.addEventListener('click',e=>{if(e.target===modal)close();});
@@ -12222,10 +12251,23 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    if(expires&&expires>Date.now()/1000+90)return;
    try{const data=await request('token?grant_type=refresh_token','POST',{refresh_token:session.refresh_token});saveSession(data);}catch(e){console.warn('[TECH RUN Auth] La sesión expiró',e);saveSession(null);}
  }
- if(session&&session.refresh_token){refreshIfNeeded();}
  updateAccountUI();
- // En la primera pantalla, el botón de iniciar solicita cuenta antes de permitir comenzar.
+ // Recupera el nombre principal desde la cuenta en cada apertura, sin pisar configuraciones locales.
+ function syncAccountName(){if(!isLogged())return;const nick=username();if(!nick)return;const input=$('shipNameInput');if(input)input.value=nick;try{localStorage.setItem('techShipName',nick);}catch(e){}}
+ syncAccountName();
+ // Mantiene la sesión entre aperturas: renueva el token si hace falta y vuelve a sincronizar el usuario.
+ async function restorePersistentSession(){
+   if(!session||!session.refresh_token){saveSession(null);open();status('Inicia sesión o crea una cuenta para jugar.');return;}
+   await refreshIfNeeded();
+   if(isLogged()){syncAccountName();updateAccountUI();}
+   else {open();status('Tu sesión terminó. Inicia sesión de nuevo para continuar.');}
+ }
+ // Bloquea cualquier vía de inicio de partida si no existe una sesión válida.
  document.addEventListener('click',function(e){const t=e.target&&e.target.closest?e.target.closest('#startGame'):null;if(t&&!isLogged()){e.preventDefault();e.stopImmediatePropagation();open();status('Crea una cuenta o inicia sesión para jugar.');}},true);
+ try{const originalStart=window.startGame;if(typeof originalStart==='function'&&!originalStart.__techAuthGuard){const guarded=function(){if(!isLogged()){open();status('Inicia sesión o crea una cuenta antes de iniciar la partida.');return false;}syncAccountName();return originalStart.apply(this,arguments);};guarded.__techAuthGuard=true;window.startGame=guarded;try{startGame=guarded;}catch(e){}}}catch(e){console.warn('[TECH RUN Auth] No se pudo aplicar el bloqueo de inicio',e);}
+ // La cuenta permanece activa hasta pulsar Cerrar sesión; solo el usuario puede cerrar el modal de acceso después de entrar.
+ document.addEventListener('DOMContentLoaded',function(){restorePersistentSession();});
+ if(document.readyState==='interactive'||document.readyState==='complete')setTimeout(restorePersistentSession,0);
 })();
 </script>
 

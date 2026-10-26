@@ -2154,9 +2154,11 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Crear cuenta / Iniciar sesión</button>
 <small>Elige dificultad y nave · Desliza para ver más</small><br>
 <button class="game-btn" id="startGame">🚀 Iniciar</button>
-<button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
-<button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
-<button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
+<div class="start-secondary-row" id="startSecondaryRow">
+<button class="game-btn game-btn-blue start-sec-btn" id="openStoryMode">📖 Historia</button>
+<button class="game-btn start-sec-btn" id="openStatistics" style="background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Stats</button>
+<button class="game-btn start-sec-btn" id="openOnlineRanking" style="background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking</button>
+</div>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 Game over</h2>
@@ -12318,6 +12320,52 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 </html>
 
 
+<style id="tech-start-secondary-row">
+
+/* === Fila horizontal: Historia / Stats / Ranking (más espacio en móvil) === */
+.start-secondary-row{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+  width:100%;
+}
+.start-secondary-row .start-sec-btn{
+  margin-top:0 !important;
+  width:100%;
+  box-sizing:border-box;
+}
+@media (max-width:700px),(pointer:coarse){
+  .start-secondary-row{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+    gap:6px !important;
+    margin-top:8px !important;
+  }
+  .start-secondary-row .start-sec-btn{
+    width:100% !important;
+    min-width:0 !important;
+    padding:10px 4px !important;
+    font-size:10px !important;
+    letter-spacing:0 !important;
+    line-height:1.2 !important;
+    white-space:normal !important;
+    min-height:44px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+  }
+}
+@media (max-width:380px){
+  .start-secondary-row .start-sec-btn{
+    font-size:9px !important;
+    padding:8px 2px !important;
+    min-height:40px !important;
+  }
+}
+
+</style>
 <style id="tech-run-touch-center-scroll-left-final">
 /* Touch: mando ligeramente más largo, poderes compactos y centrados */
 .touch-pad-inner{

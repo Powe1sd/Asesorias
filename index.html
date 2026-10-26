@@ -9078,12 +9078,20 @@ function goToStartMenu(){
 }
 
 async function validateUsernameBeforeStart(){
-  if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){
-    if(window.techAuthOpen) window.techAuthOpen();
-    window.techNotify('Inicia sesión para continuar.','warning','Acceso requerido');
+  const input = document.getElementById("shipNameInput");
+  // Clásico e Infinito son modos locales: no deben exigir correo ni contraseña.
+  // Solo el modo Online requiere una cuenta para guardar la puntuación en el ranking.
+  if(typeof gameMode !== "undefined" && gameMode !== "online"){
+    const guestName = String((input && input.value) || (typeof shipName !== "undefined" ? shipName : "") || lsGet("techShipName", "Invitado")).trim().slice(0,10) || "Invitado";
+    try { shipName = guestName; lsSet("techShipName", guestName); } catch(e) {}
+    startGame();
     return;
   }
-  const input = document.getElementById("shipNameInput");
+  if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){
+    if(window.techAuthOpen) window.techAuthOpen();
+    window.techNotify('Para jugar Online y guardar tu puntuación en el ranking, inicia sesión o entra como invitado.','warning','TECH RUN Online');
+    return;
+  }
   const nick = String(window.techAuthUsername ? window.techAuthUsername() : (input ? input.value : (typeof shipName !== "undefined" ? shipName : ""))).trim().slice(0,10);
   if(!nick || nick.toLowerCase()==="br7"){
     alert("Escribe un nombre de usuario antes de iniciar.");

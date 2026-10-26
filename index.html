@@ -12440,3 +12440,105 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   .touch-mid .touch-util{min-width:0 !important;width:100% !important;max-width:none !important;}
 }
 </style>
+
+<style id="tech-mobile-game-taller-scroll">
+/* =========================================================
+   Móvil: área de juego más alta (+7cm) + scroll visible en panel central
+   ========================================================= */
+@media (max-width: 900px), (pointer: coarse) {
+  /* El marco del juego deja de verse a media altura: +7cm hacia abajo */
+  .tech-game-section {
+    padding: 4px 6px 6px !important;
+    margin: 4px auto 0 !important;
+  }
+  .tech-game {
+    height: min(calc(48vh + 7cm), 92dvh) !important;
+    min-height: calc(300px + 7cm) !important;
+    max-height: none !important;
+  }
+  /* Al jugar (sin menús), un poco más de área útil */
+  .tech-game.is-playing {
+    height: min(calc(55vh + 7cm), 94dvh) !important;
+    min-height: calc(340px + 7cm) !important;
+  }
+
+  /* Panel del medio (inicio / config / pausa / game over): scroll siempre visible */
+  .game-panel,
+  #startPanel,
+  #configPanel,
+  #pausePanel,
+  #gameOverPanel,
+  #storyMenuPanel,
+  #storyBriefPanel,
+  #storyResultPanel,
+  #onlineRankingPanel,
+  #techStatisticsPanel {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    scrollbar-gutter: stable !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #CE1126 rgba(255,255,255,.18) !important;
+  }
+
+  #startPanel,
+  #configPanel,
+  #pausePanel,
+  #gameOverPanel {
+    max-height: min(88%, calc(100% - 12px)) !important;
+    height: auto !important;
+  }
+
+  .game-panel::-webkit-scrollbar,
+  #startPanel::-webkit-scrollbar,
+  #configPanel::-webkit-scrollbar,
+  #pausePanel::-webkit-scrollbar,
+  #gameOverPanel::-webkit-scrollbar,
+  #storyMenuPanel::-webkit-scrollbar,
+  #onlineRankingPanel::-webkit-scrollbar,
+  #techStatisticsPanel::-webkit-scrollbar {
+    width: 9px !important;
+    display: block !important;
+    background: transparent !important;
+  }
+  .game-panel::-webkit-scrollbar-track,
+  #startPanel::-webkit-scrollbar-track,
+  #configPanel::-webkit-scrollbar-track,
+  #pausePanel::-webkit-scrollbar-track,
+  #gameOverPanel::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.12) !important;
+    border-radius: 8px !important;
+  }
+  .game-panel::-webkit-scrollbar-thumb,
+  #startPanel::-webkit-scrollbar-thumb,
+  #configPanel::-webkit-scrollbar-thumb,
+  #pausePanel::-webkit-scrollbar-thumb,
+  #gameOverPanel::-webkit-scrollbar-thumb {
+    background: #CE1126 !important;
+    border: 1px solid #FFCD00 !important;
+    border-radius: 8px !important;
+    min-height: 36px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .tech-game {
+    height: min(calc(52vh + 7cm), 93dvh) !important;
+    min-height: calc(320px + 7cm) !important;
+  }
+  .tech-game.is-playing {
+    height: min(calc(58vh + 7cm), 95dvh) !important;
+    min-height: calc(360px + 7cm) !important;
+  }
+  /* Panel de inicio: ocupa el marco y scrollea por dentro */
+  #startPanel {
+    top: 6px !important;
+    bottom: 6px !important;
+    max-height: none !important;
+    height: auto !important;
+    max-height: calc(100% - 12px) !important;
+  }
+}
+</style>
+

@@ -68,9 +68,7 @@ body::before{
 }
 #content .cyber-hero::after,
 #content .data-card::before,
-#content .contact-card::before,
-#content .triangle-container,
-#content .mini-triangle { display: none !important; }
+#content .contact-card::before { display: none !important; }
 #content .data-card:hover { border-color: rgba(255, 205, 0, .7) !important; }
 #content .btn-neoprimary,
 #content .contact-icon {
@@ -133,6 +131,26 @@ body::before{
   .data-card{padding:16px}
   .contact-section{margin-bottom:28px;padding:18px 12px 0}
 }
+
+.triangle-container{display:flex;justify-content:center;align-items:center;padding:12px 0 4px}
+.mini-triangle{
+  width:0;height:0;
+  border-top:10px solid transparent;
+  border-bottom:10px solid transparent;
+  border-left:18px solid #CE1126;
+  animation:colorCycle 3s infinite linear;
+  will-change:border-left-color,filter;
+}
+@keyframes colorCycle{
+  0%{border-left-color:#CE1126;filter:drop-shadow(0 0 12px #CE1126)}
+  16%{border-left-color:#FFCD00;filter:drop-shadow(0 0 12px #FFCD00)}
+  33%{border-left-color:#0038A8;filter:drop-shadow(0 0 12px #0038A8)}
+  50%{border-left-color:#00A0E9;filter:drop-shadow(0 0 12px #00A0E9)}
+  66%{border-left-color:#3dde8c;filter:drop-shadow(0 0 12px #3dde8c)}
+  83%{border-left-color:#c9a4ff;filter:drop-shadow(0 0 12px #c9a4ff)}
+  100%{border-left-color:#CE1126;filter:drop-shadow(0 0 12px #CE1126)}
+}
+
 </style>
 </head>
 <body>

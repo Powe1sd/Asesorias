@@ -4972,17 +4972,12 @@ if(startPanel&&!document.getElementById("startExtras")){
 
     const sni=box.querySelector("#shipNameInput");
     if(sni){
+      const logged = !!(window.techAuthIsLoggedIn && window.techAuthIsLoggedIn());
+      if(!logged){ sni.value="Usuario"; sni.readOnly=true; sni.disabled=true; sni.title="Nombre fijo para invitados"; shipName="Usuario"; lsSet("techShipName","Usuario"); }
+      else { sni.value=String(window.techAuthUsername ? window.techAuthUsername() : shipName).slice(0,10); sni.readOnly=true; sni.disabled=true; sni.title="Nombre de usuario de tu cuenta"; shipName=sni.value; }
       sni.onclick=e=>e.stopPropagation();
-      sni.oninput=()=>{
-        shipName=(sni.value||"").slice(0,10);
-        lsSet("techShipName",shipName);
-        drawShipPreview();
-      };
-      sni.onchange=()=>{
-        shipName=(sni.value||"").slice(0,10);
-        lsSet("techShipName",shipName);
-        drawShipPreview();
-      };
+      sni.oninput=()=>{ if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){sni.value="Usuario";shipName="Usuario";return;} };
+      sni.onchange=()=>{ if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){sni.value="Usuario";shipName="Usuario";return;} };
     }
     box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
       selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
@@ -9079,35 +9074,23 @@ function goToStartMenu(){
 
 async function validateUsernameBeforeStart(){
   const input = document.getElementById("shipNameInput");
-  // Clásico e Infinito son modos locales: no deben exigir correo ni contraseña.
-  // Solo el modo Online requiere una cuenta para guardar la puntuación en el ranking.
-  if(typeof gameMode !== "undefined" && gameMode !== "online"){
-    const guestName = String((input && input.value) || (typeof shipName !== "undefined" ? shipName : "") || lsGet("techShipName", "Invitado")).trim().slice(0,10) || "Invitado";
-    try { shipName = guestName; lsSet("techShipName", guestName); } catch(e) {}
+  const loggedIn = !!(window.techAuthIsLoggedIn && window.techAuthIsLoggedIn());
+  // Los modos Clásico e Infinito siempre se pueden iniciar sin cuenta.
+  // Online también permite jugar como invitado; solo las cuentas registradas guardan ranking.
+  if(!loggedIn){
+    shipName = "Usuario";
+    try { lsSet("techShipName", "Usuario"); } catch(e) {}
+    if(input){ input.value="Usuario"; input.readOnly=true; input.disabled=true; input.setAttribute("aria-label","Nombre fijo para invitado"); input.title="Regístrate e inicia sesión para usar el nombre de tu cuenta"; }
     startGame();
-    return;
-  }
-  if(!window.techAuthIsLoggedIn || !window.techAuthIsLoggedIn()){
-    if(window.techAuthOpen) window.techAuthOpen();
-    window.techNotify('Para jugar Online y guardar tu puntuación en el ranking, inicia sesión o entra como invitado.','warning','TECH RUN Online');
-    return;
-  }
-  const nick = String(window.techAuthUsername ? window.techAuthUsername() : (input ? input.value : (typeof shipName !== "undefined" ? shipName : ""))).trim().slice(0,10);
-  if(!nick || nick.toLowerCase()==="br7"){
-    alert("Escribe un nombre de usuario antes de iniciar.");
-    if(input) input.focus();
-    return;
-  }
-  if(typeof window.techValidateOnlineUsername === "function"){
-    const validation = await window.techValidateOnlineUsername(nick);
-    if(!validation.ok){
-      alert(validation.message || "No se pudo validar el usuario. Inténtalo de nuevo.");
-      if(input) input.focus();
-      return;
+    if(typeof gameMode !== "undefined" && gameMode === "online" && window.techNotify){
+      window.techNotify("Estás jugando como invitado. El ranking online no se guarda si no estás registrado.","warning","TECH RUN");
     }
+    return;
   }
+  const nick = String(window.techAuthUsername ? window.techAuthUsername() : "Usuario").trim().slice(0,10) || "Usuario";
   shipName = nick;
-  try{ lsSet("techShipName", shipName); }catch(e){}
+  try { lsSet("techShipName", nick); } catch(e) {}
+  if(input){ input.value=nick; input.readOnly=true; input.disabled=true; input.title="Nombre de usuario de tu cuenta"; }
   startGame();
 }
 startButton.addEventListener("click",validateUsernameBeforeStart);
@@ -12290,8 +12273,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    if(!owns(nick))return {ok:false,message:'Usa el nombre de tu cuenta: '+username()+'.'};
    return {ok:true};
  };
- // Sin sesión, las teclas de juego no pueden mover/disparar; el foco queda en el acceso.
- document.addEventListener('keydown',function(e){if(e.target && (e.target.matches('input, textarea, select') || e.target.isContentEditable)) return; if(!isLogged() && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();}},true);
+ // Los invitados pueden usar todos los controles del juego; el ranking online no se guarda sin sesión.
  // Si hay sesión guardada, intenta renovar token vencido mediante el refresh token.
  async function refreshIfNeeded(){
    if(!session||!session.refresh_token)return;

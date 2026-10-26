@@ -12444,8 +12444,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 <style id="tech-mobile-game-full-touch-down">
 /* =========================================================
    Móvil:
-   - Pantalla del juego: 5cm más baja (menos altura)
-   - Touch pad: 2cm más arriba que el ajuste anterior
+   - Touch pad: 6cm más abajo
+   - Resto (juego + principal): 5cm más abajo / más bajo
    ========================================================= */
 
 @media (max-width: 1100px), (pointer: coarse) {
@@ -12455,31 +12455,35 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     padding-top: 0 !important;
     padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
     position: relative !important;
-    /* antes ~1.2cm abajo; ahora +2cm arriba → ~ -0.8cm (sube) */
-    top: -0.8cm !important;
+    top: 6cm !important; /* touch pad 6cm abajo */
     transform: none !important;
   }
 }
 
 @media (max-width: 600px), (pointer: coarse) {
+  /* Principal: 5cm más bajo */
   .tech-game-section {
-    padding: 6px 8px 4px !important;
-    margin: 6px auto 0 !important;
+    padding: 4px 8px 2px !important;
+    margin: 4px auto 0 !important;
+    max-height: calc(100dvh - 5cm) !important;
+    position: relative !important;
+    top: 5cm !important;
   }
-  /* Pantalla del juego 5cm más baja (reduce altura 5cm) */
+
+  /* Jugabilidad: 5cm más baja (altura) */
   .tech-game {
     height: min(calc(58vh - 5cm), 520px) !important;
-    min-height: max(280px, calc(360px - 5cm)) !important;
+    min-height: max(240px, calc(360px - 5cm)) !important;
     max-height: none !important;
   }
   .tech-game.is-playing {
     height: min(calc(62vh - 5cm), 560px) !important;
-    min-height: max(300px, calc(380px - 5cm)) !important;
+    min-height: max(260px, calc(380px - 5cm)) !important;
   }
 
-  /* Touch pad: 2cm más arriba (antes 1.8cm abajo → ahora -0.2cm) */
+  /* Touch pad: 6cm abajo (respecto al bloque del juego) */
   .touch-pad {
-    top: -0.2cm !important;
+    top: 6cm !important;
     margin-top: 8px !important;
     margin-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
     padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
@@ -12534,12 +12538,12 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 @media (max-width: 1100px), (pointer: coarse) {
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game {
-    height: min(calc(68vh - 5cm), calc(100vh - 180px - env(safe-area-inset-bottom, 0px))) !important;
+    height: min(calc(68vh - 5cm), calc(100vh - 180px - 5cm - env(safe-area-inset-bottom, 0px))) !important;
     margin-bottom: 0 !important;
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad {
-    top: -0.4cm !important;
+    top: 6cm !important;
     margin-top: 4px !important;
     margin-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
   }

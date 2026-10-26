@@ -1150,7 +1150,7 @@ body {min-height:100vh !important}
 .tech-game {
   flex:0 0 auto;
   min-height:360px !important;
-  height:min(62vh,560px) !important;
+  height:min(82dvh,650px) !important;
   max-height:none !important;
 }
 /* El menú de modos mantiene su propio scroll fino; el contenido inferior sigue presente. */
@@ -2138,6 +2138,7 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 </head>
 <body>
 
+<button id="pageScrollHint" type="button" aria-label="Deslizar hacia abajo para ver más" title="Desliza hacia abajo" onclick="window.scrollBy({top:Math.max(window.innerHeight*0.68,320),behavior:'smooth'});" style="display:none">⌄</button>
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top" aria-label="Estadísticas de la partida">
@@ -12391,4 +12392,17 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   .touch-mid{min-width:72px !important;width:100% !important;}
   .touch-mid .touch-util{min-width:0 !important;width:100% !important;max-width:none !important;}
 }
+
+/* Flecha blanca discreta: indica que la página continúa hacia abajo en móvil. */
+#pageScrollHint{
+  position:fixed;left:5px;top:54%;transform:translateY(-50%);z-index:9999;
+  width:30px;height:42px;border:1px solid rgba(255,255,255,.65);border-radius:18px;
+  background:rgba(0,0,0,.62);color:#fff;font:800 30px/30px Arial,sans-serif;
+  text-align:center;box-shadow:0 0 10px rgba(255,255,255,.18);
+  animation:pageArrowBounce 1.35s ease-in-out infinite;cursor:pointer;
+  padding:0 0 5px;touch-action:manipulation;
+}
+@keyframes pageArrowBounce{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% + 7px))}}
+@media(min-width:601px){#pageScrollHint{display:none!important}}
+@media(max-width:600px){#pageScrollHint{display:block}}
 </style>

@@ -12444,53 +12444,47 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 <style id="tech-mobile-game-full-touch-down">
 /* =========================================================
    Móvil:
-   - Pantalla PRINCIPAL: juego completo (sin +7cm)
-   - Touch pad bien ABAJO (mucho más bajo)
-   - Scroll visible solo en paneles del menú
+   - Pantalla del juego: 5cm más baja (menos altura)
+   - Touch pad: 2cm más arriba que el ajuste anterior
    ========================================================= */
 
-/* --- Touch pad: bajar mucho --- */
 @media (max-width: 1100px), (pointer: coarse) {
   .touch-pad {
-    margin-top: 18px !important;
-    margin-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+    margin-top: 10px !important;
+    margin-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
     padding-top: 0 !important;
-    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
     position: relative !important;
-    top: 1.2cm !important; /* baja el mando */
+    /* antes ~1.2cm abajo; ahora +2cm arriba → ~ -0.8cm (sube) */
+    top: -0.8cm !important;
     transform: none !important;
-  }
-  .touch-pad-inner {
-    margin-top: 0 !important;
   }
 }
 
 @media (max-width: 600px), (pointer: coarse) {
-  /* PRINCIPAL: marco del juego completo y proporcionado (sin sumar 7cm) */
   .tech-game-section {
     padding: 6px 8px 4px !important;
     margin: 6px auto 0 !important;
   }
+  /* Pantalla del juego 5cm más baja (reduce altura 5cm) */
   .tech-game {
-    height: min(58vh, 520px) !important;
-    min-height: 360px !important;
+    height: min(calc(58vh - 5cm), 520px) !important;
+    min-height: max(280px, calc(360px - 5cm)) !important;
     max-height: none !important;
   }
-  /* En partida: un poco más de altura útil, sin empujar la principal de más */
   .tech-game.is-playing {
-    height: min(62vh, 560px) !important;
-    min-height: 380px !important;
+    height: min(calc(62vh - 5cm), 560px) !important;
+    min-height: max(300px, calc(380px - 5cm)) !important;
   }
 
-  /* Touch pad aún más abajo en móvil */
+  /* Touch pad: 2cm más arriba (antes 1.8cm abajo → ahora -0.2cm) */
   .touch-pad {
-    top: 1.8cm !important;
-    margin-top: 22px !important;
-    margin-bottom: max(16px, env(safe-area-inset-bottom, 0px)) !important;
-    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    top: -0.2cm !important;
+    margin-top: 8px !important;
+    margin-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
   }
 
-  /* Scroll visible en paneles del menú (pantalla del medio) */
   #startPanel,
   #configPanel,
   #pausePanel,
@@ -12530,7 +12524,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     min-height: 36px !important;
   }
 
-  /* Menú de inicio: cabe dentro del marco y se scrollea por dentro */
   #startPanel {
     max-height: calc(100% - 14px) !important;
     top: 7px !important;
@@ -12538,18 +12531,17 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   }
 }
 
-/* Fullscreen móvil: touch pad abajo del todo, juego arriba completo */
 @media (max-width: 1100px), (pointer: coarse) {
   .tech-game-section:fullscreen .tech-game,
   .tech-game-section:-webkit-full-screen .tech-game {
-    height: min(68vh, calc(100vh - 180px - env(safe-area-inset-bottom, 0px))) !important;
+    height: min(calc(68vh - 5cm), calc(100vh - 180px - env(safe-area-inset-bottom, 0px))) !important;
     margin-bottom: 0 !important;
   }
   .tech-game-section:fullscreen .touch-pad,
   .tech-game-section:-webkit-full-screen .touch-pad {
-    top: 0.6cm !important;
-    margin-top: 8px !important;
-    margin-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    top: -0.4cm !important;
+    margin-top: 4px !important;
+    margin-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 </style>

@@ -1150,7 +1150,7 @@ body {min-height:100vh !important}
 .tech-game {
   flex:0 0 auto;
   min-height:360px !important;
-  height:min(82dvh,650px) !important;
+  height:min(62vh,560px) !important;
   max-height:none !important;
 }
 /* El menú de modos mantiene su propio scroll fino; el contenido inferior sigue presente. */
@@ -2138,7 +2138,6 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 </head>
 <body>
 
-<button id="pageScrollHint" type="button" aria-label="Deslizar hacia abajo para ver más" title="Desliza hacia abajo" onclick="window.scrollBy({top:Math.max(window.innerHeight*0.68,320),behavior:'smooth'});" style="display:none">⌄</button>
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top" aria-label="Estadísticas de la partida">
@@ -2152,11 +2151,9 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
 <h2>⚡ TECH RUN</h2>
+<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Crear cuenta / Iniciar sesión</button>
 <small>Elige dificultad y nave · Desliza para ver más</small><br>
-<div id="startActions" style="display:flex;gap:8px;align-items:stretch;width:100%;margin-top:10px">
-<button class="game-btn" id="startGame" style="flex:1;min-width:0;margin-top:0">🚀 Iniciar</button>
-<button class="game-btn" id="openTechAccount" style="flex:1.25;min-width:0;margin-top:0;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Iniciar sesión</button>
-</div>
+<button class="game-btn" id="startGame">🚀 Iniciar</button>
 <button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
 <button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
 <button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
@@ -12394,18 +12391,4 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   .touch-mid{min-width:72px !important;width:100% !important;}
   .touch-mid .touch-util{min-width:0 !important;width:100% !important;max-width:none !important;}
 }
-
-/* Flecha blanca discreta: indica que la página continúa hacia abajo en móvil. */
-#pageScrollHint{
-  position:fixed;left:8px;bottom:14px;top:auto;transform:none;z-index:9999;
-  width:38px;height:42px;border:1px solid rgba(255,255,255,.8);border-radius:18px;
-  background:rgba(0,0,0,.72);color:#fff;font:800 30px/30px Arial,sans-serif;
-  text-align:center;box-shadow:0 0 12px rgba(255,255,255,.24);
-  animation:pageArrowBounce 1.35s ease-in-out infinite;cursor:pointer;
-  padding:0 0 5px;touch-action:manipulation;
-}
-@keyframes pageArrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
-@media(max-width:360px){#startActions{gap:5px!important}#startActions .game-btn{font-size:12px!important;padding-left:5px!important;padding-right:5px!important}}
-@media(min-width:601px){#pageScrollHint{display:none!important}}
-@media(max-width:600px){#pageScrollHint{display:block}}
 </style>

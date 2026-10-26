@@ -12129,7 +12129,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 </script>
 <div id="techAuthModal" role="dialog" aria-modal="true" aria-labelledby="techAuthTitle">
  <div class="ta-card">
-  <button type="button" class="ta-close" id="techAuthClose" aria-label="Cerrar">×</button>
   <h2 id="techAuthTitle">TECH RUN</h2>
   <p class="ta-login-subtitle" id="taLoginSubtitle">Ingresar con correo y contraseña</p>
   <p id="techAuthIntro" hidden></p>
@@ -12144,7 +12143,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
    <div class="ta-actions" id="taMainActions"><button type="button" id="taRegister">Crear usuario</button><button type="button" id="taLogin" class="ta-secondary">Iniciar sesión</button></div>
    <div class="ta-actions ta-hidden" id="taRecoveryActions"><button type="button" id="taSendCode">Enviar código</button><button type="button" id="taResetPassword" class="ta-secondary">Cambiar contraseña</button></div>
   </form>
-  <div class="ta-links"><button type="button" id="taForgot">¿Olvidaste tu contraseña?</button><button type="button" id="taBack" class="ta-hidden">Volver al inicio</button><button type="button" id="taLogout" class="ta-hidden">↪ Cerrar sesión</button></div>
+  <div class="ta-links"><button type="button" id="taGuestPlay" style="color:#83f0b0;border:1px solid rgba(131,240,176,.35);border-radius:10px;padding:10px 12px">Jugar como invitado</button><button type="button" id="taForgot">¿Olvidaste tu contraseña?</button><button type="button" id="taBack" class="ta-hidden">Volver al inicio</button><button type="button" id="taLogout" class="ta-hidden">↪ Cerrar sesión</button></div>
   <p id="techAuthStatus" role="status" aria-live="polite"></p>
  </div>
 </div>
@@ -12174,7 +12173,7 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  window.techAuthIsLoggedIn=isLogged;window.techAuthUsername=username;window.techAuthOwnsUsername=owns;
  function status(msg,good=false){const el=$('techAuthStatus');if(el){el.textContent=msg||'';el.style.color=good?'#83f0b0':'#ffc2a6';}if(msg&&window.techNotify&&(/ya existe|no se pudo|no coinciden|contraseña debe|inicia sesión|sesión cerrada/i.test(msg))){window.techNotify(msg,good?'success':'warning','Cuenta TECH RUN');}}
  function open(){modal.style.display='flex';setMode(isLogged()?'logged':'home');}
- function close(){if(!isLogged()){modal.style.display='flex';status('Inicia sesión o crea una cuenta para continuar.');return;}modal.style.display='none';}
+ function close(){modal.style.display='none';}
  window.techAuthOpen=open;
  function show(id,yes){$(id).classList.toggle('ta-hidden',!yes);}
  function setMode(next){mode=next;status('');const logged=next==='logged';
@@ -12265,8 +12264,8 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
  }
  function updateAccountUI(){const b=$('openTechAccount');if(b)b.textContent=isLogged()?'Cuenta: '+username()+' · Gestionar / salir':'Crear cuenta / Iniciar sesión';}
  $('openTechAccount')&&$('openTechAccount').addEventListener('click',open);
- $('techAuthClose').addEventListener('click',close);
- modal.addEventListener('click',e=>{if(e.target===modal)close();});
+ $('taGuestPlay').addEventListener('click',()=>{modal.style.display='none';if(window.techNotify)window.techNotify('Estás jugando como invitado. El ranking online no se guarda si no estás registrado.','warning','TECH RUN');});
+ modal.addEventListener('click',e=>{if(e.target===modal){modal.style.display='none';if(!isLogged()&&window.techNotify)window.techNotify('Estás jugando como invitado. El ranking online no se guarda si no estás registrado.','warning','TECH RUN');}});
  $('taRegister').addEventListener('click',()=>{if(mode!=='register')setMode('register');else register();});
  $('taLogin').addEventListener('click',()=>{if(mode==='register')return;login();});
  $('taForgot').addEventListener('click',()=>setMode('forgot'));

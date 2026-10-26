@@ -2151,14 +2151,12 @@ html, body { min-height:100%; height:auto; overflow-x:hidden !important; overflo
 <canvas id="gameCanvas"></canvas>
 <div class="game-panel" id="startPanel">
 <h2>⚡ TECH RUN</h2>
-<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Crear cuenta / Iniciar sesión</button>
 <small>Elige dificultad y nave · Desliza para ver más</small><br>
 <button class="game-btn" id="startGame">🚀 Iniciar</button>
-<div class="start-secondary-row" id="startSecondaryRow">
-<button class="game-btn game-btn-blue start-sec-btn" id="openStoryMode">📖 Historia</button>
-<button class="game-btn start-sec-btn" id="openStatistics" style="background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Stats</button>
-<button class="game-btn start-sec-btn" id="openOnlineRanking" style="background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking</button>
-</div>
+<button class="game-btn game-btn-blue" id="openStoryMode" style="margin-top:10px">📖 Modo historia</button>
+<button class="game-btn" id="openStatistics" style="margin-top:10px;background:linear-gradient(135deg,#142b52,#087c9d);border-color:#5de5ff;color:#fff">📊 Estadísticas</button>
+<button class="game-btn" id="openOnlineRanking" style="margin-top:10px;background:linear-gradient(135deg,#0a3d2e,#0d7a5f);border-color:#5dffb0;color:#fff">🌐 Ranking online</button>
+<button class="game-btn" id="openTechAccount" style="margin-top:10px;background:linear-gradient(135deg,#35205e,#6b39a8);border-color:#c9a4ff;color:#fff">Crear cuenta / Iniciar sesión</button>
 </div>
 <div class="game-panel" id="gameOverPanel">
 <h2>💥 Game over</h2>
@@ -12320,52 +12318,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 </html>
 
 
-<style id="tech-start-secondary-row">
-
-/* === Fila horizontal: Historia / Stats / Ranking (más espacio en móvil) === */
-.start-secondary-row{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-top:10px;
-  width:100%;
-}
-.start-secondary-row .start-sec-btn{
-  margin-top:0 !important;
-  width:100%;
-  box-sizing:border-box;
-}
-@media (max-width:700px),(pointer:coarse){
-  .start-secondary-row{
-    display:grid !important;
-    grid-template-columns:repeat(3, minmax(0,1fr)) !important;
-    gap:6px !important;
-    margin-top:8px !important;
-  }
-  .start-secondary-row .start-sec-btn{
-    width:100% !important;
-    min-width:0 !important;
-    padding:10px 4px !important;
-    font-size:10px !important;
-    letter-spacing:0 !important;
-    line-height:1.2 !important;
-    white-space:normal !important;
-    min-height:44px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    text-align:center !important;
-  }
-}
-@media (max-width:380px){
-  .start-secondary-row .start-sec-btn{
-    font-size:9px !important;
-    padding:8px 2px !important;
-    min-height:40px !important;
-  }
-}
-
-</style>
 <style id="tech-run-touch-center-scroll-left-final">
 /* Touch: mando ligeramente más largo, poderes compactos y centrados */
 .touch-pad-inner{
@@ -12420,133 +12372,4 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 #startPanel::-webkit-scrollbar{width:5px !important;}
 #startPanel::-webkit-scrollbar-thumb{background:#CE1126 !important;border-radius:5px !important;}
 #startPanel::-webkit-scrollbar-track{background:transparent !important;}
-
-/* === AJUSTE MOVIL: paneles completos y barra de desplazamiento visible === */
-#startPanel{direction:ltr !important;scrollbar-width:thin !important;scrollbar-color:#CE1126 rgba(255,255,255,.12) !important;overscroll-behavior-y:contain !important;scrollbar-gutter:stable;}
-#startPanel > *{direction:ltr !important;}
-#startPanel::-webkit-scrollbar,#configPanel::-webkit-scrollbar,#pausePanel::-webkit-scrollbar,#gameOverPanel::-webkit-scrollbar{width:8px !important;display:block !important;}
-#startPanel::-webkit-scrollbar-track,#configPanel::-webkit-scrollbar-track,#pausePanel::-webkit-scrollbar-track,#gameOverPanel::-webkit-scrollbar-track{background:rgba(255,255,255,.10) !important;border-radius:8px;}
-#startPanel::-webkit-scrollbar-thumb,#configPanel::-webkit-scrollbar-thumb,#pausePanel::-webkit-scrollbar-thumb,#gameOverPanel::-webkit-scrollbar-thumb{background:#CE1126 !important;border:1px solid #FFCD00;border-radius:8px;}
-#configPanel,#pausePanel,#gameOverPanel{scrollbar-width:thin !important;scrollbar-color:#CE1126 rgba(255,255,255,.12) !important;overscroll-behavior-y:contain !important;}
-#configPanel #closeConfig{position:sticky !important;bottom:4px !important;margin-top:12px !important;}
-@media(max-width:600px){
-  .tech-game{height:min(82dvh,650px) !important;min-height:480px !important;}
-  .game-panel{top:8px !important;bottom:8px !important;left:50% !important;transform:translateX(-50%) !important;width:calc(100% - 18px) !important;max-width:420px !important;max-height:none !important;height:auto !important;padding:14px 12px 18px !important;overflow-x:hidden !important;overflow-y:auto !important;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch !important;}
-  #configPanel{max-height:none !important;padding-bottom:24px !important;}
-  #startPanel{padding-bottom:24px !important;}
-  .touch-pad-inner{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(72px,.62fr) minmax(0,1fr) !important;gap:6px !important;align-items:center !important;padding:8px 6px !important;}
-  .touch-col{min-width:0 !important;width:100% !important;}
-  .touch-mid{min-width:72px !important;width:100% !important;}
-  .touch-mid .touch-util{min-width:0 !important;width:100% !important;max-width:none !important;}
-}
 </style>
-
-<style id="tech-mobile-game-full-touch-down">
-/* =========================================================
-   Móvil:
-   - Touch pad: 6cm más abajo
-   - Resto (juego + principal): 5cm más abajo / más bajo
-   ========================================================= */
-
-@media (max-width: 1100px), (pointer: coarse) {
-  .touch-pad {
-    margin-top: 10px !important;
-    margin-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
-    padding-top: 0 !important;
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
-    position: relative !important;
-    top: 6cm !important; /* touch pad 6cm abajo */
-    transform: none !important;
-  }
-}
-
-@media (max-width: 600px), (pointer: coarse) {
-  /* Principal: 5cm más bajo */
-  .tech-game-section {
-    padding: 4px 8px 2px !important;
-    margin: 4px auto 0 !important;
-    max-height: calc(100dvh - 5cm) !important;
-    position: relative !important;
-    top: 5cm !important;
-  }
-
-  /* Jugabilidad: 5cm más baja (altura) */
-  .tech-game {
-    height: min(calc(58vh - 5cm), 520px) !important;
-    min-height: max(240px, calc(360px - 5cm)) !important;
-    max-height: none !important;
-  }
-  .tech-game.is-playing {
-    height: min(calc(62vh - 5cm), 560px) !important;
-    min-height: max(260px, calc(380px - 5cm)) !important;
-  }
-
-  /* Touch pad: 6cm abajo (respecto al bloque del juego) */
-  .touch-pad {
-    top: 6cm !important;
-    margin-top: 8px !important;
-    margin-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
-    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  #startPanel,
-  #configPanel,
-  #pausePanel,
-  #gameOverPanel,
-  #storyMenuPanel,
-  #storyBriefPanel,
-  #storyResultPanel,
-  #onlineRankingPanel {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-gutter: stable !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #CE1126 rgba(255,255,255,.18) !important;
-  }
-  #startPanel::-webkit-scrollbar,
-  #configPanel::-webkit-scrollbar,
-  #pausePanel::-webkit-scrollbar,
-  #gameOverPanel::-webkit-scrollbar {
-    width: 9px !important;
-    display: block !important;
-  }
-  #startPanel::-webkit-scrollbar-track,
-  #configPanel::-webkit-scrollbar-track,
-  #pausePanel::-webkit-scrollbar-track,
-  #gameOverPanel::-webkit-scrollbar-track {
-    background: rgba(255,255,255,.12) !important;
-    border-radius: 8px !important;
-  }
-  #startPanel::-webkit-scrollbar-thumb,
-  #configPanel::-webkit-scrollbar-thumb,
-  #pausePanel::-webkit-scrollbar-thumb,
-  #gameOverPanel::-webkit-scrollbar-thumb {
-    background: #CE1126 !important;
-    border: 1px solid #FFCD00 !important;
-    border-radius: 8px !important;
-    min-height: 36px !important;
-  }
-
-  #startPanel {
-    max-height: calc(100% - 14px) !important;
-    top: 7px !important;
-    bottom: auto !important;
-  }
-}
-
-@media (max-width: 1100px), (pointer: coarse) {
-  .tech-game-section:fullscreen .tech-game,
-  .tech-game-section:-webkit-full-screen .tech-game {
-    height: min(calc(68vh - 5cm), calc(100vh - 180px - 5cm - env(safe-area-inset-bottom, 0px))) !important;
-    margin-bottom: 0 !important;
-  }
-  .tech-game-section:fullscreen .touch-pad,
-  .tech-game-section:-webkit-full-screen .touch-pad {
-    top: 6cm !important;
-    margin-top: 4px !important;
-    margin-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
-  }
-}
-</style>
-

@@ -12441,29 +12441,56 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 }
 </style>
 
-<style id="tech-mobile-game-taller-scroll">
+<style id="tech-mobile-game-full-touch-down">
 /* =========================================================
-   Móvil: área de juego más alta (+7cm) + scroll visible en panel central
+   Móvil:
+   - Pantalla PRINCIPAL: juego completo (sin +7cm)
+   - Touch pad bien ABAJO (mucho más bajo)
+   - Scroll visible solo en paneles del menú
    ========================================================= */
-@media (max-width: 900px), (pointer: coarse) {
-  /* El marco del juego deja de verse a media altura: +7cm hacia abajo */
+
+/* --- Touch pad: bajar mucho --- */
+@media (max-width: 1100px), (pointer: coarse) {
+  .touch-pad {
+    margin-top: 18px !important;
+    margin-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+    padding-top: 0 !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    position: relative !important;
+    top: 1.2cm !important; /* baja el mando */
+    transform: none !important;
+  }
+  .touch-pad-inner {
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 600px), (pointer: coarse) {
+  /* PRINCIPAL: marco del juego completo y proporcionado (sin sumar 7cm) */
   .tech-game-section {
-    padding: 4px 6px 6px !important;
-    margin: 4px auto 0 !important;
+    padding: 6px 8px 4px !important;
+    margin: 6px auto 0 !important;
   }
   .tech-game {
-    height: min(calc(48vh + 7cm), 92dvh) !important;
-    min-height: calc(300px + 7cm) !important;
+    height: min(58vh, 520px) !important;
+    min-height: 360px !important;
     max-height: none !important;
   }
-  /* Al jugar (sin menús), un poco más de área útil */
+  /* En partida: un poco más de altura útil, sin empujar la principal de más */
   .tech-game.is-playing {
-    height: min(calc(55vh + 7cm), 94dvh) !important;
-    min-height: calc(340px + 7cm) !important;
+    height: min(62vh, 560px) !important;
+    min-height: 380px !important;
   }
 
-  /* Panel del medio (inicio / config / pausa / game over): scroll siempre visible */
-  .game-panel,
+  /* Touch pad aún más abajo en móvil */
+  .touch-pad {
+    top: 1.8cm !important;
+    margin-top: 22px !important;
+    margin-bottom: max(16px, env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Scroll visible en paneles del menú (pantalla del medio) */
   #startPanel,
   #configPanel,
   #pausePanel,
@@ -12471,38 +12498,21 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
   #storyMenuPanel,
   #storyBriefPanel,
   #storyResultPanel,
-  #onlineRankingPanel,
-  #techStatisticsPanel {
+  #onlineRankingPanel {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: contain !important;
     scrollbar-gutter: stable !important;
     scrollbar-width: thin !important;
     scrollbar-color: #CE1126 rgba(255,255,255,.18) !important;
   }
-
-  #startPanel,
-  #configPanel,
-  #pausePanel,
-  #gameOverPanel {
-    max-height: min(88%, calc(100% - 12px)) !important;
-    height: auto !important;
-  }
-
-  .game-panel::-webkit-scrollbar,
   #startPanel::-webkit-scrollbar,
   #configPanel::-webkit-scrollbar,
   #pausePanel::-webkit-scrollbar,
-  #gameOverPanel::-webkit-scrollbar,
-  #storyMenuPanel::-webkit-scrollbar,
-  #onlineRankingPanel::-webkit-scrollbar,
-  #techStatisticsPanel::-webkit-scrollbar {
+  #gameOverPanel::-webkit-scrollbar {
     width: 9px !important;
     display: block !important;
-    background: transparent !important;
   }
-  .game-panel::-webkit-scrollbar-track,
   #startPanel::-webkit-scrollbar-track,
   #configPanel::-webkit-scrollbar-track,
   #pausePanel::-webkit-scrollbar-track,
@@ -12510,7 +12520,6 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     background: rgba(255,255,255,.12) !important;
     border-radius: 8px !important;
   }
-  .game-panel::-webkit-scrollbar-thumb,
   #startPanel::-webkit-scrollbar-thumb,
   #configPanel::-webkit-scrollbar-thumb,
   #pausePanel::-webkit-scrollbar-thumb,
@@ -12520,24 +12529,27 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
     border-radius: 8px !important;
     min-height: 36px !important;
   }
+
+  /* Menú de inicio: cabe dentro del marco y se scrollea por dentro */
+  #startPanel {
+    max-height: calc(100% - 14px) !important;
+    top: 7px !important;
+    bottom: auto !important;
+  }
 }
 
-@media (max-width: 600px) {
-  .tech-game {
-    height: min(calc(52vh + 7cm), 93dvh) !important;
-    min-height: calc(320px + 7cm) !important;
+/* Fullscreen móvil: touch pad abajo del todo, juego arriba completo */
+@media (max-width: 1100px), (pointer: coarse) {
+  .tech-game-section:fullscreen .tech-game,
+  .tech-game-section:-webkit-full-screen .tech-game {
+    height: min(68vh, calc(100vh - 180px - env(safe-area-inset-bottom, 0px))) !important;
+    margin-bottom: 0 !important;
   }
-  .tech-game.is-playing {
-    height: min(calc(58vh + 7cm), 95dvh) !important;
-    min-height: calc(360px + 7cm) !important;
-  }
-  /* Panel de inicio: ocupa el marco y scrollea por dentro */
-  #startPanel {
-    top: 6px !important;
-    bottom: 6px !important;
-    max-height: none !important;
-    height: auto !important;
-    max-height: calc(100% - 12px) !important;
+  .tech-game-section:fullscreen .touch-pad,
+  .tech-game-section:-webkit-full-screen .touch-pad {
+    top: 0.6cm !important;
+    margin-top: 8px !important;
+    margin-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 </style>

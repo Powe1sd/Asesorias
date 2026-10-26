@@ -12372,4 +12372,23 @@ let panel=document.getElementById('techStatisticsPanel');if(!panel){panel=docume
 #startPanel::-webkit-scrollbar{width:5px !important;}
 #startPanel::-webkit-scrollbar-thumb{background:#CE1126 !important;border-radius:5px !important;}
 #startPanel::-webkit-scrollbar-track{background:transparent !important;}
+
+/* === AJUSTE MOVIL: paneles completos y barra de desplazamiento visible === */
+#startPanel{direction:ltr !important;scrollbar-width:thin !important;scrollbar-color:#CE1126 rgba(255,255,255,.12) !important;overscroll-behavior-y:contain !important;scrollbar-gutter:stable;}
+#startPanel > *{direction:ltr !important;}
+#startPanel::-webkit-scrollbar,#configPanel::-webkit-scrollbar,#pausePanel::-webkit-scrollbar,#gameOverPanel::-webkit-scrollbar{width:8px !important;display:block !important;}
+#startPanel::-webkit-scrollbar-track,#configPanel::-webkit-scrollbar-track,#pausePanel::-webkit-scrollbar-track,#gameOverPanel::-webkit-scrollbar-track{background:rgba(255,255,255,.10) !important;border-radius:8px;}
+#startPanel::-webkit-scrollbar-thumb,#configPanel::-webkit-scrollbar-thumb,#pausePanel::-webkit-scrollbar-thumb,#gameOverPanel::-webkit-scrollbar-thumb{background:#CE1126 !important;border:1px solid #FFCD00;border-radius:8px;}
+#configPanel,#pausePanel,#gameOverPanel{scrollbar-width:thin !important;scrollbar-color:#CE1126 rgba(255,255,255,.12) !important;overscroll-behavior-y:contain !important;}
+#configPanel #closeConfig{position:sticky !important;bottom:4px !important;margin-top:12px !important;}
+@media(max-width:600px){
+  .tech-game{height:min(82dvh,650px) !important;min-height:480px !important;}
+  .game-panel{top:8px !important;bottom:8px !important;left:50% !important;transform:translateX(-50%) !important;width:calc(100% - 18px) !important;max-width:420px !important;max-height:none !important;height:auto !important;padding:14px 12px 18px !important;overflow-x:hidden !important;overflow-y:auto !important;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch !important;}
+  #configPanel{max-height:none !important;padding-bottom:24px !important;}
+  #startPanel{padding-bottom:24px !important;}
+  .touch-pad-inner{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(72px,.62fr) minmax(0,1fr) !important;gap:6px !important;align-items:center !important;padding:8px 6px !important;}
+  .touch-col{min-width:0 !important;width:100% !important;}
+  .touch-mid{min-width:72px !important;width:100% !important;}
+  .touch-mid .touch-util{min-width:0 !important;width:100% !important;max-width:none !important;}
+}
 </style>

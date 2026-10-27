@@ -19,7 +19,7 @@ body{
   background:#03050c;
 }
 
-/* Fondo con efecto de estrellas (sin círculos ni bolas azules) */
+/* Fondo con efecto de estrellas (sin círculos ni bolas azules grandes) */
 body::before{
   content:"";
   position:fixed;
@@ -111,14 +111,14 @@ body::before{
   text-shadow: 0 0 18px rgba(0, 80, 200, .38) !important; 
 }
 
-/* Las tarjetas de datos mantienen el diseño azul */
+/* Las tarjetas de la cuadrícula mantienen su diseño azul original */
 #content .data-card {
   background: linear-gradient(155deg, rgba(0, 40, 110, .48), rgba(4, 10, 24, .97)) !important;
   border-color: rgba(0, 100, 255, .45) !important;
   box-shadow: 0 8px 28px rgba(0, 0, 0, .35) !important;
 }
 
-/* CORRECCIÓN: Tarjeta de contacto sin fondo azul, limpia y oscura */
+/* Tarjeta de contacto sin el fondo azul de bloque */
 #content .contact-card {
   background: rgba(5, 8, 18, 0.85) !important; 
   border: 1px solid rgba(255, 255, 255, 0.15) !important; 
@@ -135,11 +135,24 @@ body::before{
   border-color: rgba(255, 205, 0, .7) !important; 
 }
 
-#content .btn-neoprimary,
-#content .contact-icon {
+#content .btn-neoprimary {
   background: linear-gradient(135deg, #064bb5, #0038A8) !important;
   color: #fff !important;
   border: 1px solid rgba(255, 205, 0, .85) !important;
+}
+
+/* ELIMINACIÓN DE LAS BOLAS AZULES: Iconos de contacto transparentes y amarillos */
+#content .contact-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #FFCD00 !important;
+  font-size: 20px;
+  min-width: 30px;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #content .btn-neoprimary i { 
@@ -270,17 +283,7 @@ body::before{
   padding:18px;
   border:1px solid rgba(255,255,255,.05);
   border-radius:10px;
-  background:rgba(0,0,0,.3); /* Cajas internas más oscuras */
-}
-
-.contact-icon{
-  min-width:45px;
-  height:45px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
-  font-size:18px;
+  background:rgba(0,0,0,.3);
 }
 
 .contact-info strong{
@@ -298,7 +301,7 @@ body::before{
 }
 
 /* ==========================================
-   PIE DE PÁGINA (FOOTER) Y ELEMENTOS EXTRA
+   PIE DE PÁGINA (FOOTER) Y TRIÁNGULO
    ========================================== */
 .cyber-footer{
   text-align:center;

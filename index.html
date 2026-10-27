@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desarrollo de Software — TECH</title>
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon">
-    <!-- Enlace a tus estilos locales -->
+    
+    <!-- 1. Tus estilos locales (deben llamarse style.css en tu carpeta) -->
     <link rel="stylesheet" href="style.css">
-    <!-- Librería real de Font Awesome 6 -->
+    
+    <!-- 2. CDN Oficial de Font Awesome 6 (Para que cargue el hacha, la reasignación, etc.) -->
     <link rel="stylesheet" href="https://cloudflare.com">
-    <!-- Fuentes de Google Fonts -->
-    <link href="https://googleapis.com" rel="stylesheet">
+    
+    <!-- 3. Fuentes oficiales de Google Fonts (Orbitron, Share Tech Mono e Inter) -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <nav class="top-nav">
-    <!-- Aquí incluí el hacha ("fa-axe") corregida para tu juego Tech Run -->
     <a href="https://vercel.app" target="_blank" rel="noopener">
         <i class="fa-solid fa-axe" aria-hidden="true"></i> Tech run
     </a>
@@ -86,20 +90,6 @@
         </div>
     </section>
 
-    <script>
-    (function(){
-      var btn=document.getElementById("btnReferencia");
-      var box=document.getElementById("referenciaDatos");
-      var chev=document.getElementById("referenciaChevron");
-      if(!btn||!box)return;
-      btn.addEventListener("click",function(){
-        var open=box.hasAttribute("hidden");
-        if(open){box.removeAttribute("hidden");btn.setAttribute("aria-expanded","true");if(chev)chev.textContent="▲";}
-        else{box.setAttribute("hidden","");btn.setAttribute("aria-expanded","false");if(chev)chev.textContent="▼";}
-      });
-    })();
-    </script>
-
     <footer class="cyber-footer">
         <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>
         <p>Versión 1.0.1.1.3</p>
@@ -111,6 +101,20 @@
         <p style="margin-top:10px;opacity:.7;font-size:.8rem">© 2026 Asesorías Profesionales. Todos los derechos reservados.</p>
     </footer>
 </div>
+
+<script>
+(function(){
+  var btn=document.getElementById("btnReferencia");
+  var box=document.getElementById("referenciaDatos");
+  var chev=document.getElementById("referenciaChevron");
+  if(!btn||!box)return;
+  btn.addEventListener("click",function(){
+    var open=box.hasAttribute("hidden");
+    if(open){box.removeAttribute("hidden");btn.setAttribute("aria-expanded","true");if(chev)chev.textContent="▲";}
+    else{box.setAttribute("hidden","");btn.setAttribute("aria-expanded","false");if(chev)chev.textContent="▼";}
+  });
+})();
+</script>
 
 </body>
 </html>

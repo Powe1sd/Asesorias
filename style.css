@@ -347,3 +347,43 @@ body::before{
   83%{border-left-color:#c9a4ff;filter:drop-shadow(0 0 12px #c9a4ff)}
   100%{border-left-color:#CE1126;filter:drop-shadow(0 0 12px #CE1126)}
 }
+
+
+/* Esilos imagen perfil */
+.boton-foto {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 99999;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.foto-perfil {
+  display: block;
+  width: 100px;
+  height: 100px;
+  max-width: calc(100vw - 24px);
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Celulares */
+@media screen and (max-width: 600px) {
+  .boton-foto {
+    top: 8px;
+    left: 8px;
+  }
+
+  .foto-perfil {
+    width: 55px;
+    height: 55px;
+    border-width: 2px;
+  }
+}

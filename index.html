@@ -20,20 +20,11 @@
   </head>
 
 
-<button onclick="alert('Brahyan')"
-style="position:fixed; top:10px; left:10px;
-background:none; border:none; padding:0;
-cursor:pointer; z-index:99999;">
 
-  <img src="img.jpeg" alt="Brahyan"
-  style="width:200px; height:200px;
-  border-radius:50%;
-  object-fit:cover;
-  object-position:center;
-  border:5px solid white;
-  box-shadow:0 6px 25px rgba(0,0,0,0.6);">
-
+<button onclick="alert('Brahyan')" class="boton-foto">
+  <img src="img.jpeg" alt="Brahyan" class="foto-perfil">
 </button>
+
 
 
 
@@ -110,6 +101,82 @@ cursor:pointer; z-index:99999;">
             </div>
         </div>
     </section>
+
+
+<section class="contact-section" id="creditos-juego">
+  <div class="contact-card" style="
+    text-align:center;
+    padding:24px 20px;
+    border:1px solid rgba(255,205,0,.45);
+    border-radius:16px;
+    background:linear-gradient(145deg,#081228,#101827);
+    box-shadow:0 8px 25px rgba(0,0,0,.3);
+  ">
+
+    <button type="button"
+      id="btnCreditosJuego"
+      aria-expanded="false"
+      aria-controls="datosCreditosJuego"
+      style="
+        width:100%;
+        background:none;
+        border:none;
+        color:#FFCD00;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+        font-family:Orbitron,sans-serif;
+        font-size:1.1rem;
+        font-weight:bold;
+        padding:10px;
+      ">
+       Créditos
+      <span id="flechaCreditosJuego">▼</span>
+    </button>
+
+    <div id="datosCreditosJuego" hidden
+      style="padding-top:18px;border-top:1px solid rgba(255,205,0,.25);">
+
+      <p style="color:#c8d6e8;margin:8px 0;">
+        Creador y desarrollador
+      </p>
+
+      <h3 style="color:#fff;font-size:1.3rem;margin:12px 0;">
+        Brayhan Estiven Coy Rubio
+      </h3>
+
+      <a href="mailto:brayan324554@gmail.com"
+        style="color:#FFCD00;text-decoration:none;font-weight:bold;">
+        ✉️ brayan324554@gmail.com
+      </a>
+
+      <p style="color:#7a8aa0;font-size:.85rem;margin-top:18px;">
+        © 2026
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const boton = document.getElementById("btnCreditosJuego");
+  const datos = document.getElementById("datosCreditosJuego");
+  const flecha = document.getElementById("flechaCreditosJuego");
+
+  if (!boton || !datos || !flecha) return;
+
+  boton.addEventListener("click", function(){
+    const abrir = datos.hidden;
+    datos.hidden = !abrir;
+    boton.setAttribute("aria-expanded", String(abrir));
+    flecha.textContent = abrir ? "▲" : "▼";
+  });
+})();
+</script>
+
+
 
     <footer class="cyber-footer">
         <p>TECH — Business | Horario: 9 a 1 y 2 a 6</p>

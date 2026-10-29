@@ -387,3 +387,7 @@ body::before{
     border-width: 2px;
   }
 }
+ 
+.alerta-overlay[hidden] {
+    display: none !important;
+}

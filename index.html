@@ -4,243 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desarrollo de Software — TECH</title>
+
     <link rel="icon" href="logo-no-background (2).png" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
+<link rel="stylesheet" href="style.css">
     <style>
-        /* ALERTA PERSONALIZADA */
-        .alerta-overlay[hidden] {
+        /* VIDEO DE PERFIL: esquina superior derecha */
+        #btnPerfil {
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            left: auto !important;
+            bottom: auto !important;
+            z-index: 10000 !important;
+
+            display: block !important;
+            width: 86px !important;
+            height: 86px !important;
+            min-width: 86px !important;
+            min-height: 86px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+
+            overflow: hidden !important;
+            border: 3px solid #fff !important;
+            border-radius: 50% !important;
+            background: #111 !important;
+            cursor: pointer !important;
+            line-height: 0 !important;
+            box-sizing: border-box !important;
+            transition: transform .25s ease, box-shadow .25s ease !important;
+        }
+
+        #btnPerfil video {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            border: 0 !important;
+            border-radius: 50% !important;
+            background: #111;
+        }
+
+        #btnPerfil.reproduciendo {
+            transform: scale(1.12) !important;
+            box-shadow: 0 0 20px rgba(255,255,255,.55) !important;
+        }
+
+        @media (max-width: 600px) {
+            #btnPerfil {
+                width: 68px !important;
+                height: 68px !important;
+                min-width: 68px !important;
+                min-height: 68px !important;
+                top: 12px !important;
+                right: 12px !important;
+            }
+        }
+
+        /* Respeta el atributo hidden de los paneles desplegables */
+        [hidden] {
             display: none !important;
-        }
-
-        .alerta-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 8, 20, 0.88);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            animation: fadeIn 0.25s ease;
-        }
-
-        .alerta-caja {
-            width: 90%;
-            max-width: 380px;
-            background: linear-gradient(165deg, #0a1628 0%, #06101c 100%);
-            border: 1px solid rgba(255, 205, 0, 0.45);
-            border-radius: 18px;
-            box-shadow: 0 0 0 1px rgba(255, 205, 0, 0.1),
-                        0 20px 50px rgba(0, 0, 0, 0.6),
-                        0 0 40px rgba(255, 205, 0, 0.08);
-            overflow: hidden;
-            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .alerta-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 18px;
-            background: linear-gradient(90deg, rgba(255, 205, 0, 0.12), transparent);
-            border-bottom: 1px solid rgba(255, 205, 0, 0.25);
-        }
-
-        .alerta-icono {
-            font-size: 1.3rem;
-        }
-
-        .alerta-header h3 {
-            margin: 0;
-            flex: 1;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #FFCD00;
-            letter-spacing: 1px;
-        }
-
-        .alerta-cerrar {
-            background: none;
-            border: none;
-            color: #7a8aa0;
-            font-size: 1.6rem;
-            line-height: 1;
-            cursor: pointer;
-            padding: 0 4px;
-            transition: color 0.2s;
-        }
-
-        .alerta-cerrar:hover {
-            color: #FFCD00;
-        }
-
-        .alerta-cuerpo {
-            padding: 28px 24px 20px;
-            text-align: center;
-        }
-
-        .alerta-avatar {
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 16px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid #FFCD00;
-            box-shadow: 0 0 20px rgba(255, 205, 0, 0.35);
-        }
-
-        .alerta-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .alerta-nombre {
-            margin: 0 0 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .alerta-titulo {
-            margin: 0 0 18px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.95rem;
-            color: #c8d6e8;
-            line-height: 1.5;
-        }
-
-        .alerta-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .alerta-tags span {
-            padding: 5px 12px;
-            font-size: 0.75rem;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            color: #FFCD00;
-            background: rgba(255, 205, 0, 0.1);
-            border: 1px solid rgba(255, 205, 0, 0.3);
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-        }
-
-        .alerta-footer {
-            padding: 0 24px 24px;
-            text-align: center;
-        }
-
-        .alerta-btn {
-            width: 100%;
-            padding: 13px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            color: #0a1628;
-            background: linear-gradient(135deg, #FFCD00, #e6b800);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
-            box-shadow: 0 4px 15px rgba(255, 205, 0, 0.3);
-        }
-
-        .alerta-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 205, 0, 0.45);
-        }
-
-        .alerta-btn:active {
-            transform: translateY(0);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.85) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .alerta-overlay.cerrando {
-            animation: fadeOut 0.2s ease forwards;
-        }
-
-        .alerta-overlay.cerrando .alerta-caja {
-            animation: scaleOut 0.2s ease forwards;
-        }
-
-        @keyframes fadeOut {
-            to { opacity: 0; }
-        }
-
-        @keyframes scaleOut {
-            to {
-                opacity: 0;
-                transform: scale(0.9) translateY(10px);
-            }
         }
     </style>
 </head>
 
 <body>
-
-    <!-- Botón de la foto de perfil -->
-    <button type="button" class="boton-foto" id="btnPerfil">
-        <img src="img.jpeg" alt="Brahyan" class="foto-perfil">
+    <!-- Video de perfil: fijo en la esquina superior derecha.
+         El nombre del archivo debe ser exactamente sofware.mp4 -->
+    <button type="button" id="btnPerfil"
+            aria-label="Reproducir o pausar video de perfil"
+            title="Toca para reproducir o pausar">
+        <video id="videoPerfil"
+               playsinline
+               preload="auto"
+               poster="img.jpeg"
+               loop>
+            <source src="sofware.mp4" type="video/mp4">
+            Tu navegador no admite la reproducción de video.
+        </video>
     </button>
-
-    <!-- Alerta del perfil -->
-    <div id="alertaPersonalizada" class="alerta-overlay" hidden>
-        <div class="alerta-caja">
-            <div class="alerta-header">
-                <span class="alerta-icono">⚡</span>
-                <h3>Perfil del Desarrollador</h3>
-                <button type="button" class="alerta-cerrar" id="cerrarAlerta" aria-label="Cerrar">×</button>
-            </div>
-
-            <div class="alerta-cuerpo">
-                <div class="alerta-avatar">
-                    <img src="img.jpeg" alt="Brahyan">
-                </div>
-
-                <p class="alerta-nombre">Brahyan</p>
-                <p class="alerta-titulo">
-                    Programador de Software<br>
-                    y de Videojuegos
-                </p>
-
-                <!-- Se eliminaron las etiquetas Web, Móvil, Desktop y Games -->
-            </div>
-
-            <div class="alerta-footer">
-                <button type="button" class="alerta-btn" id="btnAceptarAlerta">
-                    Entendido
-                </button>
-            </div>
-        </div>
-    </div>
 
     <nav class="top-nav">
         <a href="https://techrung.vercel.app/" target="_blank" rel="noopener">
@@ -329,7 +181,6 @@
 
         <section class="contact-section" id="referencia" style="padding-top:10px;margin-bottom:30px">
             <div class="contact-card" style="text-align:center;padding:18px 16px 16px">
-
                 <button type="button" id="btnReferencia"
                     aria-expanded="false" aria-controls="referenciaDatos"
                     style="width:100%;max-width:420px;margin:0 auto;padding:14px 18px;cursor:pointer;
@@ -339,14 +190,12 @@
                     letter-spacing:1.2px;text-transform:none;
                     box-shadow:0 4px 16px rgba(0,0,0,.35);display:inline-flex;
                     align-items:center;justify-content:center;gap:10px;">
-
                     <span>⚡ Proyectos</span>
                     <span id="referenciaChevron" style="font-size:12px;opacity:.85">▼</span>
                 </button>
 
                 <div id="referenciaDatos" hidden
                     style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,205,0,.25);text-align:center">
-
                     <h2 style="color:#fff;font-size:1.45rem;margin:0 0 10px;letter-spacing:1px">
                         Brayhan Rubio
                     </h2>
@@ -374,31 +223,25 @@
 
         <section class="contact-section" id="creditos-juego">
             <div class="contact-card" style="text-align:center;padding:24px 20px;border:1px solid rgba(255,205,0,.45);border-radius:16px;background:linear-gradient(145deg,#081228,#101827);box-shadow:0 8px 25px rgba(0,0,0,.3)">
-
                 <button type="button" id="btnCreditosJuego"
                     aria-expanded="false" aria-controls="datosCreditosJuego"
                     style="width:100%;background:none;border:none;color:#FFCD00;cursor:pointer;
                     display:flex;align-items:center;justify-content:center;gap:12px;
                     font-family:Orbitron,sans-serif;font-size:1.1rem;font-weight:bold;padding:10px;">
-
                     Información
                     <span id="flechaCreditosJuego">▼</span>
                 </button>
 
                 <div id="datosCreditosJuego" hidden
                     style="padding-top:18px;border-top:1px solid rgba(255,205,0,.25);">
-
                     <p style="color:#c8d6e8;margin:8px 0;">Creador y desarrollador</p>
-
                     <h3 style="color:#fff;font-size:1.3rem;margin:12px 0;">
                         Brayhan Estiven Coy Rubio
                     </h3>
-
                     <a href="mailto:brayan324554@gmail.com"
                         style="color:#FFCD00;text-decoration:none;font-weight:bold;">
                         ✉️ brayan324554@gmail.com
                     </a>
-
                     <p style="color:#7a8aa0;font-size:.85rem;margin-top:18px;">
                         © 2026
                     </p>
@@ -420,62 +263,45 @@
         </footer>
     </div>
 
-    <!-- Scripts -->
     <script>
-        // Alerta personalizada de la foto de perfil
+        // VIDEO DE PERFIL: se reproduce o pausa al tocar el círculo.
         (function () {
-            const btn = document.getElementById('btnPerfil');
-            const alerta = document.getElementById('alertaPersonalizada');
-            const btnCerrar = document.getElementById('cerrarAlerta');
-            const btnAceptar = document.getElementById('btnAceptarAlerta');
+            const video = document.getElementById('videoPerfil');
+            const boton = document.getElementById('btnPerfil');
 
-            if (!btn || !alerta || !btnCerrar || !btnAceptar) return;
+            if (!video || !boton) return;
 
-            // Evita registrar el mismo evento más de una vez
-            if (btn.dataset.alertaInicializada === 'true') return;
-            btn.dataset.alertaInicializada = 'true';
-
-            let cerrando = false;
-
-            function abrirAlerta() {
-                if (!alerta.hidden || cerrando) return;
-
-                alerta.hidden = false;
-                document.body.style.overflow = 'hidden';
-            }
-
-            function cerrarAlerta() {
-                if (alerta.hidden || cerrando) return;
-
-                cerrando = true;
-                alerta.classList.add('cerrando');
-
-                window.setTimeout(() => {
-                    alerta.hidden = true;
-                    alerta.classList.remove('cerrando');
-                    document.body.style.overflow = '';
-                    cerrando = false;
-                }, 200);
-            }
-
-            btn.addEventListener('click', abrirAlerta);
-            btnCerrar.addEventListener('click', cerrarAlerta);
-            btnAceptar.addEventListener('click', cerrarAlerta);
-
-            // Cierra al pulsar fuera de la ventana
-            alerta.addEventListener('click', (e) => {
-                if (e.target === alerta) cerrarAlerta();
+            boton.addEventListener('click', async function () {
+                if (video.paused) {
+                    try {
+                        await video.play();
+                    } catch (error) {
+                        console.error('No se pudo reproducir sofware.mp4:', error);
+                        alert('No se pudo reproducir el video. Comprueba que sofware.mp4 esté junto a index.html y que el nombre sea exacto.');
+                    }
+                } else {
+                    video.pause();
+                }
             });
 
-            // Cierra con Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !alerta.hidden) {
-                    cerrarAlerta();
-                }
+            video.addEventListener('play', function () {
+                boton.classList.add('reproduciendo');
+            });
+
+            video.addEventListener('pause', function () {
+                boton.classList.remove('reproduciendo');
+            });
+
+            video.addEventListener('ended', function () {
+                boton.classList.remove('reproduciendo');
+            });
+
+            video.addEventListener('error', function () {
+                console.error('Error cargando el video. Revisa la ruta y el formato MP4.');
             });
         })();
 
-        // Botón Créditos
+        // BOTÓN CRÉDITOS
         (function () {
             const boton = document.getElementById('btnCreditosJuego');
             const datos = document.getElementById('datosCreditosJuego');
@@ -491,7 +317,7 @@
             });
         })();
 
-        // Botón Proyectos / Referencia
+        // BOTÓN PROYECTOS / REFERENCIA
         (function () {
             const btn = document.getElementById('btnReferencia');
             const box = document.getElementById('referenciaDatos');

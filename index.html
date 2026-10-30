@@ -55,6 +55,40 @@
             background: #111;
         }
 
+        /* Fotograma inicial y botón de reproducción superpuestos al video */
+        #btnPerfil .video-portada {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            background: #111;
+            z-index: 2;
+        }
+
+        #btnPerfil .icono-play {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 27px;
+            line-height: 1;
+            text-shadow: 0 2px 8px #000;
+            background: rgba(0, 0, 0, .18);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        #btnPerfil.reproduciendo .video-portada,
+        #btnPerfil.reproduciendo .icono-play {
+            display: none;
+        }
+
         #btnPerfil.reproduciendo {
             transform: scale(1.12) !important;
             box-shadow: 0 0 20px rgba(255,255,255,.55) !important;
@@ -86,12 +120,12 @@
             title="Toca para reproducir o pausar">
         <video id="videoPerfil"
                playsinline
-               preload="auto"
-               poster="img.jpeg"
-               loop>
+               preload="auto">
             <source src="Sofware.mp4" type="video/mp4">
             Tu navegador no admite la reproducción de video.
         </video>
+        <img class="video-portada" id="portadaVideo" alt="Fotograma inicial del video">
+        <span class="icono-play" id="iconoPlay" aria-hidden="true">▶</span>
     </button>
 
     <nav class="top-nav">
@@ -264,20 +298,69 @@
     </div>
 
     <script>
-        // VIDEO DE PERFIL: se reproduce o pausa al tocar el círculo.
+        // VIDEO DE PERFIL: muestra un fotograma real y el icono ▶
+        // antes de reproducir y cuando termina.
         (function () {
             const video = document.getElementById('videoPerfil');
             const boton = document.getElementById('btnPerfil');
+            const portada = document.getElementById('portadaVideo');
 
-            if (!video || !boton) return;
+            if (!video || !boton || !portada) return;
+
+            let portadaLista = false;
+
+            function mostrarPortada() {
+                boton.classList.remove('reproduciendo');
+                video.pause();
+                // El video queda en el primer fotograma para que no aparezca negro.
+                try { video.currentTime = 0; } catch (error) {}
+            }
+
+            function capturarFotogramaInicial() {
+                if (portadaLista || !video.videoWidth || !video.videoHeight) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const contexto = canvas.getContext('2d');
+
+                if (!contexto) return;
+
+                try {
+                    contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    portada.src = canvas.toDataURL('image/jpeg', 0.88);
+                    portadaLista = true;
+                } catch (error) {
+                    console.error('No se pudo crear la portada del video:', error);
+                }
+            }
+
+            video.addEventListener('loadeddata', function () {
+                // Se busca un fotograma ligeramente posterior al cero para evitar
+                // que una primera imagen negra del archivo sea la portada.
+                if (video.currentTime === 0 && video.duration > 0.15) {
+                    video.currentTime = 0.10;
+                } else {
+                    capturarFotogramaInicial();
+                }
+            });
+
+            video.addEventListener('seeked', function () {
+                capturarFotogramaInicial();
+                if (video.paused) {
+                    try { video.currentTime = 0; } catch (error) {}
+                }
+            });
 
             boton.addEventListener('click', async function () {
                 if (video.paused) {
                     try {
+                        // Si el video estaba al final, volver al comienzo antes de reproducir.
+                        if (video.ended) video.currentTime = 0;
                         await video.play();
                     } catch (error) {
-                        console.error('No se pudo reproducir sofware.mp4:', error);
-                        alert('No se pudo reproducir el video. Comprueba que sofware.mp4 esté junto a index.html y que el nombre sea exacto.');
+                        console.error('No se pudo reproducir Sofware.mp4:', error);
+                        alert('No se pudo reproducir el video. Comprueba que Sofware.mp4 esté junto a index.html y que el nombre sea exacto.');
                     }
                 } else {
                     video.pause();
@@ -289,16 +372,19 @@
             });
 
             video.addEventListener('pause', function () {
-                boton.classList.remove('reproduciendo');
+                if (!video.ended) boton.classList.remove('reproduciendo');
             });
 
             video.addEventListener('ended', function () {
-                boton.classList.remove('reproduciendo');
+                mostrarPortada();
             });
 
             video.addEventListener('error', function () {
                 console.error('Error cargando el video. Revisa la ruta y el formato MP4.');
             });
+
+            // Intenta cargar el primer fotograma desde que se abre la página.
+            video.load();
         })();
 
         // BOTÓN CRÉDITOS

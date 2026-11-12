@@ -2714,13 +2714,33 @@ html,body{width:100%;min-width:320px}
 }
 </style>
 
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.5.0/css/flag-icons.min.css">
+<style id="tech-country-flag-picker">
+.tech-country-picker{margin:10px 0 14px;padding:11px 12px;border:1px solid rgba(206,17,38,.42);border-radius:12px;background:linear-gradient(135deg,rgba(5,20,42,.94),rgba(15,12,22,.94));box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.tech-country-heading{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;color:#dce8f5;font:700 11px Orbitron,sans-serif;letter-spacing:.35px}
+.tech-country-heading small{font:10px Inter,Arial,sans-serif;color:#91a5ba;letter-spacing:0}
+.tech-country-control{display:flex;align-items:center;gap:9px}
+.tech-country-current{display:grid;place-items:center;flex:0 0 42px;height:36px;border:1px solid rgba(255,205,0,.35);border-radius:8px;background:rgba(0,0,0,.28);font-size:25px}
+#techCountrySelect{flex:1;min-width:0;height:38px;padding:0 10px;border:1px solid rgba(120,180,220,.38);border-radius:8px;background:#071426;color:#f2f6fb;font:600 12px Inter,Arial,sans-serif;outline:none}
+#techCountrySelect option{background:#071426;color:#f2f6fb}
+.tech-country-flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px;margin-top:9px;max-height:190px;overflow:auto;padding:2px 3px 5px;scrollbar-width:thin;scrollbar-color:#d5ae45 #071426}
+.tech-country-flag-btn{height:31px;min-width:0;padding:2px;border:1px solid rgba(120,180,220,.2);border-radius:6px;background:rgba(2,12,27,.8);font:22px/1 Arial,sans-serif;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.tech-country-flag-btn .fi{display:inline-block;width:1.35em;height:1em;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
+.tech-country-current .fi{display:inline-block;width:1.55em;height:1.05em;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.22)}
+.tech-hud-flag .fi{display:inline-block;width:1.35em;height:.95em;border-radius:2px;vertical-align:middle}
+.tech-country-flag-btn:hover{border-color:#ffcd00;background:rgba(255,205,0,.12);transform:translateY(-1px)}
+.tech-country-flag-btn.active{border:1px solid #ffcd00;background:rgba(255,205,0,.18);box-shadow:0 0 9px rgba(255,205,0,.22)}
+.tech-hud-flag{display:inline-flex;align-items:center;justify-content:center;margin:0 4px;padding:1px 4px;border:1px solid rgba(255,205,0,.34);border-radius:5px;background:rgba(0,0,0,.28);font-family:Arial,sans-serif;font-size:16px;line-height:1.2;vertical-align:middle}
+@media(max-width:600px){.tech-country-picker{padding:9px}.tech-country-heading{font-size:10px}#techCountrySelect{font-size:11px}.tech-country-flags{grid-template-columns:repeat(auto-fill,minmax(34px,1fr));max-height:150px}.tech-country-flag-btn{height:29px;font-size:20px}}
+</style>
 </head>
 <body>
 
 <section class="tech-game-section">
 <div class="tech-game">
 <div class="game-top" aria-label="Estadísticas de la partida">
-  <div class="game-title"><span class="hud-live-dot"></span> TECH RUN <small>MISSION HUD</small></div>
+  <div class="game-title"><span class="hud-live-dot"></span> TECH RUN <span id="techHudFlag" class="tech-hud-flag" title="Elige el país" aria-label="No hay país seleccionado" style="display:none"></span> <small>MISSION HUD</small></div>
   <div class="game-score">
     <div class="hud-stat hud-score"><span class="hud-icon">✦</span><span class="hud-label">PUNTOS</span><strong id="gameScore">0</strong></div>
     <div class="hud-stat hud-coins"><span class="hud-icon">⭐</span><span class="hud-label">PUNTOS JUEGO</span><strong id="gameCoins">0</strong></div>
@@ -3255,6 +3275,17 @@ function promptGokuAccessAsync(){
 let shipName=(lsGet("techShipName","Br7")||"Br7").slice(0,10);
 
 let selectedWorld=Math.min(24,Math.max(1,Number(lsGet("techWorld","1"))||1)); // 1-24 mundos
+
+// Bandera/país elegido por el jugador. Se conserva entre sesiones.
+const TECH_COUNTRY_CODES="AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
+const techRegionNames=(typeof Intl!=="undefined"&&Intl.DisplayNames)?new Intl.DisplayNames(["es"],{type:"region"}):null;
+function techFlagEmoji(code){return `<span class="fi fi-${String(code||"").toLowerCase()}" role="img" aria-label="${techCountryName(code)}"></span>`;}
+function techCountryName(code){try{return techRegionNames?techRegionNames.of(code):code}catch(e){return code}}
+// La selección empieza vacía para mostrar "Elige el país". Después se conserva.
+let selectedFlag=(String(lsGet("techCountryFlagV2","")||"").toUpperCase());
+if(!TECH_COUNTRY_CODES.includes(selectedFlag))selectedFlag="";
+function techSelectedFlagEmoji(){return selectedFlag?techFlagEmoji(selectedFlag):""}
+function techUpdateHudFlag(){const el=document.getElementById("techHudFlag");if(el){el.innerHTML=techSelectedFlagEmoji();el.title=selectedFlag?techCountryName(selectedFlag):"Elige el país";el.setAttribute("aria-label",selectedFlag?("Bandera seleccionada: "+techCountryName(selectedFlag)):"No hay país seleccionado");el.style.display=selectedFlag?"inline-flex":"none";}}
 
 let metaCoins=Number(lsGet("techCoins",0))||0;
 let upgSpeed=Number(lsGet("techUpgSpeed",0))||0;
@@ -5433,6 +5464,19 @@ if(startPanel&&!document.getElementById("startExtras")){
     const ach=Object.values(getAchievements()).map(a=>a.title).slice(0,6).join(", ")||"—";
     const histHtml=formatMatchHistoryHtml(20);
     box.innerHTML=`
+<section class="tech-country-picker" aria-label="Seleccionar bandera del país">
+      <div class="tech-country-heading"><span>🌐 Biblioteca de banderas</span><small>Selecciona una bandera; aparecerá durante la partida</small></div>
+      <div class="tech-country-control">
+        <span class="tech-country-current" id="techCountryPreview">${techSelectedFlagEmoji()||"🌐"}</span>
+        <select id="techCountrySelect" aria-label="Escoger bandera del país">
+          <option value="" ${selectedFlag===""?"selected":""} disabled>Elige el país</option>
+          ${TECH_COUNTRY_CODES.slice().sort((a,b)=>techCountryName(a).localeCompare(techCountryName(b),"es")).map(code=>`<option value="${code}" ${selectedFlag===code?"selected":""}>${techCountryName(code)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="tech-country-flags" id="techCountryFlags" aria-label="Banderas disponibles">
+        ${TECH_COUNTRY_CODES.slice().sort((a,b)=>techCountryName(a).localeCompare(techCountryName(b),"es")).map(code=>`<button type="button" class="tech-country-flag-btn ${selectedFlag===code?"active":""}" data-country-flag="${code}" title="${techCountryName(code)}" aria-label="${techCountryName(code)}" aria-pressed="${selectedFlag===code}">${techFlagEmoji(code)}</button>`).join("")}
+      </div>
+    </section>
     <div class="diff-btns">
       <button type="button" data-d="easy" class="${difficulty==="easy"?"active":""}">Fácil</button>
       <button type="button" data-d="normal" class="${difficulty==="normal"?"active":""}">NORMAL</button>
@@ -5497,6 +5541,7 @@ if(startPanel&&!document.getElementById("startExtras")){
         </button>`;
       }).join("")}
     </div>
+
     <h3>🌍 Mundo</h3>
     <div class="diff-btns">
       <button type="button" data-world="1" class="${selectedWorld===1?"active":""}">1 Espacio</button>
@@ -5712,6 +5757,19 @@ if(startPanel&&!document.getElementById("startExtras")){
     box.querySelectorAll("[data-world]").forEach(b=>b.onclick=()=>{
       selectedWorld=Number(b.getAttribute("data-world"))||1;lsSet("techWorld",selectedWorld);renderStart();
     });
+    const countrySelect=box.querySelector("#techCountrySelect");
+    const chooseCountryFlag=(rawCode)=>{
+      const code=String(rawCode||"").toUpperCase();
+      if(!TECH_COUNTRY_CODES.includes(code))return;
+      selectedFlag=code;lsSet("techCountryFlagV2",selectedFlag);
+      if(countrySelect)countrySelect.value=code;
+      const preview=box.querySelector("#techCountryPreview");if(preview)preview.innerHTML=techSelectedFlagEmoji()||"🌐";
+      box.querySelectorAll("[data-country-flag]").forEach(btn=>{const active=btn.getAttribute("data-country-flag")===code;btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",active?"true":"false");});
+      techUpdateHudFlag();
+    };
+    if(countrySelect)countrySelect.onchange=()=>chooseCountryFlag(countrySelect.value);
+    box.querySelectorAll("[data-country-flag]").forEach(btn=>btn.onclick=()=>chooseCountryFlag(btn.getAttribute("data-country-flag")));
+    techUpdateHudFlag();
     /* Config en menú inicio */
     const ssp=box.querySelector("#startSensPad"), sspv=box.querySelector("#startSensPadVal");
     if(ssp)ssp.oninput=()=>{sensPad=Number(ssp.value);if(sspv)sspv.textContent=sensPad.toFixed(2)+"x";lsSet("techSensPadV7",sensPad)};

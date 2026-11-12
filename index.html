@@ -2573,6 +2573,147 @@ html,body{width:100%;min-width:320px}
 #shipPreview{display:block!important;opacity:1!important;visibility:visible!important}
 </style>
 
+
+<style id="tech-futuristic-interface-v2">
+/* TECH RUN — renovación visual únicamente; no modifica lógica ni controles */
+:root{
+  --tr-metal:#dce7f1;
+  --tr-metal-dim:#9eafc1;
+  --tr-glass:rgba(8,17,31,.94);
+  --tr-glass-soft:rgba(14,27,45,.88);
+  --tr-edge:rgba(150,190,220,.25);
+  --tr-edge-hot:rgba(105,218,245,.48);
+  --tr-gold-soft:#d9c58a;
+  --tr-cyan-soft:#8bd9e8;
+}
+.tech-game{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(62,112,145,.16),transparent 48%),
+    linear-gradient(145deg,#050b14 0%,#091522 48%,#050a12 100%) !important;
+  border:1px solid rgba(154,190,218,.34) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+.tech-game:before{
+  border-color:rgba(139,217,232,.10) !important;
+}
+.tech-game .game-panel,
+.tech-game .data-card,
+.tech-game .contact-card,
+#techStatisticsPanel,
+#techTutorialCard{
+  color:#e8f0f7 !important;
+  background:
+    linear-gradient(145deg,rgba(15,29,47,.97),rgba(5,13,25,.97)) !important;
+  border:1px solid var(--tr-edge) !important;
+  border-radius:18px !important;
+  box-shadow:0 22px 58px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.065) !important;
+}
+.tech-game .game-panel:before{
+  content:"";
+  display:block;
+  height:2px;
+  width:76px;
+  margin:0 auto 12px;
+  border-radius:5px;
+  background:linear-gradient(90deg,transparent,var(--tr-cyan-soft),var(--tr-gold-soft),transparent);
+  opacity:.8;
+}
+.tech-game .game-panel h2,
+#techStatisticsPanel h2,
+#techTutorialCard h2{
+  color:#f1f6fb !important;
+  text-shadow:0 2px 18px rgba(102,197,222,.16) !important;
+  letter-spacing:.045em !important;
+}
+.tech-game .game-panel p,
+.tech-game .game-panel small{
+  color:#aebdcb !important;
+}
+.tech-game .game-btn,
+.tech-game button,
+#techStatisticsPanel button,
+#techTutorialCard button{
+  border:1px solid rgba(145,190,215,.30) !important;
+  border-radius:11px !important;
+  background:linear-gradient(180deg,rgba(35,57,78,.96),rgba(13,27,43,.98)) !important;
+  color:#eaf2f8 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.24) !important;
+  text-shadow:none !important;
+  transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease !important;
+}
+.tech-game .game-btn:hover,
+.tech-game button:hover,
+#techStatisticsPanel button:hover,
+#techTutorialCard button:hover{
+  border-color:rgba(139,217,232,.72) !important;
+  background:linear-gradient(180deg,rgba(48,83,105,.98),rgba(17,39,57,.98)) !important;
+  box-shadow:0 0 0 1px rgba(139,217,232,.10),0 7px 20px rgba(0,0,0,.32) !important;
+}
+.tech-game .game-btn:active,
+.tech-game button:active{transform:translateY(1px) !important}
+.tech-game input,
+.tech-game select,
+.tech-game textarea,
+#techStatisticsPanel input,
+#techStatisticsPanel select{
+  color:#edf4fa !important;
+  background:rgba(4,13,24,.92) !important;
+  border:1px solid rgba(140,183,208,.32) !important;
+  border-radius:9px !important;
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.28) !important;
+}
+.tech-game input:focus,
+.tech-game select:focus,
+.tech-game textarea:focus{
+  outline:none !important;
+  border-color:rgba(139,217,232,.78) !important;
+  box-shadow:0 0 0 3px rgba(90,184,210,.12) !important;
+}
+.tech-game .game-top,
+.tech-game .game-score{
+  color:#e5edf4 !important;
+}
+.tech-game .hud-score,
+.tech-game .hud-coins,
+.tech-game .hud-lives,
+.tech-game .hud-level{
+  border:1px solid rgba(153,187,210,.25) !important;
+  border-radius:10px !important;
+  background:linear-gradient(145deg,rgba(14,29,45,.91),rgba(5,13,23,.91)) !important;
+  box-shadow:0 5px 16px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+.tech-game .hud-score strong,
+.tech-game .hud-coins strong,
+.tech-game .hud-lives strong,
+.tech-game .hud-level strong{
+  text-shadow:none !important;
+}
+.tech-game .hud-coins strong,
+.tech-game .hud-coins .hud-icon,
+#gameCoins{color:var(--tr-gold-soft) !important;-webkit-text-fill-color:var(--tr-gold-soft) !important}
+.tech-game .hud-score strong,
+#gameScore{color:#dceaf4 !important;-webkit-text-fill-color:#dceaf4 !important}
+#techTutorialOverlay{
+  background:radial-gradient(ellipse at 50% 0%,rgba(75,139,165,.18),transparent 52%),rgba(1,6,13,.91) !important;
+}
+#techTutorialCard{
+  border-color:rgba(139,190,211,.34) !important;
+}
+#techStatisticsPanel .tech-stat-notice,
+#techStatisticsPanel .tech-stat-breakdown,
+#techStatisticsPanel .tech-stat-card{
+  background:rgba(13,29,46,.78) !important;
+  border-color:rgba(140,184,208,.20) !important;
+}
+#techBackOrb{
+  background:radial-gradient(circle at 32% 25%,#f4f7f9 0%,#d9c58a 28%,#9d8750 62%,#34495a 100%) !important;
+  box-shadow:0 0 0 1px rgba(230,239,245,.32),0 5px 18px rgba(0,0,0,.45) !important;
+}
+@media (prefers-reduced-motion:reduce){
+  .tech-game .game-btn,.tech-game button,#techStatisticsPanel button,#techTutorialCard button{transition:none !important}
+}
+</style>
+
 </head>
 <body>
 

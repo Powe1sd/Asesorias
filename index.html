@@ -9448,7 +9448,7 @@ p.y+=p.vy;
 ctx.shadowColor=colors[p.type]||"#FFCD00";ctx.shadowBlur=10;
 ctx.fillStyle=colors[p.type]||"#FFCD00";
 const iconBoost=(p.type==="redL"||p.type==="laser")?1.12:1;ctx.font=`bold ${Math.max(isMobile()?9:11,p.size*(isMobile()?.5:.65))*iconBoost}px Orbitron`;ctx.textAlign="center";ctx.textBaseline="middle";
-ctx.fillText(labels[p.type]||"?",p.x,p.y);
+ctx.fillText(labels[p.type]||"",p.x,p.y);
 ctx.shadowBlur=0;
 if(Math.hypot(player.x-p.x,player.y-p.y)<player.size+p.size){
 if(p.type==="redL"){

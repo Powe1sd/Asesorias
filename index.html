@@ -220,6 +220,116 @@
 
         }
 
+
+
+        /* BOTÓN FACEBOOK: esquina superior izquierda */
+
+        #btnFacebook {
+
+            position: fixed !important;
+
+            top: 20px !important;
+
+            left: 20px !important;
+
+            right: auto !important;
+
+            bottom: auto !important;
+
+            z-index: 10000 !important;
+
+
+
+            display: flex !important;
+
+            align-items: center !important;
+
+            justify-content: center !important;
+
+            width: 56px !important;
+
+            height: 56px !important;
+
+            min-width: 56px !important;
+
+            min-height: 56px !important;
+
+            margin: 0 !important;
+
+            padding: 0 !important;
+
+
+
+            overflow: hidden !important;
+
+            border: 3px solid #fff !important;
+
+            border-radius: 50% !important;
+
+            background: #1877F2 !important;
+
+            cursor: pointer !important;
+
+            line-height: 0 !important;
+
+            box-sizing: border-box !important;
+
+            text-decoration: none !important;
+
+            color: #fff !important;
+
+            font-size: 28px !important;
+
+            box-shadow: 0 4px 14px rgba(0,0,0,.35) !important;
+
+            transition: transform .25s ease, box-shadow .25s ease, background .2s ease !important;
+
+        }
+
+
+
+        #btnFacebook:hover {
+
+            transform: scale(1.1) !important;
+
+            box-shadow: 0 0 18px rgba(24,119,242,.7) !important;
+
+            background: #166fe5 !important;
+
+        }
+
+
+
+        #btnFacebook:active {
+
+            transform: scale(0.96) !important;
+
+        }
+
+
+
+        @media (max-width: 600px) {
+
+            #btnFacebook {
+
+                width: 48px !important;
+
+                height: 48px !important;
+
+                min-width: 48px !important;
+
+                min-height: 48px !important;
+
+                top: 12px !important;
+
+                left: 12px !important;
+
+                font-size: 24px !important;
+
+            }
+
+        }
+
     </style>
 
 </head>
@@ -229,6 +339,14 @@
 <body>
 
 
+
+    <!-- Botón Facebook en esquina superior izquierda -->
+
+    <a id="btnFacebook" href="https://www.facebook.com/brahyanstiven.coyrubio/" target="_blank" rel="noopener noreferrer" title="Facebook — Brayhan Estiven Coy Rubio" aria-label="Visitar Facebook de Brayhan">
+
+        <i class="fa-brands fa-facebook-f"></i>
+
+    </a>
 
 
 

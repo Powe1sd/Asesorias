@@ -305,15 +305,50 @@
         }
 
         .hero-particle:nth-child(1) {
+            width: 7px;
+            height: 7px;
+            background: #fff;
             animation: orbit1 3.8s linear infinite;
         }
+
         .hero-particle:nth-child(2) {
-            animation: orbit2 4.6s linear infinite;
+            width: 5px;
+            height: 5px;
             background: #1e90ff;
+            box-shadow: 0 0 10px #1e90ff, 0 0 14px #4fc3f7;
+            animation: orbit2 4.6s linear infinite;
         }
+
         .hero-particle:nth-child(3) {
-            animation: orbit3 5.2s linear infinite;
+            width: 6px;
+            height: 6px;
             background: #ff2222;
+            box-shadow: 0 0 10px #ff2222, 0 0 16px #ff0000;
+            animation: orbit3 5.2s linear infinite;
+        }
+
+        .hero-particle:nth-child(4) {
+            width: 4px;
+            height: 4px;
+            background: #a0d8ff;
+            box-shadow: 0 0 8px #1e90ff;
+            animation: orbit4 6.1s linear infinite;
+        }
+
+        .hero-particle:nth-child(5) {
+            width: 8px;
+            height: 8px;
+            background: #ff5555;
+            box-shadow: 0 0 12px #ff0000, 0 0 18px #ff2222;
+            animation: orbit5 3.4s linear infinite;
+        }
+
+        .hero-particle:nth-child(6) {
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 10px #fff, 0 0 16px #1e90ff;
+            animation: orbit6 5.8s linear infinite;
         }
 
         @keyframes heroGradientShift {
@@ -345,15 +380,27 @@
 
         @keyframes orbit1 {
             from { transform: rotate(0deg) translateX(55px) rotate(0deg); }
-            to { transform: rotate(360deg) translateX(55px) rotate(-360deg); }
+            to   { transform: rotate(360deg) translateX(55px) rotate(-360deg); }
         }
         @keyframes orbit2 {
             from { transform: rotate(120deg) translateX(68px) rotate(-120deg); }
-            to { transform: rotate(480deg) translateX(68px) rotate(-480deg); }
+            to   { transform: rotate(480deg) translateX(68px) rotate(-480deg); }
         }
         @keyframes orbit3 {
             from { transform: rotate(240deg) translateX(48px) rotate(-240deg); }
-            to { transform: rotate(600deg) translateX(48px) rotate(-600deg); }
+            to   { transform: rotate(600deg) translateX(48px) rotate(-600deg); }
+        }
+        @keyframes orbit4 {
+            from { transform: rotate(60deg) translateX(78px) rotate(-60deg); }
+            to   { transform: rotate(420deg) translateX(78px) rotate(-420deg); }
+        }
+        @keyframes orbit5 {
+            from { transform: rotate(180deg) translateX(42px) rotate(-180deg); }
+            to   { transform: rotate(540deg) translateX(42px) rotate(-540deg); }
+        }
+        @keyframes orbit6 {
+            from { transform: rotate(300deg) translateX(62px) rotate(-300deg); }
+            to   { transform: rotate(660deg) translateX(62px) rotate(-660deg); }
         }
 
         /* Entrada del hero */
@@ -808,6 +855,9 @@
     <div id="content">
         <header class="cyber-hero">
             <div class="hero-emblem">
+                <span class="hero-particle"></span>
+                <span class="hero-particle"></span>
+                <span class="hero-particle"></span>
                 <span class="hero-particle"></span>
                 <span class="hero-particle"></span>
                 <span class="hero-particle"></span>

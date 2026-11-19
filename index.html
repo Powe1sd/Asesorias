@@ -47,7 +47,7 @@
             overflow-x: hidden;
         }
 
-        /* Fondo sutil con grid tech rojo puro */
+        /* Fondo sutil con grid tech animado */
         body::before {
             content: "";
             position: fixed;
@@ -58,6 +58,12 @@
             background-size: 48px 48px;
             pointer-events: none;
             z-index: 0;
+            animation: gridDrift 28s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            from { background-position: 0 0; }
+            to { background-position: 48px 48px; }
         }
 
         /* Glow superior rojo fuerte */
@@ -217,45 +223,140 @@
             text-align: center;
             margin-bottom: 48px;
             padding: 20px 0 10px;
+            position: relative;
         }
 
-        /* Emblema A estilo superhéroe en el hero */
+        /* Emblema A estilo superhéroe avanzado */
         .hero-emblem {
             display: flex;
             justify-content: center;
-            margin-bottom: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            height: 110px;
         }
 
         .hero-letter {
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
-            font-size: clamp(3.8rem, 12vw, 5.5rem);
+            font-size: clamp(4rem, 13vw, 6rem);
             line-height: 1;
-            background: linear-gradient(180deg, #ffffff 0%, #e8f4ff 20%, #1e90ff 50%, #ff0000 100%);
+            background: linear-gradient(
+                180deg,
+                #ffffff 0%,
+                #cce5ff 18%,
+                #1e90ff 45%,
+                #ff2222 78%,
+                #ff0000 100%
+            );
+            background-size: 100% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.7))
-                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.55))
-                    drop-shadow(0 4px 0 #0a1628);
-            letter-spacing: -3px;
+            letter-spacing: -4px;
             position: relative;
-            animation: heroPulse 3s ease-in-out infinite;
+            z-index: 2;
+            animation: 
+                heroGradientShift 4s ease-in-out infinite,
+                heroFloat 3.5s ease-in-out infinite,
+                heroGlow 2.8s ease-in-out infinite;
+            filter: drop-shadow(0 0 14px rgba(30, 144, 255, 0.75))
+                    drop-shadow(0 0 8px rgba(255, 0, 0, 0.55));
         }
 
-        @keyframes heroPulse {
+        /* Anillos de energía alrededor de la A */
+        .hero-emblem::before,
+        .hero-emblem::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-emblem::before {
+            width: 95px;
+            height: 95px;
+            border-top-color: #1e90ff;
+            border-right-color: rgba(30, 144, 255, 0.4);
+            animation: spinRing 3.2s linear infinite;
+            box-shadow: 0 0 18px rgba(30, 144, 255, 0.35);
+        }
+
+        .hero-emblem::after {
+            width: 120px;
+            height: 120px;
+            border-bottom-color: #ff0000;
+            border-left-color: rgba(255, 0, 0, 0.35);
+            animation: spinRing 4.5s linear infinite reverse;
+            box-shadow: 0 0 18px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Partículas orbitando */
+        .hero-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 8px #1e90ff, 0 0 12px #ff0000;
+            z-index: 3;
+        }
+
+        .hero-particle:nth-child(1) {
+            animation: orbit1 3.8s linear infinite;
+        }
+        .hero-particle:nth-child(2) {
+            animation: orbit2 4.6s linear infinite;
+            background: #1e90ff;
+        }
+        .hero-particle:nth-child(3) {
+            animation: orbit3 5.2s linear infinite;
+            background: #ff2222;
+        }
+
+        @keyframes heroGradientShift {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 0% 100%; }
+        }
+
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.04); }
+        }
+
+        @keyframes heroGlow {
             0%, 100% {
                 filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.7))
-                        drop-shadow(0 0 6px rgba(255, 0, 0, 0.55))
-                        drop-shadow(0 4px 0 #0a1628);
+                        drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
             }
             50% {
-                filter: drop-shadow(0 0 20px rgba(30, 144, 255, 0.95))
-                        drop-shadow(0 0 12px rgba(255, 0, 0, 0.75))
-                        drop-shadow(0 4px 0 #0a1628);
+                filter: drop-shadow(0 0 22px rgba(30, 144, 255, 1))
+                        drop-shadow(0 0 14px rgba(255, 0, 0, 0.85))
+                        drop-shadow(0 0 30px rgba(255, 255, 255, 0.25));
             }
         }
 
+        @keyframes spinRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes orbit1 {
+            from { transform: rotate(0deg) translateX(55px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(55px) rotate(-360deg); }
+        }
+        @keyframes orbit2 {
+            from { transform: rotate(120deg) translateX(68px) rotate(-120deg); }
+            to { transform: rotate(480deg) translateX(68px) rotate(-480deg); }
+        }
+        @keyframes orbit3 {
+            from { transform: rotate(240deg) translateX(48px) rotate(-240deg); }
+            to { transform: rotate(600deg) translateX(48px) rotate(-600deg); }
+        }
+
+        /* Entrada del hero */
         .cyber-hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
@@ -266,6 +367,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 8px;
+            animation: fadeSlideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
         }
 
         .cyber-hero .subtitle {
@@ -273,6 +375,18 @@
             color: var(--text-muted);
             font-size: 0.95rem;
             letter-spacing: 0.5px;
+            animation: fadeSlideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.45s both;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ========== GRID DE TARJETAS ========== */
@@ -289,17 +403,66 @@
             border-radius: var(--radius);
             padding: 24px 22px;
             box-shadow: var(--shadow);
-            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                        border-color 0.3s ease,
+                        background 0.3s ease,
+                        box-shadow 0.35s ease;
             display: flex;
             flex-direction: column;
             gap: 12px;
+            position: relative;
+            overflow: hidden;
+            animation: cardReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .data-card:nth-child(1) { animation-delay: 0.15s; }
+        .data-card:nth-child(2) { animation-delay: 0.28s; }
+        .data-card:nth-child(3) { animation-delay: 0.41s; }
+        .data-card:nth-child(4) { animation-delay: 0.54s; }
+
+        @keyframes cardReveal {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .data-card::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 40%;
+            height: 200%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.06),
+                transparent
+            );
+            transform: skewX(-20deg);
+            transition: none;
+            pointer-events: none;
+        }
+
+        .data-card:hover::after {
+            animation: cardShine 0.85s ease;
+        }
+
+        @keyframes cardShine {
+            from { left: -60%; }
+            to { left: 130%; }
         }
 
         .data-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(255, 0, 0, 0.8);
+            transform: translateY(-6px);
+            border-color: rgba(255, 0, 0, 0.85);
             background: var(--bg-card-hover);
-            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.22);
+            box-shadow: 0 10px 32px rgba(255, 0, 0, 0.28);
         }
 
         .data-card h2 {
@@ -343,20 +506,44 @@
             font-size: 0.9rem;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-neoprimary::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .btn-neoprimary:hover::before {
+            transform: translateX(100%);
         }
 
         .btn-neoprimary:hover {
             background: linear-gradient(145deg, rgba(120, 0, 0, 0.95), rgba(60, 0, 0, 0.98));
             border-color: #ff0000;
             color: #fff;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            transform: translateY(-1px);
+            box-shadow: 0 0 22px rgba(255, 0, 0, 0.55);
+            transform: translateY(-2px);
+        }
+
+        .btn-neoprimary:active {
+            transform: translateY(0) scale(0.97);
         }
 
         .btn-neoprimary i {
             font-size: 0.95rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-neoprimary:hover i {
+            transform: translateX(2px);
         }
 
         /* ========== CONTACTO ========== */
@@ -621,6 +808,9 @@
     <div id="content">
         <header class="cyber-hero">
             <div class="hero-emblem">
+                <span class="hero-particle"></span>
+                <span class="hero-particle"></span>
+                <span class="hero-particle"></span>
                 <span class="hero-letter">A</span>
             </div>
             <h1>Desarrollo de Software</h1>

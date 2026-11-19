@@ -219,6 +219,43 @@
             padding: 20px 0 10px;
         }
 
+        /* Emblema A estilo superhéroe en el hero */
+        .hero-emblem {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .hero-letter {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: clamp(3.8rem, 12vw, 5.5rem);
+            line-height: 1;
+            background: linear-gradient(180deg, #ffffff 0%, #e8f4ff 20%, #1e90ff 50%, #ff0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.7))
+                    drop-shadow(0 0 6px rgba(255, 0, 0, 0.55))
+                    drop-shadow(0 4px 0 #0a1628);
+            letter-spacing: -3px;
+            position: relative;
+            animation: heroPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes heroPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.7))
+                        drop-shadow(0 0 6px rgba(255, 0, 0, 0.55))
+                        drop-shadow(0 4px 0 #0a1628);
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(30, 144, 255, 0.95))
+                        drop-shadow(0 0 12px rgba(255, 0, 0, 0.75))
+                        drop-shadow(0 4px 0 #0a1628);
+            }
+        }
+
         .cyber-hero h1 {
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
@@ -290,6 +327,7 @@
             color: #fff;
         }
 
+        
         /* Botones */
         .btn-neoprimary {
             display: inline-flex;
@@ -487,30 +525,30 @@
         }
 
         .triangle-container {
-    display: flex;
-    justify-content: center;
-    margin: 16px 0 8px;
-}
+            display: flex;
+            justify-content: center;
+            margin: 16px 0 8px;
+        }
 
-.mini-triangle {
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 14px solid #fce300;
-    opacity: 0.85;
-}
+        .mini-triangle {
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 14px solid #fce300;
+            opacity: 0.85;
+        }
 
         /* Firma en texto Times New Roman - ROJO PURO */
-     .firma-texto {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: #ff0000 !important;
-    letter-spacing: 1.5px;
-    margin-top: 22px;
-    text-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
-}
+        .firma-texto {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #ff0000 !important;
+            letter-spacing: 1.5px;
+            margin-top: 22px;
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+        }
 
         /* Hidden nativo */
         [hidden] {
@@ -548,6 +586,10 @@
                 padding: 18px 16px;
             }
 
+            .hero-letter {
+                font-size: 3.6rem;
+            }
+
             .contact-card {
                 padding: 20px 16px;
             }
@@ -578,6 +620,9 @@
 
     <div id="content">
         <header class="cyber-hero">
+            <div class="hero-emblem">
+                <span class="hero-letter">A</span>
+            </div>
             <h1>Desarrollo de Software</h1>
             <p class="subtitle">Soluciones digitales · Web · Desktop · Videojuegos</p>
         </header>

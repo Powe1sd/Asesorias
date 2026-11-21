@@ -1014,6 +1014,178 @@
                 width: 40px;
             }
         }
+
+/* ========== MARQUEE PUBLICITARIO CON IMAGEN ========== */
+.marquee-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 36px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: linear-gradient(90deg, 
+        rgba(20, 0, 0, 0.95) 0%, 
+        rgba(40, 5, 5, 0.98) 30%, 
+        rgba(60, 0, 0, 0.98) 50%, 
+        rgba(40, 5, 5, 0.98) 70%, 
+        rgba(20, 0, 0, 0.95) 100%);
+    border: 1px solid rgba(255, 0, 0, 0.55);
+    box-shadow: 
+        0 0 0 1px rgba(255, 0, 0, 0.15),
+        0 8px 28px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(255, 0, 0, 0.12);
+}
+
+.marquee-wrap::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 80, 80, 0.8) 20%, 
+        #ff2222 50%, 
+        rgba(255, 80, 80, 0.8) 80%, 
+        transparent 100%);
+    z-index: 3;
+    animation: linePulse 2.8s ease-in-out infinite;
+}
+
+.marquee-wrap::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 0, 0, 0.5) 30%, 
+        rgba(255, 60, 60, 0.7) 50%, 
+        rgba(255, 0, 0, 0.5) 70%, 
+        transparent 100%);
+    z-index: 3;
+}
+
+.marquee-track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+    align-items: center;
+    animation: marqueeScroll 18s linear infinite;
+    will-change: transform;
+}
+
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+.marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 42px;
+    white-space: nowrap;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 
+        0 0 8px rgba(255, 0, 0, 0.8),
+        0 0 18px rgba(255, 0, 0, 0.4);
+}
+
+/* Imagen del marquee */
+.marquee-item img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5));
+    transition: transform 0.3s ease;
+}
+
+.marquee-item:hover img {
+    transform: scale(1.08);
+}
+
+.marquee-item .text {
+    background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #ffcccc 25%,
+        #ff2222 50%,
+        #ffcccc 75%,
+        #ffffff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textShine 4s linear infinite;
+}
+
+.marquee-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff0000;
+    box-shadow: 0 0 8px #ff0000, 0 0 14px rgba(255, 0, 0, 0.6);
+    flex-shrink: 0;
+}
+
+.marquee-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 70px;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.marquee-fade.left {
+    left: 0;
+    background: linear-gradient(90deg, 
+        rgba(10, 3, 3, 0.98) 0%, 
+        rgba(10, 3, 3, 0.7) 40%, 
+        transparent 100%);
+}
+
+.marquee-fade.right {
+    right: 0;
+    background: linear-gradient(270deg, 
+        rgba(10, 3, 3, 0.98) 0%, 
+        rgba(10, 3, 3, 0.7) 40%, 
+        transparent 100%);
+}
+
+@keyframes marqueeScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+@keyframes textShine {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes linePulse {
+    0%, 100% { opacity: 0.7; }
+    50%      { opacity: 1; }
+}
+
+
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -1050,36 +1222,37 @@
         </header>
 
         <!-- ========== LETRERO MARQUEE PUBLICITARIO ========== -->
-        <div class="marquee-wrap" aria-label="Anuncio: Desarrollo de Software">
-            <div class="marquee-fade left"></div>
-            <div class="marquee-fade right"></div>
+        <!-- ========== LETRERO MARQUEE CON IMAGEN ========== -->
+<div class="marquee-wrap" aria-label="Anuncio: Desarrollo de Software">
+    <div class="marquee-fade left"></div>
+    <div class="marquee-fade right"></div>
 
-            <div class="marquee-track">
-                <!-- Primera ronda -->
-                <div class="marquee-item">
-                    <i class="fa-solid fa-code icon"></i>
-                    <span class="text">DESARROLLO DE SOFTWARE</span>
-                    <span class="dot"></span>
-                    <span class="text">Web · Desktop · Videojuegos</span>
-                    <span class="dot"></span>
-                    <i class="fa-solid fa-bolt icon"></i>
-                    <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
-                    <span class="dot"></span>
-                </div>
-                <!-- Segunda ronda (para loop infinito limpio) -->
-                <div class="marquee-item">
-                    <i class="fa-solid fa-code icon"></i>
-                    <span class="text">DESARROLLO DE SOFTWARE</span>
-                    <span class="dot"></span>
-                    <span class="text">Web · Desktop · Videojuegos</span>
-                    <span class="dot"></span>
-                    <i class="fa-solid fa-bolt icon"></i>
-                    <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
-                    <span class="dot"></span>
-                </div>
-            </div>
+    <div class="marquee-track">
+        <!-- Primera ronda -->
+        <div class="marquee-item">
+            <img src="sofware.png" alt="Logo">
+            <span class="text">DESARROLLO DE SOFTWARE</span>
+            <span class="dot"></span>
+            <span class="text">Web · Desktop · Videojuegos</span>
+            <span class="dot"></span>
+            <img src="sofware.png" alt="Logo">
+            <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
+            <span class="dot"></span>
         </div>
 
+        <!-- Segunda ronda (para que el loop sea perfecto) -->
+        <div class="marquee-item">
+            <img src="sofware.png" alt="Logo">
+            <span class="text">DESARROLLO DE SOFTWARE</span>
+            <span class="dot"></span>
+            <span class="text">Web · Desktop · Videojuegos</span>
+            <span class="dot"></span>
+            <img src="sofware.png" alt="Logo">
+            <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
+            <span class="dot"></span>
+        </div>
+    </div>
+</div>
         <main class="data-grid">
             <section class="data-card">
                 <h2>Inglés</h2>

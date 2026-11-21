@@ -1099,7 +1099,7 @@
         0 0 18px rgba(255, 0, 0, 0.4);
 }
 
-/* Imagen del marquee */
+/* Imagen del marquee - ahora clickeable */
 .marquee-item img {
     height: 38px;
     width: auto;
@@ -1107,6 +1107,7 @@
     border-radius: 6px;
     filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5));
     transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
 .marquee-item:hover img {
@@ -1178,14 +1179,69 @@
     50%      { opacity: 1; }
 }
 
+/* ========== LIGHTBOX (IMAGEN GRANDE AL HACER CLIC) ========== */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0);
+    opacity: 0;
+    visibility: hidden;
+    transition: background 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+    cursor: zoom-out;
+}
 
+.lightbox.active {
+    background: rgba(0, 0, 0, 0.92);
+    opacity: 1;
+    visibility: visible;
+}
 
+.lightbox-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.45), 0 0 80px rgba(255, 0, 0, 0.2);
+    transform: scale(0.3);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    border: 2px solid rgba(255, 0, 0, 0.5);
+}
 
+.lightbox.active .lightbox-img {
+    transform: scale(1);
+    opacity: 1;
+}
 
+.lightbox-close {
+    position: absolute;
+    top: 22px;
+    right: 28px;
+    width: 48px;
+    height: 48px;
+    border: 2px solid rgba(255, 0, 0, 0.6);
+    border-radius: 50%;
+    background: rgba(20, 0, 0, 0.85);
+    color: #ff2222;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    z-index: 100000;
+}
 
-
-
-
+.lightbox-close:hover {
+    background: #ff0000;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
     </style>
 </head>
 <body>
@@ -1221,7 +1277,6 @@
             <p class="subtitle">Soluciones digitales · Web · Desktop · Videojuegos</p>
         </header>
 
-        <!-- ========== LETRERO MARQUEE PUBLICITARIO ========== -->
         <!-- ========== LETRERO MARQUEE CON IMAGEN ========== -->
 <div class="marquee-wrap" aria-label="Anuncio: Desarrollo de Software">
     <div class="marquee-fade left"></div>
@@ -1230,24 +1285,24 @@
     <div class="marquee-track">
         <!-- Primera ronda -->
         <div class="marquee-item">
-            <img src="sofware.png" alt="Logo">
+            <img src="sofware.png" alt="Logo" class="marquee-img">
             <span class="text">DESARROLLO DE SOFTWARE</span>
             <span class="dot"></span>
             <span class="text">Web · Desktop · Videojuegos</span>
             <span class="dot"></span>
-            <img src="sofware.png" alt="Logo">
+            <img src="sofware.png" alt="Logo" class="marquee-img">
             <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
             <span class="dot"></span>
         </div>
 
         <!-- Segunda ronda (para que el loop sea perfecto) -->
         <div class="marquee-item">
-            <img src="sofware.png" alt="Logo">
+            <img src="sofware.png" alt="Logo" class="marquee-img">
             <span class="text">DESARROLLO DE SOFTWARE</span>
             <span class="dot"></span>
             <span class="text">Web · Desktop · Videojuegos</span>
             <span class="dot"></span>
-            <img src="sofware.png" alt="Logo">
+            <img src="sofware.png" alt="Logo" class="marquee-img">
             <span class="text">SOLUCIONES DIGITALES A LA MEDIDA</span>
             <span class="dot"></span>
         </div>
@@ -1410,7 +1465,8 @@
             <p style="margin-top:12px;opacity:0.7;font-size:0.8rem">
                 © 2026 Asesorías Profesionales. Todos los derechos reservados.
             </p>
-            <p>6 Eli</p>
+            <p>Eli</p>
+            <p>6</p>
             <p>Z</p>
             <p>10</p>
 
@@ -1420,6 +1476,12 @@
     </div>
 
     <p>Jesucristo</p>
+
+    <!-- Lightbox (imagen grande) -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">×</button>
+        <img src="" alt="Imagen ampliada" class="lightbox-img" id="lightboxImg">
+    </div>
 
     <script>
         // BOTÓN CRÉDITOS
@@ -1454,6 +1516,59 @@
                     box.setAttribute('hidden', '');
                     btn.setAttribute('aria-expanded', 'false');
                     if (chev) chev.textContent = '▼';
+                }
+            });
+        })();
+
+        // ========== LIGHTBOX: imagen grande al hacer clic ==========
+        (function () {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const closeBtn = document.getElementById('lightboxClose');
+            const images = document.querySelectorAll('.marquee-img');
+
+            function openLightbox(src) {
+                lightboxImg.src = src;
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden'; // evita scroll
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+                // limpiar src después de la animación
+                setTimeout(() => {
+                    if (!lightbox.classList.contains('active')) {
+                        lightboxImg.src = '';
+                    }
+                }, 400);
+            }
+
+            // Click en cualquier imagen del marquee
+            images.forEach(img => {
+                img.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    openLightbox(this.src);
+                });
+            });
+
+            // Cerrar con el botón X
+            closeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeLightbox();
+            });
+
+            // Cerrar haciendo clic fuera de la imagen
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            // Cerrar con tecla Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                    closeLightbox();
                 }
             });
         })();
